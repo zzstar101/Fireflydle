@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>正在打开萤一把…</title>
+    <script>
+      (() => {
+        // GitHub Pages 无法直接为 SPA 深链接返回 200；先回到首页，再由首页恢复完整路径。
+        const target = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        window.location.replace(`/?__fireflydle_path=${encodeURIComponent(target)}`);
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>请启用 JavaScript 后返回萤一把首页。</noscript>
+  </body>
+</html>

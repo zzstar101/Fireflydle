@@ -13,6 +13,16 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (() => {
+        // GitHub Pages 的 404 入口会暂存原始路径；在 React 启动前恢复，避免深链接停留在查询参数上。
+        const url = new URL(window.location.href);
+        const target = url.searchParams.get("__fireflydle_path");
+        if (target?.startsWith("/") && !target.startsWith("//")) {
+          window.history.replaceState(null, "", target);
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
