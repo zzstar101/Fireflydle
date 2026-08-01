@@ -1,8 +1,7 @@
 import { randomToken, sha256 } from "../lib/crypto";
 import { ApiProblem } from "../lib/http";
 import { sendAccountEmail } from "./account-email";
-
-const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1_000;
+import { EMAIL_VERIFICATION_TTL_MS } from "./account-token-policy";
 
 interface VerificationUserRow {
   id: string;
@@ -52,7 +51,7 @@ export async function createEmailVerification(
       user.email_normalized,
       tokenHash,
       now,
-      now + VERIFICATION_TTL_MS,
+      now + EMAIL_VERIFICATION_TTL_MS,
     ),
   ]);
   return { email: user.email, token };

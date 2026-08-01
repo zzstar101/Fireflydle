@@ -131,7 +131,7 @@ Pull request 和 `main` push 都会运行格式、类型、测试和构建检查
 
 不要手工修改生成文件。权威来源、覆盖规则、可追踪元数据和素材策略见 [数据来源说明](docs/DATA_SOURCES.md)。已有历史记录引用的角色只会被停用，不会被硬删除。
 
-代码和站点预留 `takedown@fireflydle.games` 作为素材下架联系地址；其实际收件能力需要部署者另行配置。在确认邮件可用前，也可以通过 [GitHub Issues](https://github.com/zzstar101/fireflydle/issues) 联系项目维护者。
+`takedown@fireflydle.games` 用于权利人的素材下架请求，并已通过 Cloudflare Email Routing 转发给维护者。一般缺陷、功能建议和数据纠正请使用仓库提供的 [Issue 表单](https://github.com/zzstar101/fireflydle/issues/new/choose)；不要在公开 Issue 中提交权利证明、账号信息、token 或未公开答案。
 
 ## 项目结构
 
@@ -148,7 +148,7 @@ docs                  架构、数据来源和生产部署文档
 
 ## 贡献
 
-欢迎通过 [GitHub Issues](https://github.com/zzstar101/fireflydle/issues/new) 报告缺陷或提出建议。提交 Pull Request 前请：
+欢迎通过 [GitHub Issue 表单](https://github.com/zzstar101/fireflydle/issues/new/choose) 报告缺陷、提出建议或纠正数据；账号、安全与素材下架渠道见 [支持说明](SUPPORT.md)。表单会分别收集复现步骤、验收标准和一手来源，并引导安全漏洞与素材下架请求使用私密渠道。提交 Pull Request 时，仓库模板会提示测试、迁移、素材来源、多语言和防泄题检查。提交前请：
 
 1. 运行 `bun run format:check`、`bun run typecheck`、`bun run test` 和 `bun run build`；
 2. 用户可见文案变更同步维护简体中文、English 和日本語；

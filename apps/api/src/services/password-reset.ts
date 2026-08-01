@@ -1,8 +1,7 @@
 import { hashPassword, randomToken, sha256 } from "../lib/crypto";
 import { ApiProblem } from "../lib/http";
 import { sendAccountEmail } from "./account-email";
-
-const RESET_TTL_MS = 30 * 60 * 1_000;
+import { PASSWORD_RESET_TTL_MS } from "./account-token-policy";
 
 interface ResetUserRow {
   id: string;
@@ -43,7 +42,7 @@ export async function createPasswordReset(
       `INSERT INTO password_reset_tokens
          (id, user_id, token_hash, created_at, expires_at)
        VALUES (?, ?, ?, ?, ?)`,
-    ).bind(crypto.randomUUID(), user.id, tokenHash, now, now + RESET_TTL_MS),
+    ).bind(crypto.randomUUID(), user.id, tokenHash, now, now + PASSWORD_RESET_TTL_MS),
   ]);
   return { email: user.email, token };
 }

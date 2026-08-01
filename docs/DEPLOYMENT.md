@@ -189,6 +189,21 @@ POST /api/auth/password-reset/confirm
 
 Resend 的发送域不会自动创建 `account@fireflydle.games` 收件箱。若该地址需要接收回复，另行配置 Cloudflare Email Routing 或邮箱服务商，并保留其 MX/TXT 记录。
 
+### 邮件模板维护
+
+账号邮件的 HTML 与纯文本模板以 `apps/api/src/services/account-email-template.ts` 为唯一事实来源，当前包含邮箱验证和密码重置两类。修改模板后必须运行 Worker 测试，并与 Worker 同版本发布；这样模板内容、链接路径、过期提示和安全文案可以在 Pull Request 中审查，也能随 Worker 版本一起回滚。
+
+Resend 支持创建、更新和发布托管模板，并可在发送时通过 template ID 或 alias 传入变量；但是使用托管模板时，请求不能同时提交 `html`、`text` 或 `react`。本项目暂不把 Resend 控制台中的模板作为生产来源，以免网站、Worker 与单独发布的模板发生版本漂移。若未来切换，应先在 CI 中加入从仓库模板到 Resend alias 的幂等同步与发布步骤，再把 Worker 发送载荷切换为 `template` 对象，不要手工维护第二份生产内容。
+
+Cloudflare Email Routing 负责收件，与 Resend 的发信域配置互不替代。生产环境目前显式转发：
+
+```text
+account@fireflydle.games  -> 已验证的维护者邮箱
+takedown@fireflydle.games -> 已验证的维护者邮箱
+```
+
+catch-all 保持关闭，避免接收未声明地址的垃圾邮件。修改路由后应确认 Email Routing 状态仍为 `ready`、目标地址已验证、规则已启用且没有重复 matcher。
+
 ## 7. 自动发布流程
 
 `.github/workflows/deploy.yml` 在 `main` push 或手动 dispatch 时运行。只有 repository variable `PRODUCTION_ENABLED=true` 时才开始正式发布，且整个生产环境只有一个并发发布：

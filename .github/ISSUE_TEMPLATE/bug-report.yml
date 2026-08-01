@@ -1,0 +1,40 @@
+name: 缺陷报告 / Bug report
+description: 告诉我们哪里坏了
+title: "[Bug] "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。简单说清问题就好。请勿提交密码、Cookie、token、用户数据，或当前/未来每日题答案；无法脱敏的安全问题请使用 [Private Security Advisory](https://github.com/zzstar101/fireflydle/security/advisories/new)。English / 日本語均可。
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 出问题的地方
+      options:
+        - 大厅或单人游戏
+        - 实时对战
+        - 账号或邮件
+        - 统计、排行或回放
+        - 角色数据或素材
+        - 界面、无障碍或翻译
+        - 开发或部署
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: 发生了什么？
+      description: 写下你做了什么、看到了什么，以及原本希望发生什么。
+      placeholder: 我在……之后点击……，结果……；我原本希望……
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充信息（可选）
+      description: 可填写页面 URL、发生时间、浏览器/设备，或已脱敏的截图与 requestId。

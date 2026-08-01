@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 私密报告安全漏洞 / Report a security vulnerability
+    url: https://github.com/zzstar101/fireflydle/security/advisories/new
+    about: 请勿在公开 Issue 中提交 token、用户数据、未公开答案或可利用的漏洞细节。
+  - name: 素材下架 / Asset takedown
+    url: https://fireflydle.games/legal
+    about: 权利人请按权利说明页面提供的私密邮件渠道提交移除请求。
+  - name: 账号与邮件支持 / Account support
+    url: https://github.com/zzstar101/fireflydle/blob/main/SUPPORT.md
+    about: 无法在公开 Issue 中安全处理的账号或邮箱问题请按支持说明发送邮件。

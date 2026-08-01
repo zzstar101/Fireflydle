@@ -1,0 +1,32 @@
+name: 数据纠正 / Data correction
+description: 用可靠来源告诉我们哪项角色数据不对
+title: "[Data] "
+labels: [data, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请提供来源链接，不要上传官方素材副本或公开当日答案。权利人移除素材请邮件联系 [takedown@fireflydle.games](mailto:takedown@fireflydle.games)。
+
+  - type: input
+    id: item
+    attributes:
+      label: 哪个角色、哪项数据？
+      placeholder: 例如：流萤的阵营分组
+    validations:
+      required: true
+
+  - type: textarea
+    id: correction
+    attributes:
+      label: 应该改成什么？依据是什么？
+      description: 一并写下当前问题、建议值和官方或一手来源 URL。
+      placeholder: 当前是……，建议改为……。来源：https://…
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 补充信息（可选）
+      description: 可说明受影响的语言、素材位置或其他背景。

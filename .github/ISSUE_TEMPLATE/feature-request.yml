@@ -1,0 +1,36 @@
+name: 功能建议 / Feature request
+description: 说说你希望体验怎样变得更好
+title: "[Feature] "
+labels: [enhancement, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        不用写完整方案，说明真实需求即可。建议不能在对局结束前暴露答案或判题属性，也不会把站点变成角色图鉴。English / 日本語均可。
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 想改进的地方（可选）
+      options:
+        - 大厅或单人游戏
+        - 实时对战
+        - 账号或邮件
+        - 统计、排行或回放
+        - 界面、无障碍或翻译
+        - 开发或部署
+        - 其他
+  - type: textarea
+    id: idea
+    attributes:
+      label: 你想解决什么问题？
+      description: 说说现在有什么不方便，以及你希望它大致如何工作。
+      placeholder: 当我……时很难……；如果可以……会更顺畅。
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 补充想法（可选）
+      description: 可放示意图、替代方案，或需要注意的公平性与隐私影响。

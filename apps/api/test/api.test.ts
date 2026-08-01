@@ -710,7 +710,20 @@ describe("邮箱验证", () => {
       const request = new Request(input, init);
       expect(request.url).toBe("https://api.resend.com/emails");
       expect(request.headers.get("authorization")).toBe("Bearer test-resend-key");
-      const body = (await request.json()) as { text?: unknown };
+      const body = (await request.json()) as {
+        from?: unknown;
+        to?: unknown;
+        subject?: unknown;
+        text?: unknown;
+        html?: unknown;
+      };
+      expect(body).toMatchObject({
+        from: "Fireflydle <account@fireflydle.games>",
+        to: ["Verify@Example.com"],
+        subject: "[Fireflydle] 验证你的邮箱",
+      });
+      expect(body.html).toEqual(expect.stringContaining(">验证邮箱</a>"));
+      expect(body.html).toEqual(expect.stringContaining("verify-email?token="));
       if (typeof body.text === "string") {
         const match = /verify-email\?token=([^\s]+)/u.exec(body.text);
         if (match?.[1]) emailedTokens.push(decodeURIComponent(match[1]));
@@ -826,14 +839,17 @@ describe("密码重置", () => {
       expect(request.url).toBe("https://api.resend.com/emails");
       expect(request.headers.get("authorization")).toBe("Bearer test-resend-key");
       const body: unknown = await request.json();
-      if (
-        typeof body === "object" &&
-        body !== null &&
-        "text" in body &&
-        typeof body.text === "string"
-      ) {
-        const match = /recover\?token=([^\s]+)/u.exec(body.text);
-        emailedToken = match?.[1] ? decodeURIComponent(match[1]) : null;
+      if (typeof body === "object" && body !== null && "text" in body) {
+        expect(body).toMatchObject({
+          from: "Fireflydle <account@fireflydle.games>",
+          to: ["reset@example.com"],
+          subject: "[Fireflydle] 重置你的密码",
+          html: expect.stringContaining(">重置密码</a>"),
+        });
+        if (typeof body.text === "string") {
+          const match = /recover\?token=([^\s]+)/u.exec(body.text);
+          emailedToken = match?.[1] ? decodeURIComponent(match[1]) : null;
+        }
       }
       return Response.json({ id: "email-test" });
     });
