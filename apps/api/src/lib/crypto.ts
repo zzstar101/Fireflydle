@@ -1,5 +1,5 @@
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1_000;
-const PASSWORD_ITERATIONS = 210_000;
+export const PASSWORD_ITERATIONS = 100_000;
 
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";

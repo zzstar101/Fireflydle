@@ -7,6 +7,7 @@ import {
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
 
 const character: Character = {
   id: "firefly-test",
@@ -139,6 +140,10 @@ describe("Worker 入口与会话", () => {
 });
 
 describe("账号密码边界", () => {
+  it("密码哈希迭代次数不超过 Workers Web Crypto 上限", () => {
+    expect(PASSWORD_ITERATIONS).toBeLessThanOrEqual(100_000);
+  });
+
   it("注册拒绝 5 位密码并接受 6 位密码", async () => {
     const register = (suffix: string, password: string) =>
       SELF.fetch("https://fireflydle.games/api/auth/register", {

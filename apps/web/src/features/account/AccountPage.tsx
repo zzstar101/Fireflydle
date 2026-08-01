@@ -22,6 +22,7 @@ import {
 import { Link } from "react-router-dom";
 import { apiRequest } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
+import { registrationErrorDetails } from "./registration-error";
 import { useRefreshSession, useSession } from "./useSession";
 import "./account.css";
 
@@ -92,13 +93,13 @@ export default function AccountPage() {
         body: JSON.stringify(register),
       });
       await refreshSession();
-    } catch {
+    } catch (error) {
+      const details = registrationErrorDetails(error);
+      const localized = t(`error.${details.code}`, { defaultValue: t("error.generic") });
       setMessage(
-        locale === "zh-CN"
-          ? `注册失败。账号或昵称可能已被使用，请确认密码至少 ${PASSWORD_MIN_LENGTH} 位。`
-          : locale === "ja"
-            ? `登録できませんでした。名前の重複と${PASSWORD_MIN_LENGTH}文字以上のパスワードを確認してください。`
-            : `Registration failed. Check name availability and use a password of at least ${PASSWORD_MIN_LENGTH} characters.`,
+        details.requestId && details.code === "INTERNAL_ERROR"
+          ? `${localized} ${tr("请求编号", "リクエスト ID", "Request ID")}: ${details.requestId}`
+          : localized,
       );
     } finally {
       setBusy(false);
