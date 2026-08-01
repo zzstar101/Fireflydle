@@ -1,0 +1,192 @@
+name: Deploy production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  build_release:
+    name: Synchronize, verify, and build
+    if: github.ref == 'refs/heads/main' && vars.PRODUCTION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      pages: read
+
+    env:
+      VITE_API_URL: https://api.fireflydle.games
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Synchronize character data and assets
+        run: bun run sync:data
+
+      - name: Check synchronized output
+        run: |
+          test -s apps/web/public/assets/manifest.json
+          test -s apps/web/public/assets/manifest.sha256
+          test -s packages/game-data/generated/characters.sql
+          (cd apps/web/public/assets && sha256sum --check manifest.sha256)
+
+      - name: Check formatting
+        run: bun run format:check
+
+      - name: Check types and Worker bindings
+        run: bun run typecheck
+
+      - name: Test game data
+        run: bun test packages/game-data/src/index.test.ts
+
+      - name: Test game engine
+        run: bun --cwd packages/game-engine test
+
+      - name: Test web application
+        run: bun --cwd apps/web test
+
+      - name: Test Worker
+        run: bun run test:worker
+
+      - name: Build web application and Worker
+        run: bun run build
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: apps/web/dist
+          retention-days: 30
+
+      - name: Preserve synchronized release data
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: release-data-${{ github.sha }}
+          path: |
+            apps/web/public/assets/manifest.json
+            apps/web/public/assets/manifest.sha256
+            packages/game-data/generated/characters.sql
+          if-no-files-found: error
+          retention-days: 30
+
+  deploy_api:
+    name: Migrate data and deploy API
+    needs: build_release
+    if: needs.build_release.result == 'success' && vars.CLOUDFLARE_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    environment:
+      name: production-api
+      url: https://api.fireflydle.games
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download synchronized release data
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-data-${{ github.sha }}
+          path: .
+
+      - name: Report optional password email configuration
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if bunx wrangler secret list --format json | jq --exit-status 'any(.[]; .name == "RESEND_API_KEY")'; then
+            echo "Password reset email is configured."
+          else
+            echo "::warning::RESEND_API_KEY is not configured; password reset emails remain unavailable."
+          fi
+
+      - name: Apply D1 migrations
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx wrangler d1 migrations apply fireflydle --remote
+
+      - name: Synchronize production characters
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: >-
+          bunx wrangler d1 execute fireflydle --remote
+          --file ../../packages/game-data/generated/characters.sql
+
+      - name: Deploy Worker and Durable Object migrations
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: bun
+          workingDirectory: apps/api
+          wranglerVersion: "4.118.0"
+          command: deploy
+
+      - name: Verify production API
+        run: >-
+          curl --fail-with-body --silent --show-error
+          --retry 5 --retry-delay 3 --retry-all-errors
+          https://api.fireflydle.games/api/health
+
+  deploy_pages:
+    name: Deploy GitHub Pages
+    needs:
+      - build_release
+      - deploy_api
+    if: >-
+      always() &&
+      needs.build_release.result == 'success' &&
+      (needs.deploy_api.result == 'success' || needs.deploy_api.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128

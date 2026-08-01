@@ -1,0 +1,312 @@
+[
+  {
+    "id": "amphoreus",
+    "groupId": "amphoreus",
+    "names": {
+      "zh-CN": "翁法罗斯",
+      "en": "Amphoreus",
+      "ja": "オンパロス"
+    },
+    "enabled": true
+  },
+  {
+    "id": "another-world",
+    "groupId": "another-world",
+    "names": {
+      "zh-CN": "异界",
+      "en": "Another World",
+      "ja": "別の世界"
+    },
+    "enabled": true
+  },
+  {
+    "id": "astral-express",
+    "groupId": "astral-express",
+    "names": {
+      "zh-CN": "星穹列车",
+      "en": "The Astral Express",
+      "ja": "星穹列車"
+    },
+    "enabled": true
+  },
+  {
+    "id": "belobog",
+    "groupId": "belobog",
+    "names": {
+      "zh-CN": "贝洛伯格",
+      "en": "Belobog",
+      "ja": "ベロブルグ"
+    },
+    "enabled": true
+  },
+  {
+    "id": "bloodhound-family",
+    "groupId": "penacony",
+    "names": {
+      "zh-CN": "猎犬家系",
+      "en": "Bloodhound Family",
+      "ja": "ハウンド家"
+    },
+    "enabled": true
+  },
+  {
+    "id": "chrysos-heirs",
+    "groupId": "amphoreus",
+    "names": {
+      "zh-CN": "黄金裔",
+      "en": "Chrysos Heirs",
+      "ja": "黄金裔"
+    },
+    "enabled": true
+  },
+  {
+    "id": "cosmic",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "银河",
+      "en": "Cosmic",
+      "ja": "銀河"
+    },
+    "enabled": true
+  },
+  {
+    "id": "ever-flame-mansion",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "永火官邸",
+      "en": "Ever-Flame Mansion",
+      "ja": "永火の官邸"
+    },
+    "enabled": true
+  },
+  {
+    "id": "fate-stay-night",
+    "groupId": "another-world",
+    "names": {
+      "zh-CN": "Fate/stay night 联动",
+      "en": "Fate/stay night Collaboration",
+      "ja": "Fate/stay night コラボ"
+    },
+    "enabled": true
+  },
+  {
+    "id": "galaxy-rangers",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "巡海游侠",
+      "en": "Galaxy Rangers",
+      "ja": "巡海レンジャー"
+    },
+    "enabled": true
+  },
+  {
+    "id": "garden-of-recollection",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "流光忆庭",
+      "en": "Garden of Recollection",
+      "ja": "流光の庭"
+    },
+    "enabled": true
+  },
+  {
+    "id": "genius-society",
+    "groupId": "herta-space-station",
+    "names": {
+      "zh-CN": "天才俱乐部",
+      "en": "Genius Society",
+      "ja": "天才クラブ"
+    },
+    "enabled": true
+  },
+  {
+    "id": "herta-space-station",
+    "groupId": "herta-space-station",
+    "names": {
+      "zh-CN": "空间站「黑塔」",
+      "en": "Herta Space Station",
+      "ja": "宇宙ステーション「ヘルタ」"
+    },
+    "enabled": true
+  },
+  {
+    "id": "intelligentsia-guild",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "博识学会",
+      "en": "Intelligentsia Guild",
+      "ja": "博識学会"
+    },
+    "enabled": true
+  },
+  {
+    "id": "ipc",
+    "groupId": "ipc",
+    "names": {
+      "zh-CN": "星际和平公司",
+      "en": "Interastral Peace Corporation",
+      "ja": "スターピースカンパニー"
+    },
+    "enabled": true
+  },
+  {
+    "id": "ipc-strategic-investment",
+    "groupId": "ipc",
+    "names": {
+      "zh-CN": "战略投资部",
+      "en": "Strategic Investment Department",
+      "ja": "戦略投資部"
+    },
+    "enabled": true
+  },
+  {
+    "id": "knights-of-beauty",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "纯美骑士团",
+      "en": "Knights of Beauty",
+      "ja": "純美の騎士団"
+    },
+    "enabled": true
+  },
+  {
+    "id": "masked-fools",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "假面愚者",
+      "en": "Masked Fools",
+      "ja": "仮面の愚者"
+    },
+    "enabled": true
+  },
+  {
+    "id": "penacony",
+    "groupId": "penacony",
+    "names": {
+      "zh-CN": "匹诺康尼",
+      "en": "Penacony",
+      "ja": "ピノコニー"
+    },
+    "enabled": true
+  },
+  {
+    "id": "planarcadia",
+    "groupId": "planarcadia",
+    "names": {
+      "zh-CN": "二相乐园",
+      "en": "Planarcadia",
+      "ja": "二相楽園"
+    },
+    "enabled": true
+  },
+  {
+    "id": "robot-settlement",
+    "groupId": "belobog",
+    "names": {
+      "zh-CN": "机械聚落",
+      "en": "Robot Settlement",
+      "ja": "機械集落"
+    },
+    "enabled": true
+  },
+  {
+    "id": "self-annihilators",
+    "groupId": "cosmic",
+    "names": {
+      "zh-CN": "自灭者",
+      "en": "Self-Annihilators",
+      "ja": "自滅者"
+    },
+    "enabled": true
+  },
+  {
+    "id": "silvermane-guards",
+    "groupId": "belobog",
+    "names": {
+      "zh-CN": "银鬃铁卫",
+      "en": "Silvermane Guards",
+      "ja": "シルバーメイン"
+    },
+    "enabled": true
+  },
+  {
+    "id": "stellaron-hunters",
+    "groupId": "stellaron-hunters",
+    "names": {
+      "zh-CN": "星核猎手",
+      "en": "Stellaron Hunters",
+      "ja": "星核ハンター"
+    },
+    "enabled": true
+  },
+  {
+    "id": "the-family",
+    "groupId": "penacony",
+    "names": {
+      "zh-CN": "家族",
+      "en": "The Family",
+      "ja": "ファミリー"
+    },
+    "enabled": true
+  },
+  {
+    "id": "the-moles",
+    "groupId": "belobog",
+    "names": {
+      "zh-CN": "鼹鼠党",
+      "en": "The Moles",
+      "ja": "モグラ党"
+    },
+    "enabled": true
+  },
+  {
+    "id": "wildfire",
+    "groupId": "belobog",
+    "names": {
+      "zh-CN": "地火",
+      "en": "Wildfire",
+      "ja": "地炎"
+    },
+    "enabled": true
+  },
+  {
+    "id": "xianzhou-alliance",
+    "groupId": "xianzhou-alliance",
+    "names": {
+      "zh-CN": "仙舟联盟",
+      "en": "Xianzhou Alliance",
+      "ja": "仙舟同盟"
+    },
+    "enabled": true
+  },
+  {
+    "id": "xianzhou-luofu",
+    "groupId": "xianzhou-alliance",
+    "names": {
+      "zh-CN": "仙舟「罗浮」",
+      "en": "Xianzhou Luofu",
+      "ja": "仙舟「羅浮」"
+    },
+    "enabled": true
+  },
+  {
+    "id": "xianzhou-yaoqing",
+    "groupId": "xianzhou-alliance",
+    "names": {
+      "zh-CN": "仙舟「曜青」",
+      "en": "Xianzhou Yaoqing",
+      "ja": "仙舟「曜青」"
+    },
+    "enabled": true
+  },
+  {
+    "id": "xianzhou-zhuming",
+    "groupId": "xianzhou-alliance",
+    "names": {
+      "zh-CN": "仙舟「朱明」",
+      "en": "Xianzhou Zhuming",
+      "ja": "仙舟「朱明」"
+    },
+    "enabled": true
+  }
+]

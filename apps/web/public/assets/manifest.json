@@ -1,0 +1,819 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-08-01",
+  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf",
+  "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
+  "policy": "One audited local thumbnail serves both avatarPath and portraitPath to minimize redistributed copyrighted material and site weight.",
+  "files": [
+    {
+      "bytes": 62410,
+      "mimeType": "image/png",
+      "path": "/assets/characters/acheron-avatar-7676548cd1fd.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "7676548cd1fdb7cf3b53888c138bbbbdcbd703baeb8f884ba24bfcbe1dcb0919",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122837/7bbabff9dde54156d00585fc1d45605b_4199325960554656142.png"
+    },
+    {
+      "bytes": 67946,
+      "mimeType": "image/png",
+      "path": "/assets/characters/aglaea-avatar-1bbe277dab6e.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "1bbe277dab6e6442afef81cd8cafe560d70754594e851532845904e9d0627fbe",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127763/9c07eb1ba64c09da024c8c255083b3a0_3379089841159520258.png"
+    },
+    {
+      "bytes": 67026,
+      "mimeType": "image/png",
+      "path": "/assets/characters/anaxa-avatar-6d50f51d5cf0.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "6d50f51d5cf0d5be0dafc43cd64abde4c0eee690b2aadc26a51fe9c03a33df3a",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155154/48d81bdfd6d7feca4edcc9f27d776b06_1716219330657468352.png"
+    },
+    {
+      "bytes": 53895,
+      "mimeType": "image/png",
+      "path": "/assets/characters/archer-avatar-0ed79ec7f8fa.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0ed79ec7f8fa570f98717abf6bb65d5ba22f1f54ca2f4bb50954a12d2b547195",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156035/01020be8a2962c7709466c6232f2591f_2398576073763782685.png"
+    },
+    {
+      "bytes": 58779,
+      "mimeType": "image/png",
+      "path": "/assets/characters/argenti-avatar-6e67ada6f633.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "6e67ada6f6338de28e21d2dd185834a60f6e791ca950119332d093c47b6c3aa4",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113551/2bd119b8c3be5a8981f21e308d0ff9df_6080004376791968215.png"
+    },
+    {
+      "bytes": 69600,
+      "mimeType": "image/png",
+      "path": "/assets/characters/arlan-avatar-e6a98c2dc505.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "e6a98c2dc505ee051f130a3e6f74bf58dffa9245b06d6d037dc74ac6a60e5d09",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/7213a47385a0b5c05e68b564733f2b19_6873881480647261389.png"
+    },
+    {
+      "bytes": 70401,
+      "mimeType": "image/png",
+      "path": "/assets/characters/ashveil-avatar-796c6588d0c1.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "796c6588d0c12c063443c80b15f7d16b59282540c4c7e6c9c4b17d4cbfe8fcdc",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163118/3dc92660fc87730376952fbb62e48c43_9152923416788276017.png"
+    },
+    {
+      "bytes": 70651,
+      "mimeType": "image/png",
+      "path": "/assets/characters/asta-avatar-1f9e66fd19bc.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "1f9e66fd19bc20189006cb76bb53b8101bef93ba8ba1ddb0511dbdd141437dc5",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/99bb21e5ceb72b3f76c0a3b5148dfe08_8925972045760071235.png"
+    },
+    {
+      "bytes": 58121,
+      "mimeType": "image/png",
+      "path": "/assets/characters/aventurine-avatar-0ff97f429972.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0ff97f4299729f5311a6acf81d3250d58e6d1fbb07e9397bc91994528772af26",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122838/03821220467396a333cd5362ebe0e1d1_6315724069120210502.png"
+    },
+    {
+      "bytes": 75937,
+      "mimeType": "image/png",
+      "path": "/assets/characters/bailu-avatar-4f8e23f000e1.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "4f8e23f000e131d91b7873261505795c881a9f0ee57f30d2c7d57a6c534f4c99",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/1ce1708b783a06ad419257b4be29ea99_202970771385396270.png"
+    },
+    {
+      "bytes": 63840,
+      "mimeType": "image/png",
+      "path": "/assets/characters/black-swan-avatar-59452a1c84d4.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "59452a1c84d4b26a54d72dd77483ed5c5f5c147689ee36f14e4227731739ec5a",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122114/e09b820993f140deb0f552391784cb7e_2387142678634153379.png"
+    },
+    {
+      "bytes": 52699,
+      "mimeType": "image/png",
+      "path": "/assets/characters/blade-avatar-2e40055896d6.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "2e40055896d6e6d9738808077d18dbfee57782890306d76b774e46b4c336a2bc",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/03683ce37738b0d682a557671e301eae_6658615399410788925.png"
+    },
+    {
+      "bytes": 62467,
+      "mimeType": "image/png",
+      "path": "/assets/characters/boothill-avatar-039177ccda71.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "039177ccda71245838a53c821dc72131173cb44e3f0cb4f736b84e2a533f85d7",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123310/52a05c95d460a51ffd0b26d5cccc95cb_5771592969358909617.png"
+    },
+    {
+      "bytes": 76532,
+      "mimeType": "image/png",
+      "path": "/assets/characters/bronya-avatar-849f365d21d2.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "849f365d21d22b14dbc7184f61846c1cdb6539f6ee5ab37a5b3e4f5d07d80024",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/c6ab1f4cd2ece504b02e16d5f7a5af44_8279603082960819796.png"
+    },
+    {
+      "bytes": 67806,
+      "mimeType": "image/png",
+      "path": "/assets/characters/castorice-avatar-a05fc9e97efb.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "a05fc9e97efb03510c0e7fbe27afe6cbcfb485f4c3b3e02044b82fb9a2f4af4a",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155153/74dcae39b1317c6a7add3a4b96af5076_3249311660615806732.png"
+    },
+    {
+      "bytes": 62749,
+      "mimeType": "image/png",
+      "path": "/assets/characters/cerydra-avatar-7936a8ec3c37.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "7936a8ec3c37611bbaa7aec82bacfd67d43c317b59fb9f1cbca691955145b8ef",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/158016/d44fdd4747f6bd1ec01243ad0be0ebb0_6403409388996483867.png"
+    },
+    {
+      "bytes": 70174,
+      "mimeType": "image/png",
+      "path": "/assets/characters/cipher-avatar-7a3884a7ac08.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "7a3884a7ac0874c30e648aaaa13612ebbeeb2b3656ebe56f9e087a50a83a1f41",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155820/88e3029fd6043521440d24d2a9e048db_4294339742656763641.png"
+    },
+    {
+      "bytes": 72859,
+      "mimeType": "image/png",
+      "path": "/assets/characters/clara-avatar-c6dcdc1da181.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "c6dcdc1da181c8508fa06460c282bffbd9962ba68535ac6b1cc6b7426b775541",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/e4a5b2e737c5c59f7f0ddde372fa8ea2_146075503384718263.png"
+    },
+    {
+      "bytes": 19060,
+      "mimeType": "image/png",
+      "path": "/assets/characters/cyrene-avatar-ba047a95195b.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "ba047a95195beb45a53f20a940dcc5131717e2368fc804ee54657d79378011e2",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/160346/54fb37ea230e2f6b9b7cc8a12e79329b_1607694867232341960.png"
+    },
+    {
+      "bytes": 65994,
+      "mimeType": "image/png",
+      "path": "/assets/characters/dan-heng-avatar-d99bc0050c2c.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "d99bc0050c2c9edb6c45bcef7ff94e807c9f93ab191a86785bb18e4a368a9739",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/10/0ee824040a139252d0e2037e52ab7755_7639207854703609873.png"
+    },
+    {
+      "bytes": 53025,
+      "mimeType": "image/png",
+      "path": "/assets/characters/dan-heng-il-avatar-2cf07d2fcb26.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "2cf07d2fcb264b0265a407846d2472b50f1d8bee9b0f314a3f2bf74573f3e92f",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/0ca26d025d72bd31944a00600f700a99_5701144537156840973.png"
+    },
+    {
+      "bytes": 15272,
+      "mimeType": "image/png",
+      "path": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "33cdba88f3c108ecdce56ee56c0a86ab7a7bab0549643dc3e22005e2a693a16b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159044/67a1543c3383367986b19471148bdefe_8194524210788351868.png"
+    },
+    {
+      "bytes": 56463,
+      "mimeType": "image/png",
+      "path": "/assets/characters/dr-ratio-avatar-8e8cc1c26b98.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "8e8cc1c26b981aab57286cda860c14900704dea265b5062a6a3fecac8b34f602",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114134/a6c86498e909f09945664a1e5b4d20be_7065933365556000987.png"
+    },
+    {
+      "bytes": 65699,
+      "mimeType": "image/png",
+      "path": "/assets/characters/evanescia-avatar-e4446664c7bb.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "e4446664c7bba60c44a65c34f2a2ecf389d4d9ff4e1282fdb8d28d6e6b5e93d8",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163485/5504bc6527fc4074d6743dab62f2be25_6605944294444025287.png"
+    },
+    {
+      "bytes": 17179,
+      "mimeType": "image/png",
+      "path": "/assets/characters/evernight-avatar-f387ff953a14.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "f387ff953a142e54364e1d478f4471716ca77970cc273a4c017b71f0d981388e",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159043/9afd392f1b8068e06832559fe4163529_3491875745193218742.png"
+    },
+    {
+      "bytes": 68399,
+      "mimeType": "image/png",
+      "path": "/assets/characters/feixiao-avatar-3979450d3733.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "3979450d37330b5b2b46dc8c60c1f62f8504acf150fff416ceed949e139044db",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125609/951a91c3fe715d0240d2206613f7c919_5034276035636498391.png"
+    },
+    {
+      "bytes": 64791,
+      "mimeType": "image/png",
+      "path": "/assets/characters/firefly-avatar-95f3c017e490.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "95f3c017e4905557ebdf38a7bcfc7346956f561fefc678c367bb6cbc9f6a61c2",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123957/863ae8d7ebc3a8ccba6d1500f105793f_2481513828224126028.png"
+    },
+    {
+      "bytes": 59118,
+      "mimeType": "image/png",
+      "path": "/assets/characters/fu-xuan-avatar-0eaf018b940e.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0eaf018b940e079cbe8377e6e3b384ab9e44b5b26a54c0acb49bd42f9fb4c288",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/bc0e8b39012e1e51b7f1e1bd2c78ddde_7333911698729337874.png"
+    },
+    {
+      "bytes": 69634,
+      "mimeType": "image/png",
+      "path": "/assets/characters/fugue-avatar-4fc575471981.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "4fc575471981431de1738f0c309780f09b73ead0f09e9e546d120ed9e9c4c2a5",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127090/7f01d89e3a8713ddeb2e1348e3975af8_3993190531595481161.png"
+    },
+    {
+      "bytes": 57722,
+      "mimeType": "image/png",
+      "path": "/assets/characters/gallagher-avatar-56e22ff2e836.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "56e22ff2e83657e96f1bd3826c178f16cc8d3b2e2286720825caeaafbb2afafd",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122839/72f42969256b2877af1b5bb5bd5b9f3d_1868580186070340307.png"
+    },
+    {
+      "bytes": 71691,
+      "mimeType": "image/png",
+      "path": "/assets/characters/gepard-avatar-0d99b1ad9c7d.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0d99b1ad9c7d5c5386778fde68a4eb627852999c773e5169add647588de10c62",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/a511485984be482bea05136de81b3b7b_8774670648688901664.png"
+    },
+    {
+      "bytes": 53293,
+      "mimeType": "image/png",
+      "path": "/assets/characters/gilgamesh-avatar-0f2e8e491b3a.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0f2e8e491b3a8151429a8c066fdeb4c21e4bd2206d9ac26d70a46c739845b109",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164608/eab97a7d20f2e622c78a8cbe2cd02792_3717636757217679747.png"
+    },
+    {
+      "bytes": 63402,
+      "mimeType": "image/png",
+      "path": "/assets/characters/guinaifen-avatar-a3889d33288f.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "a3889d33288fcf2df918f1317f869337ea66b43a7721db1590d56ad25f040f4f",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113258/e90d16f57aca708b2806dc17fe5fd85a_8376468351414248938.png"
+    },
+    {
+      "bytes": 56729,
+      "mimeType": "image/png",
+      "path": "/assets/characters/hanya-avatar-80b6f1b592cd.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "80b6f1b592cd6a814a65409cfdb7f1ba6a90114b28708bd528eac0e190086f8b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113552/2b71f46b9d67d3ffc1d889fd4e967e9a_3247476334578569723.png"
+    },
+    {
+      "bytes": 73382,
+      "mimeType": "image/png",
+      "path": "/assets/characters/herta-avatar-fe1944cd8443.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "fe1944cd844368d7899b753d4fb1c0b777b1aa76eb7fa00fb92af3a9b3c5ce55",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8f38072eccd10ce1b4df485c9d9f34d3_7138207484725960049.png"
+    },
+    {
+      "bytes": 77032,
+      "mimeType": "image/png",
+      "path": "/assets/characters/himeko-avatar-e301ca0969fd.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "e301ca0969fde976e1640abeaa4e95dd74017fbf3957ecb74610c98fd9860cbe",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/906705d02e536b45b29285f6d80c6f34_6762729813999787667.png"
+    },
+    {
+      "bytes": 60053,
+      "mimeType": "image/png",
+      "path": "/assets/characters/himeko-nova-avatar-21948f59b870.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "21948f59b8701f0130e396698867a90bebbb77668f2a65221925b03545c1e85d",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164773/c5b7769a158a07bd6a2b80ac2e4cfd67_5579859607159442001.png"
+    },
+    {
+      "bytes": 80143,
+      "mimeType": "image/png",
+      "path": "/assets/characters/hook-avatar-62ceae5b0d48.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "62ceae5b0d486c291bbbe9c34c3c6adf0214504727b2ca8ca8c5e2bfb0bd0157",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/15/b6aeab86bea6ec7770817da70da341bc_7127072739336792149.png"
+    },
+    {
+      "bytes": 63793,
+      "mimeType": "image/png",
+      "path": "/assets/characters/huohuo-avatar-3a8f2742bd7a.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "3a8f2742bd7a4b8eac3aeedb4370dba26a26ad054738903d835e59163aaf4730",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113549/6241e29b78992e78f7be09ecc9a095d8_9119778655003994988.png"
+    },
+    {
+      "bytes": 69504,
+      "mimeType": "image/png",
+      "path": "/assets/characters/hyacine-avatar-23ff80766bcb.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "23ff80766bcbf90e77424486e13ea8a010083a05f31a496dbae1ead75d12c19b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155819/365635a3493e9523cf3c3769e0169721_4924415025585271982.png"
+    },
+    {
+      "bytes": 62312,
+      "mimeType": "image/png",
+      "path": "/assets/characters/hysilens-avatar-24551611879f.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "24551611879f84c4cda96638f6ad6475afd49d06efbaaa80598e2baff0f06795",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/158011/85a30e672476c4112ad06839f673bd6d_615516595358800112.png"
+    },
+    {
+      "bytes": 66608,
+      "mimeType": "image/png",
+      "path": "/assets/characters/jade-avatar-deea45c1dd61.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "deea45c1dd618cc93c17037de0d60c4bd622529fc64a84fb59d0aaf216e57ae4",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123958/da750d7c75fc93eee15d7a2a9ced7b60_459052514305755111.png"
+    },
+    {
+      "bytes": 62438,
+      "mimeType": "image/png",
+      "path": "/assets/characters/jiaoqiu-avatar-4c8d9c1ba0e0.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "4c8d9c1ba0e05ee31b86de89676a19f175365577516eec0ae930d84b0779e12c",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124840/68ece84e57c8a8b35ea5e3c1f3faab2c_6392230512755725938.png"
+    },
+    {
+      "bytes": 79410,
+      "mimeType": "image/png",
+      "path": "/assets/characters/jing-yuan-avatar-c32a3e9ca445.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "c32a3e9ca445d33b15959b21521e8411528455bc80225f8c185234ae9e0045e4",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/20/ccb4b3e5d44ab5c35510bd5fce11fbf2_8339230249921865099.png"
+    },
+    {
+      "bytes": 62124,
+      "mimeType": "image/png",
+      "path": "/assets/characters/jingliu-avatar-1798d3ee3663.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "1798d3ee36632fb5778c850fe7dc1f39f32b610136b2c6985f1c7b66886c06a4",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113257/6b1caa6dcac86b51754256a626d7089a_6047546758250201368.png"
+    },
+    {
+      "bytes": 72324,
+      "mimeType": "image/png",
+      "path": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0d83f3fa9f98fecd8604eaf70d5dedcad85ee09e45f5e300c75f94b3bf3ffe44",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/a27a7f23e023aeea841d151ca864f6d7_8275876235530321253.png"
+    },
+    {
+      "bytes": 61685,
+      "mimeType": "image/png",
+      "path": "/assets/characters/lingsha-avatar-e67420fda0c0.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "e67420fda0c0b97e5255780303d57de810d06ce3617a42748adf53e878b1b1bd",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125610/932874b29ac1dfb4bdfe63d7ff4dea8f_3082176141300282450.png"
+    },
+    {
+      "bytes": 61062,
+      "mimeType": "image/png",
+      "path": "/assets/characters/luka-avatar-386a0a2094bd.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "386a0a2094bd62a7f77f8a2e98abfde22d10b861080883e5ed20d8cd2f1d6df6",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/b14015c52224fdb12e9479c15415df45_9163441622556196278.png"
+    },
+    {
+      "bytes": 62391,
+      "mimeType": "image/png",
+      "path": "/assets/characters/luocha-avatar-30c268081c6e.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "30c268081c6e22e8781c630019051433b29cfc041f2a068f55e2bc242ef7ae33",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/0df33e59f26280cb1f79227f9660a174_249196615581888334.png"
+    },
+    {
+      "bytes": 58755,
+      "mimeType": "image/png",
+      "path": "/assets/characters/lynx-avatar-69660d7cc9dc.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "69660d7cc9dc2f6f3fca5d3a00886192146e948be8dce0a1dbcbbd732dbc81b7",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/25/5d370b56f9b501cd9ceece492bda2757_7669076470419531973.png"
+    },
+    {
+      "bytes": 72915,
+      "mimeType": "image/png",
+      "path": "/assets/characters/march-7th-avatar-9d4e246bc19e.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "9d4e246bc19e99dd5eb0dd534562c1f26e6588b97740db25a42280140e071e95",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/01/20/ebf0f79b50bb0b1668fe9f801fcde898_6619280582358456926.png"
+    },
+    {
+      "bytes": 63907,
+      "mimeType": "image/png",
+      "path": "/assets/characters/march-7th-hunt-avatar-70b58fc7fe3f.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "70b58fc7fe3f735937f921b23f8506ec4fbdc3431b3900a72c0b1d9627ba9058",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124841/10bd1dcd95f5749cdc16b088bb98ff5f_2845915467121228499.png"
+    },
+    {
+      "bytes": 56295,
+      "mimeType": "image/png",
+      "path": "/assets/characters/misha-avatar-82816a770116.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "82816a770116606f5bbf47de2c5bafac9bb36892b172ec7e817fc5e7cffbb2ab",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122125/1f6734903188a4e52392a944b7038424_4429179718536429240.png"
+    },
+    {
+      "bytes": 55812,
+      "mimeType": "image/png",
+      "path": "/assets/characters/mortenax-blade-avatar-2e609e325d48.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "2e609e325d48365db245a3e83e38cd7e34de6ac994bd545d6b547ab1657f2795",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163908/3f039b805844fef13149dc64fbb8da24_8872487716010108739.png"
+    },
+    {
+      "bytes": 66397,
+      "mimeType": "image/png",
+      "path": "/assets/characters/moze-avatar-00139b2fba69.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "00139b2fba69aa1051f46b1095db5b40f53da071c180ca2d9004138f53ecb803",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125611/29163c8057be125dbb30bf1cc95df68e_11877494415624128.png"
+    },
+    {
+      "bytes": 63137,
+      "mimeType": "image/png",
+      "path": "/assets/characters/mydei-avatar-567729274be4.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "567729274be429b4874cab8eeb1fe09b917810a908ecb162d5be636f80e37592",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/154335/65e716ba532efb6f0ad20631965cf604_3824046770472296744.png"
+    },
+    {
+      "bytes": 72484,
+      "mimeType": "image/png",
+      "path": "/assets/characters/natasha-avatar-332835502261.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "332835502261c8218fc199b4520dc6079afde32fedf7ec81086ebd783f46d9b7",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/e9691b64bd3a0449d12265a659d5b301_2800750704985905201.png"
+    },
+    {
+      "bytes": 75484,
+      "mimeType": "image/png",
+      "path": "/assets/characters/pela-avatar-4edf90ea2af8.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "4edf90ea2af8ad26e56c4d0287a8b8a40f781a2b508ca9e86adec52ec4a6a12b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/01/20/8eb8fe9b661c44c15018e750e94678ba_7455952861324727421.png"
+    },
+    {
+      "bytes": 60042,
+      "mimeType": "image/png",
+      "path": "/assets/characters/phainon-avatar-0b70600027a3.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "0b70600027a3696f6c99949d0e6b39d3e00762c6c4da447d029f2161957e1fb3",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/157029/19f6ae9cdb8cc618ec9bfefce3e462a3_4906914154538392654.png"
+    },
+    {
+      "bytes": 66963,
+      "mimeType": "image/png",
+      "path": "/assets/characters/qingque-avatar-fe0137247376.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "fe013724737673f32f89e552345841b9a9bdf0828a2ebdbd65b0fc52390e518b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/22/2ce85064a040397a94b9633ba9ffc08b_4345980989372534083.png"
+    },
+    {
+      "bytes": 66589,
+      "mimeType": "image/png",
+      "path": "/assets/characters/rappa-avatar-86a21eaf73a3.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "86a21eaf73a34a1485aa1c69c0a0962e8e62f5f0fc9f3d5da43bd1fa5a482a0d",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/126410/a7c1fe9cf5cde28ea3ab57886e7b3a79_575417614613269360.png"
+    },
+    {
+      "bytes": 62601,
+      "mimeType": "image/png",
+      "path": "/assets/characters/rin-tohsaka-avatar-f7505f0f22a6.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "f7505f0f22a6296e400d5ad5dd2a6deeeecce09df4324c64c14fdf39266cf0ad",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164607/0e8ff84f06000f23307c1aed931ea68e_4824633473356387700.png"
+    },
+    {
+      "bytes": 66541,
+      "mimeType": "image/png",
+      "path": "/assets/characters/robin-avatar-831c516c3714.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "831c516c3714b59179d3d5297420243f48295c9d309a46e5cea6a94ac6ace14c",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123309/ff40360a998bb038bb8336d56bf11318_5103405246540367373.png"
+    },
+    {
+      "bytes": 57572,
+      "mimeType": "image/png",
+      "path": "/assets/characters/ruan-mei-avatar-a1e997242931.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "a1e997242931e61940134e51ba9fef72908bf34a8865108b1ec299dd5598c898",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114133/13f82e11d0a64fc4a7765a11e52ce63d_553982494913934113.png"
+    },
+    {
+      "bytes": 58847,
+      "mimeType": "image/png",
+      "path": "/assets/characters/saber-avatar-7dde152ddf96.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "7dde152ddf963a9ba180e4ebdd5c28cd95e3aea11f2562ce1f65af6a2d59e6c1",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156034/d5079fea19bd9bf28fbefaf2f18860bd_1399164401629468736.png"
+    },
+    {
+      "bytes": 71759,
+      "mimeType": "image/png",
+      "path": "/assets/characters/sampo-avatar-c86d956e648f.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "c86d956e648f2f65c837cb21474f2e5514c2d9434ec88aaf22d38a7bca837564",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8bec1b8404758c78c799ae109e97ba68_9077892686689126095.png"
+    },
+    {
+      "bytes": 74231,
+      "mimeType": "image/png",
+      "path": "/assets/characters/seele-avatar-878809ffa01c.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "878809ffa01c1b77b2796fd03e7083694a645d993dca1ce48464cddfae098e3b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/41b2379465748b66c324949833871a37_3791760123368611675.png"
+    },
+    {
+      "bytes": 75771,
+      "mimeType": "image/png",
+      "path": "/assets/characters/serval-avatar-d6a71fcbf9ed.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "d6a71fcbf9ed05df94f4a3b6fa373d31d097bc26102ac262b05c4b980837324e",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/2c3c7f171f5ef5d8d210286b317baffc_6729124396776018550.png"
+    },
+    {
+      "bytes": 69372,
+      "mimeType": "image/png",
+      "path": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "a0f6dba430cf3ad238ded70ca661f91fda77fdfd1d9ea97563bf79ab24522283",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/cf17c2dad074b88a6dbfa33446138c73_2646503772588786193.png"
+    },
+    {
+      "bytes": 72610,
+      "mimeType": "image/png",
+      "path": "/assets/characters/silver-wolf-lv-999-avatar-d86eec550297.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "d86eec550297ddf5fc1dc5cae9d7d43e6963179c833fee31bbe909af1ae9001f",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163484/f9ec0f43294492ae8a4834bdb5274a58_7208557037416297672.png"
+    },
+    {
+      "bytes": 61508,
+      "mimeType": "image/png",
+      "path": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "d4e241c4b49b068f9719cf94768389f86e3eac8941a197e02108af34e61788ca",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122124/418ee59a48e96cb3a8f5dbfd009200a1_2144754028775142076.png"
+    },
+    {
+      "bytes": 64670,
+      "mimeType": "image/png",
+      "path": "/assets/characters/sparxie-avatar-59851d4b7fcc.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "59851d4b7fccfb6939bcf4efaad8c15a4077eac3382dd22b10b5b5198ee75f99",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/162607/46ddcca9e2579e4878ef46e4231ae781_3507480203580811267.png"
+    },
+    {
+      "bytes": 69834,
+      "mimeType": "image/png",
+      "path": "/assets/characters/sunday-avatar-6419f26d34d2.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "6419f26d34d20fd166167d8e708086d8133de1c674e0347b741eed961f8c78ac",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127020/f3bb89ca79422032f554aaf7086178d7_5070348504428165390.png"
+    },
+    {
+      "bytes": 76342,
+      "mimeType": "image/png",
+      "path": "/assets/characters/sushang-avatar-171bf00dcaef.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "171bf00dcaefbd280e957a5e2d8d4920721ef63a21a024b4d30652baf8bc7eb1",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/56757405fd0bb121c4aa4dddb000d9c0_2139642753198143676.png"
+    },
+    {
+      "bytes": 63872,
+      "mimeType": "image/png",
+      "path": "/assets/characters/the-dahlia-avatar-516cf749fd35.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "516cf749fd358772ca7f9f74a69db6d14735a785352713eb514a48bb8bfab369",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/161288/5c29fb2f28836327dac5c1e86ad3d120_2015456143368643014.png"
+    },
+    {
+      "bytes": 63926,
+      "mimeType": "image/png",
+      "path": "/assets/characters/the-herta-avatar-306da87b6817.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "306da87b6817d93328a9b60fdca506e1f00e5f293f35a12f0c5c3f93cc0962cd",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127762/1280169cd0d65d40da34be92c242455f_7196380219881853106.png"
+    },
+    {
+      "bytes": 72209,
+      "mimeType": "image/png",
+      "path": "/assets/characters/tingyun-avatar-11cf39c039a2.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "11cf39c039a21250c4d009f0d8adb1e7674cd2dc3acb466a462a0b0570b4bbe2",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/5a5179d65cfb06d1d015c87799e2e740_8514351923560523609.png"
+    },
+    {
+      "bytes": 58594,
+      "mimeType": "image/png",
+      "path": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "a67a6106a0ff7b3ba68d9c1e65cac7780cf6584ea5fe4cee154c51ab9dc577ec",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113259/aec4e9e1f59e78ff72d8d1b8b9dd0712_4605153740160210783.png"
+    },
+    {
+      "bytes": 99633,
+      "mimeType": "image/png",
+      "path": "/assets/characters/trailblazer-destruction-avatar-e8ee5e05c9c1.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "e8ee5e05c9c12239e7260f3b2949c2d1e76d1985c1515bf16b889fc550d5f0de",
+      "sourceKind": "starrailres-trailblazer-fallback",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8001.png"
+    },
+    {
+      "bytes": 90784,
+      "mimeType": "image/png",
+      "path": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "5e5432f4e42a39993153381252360518e0ec62ef6f93b4f493122b27b3d0e6d2",
+      "sourceKind": "starrailres-trailblazer-fallback",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8009.png"
+    },
+    {
+      "bytes": 116477,
+      "mimeType": "image/png",
+      "path": "/assets/characters/trailblazer-harmony-avatar-8ab0f9082b98.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "8ab0f9082b9840d46d21d0cee9cb090cb24fe61c5b964d6954a384ca110e8a2d",
+      "sourceKind": "starrailres-trailblazer-fallback",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8005.png"
+    },
+    {
+      "bytes": 80507,
+      "mimeType": "image/png",
+      "path": "/assets/characters/trailblazer-preservation-avatar-d52e840e15c3.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "d52e840e15c3605f71c6c5acb22beace03edef00d1a3cf71229a0e23a4491422",
+      "sourceKind": "starrailres-trailblazer-fallback",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8003.png"
+    },
+    {
+      "bytes": 105599,
+      "mimeType": "image/png",
+      "path": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "38ba6a863c7dcce077ec6b02f84d994ae88c9aba526881460028a8ec99eb1831",
+      "sourceKind": "starrailres-trailblazer-fallback",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8007.png"
+    },
+    {
+      "bytes": 66998,
+      "mimeType": "image/png",
+      "path": "/assets/characters/tribbie-avatar-296b1a123c22.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "296b1a123c221162acb1ee40cc7279a24907ba7141737b26e2ba01e79e15e273",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/154334/de3fc6c9646b5567a92280e27b672b39_2277495775685534409.png"
+    },
+    {
+      "bytes": 67020,
+      "mimeType": "image/png",
+      "path": "/assets/characters/welt-avatar-b5fce1546a68.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "b5fce1546a68488f7d563594a6cc6f6edb8b4926eac38bc2d0afd1b868270a86",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/bd5a57d0d35792277c457a067fc72492_8449768500674894029.png"
+    },
+    {
+      "bytes": 55866,
+      "mimeType": "image/png",
+      "path": "/assets/characters/xueyi-avatar-3b5c911839ee.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "3b5c911839ee075cd9c76e8dbadc3c303d14defa21040dbd0d16ec363b235c97",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114135/015f96e57ba7744d32137dc761104eb4_8612953409015173590.png"
+    },
+    {
+      "bytes": 72495,
+      "mimeType": "image/png",
+      "path": "/assets/characters/yanqing-avatar-48a950b171f5.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "48a950b171f54a9bd5917dfe6b377d4dfa9e065d7966dc9af6dbaa48cc970be3",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/34a4acaaf047598b582f86cfcf0a6893_8415297720164363304.png"
+    },
+    {
+      "bytes": 65528,
+      "mimeType": "image/png",
+      "path": "/assets/characters/yao-guang-avatar-3c09d56ce7ae.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "3c09d56ce7ae452e74ce7d4e092375e3b4809b094c401cff7fcc39c260e9e158",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/162605/d09846c74f92d39cfdc502b8e237a46f_6203802696928497301.png"
+    },
+    {
+      "bytes": 60282,
+      "mimeType": "image/png",
+      "path": "/assets/characters/yukong-avatar-777d4b9d9679.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "777d4b9d9679dd72fdfc43a7fef25c2d7fcda311739a6e6e5c96c00ebeeefd79",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/1108fb690e4e3f3739f126aa511c0c0c_6949917502973102490.png"
+    },
+    {
+      "bytes": 64913,
+      "mimeType": "image/png",
+      "path": "/assets/characters/yunli-avatar-8a2e54b49880.png",
+      "roles": ["avatar", "portrait"],
+      "sha256": "8a2e54b49880d5678bd699e4602a4a4e462babbbb957c74bf77e585febc3cf95",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124839/d759b33d72c0bec02a1293d3155d820f_8871451623128806042.png"
+    }
+  ]
+}

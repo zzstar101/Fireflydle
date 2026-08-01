@@ -1,0 +1,662 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-08-01",
+  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf",
+  "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+  "policy": {
+    "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
+    "exclusions": "No leak-only, future-dated, expired, or unmatched community-only character is admitted.",
+    "factions": "Official HoYoverse character-page tabs are used as the auditable faction taxonomy.",
+    "subfactions": "Version-controlled subfactions refine official tabs only where official character introductions identify an organization, ship, family, or department; otherwise factionId remains the official group.",
+    "assets": "A single official/local fallback thumbnail is downloaded and used for both avatar and portrait to avoid hotlinking and minimize redistribution."
+  },
+  "coverage": {
+    "officialContentCharacters": 85,
+    "mergedTrailblazerForms": 5,
+    "publishedCharacters": 90,
+    "localizedNames": "270/270",
+    "pinyinSearchAliases": "90/90",
+    "romajiSearchAliases": "90/90",
+    "elementPathRarity": "90/90",
+    "faction": "90/90",
+    "distinctFactionHierarchyPairs": 29,
+    "releaseVersion": "90/90",
+    "localAssets": "90/90"
+  },
+  "mergedOfficialIds": {
+    "trailblazer-destruction": ["8001", "8002"],
+    "trailblazer-preservation": ["8003", "8004"],
+    "trailblazer-harmony": ["8005", "8006"],
+    "trailblazer-remembrance": ["8007", "8008"],
+    "trailblazer-elation": ["8009", "8010"]
+  },
+  "subfactionAudit": [
+    {
+      "id": "genius-society",
+      "groupId": "herta-space-station",
+      "names": {
+        "zh-CN": "天才俱乐部",
+        "en": "Genius Society",
+        "ja": "天才クラブ"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1013",
+          "hoyoverseContentId": 101870
+        },
+        {
+          "officialId": "1303",
+          "hoyoverseContentId": 114133
+        },
+        {
+          "officialId": "1401",
+          "hoyoverseContentId": 127762
+        }
+      ]
+    },
+    {
+      "id": "silvermane-guards",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "银鬃铁卫",
+        "en": "Silvermane Guards",
+        "ja": "シルバーメイン"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1101",
+          "hoyoverseContentId": 101861
+        },
+        {
+          "officialId": "1104",
+          "hoyoverseContentId": 101860
+        },
+        {
+          "officialId": "1106",
+          "hoyoverseContentId": 101862
+        }
+      ]
+    },
+    {
+      "id": "wildfire",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "地火",
+        "en": "Wildfire",
+        "ja": "地炎"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1102",
+          "hoyoverseContentId": 101865
+        },
+        {
+          "officialId": "1105",
+          "hoyoverseContentId": 101864
+        },
+        {
+          "officialId": "1111",
+          "hoyoverseContentId": 112259
+        }
+      ]
+    },
+    {
+      "id": "the-moles",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "鼹鼠党",
+        "en": "The Moles",
+        "ja": "モグラ党"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1109",
+          "hoyoverseContentId": 102868
+        }
+      ]
+    },
+    {
+      "id": "robot-settlement",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "机械聚落",
+        "en": "Robot Settlement",
+        "ja": "機械集落"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1107",
+          "hoyoverseContentId": 101867
+        }
+      ]
+    },
+    {
+      "id": "xianzhou-luofu",
+      "groupId": "xianzhou-alliance",
+      "names": {
+        "zh-CN": "仙舟「罗浮」",
+        "en": "Xianzhou Luofu",
+        "ja": "仙舟「羅浮」"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1201",
+          "hoyoverseContentId": 102953
+        },
+        {
+          "officialId": "1204",
+          "hoyoverseContentId": 102897
+        },
+        {
+          "officialId": "1207",
+          "hoyoverseContentId": 111804
+        },
+        {
+          "officialId": "1208",
+          "hoyoverseContentId": 112750
+        },
+        {
+          "officialId": "1217",
+          "hoyoverseContentId": 113549
+        },
+        {
+          "officialId": "1222",
+          "hoyoverseContentId": 125610
+        }
+      ]
+    },
+    {
+      "id": "xianzhou-yaoqing",
+      "groupId": "xianzhou-alliance",
+      "names": {
+        "zh-CN": "仙舟「曜青」",
+        "en": "Xianzhou Yaoqing",
+        "ja": "仙舟「曜青」"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1218",
+          "hoyoverseContentId": 124840
+        },
+        {
+          "officialId": "1220",
+          "hoyoverseContentId": 125609
+        },
+        {
+          "officialId": "1223",
+          "hoyoverseContentId": 125611
+        }
+      ]
+    },
+    {
+      "id": "xianzhou-zhuming",
+      "groupId": "xianzhou-alliance",
+      "names": {
+        "zh-CN": "仙舟「朱明」",
+        "en": "Xianzhou Zhuming",
+        "ja": "仙舟「朱明」"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1221",
+          "hoyoverseContentId": 124839
+        }
+      ]
+    },
+    {
+      "id": "ipc-strategic-investment",
+      "groupId": "ipc",
+      "names": {
+        "zh-CN": "战略投资部",
+        "en": "Strategic Investment Department",
+        "ja": "戦略投資部"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1112",
+          "hoyoverseContentId": 113259
+        },
+        {
+          "officialId": "1304",
+          "hoyoverseContentId": 122838
+        },
+        {
+          "officialId": "1314",
+          "hoyoverseContentId": 123958
+        }
+      ]
+    },
+    {
+      "id": "the-family",
+      "groupId": "penacony",
+      "names": {
+        "zh-CN": "家族",
+        "en": "The Family",
+        "ja": "ファミリー"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1309",
+          "hoyoverseContentId": 123309
+        }
+      ]
+    },
+    {
+      "id": "bloodhound-family",
+      "groupId": "penacony",
+      "names": {
+        "zh-CN": "猎犬家系",
+        "en": "Bloodhound Family",
+        "ja": "ハウンド家"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1301",
+          "hoyoverseContentId": 122839
+        }
+      ]
+    },
+    {
+      "id": "self-annihilators",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "自灭者",
+        "en": "Self-Annihilators",
+        "ja": "自滅者"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1308",
+          "hoyoverseContentId": 122837
+        }
+      ]
+    },
+    {
+      "id": "knights-of-beauty",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "纯美骑士团",
+        "en": "Knights of Beauty",
+        "ja": "純美の騎士団"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1302",
+          "hoyoverseContentId": 113551
+        }
+      ]
+    },
+    {
+      "id": "intelligentsia-guild",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "博识学会",
+        "en": "Intelligentsia Guild",
+        "ja": "博識学会"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1305",
+          "hoyoverseContentId": 114134
+        }
+      ]
+    },
+    {
+      "id": "garden-of-recollection",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "流光忆庭",
+        "en": "Garden of Recollection",
+        "ja": "流光の庭"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1307",
+          "hoyoverseContentId": 122114
+        }
+      ]
+    },
+    {
+      "id": "masked-fools",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "假面愚者",
+        "en": "Masked Fools",
+        "ja": "仮面の愚者"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1306",
+          "hoyoverseContentId": 122124
+        }
+      ]
+    },
+    {
+      "id": "galaxy-rangers",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "巡海游侠",
+        "en": "Galaxy Rangers",
+        "ja": "巡海レンジャー"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1315",
+          "hoyoverseContentId": 123310
+        },
+        {
+          "officialId": "1317",
+          "hoyoverseContentId": 126410
+        }
+      ]
+    },
+    {
+      "id": "ever-flame-mansion",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "永火官邸",
+        "en": "Ever-Flame Mansion",
+        "ja": "永火の官邸"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1321",
+          "hoyoverseContentId": 161288
+        }
+      ]
+    },
+    {
+      "id": "chrysos-heirs",
+      "groupId": "amphoreus",
+      "names": {
+        "zh-CN": "黄金裔",
+        "en": "Chrysos Heirs",
+        "ja": "黄金裔"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1402",
+          "hoyoverseContentId": 127763
+        },
+        {
+          "officialId": "1403",
+          "hoyoverseContentId": 154334
+        },
+        {
+          "officialId": "1404",
+          "hoyoverseContentId": 154335
+        },
+        {
+          "officialId": "1405",
+          "hoyoverseContentId": 155154
+        },
+        {
+          "officialId": "1406",
+          "hoyoverseContentId": 155820
+        },
+        {
+          "officialId": "1407",
+          "hoyoverseContentId": 155153
+        },
+        {
+          "officialId": "1408",
+          "hoyoverseContentId": 157029
+        },
+        {
+          "officialId": "1409",
+          "hoyoverseContentId": 155819
+        },
+        {
+          "officialId": "1410",
+          "hoyoverseContentId": 158011
+        },
+        {
+          "officialId": "1412",
+          "hoyoverseContentId": 158016
+        },
+        {
+          "officialId": "1413",
+          "hoyoverseContentId": 159043
+        },
+        {
+          "officialId": "1414",
+          "hoyoverseContentId": 159044
+        }
+      ]
+    },
+    {
+      "id": "fate-stay-night",
+      "groupId": "another-world",
+      "names": {
+        "zh-CN": "Fate/stay night 联动",
+        "en": "Fate/stay night Collaboration",
+        "ja": "Fate/stay night コラボ"
+      },
+      "sourceEntries": [
+        {
+          "officialId": "1014",
+          "hoyoverseContentId": 156034
+        },
+        {
+          "officialId": "1015",
+          "hoyoverseContentId": 156035
+        },
+        {
+          "officialId": "1508",
+          "hoyoverseContentId": 164607
+        },
+        {
+          "officialId": "1509",
+          "hoyoverseContentId": 164608
+        }
+      ]
+    }
+  ],
+  "sources": {
+    "reviewedOverrides": {
+      "path": "packages/game-data/src/data/sync-overrides.json",
+      "sha256": "681bcff26dcfbe8cbd2a65db425a0aaf4c844d6b1ce1ad9117f3a046dafefe09",
+      "use": "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and sourced subfaction hierarchy."
+    },
+    "hoyoverse": {
+      "characterPage": "https://hsr.hoyoverse.com/en-us/character",
+      "characterApi": {
+        "zh-CN": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=242&iPage=1&iPageSize=500&sLangKey=zh-cn",
+        "en": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=242&iPage=1&iPageSize=500&sLangKey=en-us",
+        "ja": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=242&iPage=1&iPageSize=500&sLangKey=ja-jp"
+      },
+      "factionApi": {
+        "zh-CN": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=241&iPage=1&iPageSize=500&sLangKey=zh-cn",
+        "en": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=241&iPage=1&iPageSize=500&sLangKey=en-us",
+        "ja": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=241&iPage=1&iPageSize=500&sLangKey=ja-jp"
+      },
+      "versionNoticeApi": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
+      "contentDigestSha256": "1fdf879e4e9415cfdbb668d290ad13ad7fba71918f477be6429039d0a6053c10",
+      "rights": "No open-data or asset license is asserted. Names and images remain with their respective rights holders."
+    },
+    "starRailRes": {
+      "commit": "b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
+      "commitUrl": "https://github.com/Mar-7th/StarRailRes/commit/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
+      "repository": "https://github.com/Mar-7th/StarRailRes",
+      "license": "https://github.com/Mar-7th/StarRailRes/blob/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/LICENSE",
+      "use": "Only ID/path/element/rarity facts and Trailblazer fallback thumbnails; official HoYoverse content controls roster membership and public names.",
+      "rights": "Repository code/data is marked AGPL-3.0; the license does not grant rights to underlying HoYoverse game materials."
+    }
+  },
+  "versionNotices": [
+    {
+      "infoId": 111258,
+      "releasedAt": "2023-04-26T10:00:00.000Z",
+      "sourceTitle": "\"The Rail Unto the Stars\" Version 1.0 is now live!",
+      "version": "1.0"
+    },
+    {
+      "infoId": 111793,
+      "releasedAt": "2023-06-07T07:00:00.000Z",
+      "sourceTitle": "Version 1.1 Galactic Roaming Update Overview",
+      "version": "1.1"
+    },
+    {
+      "infoId": 112340,
+      "releasedAt": "2023-07-19T07:00:00.000Z",
+      "sourceTitle": "Version 1.2 \"Even Immortality Ends\" Update Overview",
+      "version": "1.2"
+    },
+    {
+      "infoId": 112854,
+      "releasedAt": "2023-08-30T07:00:00.000Z",
+      "sourceTitle": "Version 1.3 \"Celestial Eyes Above Mortal Ruins\" Updates",
+      "version": "1.3"
+    },
+    {
+      "infoId": 113276,
+      "releasedAt": "2023-10-11T07:00:00.000Z",
+      "sourceTitle": "Version 1.4 \"Jolted Awake From a Winter Dream\" Update",
+      "version": "1.4"
+    },
+    {
+      "infoId": 113648,
+      "releasedAt": "2023-11-15T07:00:00.000Z",
+      "sourceTitle": "Version 1.5 \"The Crepuscule Zone\" Update",
+      "version": "1.5"
+    },
+    {
+      "infoId": 114194,
+      "releasedAt": "2023-12-27T07:00:00.000Z",
+      "sourceTitle": "Version 1.6 \"Crown of the Mundane and Divine\" Update",
+      "version": "1.6"
+    },
+    {
+      "infoId": 122325,
+      "releasedAt": "2024-02-06T07:00:00.000Z",
+      "sourceTitle": "Version 2.0 \"If One Dreams At Midnight\" Update",
+      "version": "2.0"
+    },
+    {
+      "infoId": 123034,
+      "releasedAt": "2024-03-27T07:00:00.000Z",
+      "sourceTitle": "Version 2.1 \"Into the Yawning Chasm\" Update",
+      "version": "2.1"
+    },
+    {
+      "infoId": 123642,
+      "releasedAt": "2024-05-08T07:00:00.000Z",
+      "sourceTitle": "Version 2.2 \"Then Wake to Weep\" Update",
+      "version": "2.2"
+    },
+    {
+      "infoId": 124161,
+      "releasedAt": "2024-06-19T07:00:00.000Z",
+      "sourceTitle": "Version 2.3 \"Farewell, Penacony\" Update",
+      "version": "2.3"
+    },
+    {
+      "infoId": 125060,
+      "releasedAt": "2024-07-31T07:00:00.000Z",
+      "sourceTitle": "Version 2.4 \"Finest Duel Under the Pristine Blue\" Update",
+      "version": "2.4"
+    },
+    {
+      "infoId": 125792,
+      "releasedAt": "2024-09-10T07:00:00.000Z",
+      "sourceTitle": "Version 2.5 \"Flying Aureus Shot to Lupine Rue\" Version Update",
+      "version": "2.5"
+    },
+    {
+      "infoId": 126559,
+      "releasedAt": "2024-10-23T07:00:00.000Z",
+      "sourceTitle": "Version 2.6 Annals of Pinecany's Mappou Age Update Details",
+      "version": "2.6"
+    },
+    {
+      "infoId": 127247,
+      "releasedAt": "2024-12-04T07:00:00.000Z",
+      "sourceTitle": "Version 2.7 \"A New Venture on the Eighth Dawn\" Version Update Details",
+      "version": "2.7"
+    },
+    {
+      "infoId": 127987,
+      "releasedAt": "2025-01-15T07:00:00.000Z",
+      "sourceTitle": "Version 3.0 \"Paean of Era Nova\" Update",
+      "version": "3.0"
+    },
+    {
+      "infoId": 154500,
+      "releasedAt": "2025-02-26T07:00:00.000Z",
+      "sourceTitle": "Version 3.1 \"Light Slips the Gate, Shadow Greets the Throne\" Updates",
+      "version": "3.1"
+    },
+    {
+      "infoId": 155407,
+      "releasedAt": "2025-04-09T07:00:00.000Z",
+      "sourceTitle": "Version 3.2 \"Through the Petals in the Land of Repose\" Update Details",
+      "version": "3.2"
+    },
+    {
+      "infoId": 156002,
+      "releasedAt": "2025-05-21T07:00:00.000Z",
+      "sourceTitle": "Version 3.3 \"The Fall at Dawn's Rise\" Update",
+      "version": "3.3"
+    },
+    {
+      "infoId": 157441,
+      "releasedAt": "2025-07-02T07:00:00.000Z",
+      "sourceTitle": "Version 3.4 \"For the Sun is Set to Die\" Update",
+      "version": "3.4"
+    },
+    {
+      "infoId": 158598,
+      "releasedAt": "2025-08-13T07:00:00.000Z",
+      "sourceTitle": "Version 3.5 \"Before Their Deaths\" Update",
+      "version": "3.5"
+    },
+    {
+      "infoId": 159638,
+      "releasedAt": "2025-09-24T07:00:00.000Z",
+      "sourceTitle": "Version 3.6 \"Back to Earth in Evernight\" Update",
+      "version": "3.6"
+    },
+    {
+      "infoId": 160735,
+      "releasedAt": "2025-11-05T07:00:00.000Z",
+      "sourceTitle": "Version 3.7 \"As Tomorrow Became Yesterday\" Update",
+      "version": "3.7"
+    },
+    {
+      "infoId": 161539,
+      "releasedAt": "2025-12-17T07:00:00.000Z",
+      "sourceTitle": "\"Memories are the Prelude to Dreams\" Version 3.8 Update",
+      "version": "3.8"
+    },
+    {
+      "infoId": 162706,
+      "releasedAt": "2026-02-13T07:00:00.000Z",
+      "sourceTitle": "Version 4.0 \"No Aha at Full Moon\" Update Details",
+      "version": "4.0"
+    },
+    {
+      "infoId": 163273,
+      "releasedAt": "2026-03-25T07:00:00.000Z",
+      "sourceTitle": "Version 4.1 \"Unraveled for Daybreak\" Update Details",
+      "version": "4.1"
+    },
+    {
+      "infoId": 163625,
+      "releasedAt": "2026-04-22T07:00:00.000Z",
+      "sourceTitle": "Version 4.2 \"So Laughed the Masses\" Update Details",
+      "version": "4.2"
+    },
+    {
+      "infoId": 164415,
+      "releasedAt": "2026-06-01T07:00:00.000Z",
+      "sourceTitle": "Version 4.3 \"The Lethe Below the Living\" Update Details",
+      "version": "4.3"
+    },
+    {
+      "infoId": 165195,
+      "releasedAt": "2026-07-15T07:00:00.000Z",
+      "sourceTitle": "Version 4.4 \"In Ravages Does the Whistle Sound\" Update Details",
+      "version": "4.4"
+    }
+  ]
+}

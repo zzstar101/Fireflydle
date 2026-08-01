@@ -1,0 +1,33 @@
+{
+  "name": "@fireflydle/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@fireflydle/contracts": "workspace:*",
+    "@fireflydle/game-data": "workspace:*",
+    "@fireflydle/game-engine": "workspace:*",
+    "@tanstack/react-query": "^5.101.4",
+    "i18next": "^26.3.6",
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-i18next": "^17.0.11",
+    "react-router-dom": "^7.18.2",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.5",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@fireflydle/game-data",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test src/index.test.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fireflydle/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "pinyin-pro": "^3.28.2",
+    "wanakana": "^5.3.1"
+  }
+}

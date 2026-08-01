@@ -1,0 +1,2 @@
+# Wrangler 生成文件需保持原始字节，供 `wrangler types --check` 校验。
+apps/api/worker-configuration.d.ts

@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "minimumOfficialRosterSize": 85,
+  "minimumVersionNoticeCount": 29,
+  "ambiguousOfficialContentIds": {
+    "2": "1001",
+    "53": "1224"
+  },
+  "canonicalIdOverrides": {
+    "1001": "march-7th",
+    "1213": "dan-heng-il",
+    "1224": "march-7th-hunt"
+  },
+  "baseCharacterIdOverrides": {
+    "1213": "dan-heng",
+    "1224": "march-7th",
+    "1401": "herta",
+    "1414": "dan-heng",
+    "1506": "silver-wolf",
+    "1507": "blade",
+    "1510": "himeko"
+  },
+  "releaseVersionOverrides": {
+    "1005": "1.2",
+    "1006": "1.1"
+  },
+  "displayNameOverrides": {
+    "1224": {
+      "zh-CN": "三月七·巡猎",
+      "en": "March 7th · The Hunt",
+      "ja": "三月なのか・巡狩"
+    }
+  },
+  "aliasesByOfficialId": {
+    "1001": {
+      "zh-CN": ["三月", "三月七"],
+      "en": ["March", "M7"],
+      "ja": ["なのか"]
+    },
+    "1006": {
+      "zh-CN": ["银狼"],
+      "en": ["SW"],
+      "ja": ["銀狼"]
+    },
+    "1112": {
+      "zh-CN": ["托帕", "账账"],
+      "en": ["Topaz", "Numby"],
+      "ja": ["トパーズ", "カブ"]
+    },
+    "1213": {
+      "zh-CN": ["饮月", "龙丹"],
+      "en": ["DHIL", "Imbibitor Lunae"],
+      "ja": ["飲月"]
+    },
+    "1224": {
+      "zh-CN": ["三月七", "巡猎三月七", "剑三月"],
+      "en": ["March 7th", "Hunt March", "M7 Hunt"],
+      "ja": ["三月なのか", "巡狩の三月なのか", "巡狩なのか"]
+    },
+    "1305": {
+      "zh-CN": ["真理", "真理医生"],
+      "en": ["Ratio", "Dr Ratio"],
+      "ja": ["レイシオ"]
+    },
+    "1310": {
+      "zh-CN": ["萤宝", "萨姆"],
+      "en": ["SAM"],
+      "ja": ["サム"]
+    },
+    "1401": {
+      "zh-CN": ["黑塔"],
+      "en": ["Herta", "Madam Herta"],
+      "ja": ["ヘルタ"]
+    }
+  },
+  "pinyinOverridesByOfficialId": {
+    "1001": ["san yue qi", "sanyueqi"],
+    "1213": ["dan heng yin yue", "danhengyinyue"],
+    "1224": ["san yue qi xun lie", "sanyueqixunlie"],
+    "1310": ["liu ying", "liuying"]
+  },
+  "romajiOverridesByOfficialId": {
+    "1001": ["mitsuki nanoka", "mitsukinanoka"],
+    "1224": ["mitsuki nanoka junshu", "mitsukinanokajunshu"],
+    "8001": ["kaitakusha kaimetsu", "kaitakushakaimetsu"],
+    "8003": ["kaitakusha songo", "kaitakushasongo"],
+    "8005": ["kaitakusha chowa", "kaitakushachowa"],
+    "8007": ["kaitakusha kioku", "kaitakushakioku"],
+    "8009": ["kaitakusha yuetsu", "kaitakushayuetsu"]
+  },
+  "factionIdsByCategory": {
+    "cha_tab_1": "astral-express",
+    "cha_tab_2": "belobog",
+    "cha_tab_3": "herta-space-station",
+    "cha_tab_4": "stellaron-hunters",
+    "cha_tab_5": "xianzhou-alliance",
+    "cha_tab_6": "cosmic",
+    "cha_tab_7": "penacony",
+    "cha_tab_8": "ipc",
+    "cha_tab_9": "amphoreus",
+    "cha_tab_10": "another-world",
+    "cha_tab_11": "planarcadia"
+  },
+  "subfactionDefinitions": [
+    {
+      "id": "genius-society",
+      "groupId": "herta-space-station",
+      "names": {
+        "zh-CN": "天才俱乐部",
+        "en": "Genius Society",
+        "ja": "天才クラブ"
+      },
+      "sourceOfficialIds": ["1013", "1303", "1401"]
+    },
+    {
+      "id": "silvermane-guards",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "银鬃铁卫",
+        "en": "Silvermane Guards",
+        "ja": "シルバーメイン"
+      },
+      "sourceOfficialIds": ["1101", "1104", "1106"]
+    },
+    {
+      "id": "wildfire",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "地火",
+        "en": "Wildfire",
+        "ja": "地炎"
+      },
+      "sourceOfficialIds": ["1102", "1105", "1111"]
+    },
+    {
+      "id": "the-moles",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "鼹鼠党",
+        "en": "The Moles",
+        "ja": "モグラ党"
+      },
+      "sourceOfficialIds": ["1109"]
+    },
+    {
+      "id": "robot-settlement",
+      "groupId": "belobog",
+      "names": {
+        "zh-CN": "机械聚落",
+        "en": "Robot Settlement",
+        "ja": "機械集落"
+      },
+      "sourceOfficialIds": ["1107"]
+    },
+    {
+      "id": "xianzhou-luofu",
+      "groupId": "xianzhou-alliance",
+      "names": {
+        "zh-CN": "仙舟「罗浮」",
+        "en": "Xianzhou Luofu",
+        "ja": "仙舟「羅浮」"
+      },
+      "sourceOfficialIds": ["1201", "1204", "1207", "1208", "1217", "1222"]
+    },
+    {
+      "id": "xianzhou-yaoqing",
+      "groupId": "xianzhou-alliance",
+      "names": {
+        "zh-CN": "仙舟「曜青」",
+        "en": "Xianzhou Yaoqing",
+        "ja": "仙舟「曜青」"
+      },
+      "sourceOfficialIds": ["1218", "1220", "1223"]
+    },
+    {
+      "id": "xianzhou-zhuming",
+      "groupId": "xianzhou-alliance",
+      "names": {
+        "zh-CN": "仙舟「朱明」",
+        "en": "Xianzhou Zhuming",
+        "ja": "仙舟「朱明」"
+      },
+      "sourceOfficialIds": ["1221"]
+    },
+    {
+      "id": "ipc-strategic-investment",
+      "groupId": "ipc",
+      "names": {
+        "zh-CN": "战略投资部",
+        "en": "Strategic Investment Department",
+        "ja": "戦略投資部"
+      },
+      "sourceOfficialIds": ["1112", "1304", "1314"]
+    },
+    {
+      "id": "the-family",
+      "groupId": "penacony",
+      "names": {
+        "zh-CN": "家族",
+        "en": "The Family",
+        "ja": "ファミリー"
+      },
+      "sourceOfficialIds": ["1309"]
+    },
+    {
+      "id": "bloodhound-family",
+      "groupId": "penacony",
+      "names": {
+        "zh-CN": "猎犬家系",
+        "en": "Bloodhound Family",
+        "ja": "ハウンド家"
+      },
+      "sourceOfficialIds": ["1301"]
+    },
+    {
+      "id": "self-annihilators",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "自灭者",
+        "en": "Self-Annihilators",
+        "ja": "自滅者"
+      },
+      "sourceOfficialIds": ["1308"]
+    },
+    {
+      "id": "knights-of-beauty",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "纯美骑士团",
+        "en": "Knights of Beauty",
+        "ja": "純美の騎士団"
+      },
+      "sourceOfficialIds": ["1302"]
+    },
+    {
+      "id": "intelligentsia-guild",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "博识学会",
+        "en": "Intelligentsia Guild",
+        "ja": "博識学会"
+      },
+      "sourceOfficialIds": ["1305"]
+    },
+    {
+      "id": "garden-of-recollection",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "流光忆庭",
+        "en": "Garden of Recollection",
+        "ja": "流光の庭"
+      },
+      "sourceOfficialIds": ["1307"]
+    },
+    {
+      "id": "masked-fools",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "假面愚者",
+        "en": "Masked Fools",
+        "ja": "仮面の愚者"
+      },
+      "sourceOfficialIds": ["1306"]
+    },
+    {
+      "id": "galaxy-rangers",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "巡海游侠",
+        "en": "Galaxy Rangers",
+        "ja": "巡海レンジャー"
+      },
+      "sourceOfficialIds": ["1315", "1317"]
+    },
+    {
+      "id": "ever-flame-mansion",
+      "groupId": "cosmic",
+      "names": {
+        "zh-CN": "永火官邸",
+        "en": "Ever-Flame Mansion",
+        "ja": "永火の官邸"
+      },
+      "sourceOfficialIds": ["1321"]
+    },
+    {
+      "id": "chrysos-heirs",
+      "groupId": "amphoreus",
+      "names": {
+        "zh-CN": "黄金裔",
+        "en": "Chrysos Heirs",
+        "ja": "黄金裔"
+      },
+      "sourceOfficialIds": [
+        "1402",
+        "1403",
+        "1404",
+        "1405",
+        "1406",
+        "1407",
+        "1408",
+        "1409",
+        "1410",
+        "1412",
+        "1413",
+        "1414"
+      ]
+    },
+    {
+      "id": "fate-stay-night",
+      "groupId": "another-world",
+      "names": {
+        "zh-CN": "Fate/stay night 联动",
+        "en": "Fate/stay night Collaboration",
+        "ja": "Fate/stay night コラボ"
+      },
+      "sourceOfficialIds": ["1014", "1015", "1508", "1509"]
+    }
+  ],
+  "subfactionByOfficialId": {
+    "1013": "genius-society",
+    "1303": "genius-society",
+    "1401": "genius-society",
+    "1101": "silvermane-guards",
+    "1104": "silvermane-guards",
+    "1106": "silvermane-guards",
+    "1102": "wildfire",
+    "1105": "wildfire",
+    "1111": "wildfire",
+    "1109": "the-moles",
+    "1107": "robot-settlement",
+    "1201": "xianzhou-luofu",
+    "1202": "xianzhou-luofu",
+    "1203": "xianzhou-luofu",
+    "1204": "xianzhou-luofu",
+    "1206": "xianzhou-luofu",
+    "1207": "xianzhou-luofu",
+    "1208": "xianzhou-luofu",
+    "1209": "xianzhou-luofu",
+    "1210": "xianzhou-luofu",
+    "1211": "xianzhou-luofu",
+    "1212": "xianzhou-luofu",
+    "1214": "xianzhou-luofu",
+    "1215": "xianzhou-luofu",
+    "1217": "xianzhou-luofu",
+    "1222": "xianzhou-luofu",
+    "1225": "xianzhou-luofu",
+    "1218": "xianzhou-yaoqing",
+    "1220": "xianzhou-yaoqing",
+    "1223": "xianzhou-yaoqing",
+    "1221": "xianzhou-zhuming",
+    "1112": "ipc-strategic-investment",
+    "1304": "ipc-strategic-investment",
+    "1314": "ipc-strategic-investment",
+    "1309": "the-family",
+    "1301": "bloodhound-family",
+    "1308": "self-annihilators",
+    "1302": "knights-of-beauty",
+    "1305": "intelligentsia-guild",
+    "1307": "garden-of-recollection",
+    "1306": "masked-fools",
+    "1315": "galaxy-rangers",
+    "1317": "galaxy-rangers",
+    "1321": "ever-flame-mansion",
+    "1402": "chrysos-heirs",
+    "1403": "chrysos-heirs",
+    "1404": "chrysos-heirs",
+    "1405": "chrysos-heirs",
+    "1406": "chrysos-heirs",
+    "1407": "chrysos-heirs",
+    "1408": "chrysos-heirs",
+    "1409": "chrysos-heirs",
+    "1410": "chrysos-heirs",
+    "1412": "chrysos-heirs",
+    "1413": "chrysos-heirs",
+    "1414": "chrysos-heirs",
+    "1014": "fate-stay-night",
+    "1015": "fate-stay-night",
+    "1508": "fate-stay-night",
+    "1509": "fate-stay-night"
+  },
+  "trailblazerForms": [
+    {
+      "id": "trailblazer-destruction",
+      "officialId": "8001",
+      "mergedOfficialIds": ["8001", "8002"],
+      "names": {
+        "zh-CN": "开拓者·毁灭",
+        "en": "Trailblazer · Destruction",
+        "ja": "開拓者・壊滅"
+      },
+      "aliases": {
+        "zh-CN": ["开拓者", "物理主角"],
+        "en": ["Trailblazer", "Physical Trailblazer"],
+        "ja": ["開拓者", "物理開拓者"]
+      },
+      "releaseVersionId": "1.0"
+    },
+    {
+      "id": "trailblazer-preservation",
+      "officialId": "8003",
+      "mergedOfficialIds": ["8003", "8004"],
+      "names": {
+        "zh-CN": "开拓者·存护",
+        "en": "Trailblazer · Preservation",
+        "ja": "開拓者・存護"
+      },
+      "aliases": {
+        "zh-CN": ["开拓者", "火主", "存护主角"],
+        "en": ["Trailblazer", "Fire Trailblazer"],
+        "ja": ["開拓者", "炎開拓者"]
+      },
+      "releaseVersionId": "1.0"
+    },
+    {
+      "id": "trailblazer-harmony",
+      "officialId": "8005",
+      "mergedOfficialIds": ["8005", "8006"],
+      "names": {
+        "zh-CN": "开拓者·同谐",
+        "en": "Trailblazer · Harmony",
+        "ja": "開拓者・調和"
+      },
+      "aliases": {
+        "zh-CN": ["开拓者", "同谐主角"],
+        "en": ["Trailblazer", "Harmony Trailblazer"],
+        "ja": ["開拓者", "調和開拓者"]
+      },
+      "releaseVersionId": "2.2"
+    },
+    {
+      "id": "trailblazer-remembrance",
+      "officialId": "8007",
+      "mergedOfficialIds": ["8007", "8008"],
+      "names": {
+        "zh-CN": "开拓者·记忆",
+        "en": "Trailblazer · Remembrance",
+        "ja": "開拓者・記憶"
+      },
+      "aliases": {
+        "zh-CN": ["开拓者", "记忆主角"],
+        "en": ["Trailblazer", "Remembrance Trailblazer"],
+        "ja": ["開拓者", "記憶開拓者"]
+      },
+      "releaseVersionId": "3.0"
+    },
+    {
+      "id": "trailblazer-elation",
+      "officialId": "8009",
+      "mergedOfficialIds": ["8009", "8010"],
+      "names": {
+        "zh-CN": "开拓者·欢愉",
+        "en": "Trailblazer · Elation",
+        "ja": "開拓者・愉悦"
+      },
+      "aliases": {
+        "zh-CN": ["开拓者", "欢愉主角"],
+        "en": ["Trailblazer", "Elation Trailblazer"],
+        "ja": ["開拓者", "愉悦開拓者"]
+      },
+      "releaseVersionId": "4.0"
+    }
+  ]
+}
