@@ -50,6 +50,7 @@
 - 总站大厅平级展示每日题、无限随机和实时对战，并明确标记未开始、进行中和已完成状态；
 - 支持刷新续局、历史回放、个人统计、排行榜，以及不泄露答案的结果分享；
 - 访客无需注册即可开始游戏，创建账号或登录后会合并同一浏览器中的访客进度；
+- 注册邮箱需完成验证后才能找回密码；验证与重置链接限时、一次性使用；
 - 简体中文、English、日本語三种语言，以及深色、浅色和跟随系统三种主题；
 - API 不可用时可由用户明确进入离线练习；离线结果不会保存，也不会计入统计或排行；
 - 角色数据、素材、来源、更新时间和 SHA-256 清单随同一网站版本发布。
@@ -115,6 +116,8 @@ Pull request 和 `main` push 都会运行格式、类型、测试和构建检查
 | Cloudflare Worker      | `https://api.fireflydle.games` | HTTP API、WebSocket 与定时维护 |
 | Cloudflare D1          | `fireflydle`                   | 账号、对局、排行和角色池       |
 | SQLite Durable Objects | `GameRoom`、`Matchmaker`       | 房间与匹配的强一致实时状态     |
+| Resend                 | `account@fireflydle.games`     | 邮箱验证与密码重置发信         |
+| Cloudflare Email       | `account@fireflydle.games`     | 将站点来信转发到维护者收件箱   |
 
 `.github/workflows/deploy.yml` 会从同一次数据同步生成 Pages artifact 和 D1 seed，先迁移并验证 API，再发布对应的前端版本。首次上线前仍需在 GitHub 与 Cloudflare 控制台完成 Pages、自定义域、D1、Worker、Environment secrets 和可选邮件能力的配置；详见 [部署手册](docs/DEPLOYMENT.md)。
 

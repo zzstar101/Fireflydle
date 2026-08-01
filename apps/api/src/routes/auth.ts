@@ -1,10 +1,11 @@
 import {
+  ConfirmEmailVerificationSchema,
   LoginRequestSchema,
   RegisterRequestSchema,
   RequestPasswordResetSchema,
   ResetPasswordSchema,
 } from "@fireflydle/contracts";
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { clearSessionCookie, sessionCookie } from "../lib/crypto";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import {
@@ -15,6 +16,11 @@ import {
   revokeSession,
   toPublicUser,
 } from "../services/auth";
+import {
+  confirmEmailVerification,
+  createEmailVerification,
+  sendEmailVerificationEmail,
+} from "../services/email-verification";
 import {
   confirmPasswordReset,
   createPasswordReset,
@@ -34,6 +40,23 @@ function sessionPayload(auth: ReturnType<typeof requireAuth>) {
 
 function normalizedLimitKey(value: string): string {
   return value.trim().normalize("NFKC").toLocaleLowerCase("en-US");
+}
+
+function scheduleEmailVerification(context: Context<AppContext>, userId: string): void {
+  context.executionCtx.waitUntil(
+    createEmailVerification(context.env, userId)
+      .then(async (delivery) => {
+        if (delivery) await sendEmailVerificationEmail(context.env, delivery);
+      })
+      .catch((error: unknown) => {
+        console.error(
+          JSON.stringify({
+            event: "email-verification-send-failed",
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        );
+      }),
+  );
 }
 
 authRoutes.get("/session", (context) => {
@@ -90,6 +113,7 @@ authRoutes.post("/auth/register", async (context) => {
     context.get("auth"),
     context.req.header("user-agent") ?? null,
   );
+  if (parsed.data.email) scheduleEmailVerification(context, auth.user.id);
   context.header("Set-Cookie", sessionCookie(auth.token, auth.expiresAt, context.req.url));
   return ok(context, sessionPayload(auth), 201);
 });
@@ -125,6 +149,43 @@ authRoutes.post("/auth/logout", async (context) => {
   await revokeSession(context.env, auth);
   context.header("Set-Cookie", clearSessionCookie(context.req.url));
   return ok(context, { revoked: true });
+});
+
+authRoutes.post("/auth/email-verification/request", async (context) => {
+  const auth = requireAuth(context, false);
+  await Promise.all([
+    enforceRateLimit(
+      context.env.DB,
+      "auth:email-verification-request:ip",
+      clientAddress(context.req.raw),
+      { limit: 10, windowMs: 60 * 60 * 1_000 },
+    ),
+    enforceRateLimit(context.env.DB, "auth:email-verification-request:user", auth.user.id, {
+      limit: 3,
+      windowMs: 60 * 60 * 1_000,
+    }),
+  ]);
+  scheduleEmailVerification(context, auth.user.id);
+  return ok(context, { accepted: true });
+});
+
+authRoutes.post("/auth/email-verification/confirm", async (context) => {
+  const parsed = ConfirmEmailVerificationSchema.safeParse(await readJson(context));
+  if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  await Promise.all([
+    enforceRateLimit(
+      context.env.DB,
+      "auth:email-verification-confirm:ip",
+      clientAddress(context.req.raw),
+      { limit: 10, windowMs: 15 * 60 * 1_000 },
+    ),
+    enforceRateLimit(context.env.DB, "auth:email-verification-confirm:token", parsed.data.token, {
+      limit: 5,
+      windowMs: 60 * 60 * 1_000,
+    }),
+  ]);
+  await confirmEmailVerification(context.env, parsed.data.token);
+  return ok(context, { verified: true });
 });
 
 authRoutes.post("/auth/password-reset/request", async (context) => {

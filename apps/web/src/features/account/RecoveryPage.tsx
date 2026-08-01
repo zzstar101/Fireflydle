@@ -41,7 +41,7 @@ export default function RecoveryPage() {
           ? "操作失败，请稍后重试。如果你正在重置密码，链接可能已经过期。"
           : locale === "ja"
             ? "リクエストを完了できませんでした。リンクの有効期限を確認してください。"
-            : "The request could not be completed. The link may be expired or email is not configured.",
+            : "The request could not be completed. Please try again; a password reset link may have expired.",
       );
     } finally {
       setBusy(false);
@@ -78,9 +78,9 @@ export default function RecoveryPage() {
                     "Your password has been updated.",
                   )
                 : tr(
-                    "如果该邮箱已绑定账号，我们会发送一封 30 分钟内有效的邮件。为避免泄露账号状态，无论邮箱是否存在都会显示此提示。",
-                    "登録済みのメールアドレスには、30分間有効な復旧リンクを送信します。アカウント情報を保護するため、登録の有無にかかわらず同じ案内を表示します。",
-                    "If the email is registered, a 30-minute recovery link will be sent. This message is identical whether or not the address exists.",
+                    "如果该邮箱已经验证并绑定账号，我们会发送一封 30 分钟内有效的邮件。为避免泄露账号状态，无论邮箱是否符合条件都会显示此提示。",
+                    "確認済みのメールアドレスがアカウントに登録されている場合、30分間有効な復旧リンクを送信します。アカウント情報を保護するため、条件を満たさない場合も同じ案内を表示します。",
+                    "If the email is verified and linked to an account, a 30-minute recovery link will be sent. This message is identical whether or not the address is eligible.",
                   )}
             </p>
             <Link className="ticket-button" to="/account">
@@ -89,6 +89,15 @@ export default function RecoveryPage() {
           </>
         ) : (
           <form className="auth-form recovery-form" onSubmit={(event) => void submit(event)}>
+            {!token && (
+              <p className="recovery-helper">
+                {tr(
+                  "请输入注册时填写并已完成验证的邮箱。未验证的邮箱不能用于找回密码。",
+                  "登録時に入力し、確認済みのメールアドレスを入力してください。未確認のメールは復旧に使用できません。",
+                  "Enter the verified email used during registration. Unverified email cannot be used for password recovery.",
+                )}
+              </p>
+            )}
             {token ? (
               <label>
                 <span>
@@ -113,7 +122,7 @@ export default function RecoveryPage() {
               </label>
             ) : (
               <label>
-                <span>{tr("绑定邮箱", "登録メール", "ACCOUNT EMAIL")}</span>
+                <span>{tr("已验证邮箱", "確認済みメール", "VERIFIED EMAIL")}</span>
                 <input
                   name="email"
                   required

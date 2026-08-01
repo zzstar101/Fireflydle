@@ -1,5 +1,6 @@
 import { hashPassword, randomToken, sha256 } from "../lib/crypto";
 import { ApiProblem } from "../lib/http";
+import { sendAccountEmail } from "./account-email";
 
 const RESET_TTL_MS = 30 * 60 * 1_000;
 
@@ -17,12 +18,6 @@ function normalizeEmail(value: string): string {
   return value.trim().normalize("NFKC").toLocaleLowerCase("en-US");
 }
 
-function resendApiKey(env: Env): string | null {
-  if (!("RESEND_API_KEY" in env)) return null;
-  const value = env.RESEND_API_KEY;
-  return typeof value === "string" && value.length > 0 ? value : null;
-}
-
 export async function createPasswordReset(
   env: Env,
   email: string,
@@ -31,7 +26,7 @@ export async function createPasswordReset(
   const user = await env.DB.prepare(
     `SELECT id, email FROM users
      WHERE email_normalized = ? AND is_guest = 0 AND merged_into_user_id IS NULL
-       AND email IS NOT NULL
+       AND email IS NOT NULL AND email_verified = 1
      LIMIT 1`,
   )
     .bind(normalizeEmail(email))
@@ -57,30 +52,7 @@ export async function sendPasswordResetEmail(
   env: Env,
   delivery: PasswordResetDelivery,
 ): Promise<void> {
-  const apiKey = resendApiKey(env);
-  if (!apiKey) {
-    console.warn(
-      JSON.stringify({ event: "password-reset-email-skipped", reason: "missing-secret" }),
-    );
-    return;
-  }
-  const baseUrl = env.PUBLIC_WEB_URL.replace(/\/$/u, "");
-  const resetUrl = `${baseUrl}/recover?token=${encodeURIComponent(delivery.token)}`;
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      from: env.RESEND_FROM,
-      to: [delivery.email],
-      subject: "Fireflydle 密码重置",
-      text: `请在 30 分钟内打开以下链接重置密码：\n\n${resetUrl}\n\n如果不是你发起的请求，可以忽略此邮件。`,
-      html: `<p>请在 30 分钟内重置 Fireflydle 密码。</p><p><a href="${resetUrl}">重置密码</a></p><p>如果不是你发起的请求，可以忽略此邮件。</p>`,
-    }),
-  });
-  if (!response.ok) throw new Error(`Resend 返回 ${response.status}`);
+  await sendAccountEmail(env, { kind: "password-reset", ...delivery });
 }
 
 export async function confirmPasswordReset(

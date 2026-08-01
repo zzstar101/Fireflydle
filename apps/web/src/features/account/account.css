@@ -155,6 +155,12 @@
   color: var(--exact);
   font-size: 0.62rem;
 }
+.profile-banner .profile-email-state-pending {
+  color: var(--gold-bright);
+}
+.profile-banner .profile-email-state-missing {
+  color: var(--text-muted);
+}
 .profile-actions {
   display: flex;
   gap: 8px;
@@ -207,6 +213,34 @@
   color: var(--text-faint);
   font-family: var(--font-mono);
   font-size: 0.53rem;
+}
+.email-verification-notice {
+  display: flex;
+  align-items: center;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  gap: 18px;
+  border: 1px solid color-mix(in srgb, var(--gold) 48%, var(--border));
+  background: color-mix(in srgb, var(--gold) 7%, var(--surface));
+}
+.email-verification-notice > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.email-verification-notice svg {
+  flex: 0 0 auto;
+  color: var(--gold-bright);
+}
+.email-verification-notice span {
+  display: grid;
+}
+.email-verification-notice small {
+  color: var(--text-muted);
+}
+.email-verification-notice button {
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 .danger-zone {
   display: flex;
@@ -395,6 +429,30 @@
 .recovery-form .auth-error {
   margin-top: 5px;
 }
+.recovery-helper {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+.verification-actions {
+  display: grid;
+  width: min(100%, 320px);
+  margin-top: 8px;
+  gap: 14px;
+}
+.verification-actions .text-button {
+  justify-self: center;
+}
+.account-page .button-spinner,
+.recovery-page .button-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: orbit 700ms linear infinite;
+}
 @media (max-width: 850px) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -428,6 +486,14 @@
     flex-direction: column;
   }
   .danger-zone button {
+    margin: 0;
+  }
+  .email-verification-notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .email-verification-notice button {
+    width: 100%;
     margin: 0;
   }
 }

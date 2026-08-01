@@ -12,6 +12,7 @@ interface SessionUserRow {
   display_name: string;
   role: AuthUser["role"];
   is_guest: number;
+  has_email: number;
   email_verified: number;
   elo: number;
   ranked_matches: number;
@@ -253,7 +254,9 @@ async function mergeGuestProgress(
     .prepare(
       `SELECT
          '' AS session_id, 0 AS expires_at, 0 AS last_seen_at,
-         id AS user_id, display_name, role, is_guest, email_verified, elo,
+         id AS user_id, display_name, role, is_guest,
+         CASE WHEN email IS NULL THEN 0 ELSE 1 END AS has_email,
+         email_verified, elo,
          ranked_matches, leaderboard_eligible, created_at
        FROM users WHERE id = ? AND merged_into_user_id IS NULL`,
     )
@@ -289,6 +292,7 @@ function mapAuthUser(row: SessionUserRow): AuthUser {
     displayName: row.display_name,
     role: row.role,
     isGuest: row.is_guest === 1,
+    hasEmail: row.has_email === 1,
     emailVerified: row.email_verified === 1,
     elo: row.elo,
     rankedMatches: row.ranked_matches,
@@ -303,6 +307,7 @@ export function toPublicUser(user: AuthUser): PublicUser {
     displayName: user.displayName,
     role: user.role,
     isGuest: user.isGuest,
+    hasEmail: user.hasEmail,
     emailVerified: user.emailVerified,
     elo: user.elo,
     rankedMatches: user.rankedMatches,
@@ -338,7 +343,8 @@ export async function resolveAuth(env: Env, request: Request): Promise<AuthConte
   const row = await env.DB.prepare(
     `SELECT
        s.id AS session_id, s.expires_at, s.last_seen_at,
-       u.id AS user_id, u.display_name, u.role, u.is_guest, u.email_verified,
+       u.id AS user_id, u.display_name, u.role, u.is_guest,
+       CASE WHEN u.email IS NULL THEN 0 ELSE 1 END AS has_email, u.email_verified,
        u.elo, u.ranked_matches, u.leaderboard_eligible, u.created_at
      FROM sessions s
      JOIN users u ON u.id = s.user_id
@@ -409,6 +415,7 @@ export async function createGuest(
       displayName,
       role: "player",
       isGuest: true,
+      hasEmail: false,
       emailVerified: false,
       elo: 1000,
       rankedMatches: 0,
@@ -466,7 +473,7 @@ export async function registerUser(
       `UPDATE users SET
          login_name = ?, login_name_normalized = ?, display_name = ?, display_name_normalized = ?,
          password_hash = ?, password_salt = ?, password_iterations = ?,
-         email = ?, email_normalized = ?, is_guest = 0,
+         email = ?, email_normalized = ?, email_verified = 0, is_guest = 0,
          leaderboard_eligible = CASE WHEN ranked_matches >= 10 THEN 1 ELSE 0 END,
          updated_at = ?
        WHERE id = ? AND is_guest = 1`,
@@ -491,6 +498,8 @@ export async function registerUser(
         ...current.user,
         displayName: input.displayName,
         isGuest: false,
+        hasEmail: input.email !== undefined,
+        emailVerified: false,
         leaderboardEligible: current.user.rankedMatches >= 10,
       },
     };
@@ -528,6 +537,7 @@ export async function registerUser(
       displayName: input.displayName,
       role: "player",
       isGuest: false,
+      hasEmail: input.email !== undefined,
       emailVerified: false,
       elo: 1000,
       rankedMatches: 0,
@@ -548,7 +558,9 @@ export async function loginUser(
   const row = await env.DB.prepare(
     `SELECT
        '' AS session_id, 0 AS expires_at, 0 AS last_seen_at,
-       id AS user_id, display_name, role, is_guest, email_verified, elo,
+       id AS user_id, display_name, role, is_guest,
+       CASE WHEN email IS NULL THEN 0 ELSE 1 END AS has_email,
+       email_verified, elo,
        ranked_matches, leaderboard_eligible, created_at,
        password_hash, password_salt, password_iterations
      FROM users

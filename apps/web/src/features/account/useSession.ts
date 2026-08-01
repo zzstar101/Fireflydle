@@ -14,6 +14,7 @@ function localGuest(): PublicUser {
     displayName: "Guest",
     role: "player",
     isGuest: true,
+    hasEmail: false,
     emailVerified: false,
     elo: 1000,
     rankedMatches: 0,

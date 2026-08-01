@@ -5,6 +5,7 @@ export interface AuthUser {
   displayName: string;
   role: UserRole;
   isGuest: boolean;
+  hasEmail: boolean;
   emailVerified: boolean;
   elo: number;
   rankedMatches: number;

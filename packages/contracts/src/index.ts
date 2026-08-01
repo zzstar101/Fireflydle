@@ -205,6 +205,10 @@ export const ResetPasswordSchema = z.object({
   password: z.string().min(PASSWORD_MIN_LENGTH).max(128),
 });
 
+export const ConfirmEmailVerificationSchema = z.object({
+  token: z.string().min(32).max(256),
+});
+
 export const UserRoleSchema = z.enum(["player", "moderator", "data-editor", "admin", "owner"]);
 export type UserRole = z.infer<typeof UserRoleSchema>;
 
@@ -213,6 +217,7 @@ export const PublicUserSchema = z.object({
   displayName: z.string(),
   role: UserRoleSchema,
   isGuest: z.boolean(),
+  hasEmail: z.boolean(),
   emailVerified: z.boolean(),
   elo: z.number().int(),
   rankedMatches: z.number().int().nonnegative(),

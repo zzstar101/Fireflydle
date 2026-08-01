@@ -37,7 +37,13 @@ const character: Character = {
 
 interface SessionData {
   expiresAt: string;
-  user: { id: string; elo?: number; rankedMatches?: number };
+  user: {
+    id: string;
+    hasEmail: boolean;
+    emailVerified: boolean;
+    elo?: number;
+    rankedMatches?: number;
+  };
 }
 
 async function dataOf<T>(response: Response): Promise<T> {
@@ -635,7 +641,169 @@ describe("访客进度合并", () => {
   });
 });
 
+describe("邮箱验证", () => {
+  it("无邮箱注册保持可用，验证邮件发送失败也不会回滚带邮箱注册", async () => {
+    const outbound = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("test-email-delivery-failed"));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const withoutEmail = await SELF.fetch("https://fireflydle.games/api/auth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "cf-connecting-ip": "203.0.113.101",
+      },
+      body: JSON.stringify({
+        loginName: "without_email",
+        displayName: "Without Email",
+        password: "secret",
+      }),
+    });
+    expect(withoutEmail.status).toBe(201);
+    const registeredWithoutEmail = await dataOf<SessionData>(withoutEmail);
+    expect(registeredWithoutEmail.user).toMatchObject({
+      hasEmail: false,
+      emailVerified: false,
+    });
+    expect(outbound).not.toHaveBeenCalled();
+    const withoutEmailTokens = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM email_verification_tokens WHERE user_id = ?",
+    )
+      .bind(registeredWithoutEmail.user.id)
+      .first<{ count: number }>();
+    expect(withoutEmailTokens?.count).toBe(0);
+
+    const withEmail = await SELF.fetch("https://fireflydle.games/api/auth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "cf-connecting-ip": "203.0.113.102",
+      },
+      body: JSON.stringify({
+        loginName: "delivery_failure",
+        displayName: "Delivery Failure",
+        password: "secret",
+        email: "delivery-failure@example.com",
+      }),
+    });
+    expect(withEmail.status).toBe(201);
+    const registered = await dataOf<SessionData>(withEmail);
+    expect(registered.user).toMatchObject({ hasEmail: true, emailVerified: false });
+    await vi.waitFor(() => expect(outbound).toHaveBeenCalledOnce());
+    await vi.waitFor(() => expect(consoleError).toHaveBeenCalledOnce());
+
+    const stored = await env.DB.prepare(
+      `SELECT users.email_verified,
+         (SELECT COUNT(*) FROM email_verification_tokens
+          WHERE user_id = users.id AND used_at IS NULL) AS token_count
+       FROM users WHERE id = ?`,
+    )
+      .bind(registered.user.id)
+      .first<{ email_verified: number; token_count: number }>();
+    expect(stored).toMatchObject({ email_verified: 0, token_count: 1 });
+  });
+
+  it("重发会使旧 token 失效，确认后刷新会话中的邮箱状态", async () => {
+    const emailedTokens: string[] = [];
+    const outbound = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const request = new Request(input, init);
+      expect(request.url).toBe("https://api.resend.com/emails");
+      expect(request.headers.get("authorization")).toBe("Bearer test-resend-key");
+      const body = (await request.json()) as { text?: unknown };
+      if (typeof body.text === "string") {
+        const match = /verify-email\?token=([^\s]+)/u.exec(body.text);
+        if (match?.[1]) emailedTokens.push(decodeURIComponent(match[1]));
+      }
+      return Response.json({ id: "email-verification-test" });
+    });
+
+    const response = await SELF.fetch("https://fireflydle.games/api/auth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "cf-connecting-ip": "203.0.113.103",
+      },
+      body: JSON.stringify({
+        loginName: "verify_email",
+        displayName: "Verify Email",
+        password: "secret",
+        email: "Verify@Example.com",
+      }),
+    });
+    expect(response.status).toBe(201);
+    const registered = await dataOf<SessionData>(response);
+    const cookie = response.headers.get("set-cookie") ?? "";
+    expect(registered.user).toMatchObject({ hasEmail: true, emailVerified: false });
+    await vi.waitFor(() => expect(outbound).toHaveBeenCalledOnce());
+
+    const resent = await SELF.fetch(
+      "https://fireflydle.games/api/auth/email-verification/request",
+      { method: "POST", headers: { cookie } },
+    );
+    expect(resent.status).toBe(200);
+    await vi.waitFor(() => expect(outbound).toHaveBeenCalledTimes(2));
+    expect(emailedTokens).toHaveLength(2);
+
+    const currentToken = emailedTokens[1];
+    if (!currentToken) throw new Error("未从验证邮件中取得 token");
+    const stored = await env.DB.prepare(
+      `SELECT token_hash FROM email_verification_tokens
+       WHERE user_id = ? AND used_at IS NULL`,
+    )
+      .bind(registered.user.id)
+      .first<{ token_hash: string }>();
+    expect(stored?.token_hash).not.toBe(currentToken);
+
+    const confirm = (token: string) =>
+      SELF.fetch("https://fireflydle.games/api/auth/email-verification/confirm", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+    expect((await confirm(emailedTokens[0] ?? "")).status).toBe(400);
+    expect((await confirm(currentToken)).status).toBe(200);
+    expect((await confirm(currentToken)).status).toBe(400);
+
+    const me = await SELF.fetch("https://fireflydle.games/api/auth/me", { headers: { cookie } });
+    expect((await dataOf<SessionData["user"]>(me)).emailVerified).toBe(true);
+  });
+});
+
 describe("密码重置", () => {
+  it("未验证邮箱保持不可枚举且不创建 token 或发送邮件", async () => {
+    const now = Date.now();
+    const userId = crypto.randomUUID();
+    await env.DB.prepare(
+      `INSERT INTO users
+         (id, login_name, login_name_normalized, display_name, display_name_normalized,
+          password_hash, password_salt, password_iterations, email, email_normalized,
+          role, is_guest, email_verified, elo, ranked_matches, leaderboard_eligible,
+          created_at, updated_at)
+       VALUES (?, 'unverified_reset', 'unverified_reset', 'Unverified Reset', 'unverified reset',
+               'old-hash', 'old-salt', 1, 'unverified@example.com', 'unverified@example.com',
+               'player', 0, 0, 1000, 0, 0, ?, ?)`,
+    )
+      .bind(userId, now, now)
+      .run();
+    const outbound = vi.spyOn(globalThis, "fetch");
+
+    const requested = await SELF.fetch("https://fireflydle.games/api/auth/password-reset/request", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: "unverified@example.com" }),
+    });
+    expect(requested.status).toBe(200);
+    expect(await dataOf<{ accepted: boolean }>(requested)).toEqual({ accepted: true });
+    expect(outbound).not.toHaveBeenCalled();
+    const stored = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM password_reset_tokens WHERE user_id = ?",
+    )
+      .bind(userId)
+      .first<{ count: number }>();
+    expect(stored?.count).toBe(0);
+  });
+
   it("只存 token hash，通过 Resend 发送并且 token 一次性使用", async () => {
     const now = Date.now();
     const userId = crypto.randomUUID();

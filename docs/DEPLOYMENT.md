@@ -154,7 +154,7 @@ GitHub Pages 使用 `github-pages` Environment。`.github/workflows/deploy.yml` 
 
 ## 6. Resend 与 `account@fireflydle.games`
 
-密码重置依赖 Resend。未配置 `RESEND_API_KEY` 时，核心游戏和账号功能仍可上线，但不会发送密码重置邮件，workflow 会给出警告。
+邮箱验证与密码重置依赖 Resend。未配置 `RESEND_API_KEY` 时，核心游戏和无邮箱账号仍可使用，但不会发送账号邮件，workflow 会给出警告。注册时填写的邮箱必须先通过验证链接确认，只有 `email_verified = 1` 的邮箱才能创建密码重置 token。
 
 1. 在 Resend 添加发送域 `fireflydle.games`。
 2. 把 Resend 控制台给出的 SPF、DKIM 和 return-path 记录逐条加入 Cloudflare DNS。内容和名称必须以 Resend 当前页面为准，邮件记录均使用 **DNS only**。
@@ -176,14 +176,16 @@ PUBLIC_WEB_URL=https://fireflydle.games
 
 不要用 `echo` 把 API key 写进 shell history，也不要把 Resend key 加到 GitHub Actions；Worker secret 会在后续 `wrangler deploy` 时保留。发布流程仅通过 `wrangler secret list` 校验 secret 名称，无法读取或输出 secret 值。
 
-部署后验证密码重置的 request/confirm 流程：
+部署后依次验证邮箱验证与密码重置流程：
 
 ```text
+POST /api/auth/email-verification/request
+POST /api/auth/email-verification/confirm
 POST /api/auth/password-reset/request
 POST /api/auth/password-reset/confirm
 ```
 
-request 接口应对存在和不存在的邮箱返回不可枚举的统一响应，并受限流保护。不要在生产日志中记录重置 token。
+验证页只应在用户点击确认按钮后提交 token，避免邮件安全扫描器预取链接时自动验证。密码重置 request 接口应对不存在、未验证和已验证邮箱返回不可枚举的统一响应，并受限流保护。不要在生产日志中记录邮箱、验证 token 或重置 token。
 
 Resend 的发送域不会自动创建 `account@fireflydle.games` 收件箱。若该地址需要接收回复，另行配置 Cloudflare Email Routing 或邮箱服务商，并保留其 MX/TXT 记录。
 

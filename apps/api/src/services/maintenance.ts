@@ -73,6 +73,7 @@ async function anonymizeDeletedAccount(db: D1Database, userId: string, now: numb
   await db.batch([
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
     db.prepare("DELETE FROM password_reset_tokens WHERE user_id = ?").bind(userId),
+    db.prepare("DELETE FROM email_verification_tokens WHERE user_id = ?").bind(userId),
     db
       .prepare("DELETE FROM game_guesses WHERE game_id IN (SELECT id FROM games WHERE user_id = ?)")
       .bind(userId),
@@ -146,6 +147,10 @@ export async function runScheduledMaintenance(env: Env, now = Date.now()): Promi
     ).bind(now, now - 7 * DAY_MS),
     env.DB.prepare(
       `DELETE FROM password_reset_tokens
+       WHERE expires_at <= ? OR (used_at IS NOT NULL AND used_at <= ?)`,
+    ).bind(now - 7 * DAY_MS, now - 7 * DAY_MS),
+    env.DB.prepare(
+      `DELETE FROM email_verification_tokens
        WHERE expires_at <= ? OR (used_at IS NOT NULL AND used_at <= ?)`,
     ).bind(now - 7 * DAY_MS, now - 7 * DAY_MS),
     env.DB.prepare(

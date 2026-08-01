@@ -13,6 +13,7 @@ const LeaderboardPage = lazy(() => import("../features/leaderboard/LeaderboardPa
 const StatsPage = lazy(() => import("../features/account/StatsPage"));
 const AccountPage = lazy(() => import("../features/account/AccountPage"));
 const RecoveryPage = lazy(() => import("../features/account/RecoveryPage"));
+const EmailVerificationPage = lazy(() => import("../features/account/EmailVerificationPage"));
 const AdminPage = lazy(() => import("../features/admin/AdminPage"));
 const ReplayPage = lazy(() => import("../features/game/ReplayPage"));
 const LegalPage = lazy(() => import("../features/account/LegalPage"));
@@ -69,6 +70,7 @@ export function App() {
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/recover" element={<RecoveryPage />} />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/replay/:replayId" element={<ReplayPage />} />
             <Route path="/legal" element={<LegalPage />} />

@@ -7,6 +7,8 @@ import {
   KeyRound,
   LogIn,
   LogOut,
+  MailWarning,
+  RefreshCw,
   ShieldCheck,
   Trash2,
   UserPlus,
@@ -20,8 +22,9 @@ import {
   type SessionPayload,
 } from "@fireflydle/contracts";
 import { Link } from "react-router-dom";
-import { apiRequest } from "../../api/client";
+import { ApiClientError, apiRequest } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
+import { emailVerificationState } from "./email-verification-state";
 import { registrationErrorDetails } from "./registration-error";
 import { useRefreshSession, useSession } from "./useSession";
 import "./account.css";
@@ -59,6 +62,7 @@ export default function AccountPage() {
       ?.focus();
   };
   const user = session.data?.user;
+  const emailState = user ? emailVerificationState(user) : "missing";
   const deletion = useQuery({
     queryKey: ["account", "deletion"],
     queryFn: () => apiRequest<AccountDeletionStatus>("/account/deletion"),
@@ -143,6 +147,33 @@ export default function AccountPage() {
     }
   };
 
+  const requestEmailVerification = async () => {
+    if (!user || user.isGuest || emailState !== "pending") return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      await apiRequest("/auth/email-verification/request", { method: "POST" });
+      setMessage(
+        tr(
+          "如果邮箱仍然可用，验证邮件将会发送，请稍后检查收件箱。",
+          "メールアドレスが引き続き利用可能な場合、確認メールが送信されます。しばらくしてから受信トレイを確認してください。",
+          "If the email is still available, a verification message will be sent. Check your inbox shortly.",
+        ),
+      );
+    } catch (error) {
+      const code = error instanceof ApiClientError ? error.code : "INTERNAL_ERROR";
+      setMessage(
+        code === "RATE_LIMITED" || code === "AUTH_RATE_LIMITED"
+          ? t("error.RATE_LIMITED")
+          : code === "AUTH_EMAIL_UNAVAILABLE"
+            ? t("error.AUTH_EMAIL_UNAVAILABLE")
+            : t("error.generic"),
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const requestDeletion = async () => {
     const confirmed = window.confirm(
       tr(
@@ -195,14 +226,18 @@ export default function AccountPage() {
           <div>
             <p className="eyebrow">{tr("账号信息", "アカウント情報", "ACCOUNT")}</p>
             <h1>{user.displayName}</h1>
-            <span>
-              {user.emailVerified ? (
+            <span className={`profile-email-state profile-email-state-${emailState}`}>
+              {emailState === "verified" ? (
                 <>
                   <ShieldCheck size={15} /> {tr("邮箱已验证", "メール確認済み", "EMAIL VERIFIED")}
                 </>
+              ) : emailState === "pending" ? (
+                <>
+                  <MailWarning size={15} /> {tr("邮箱待验证", "メール未確認", "EMAIL UNVERIFIED")}
+                </>
               ) : (
                 <>
-                  <AtSign size={15} /> {tr("邮箱可选", "メールは任意", "EMAIL OPTIONAL")}
+                  <AtSign size={15} /> {tr("未绑定邮箱", "メール未登録", "NO EMAIL")}
                 </>
               )}
             </span>
@@ -246,6 +281,42 @@ export default function AccountPage() {
             <small>{tr("每 30 天可修改", "30日に1回変更可能", "CHANGE EVERY 30 DAYS")}</small>
           </div>
         </section>
+        {emailState === "pending" && (
+          <section className="email-verification-notice" aria-labelledby="email-verification-title">
+            <div>
+              <MailWarning size={20} aria-hidden="true" />
+              <span>
+                <strong id="email-verification-title">
+                  {tr(
+                    "验证邮箱后才能找回密码",
+                    "メール確認が必要です",
+                    "Verify your recovery email",
+                  )}
+                </strong>
+                <small>
+                  {tr(
+                    "验证链接会发送到注册时填写的邮箱。",
+                    "登録時のメールアドレスに確認リンクを送信します。",
+                    "We will send a verification link to the email used during registration.",
+                  )}
+                </small>
+              </span>
+            </div>
+            <button
+              className="ticket-button-secondary"
+              type="button"
+              disabled={busy}
+              onClick={() => void requestEmailVerification()}
+            >
+              {busy ? (
+                <span className="button-spinner" aria-hidden="true" />
+              ) : (
+                <RefreshCw size={16} />
+              )}
+              {tr("重新发送", "再送する", "Resend email")}
+            </button>
+          </section>
+        )}
         <form className="profile-settings" onSubmit={(event) => void updateDisplayName(event)}>
           <label htmlFor="profile-display-name">
             <span>{tr("修改昵称", "表示名を変更", "Change display name")}</span>
@@ -500,7 +571,16 @@ export default function AccountPage() {
               />
             </label>
             <label>
-              <span>{t("account.email")}</span>
+              <span>
+                {t("account.email")}
+                <small>
+                  {tr(
+                    "填写后需验证，验证后才能用于找回密码",
+                    "入力後に確認すると、パスワード再設定に使用できます",
+                    "Verify it before using it for password recovery",
+                  )}
+                </small>
+              </span>
               <input
                 name="email"
                 type="email"
