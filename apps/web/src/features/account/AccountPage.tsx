@@ -426,10 +426,10 @@ export default function AccountPage() {
             <AtSign size={18} />
             <span>
               {locale === "zh-CN"
-                ? "邮箱可选，仅用于找回密码。"
+                ? "邮箱可选；完成验证后可用于找回密码。"
                 : locale === "ja"
-                  ? "メールは任意で、アカウント復旧のみに使用します。"
-                  : "Email is optional and used only for account recovery."}
+                  ? "メールは任意です。確認後、アカウント復旧に使用できます。"
+                  : "Email is optional and can be used for recovery after verification."}
             </span>
           </li>
         </ul>
