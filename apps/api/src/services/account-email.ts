@@ -18,7 +18,7 @@ function resendApiKey(env: Env): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
-export async function sendAccountEmail(env: Env, delivery: AccountEmailDelivery): Promise<void> {
+export async function sendAccountEmail(env: Env, delivery: AccountEmailDelivery): Promise<boolean> {
   const apiKey = resendApiKey(env);
   if (!apiKey) {
     console.warn(
@@ -28,7 +28,7 @@ export async function sendAccountEmail(env: Env, delivery: AccountEmailDelivery)
         reason: "missing-secret",
       }),
     );
-    return;
+    return false;
   }
 
   const baseUrl = env.PUBLIC_WEB_URL.replace(/\/$/u, "");
@@ -49,4 +49,5 @@ export async function sendAccountEmail(env: Env, delivery: AccountEmailDelivery)
     }),
   });
   if (!response.ok) throw new Error(`Resend 返回 ${response.status}`);
+  return true;
 }

@@ -1,5 +1,9 @@
+import { runScheduledOperations } from "./operations-dashboard";
+
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const REPLAY_RETENTION_MS = 30 * DAY_MS;
+const OPERATIONS_DETAIL_RETENTION_MS = 7 * DAY_MS;
+const OPERATIONS_DAILY_RETENTION_MS = 180 * DAY_MS;
 
 interface DueDeletionRow {
   user_id: string;
@@ -141,6 +145,7 @@ export async function runScheduledMaintenance(env: Env, now = Date.now()): Promi
   await expireAbandonedGames(env.DB, now);
   await purgeExpiredReplays(env.DB, now);
   await processAccountDeletions(env.DB, now);
+  await runScheduledOperations(env, now);
   await env.DB.batch([
     env.DB.prepare(
       "DELETE FROM sessions WHERE expires_at <= ? OR (revoked_at IS NOT NULL AND revoked_at <= ?)",
@@ -159,5 +164,24 @@ export async function runScheduledMaintenance(env: Env, now = Date.now()): Promi
     ).bind(now - 7 * DAY_MS, now - 7 * DAY_MS),
     env.DB.prepare("DELETE FROM rate_limits WHERE updated_at <= ?").bind(now - 7 * DAY_MS),
     env.DB.prepare("DELETE FROM room_directory WHERE expires_at <= ?").bind(now),
+    env.DB.prepare("DELETE FROM operations_visit_sessions WHERE started_at <= ?").bind(
+      now - OPERATIONS_DETAIL_RETENTION_MS,
+    ),
+    env.DB.prepare("DELETE FROM operations_daily_players WHERE first_started_at <= ?").bind(
+      now - OPERATIONS_DETAIL_RETENTION_MS,
+    ),
+    env.DB.prepare("DELETE FROM operations_multiplayer_starts WHERE started_at <= ?").bind(
+      now - OPERATIONS_DETAIL_RETENTION_MS,
+    ),
+    env.DB.prepare("DELETE FROM operations_error_events WHERE occurred_at <= ?").bind(
+      now - OPERATIONS_DETAIL_RETENTION_MS,
+    ),
+    env.DB.prepare(
+      "DELETE FROM operations_alerts WHERE status = 'recovered' AND last_seen_at <= ?",
+    ).bind(now - OPERATIONS_DETAIL_RETENTION_MS),
+    env.DB.prepare("DELETE FROM operations_daily_metrics WHERE updated_at <= ?").bind(
+      now - OPERATIONS_DAILY_RETENTION_MS,
+    ),
+    env.DB.prepare("DELETE FROM operations_external_cache WHERE expires_at <= ?").bind(now),
   ]);
 }

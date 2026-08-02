@@ -67,8 +67,8 @@ export async function createEmailVerification(
 export async function sendEmailVerificationEmail(
   env: Env,
   delivery: EmailVerificationDelivery,
-): Promise<void> {
-  await sendAccountEmail(env, { kind: "email-verification", ...delivery });
+): Promise<boolean> {
+  return sendAccountEmail(env, { kind: "email-verification", ...delivery });
 }
 
 export async function confirmEmailVerification(

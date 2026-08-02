@@ -369,6 +369,20 @@ export class Matchmaker extends DurableObject<Env> {
     return this.toResult(row);
   }
 
+  public getStats(now = Date.now()): { waiting: number; reserved: number } {
+    this.ctx.storage.transactionSync(() => this.advanceSync(now));
+    const rows = this.sql
+      .exec<{ status: "waiting" | "reserved"; count: number }>(
+        `SELECT status, COUNT(*) AS count FROM queue_entries
+         WHERE status IN ('waiting', 'reserved') GROUP BY status`,
+      )
+      .toArray();
+    return {
+      waiting: rows.find((row) => row.status === "waiting")?.count ?? 0,
+      reserved: rows.find((row) => row.status === "reserved")?.count ?? 0,
+    };
+  }
+
   public async cancel(ticketId: string, playerId: string, now = Date.now()): Promise<boolean> {
     let cancelled = false;
     this.ctx.storage.transactionSync(() => {

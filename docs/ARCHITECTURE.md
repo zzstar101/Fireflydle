@@ -50,7 +50,9 @@ flowchart LR
 
 ### D1
 
-D1 是长期、可查询的数据源，包含账号、会话、角色、每日目标、对局、匹配归档、评分事件、公告和审计日志。schema 由 `apps/api/migrations/*.sql` 单向演进，Wrangler 在 `d1_migrations` 表记录已应用版本。
+D1 是长期、可查询的数据源，包含账号、会话、角色、每日目标、对局、匹配归档、评分事件、公告、审计日志和运维日汇总。schema 由 `apps/api/migrations/*.sql` 单向演进，Wrangler 在 `d1_migrations` 表记录已应用版本。
+
+请求延迟与状态码写入 Workers Analytics Engine，不为每个请求增加 D1 写入。D1 只保存访问会话、每日首次活跃、账号流程计数、脱敏错误和预警；会话/错误明细保留 7 天，日汇总保留 180 天。Analytics Engine 按 Cloudflare 当前托管策略保留 90 天，但后台只查询最近 7 天；其中用户标识每天使用 SHA-256 重新匿名化，数据点不包含原始用户 ID、访问会话 ID、请求正文、Cookie、令牌、邮箱或 IP。
 
 单人对局的核心不变量是：每名用户每天只有一个 daily 对局，且同时只有一个 active random 对局。创建接口采用 start-or-resume，已经创建的对局不能切换难度。猜测、认输与结果摘要在同一个 D1 batch 中用条件写入完成裁决；访客登录已有账号时由 `guest_progress_merges` 账本提供一次性合并边界，冲突的每日成绩不会迁入目标账号。
 
@@ -91,6 +93,7 @@ D1 是长期、可查询的数据源，包含账号、会话、角色、每日�
 - Cloudflare 凭据只存在于受保护的 `production-api` GitHub Environment，不写入仓库、构建产物或命令行参数。
 - `api.fireflydle.games` Custom Domain 在首次引导时由 Cloudflare 控制台绑定；生产配置不声明 routes，因此 CD token 不拥有 Zone 权限，也不会在每次代码发布时重复写路由。
 - Resend API key 只作为 Worker secret 保存；发件地址和公开站点 URL 是版本控制中的非秘密配置。
+- 管理概览使用独立的 `CLOUDFLARE_ANALYTICS_TOKEN` Worker secret，只授予 Account Analytics Read；不会复用部署 token。
 - 生产部署使用并发锁且不取消进行中的发布，避免两个 migration/seed 同时执行。
 - D1 变更优先使用向前修复；破坏性恢复必须先评估会丢失的用户写入。
 - Durable Object class migration 是命名空间生命周期操作，不能当作普通代码版本回滚。

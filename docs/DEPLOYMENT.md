@@ -148,6 +148,14 @@ curl --fail-with-body https://api.fireflydle.games/api/health
 
 不要把 token 放进 repository variable、workflow YAML、README、命令输出或 artifact。Account ID 本身不是凭据，但作为 Environment secret 管理可以减少配置散落。
 
+管理概览还需要一个与部署凭据分离的只读 token。在 Cloudflare 创建自定义 token，仅授予实际生产账号的 **Account / Account Analytics / Read**，然后在 `apps/api` 下交互式写入 Worker secret：
+
+```bash
+bunx wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN
+```
+
+该 token 只用于管理员手动刷新或每小时定时检查时查询 Analytics Engine、Workers 与 D1 用量。不要复用拥有写权限的部署 token。Account ID 与 D1 database ID 是非秘密配置，保存在 `apps/api/wrangler.jsonc`；token 值只能存在于 Cloudflare Worker Secret。
+
 GitHub Pages 使用 `github-pages` Environment。`.github/workflows/deploy.yml` 仅给 Pages job `pages: write` 与 `id-token: write`，其他 job 保持只读仓库权限。
 
 ## 6. Resend 与 `account@fireflydle.games`
@@ -189,7 +197,7 @@ Resend 的发送域不会自动创建 `account@fireflydle.games` 收件箱。若
 
 ### 邮件模板维护
 
-账号邮件的 HTML 与纯文本模板以 `apps/api/src/services/account-email-template.ts` 为唯一事实来源，当前包含邮箱验证和密码重置两类。修改模板后必须运行 Worker 测试，并与 Worker 同版本发布；这样模板内容、链接路径、过期提示和安全文案可以在 Pull Request 中审查，也能随 Worker 版本一起回滚。
+账号邮件的 HTML 与纯文本模板以 `apps/api/src/services/account-email-template.ts` 为唯一事实来源，当前包含邮箱验证和密码重置两类；运维预警模板位于 `apps/api/src/services/operations-alert-email-template.ts`。修改模板后必须运行 Worker 测试，并与 Worker 同版本发布；这样模板内容、链接路径、过期提示和安全文案可以在 Pull Request 中审查，也能随 Worker 版本一起回滚。
 
 Resend 支持创建、更新和发布托管模板，并可在发送时通过 template ID 或 alias 传入变量；但是使用托管模板时，请求不能同时提交 `html`、`text` 或 `react`。本项目暂不把 Resend 控制台中的模板作为生产来源，以免网站、Worker 与单独发布的模板发生版本漂移。若未来切换，应先在 CI 中加入从仓库模板到 Resend alias 的幂等同步与发布步骤，再把 Worker 发送载荷切换为 `template` 对象，不要手工维护第二份生产内容。
 

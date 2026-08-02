@@ -3,6 +3,7 @@ import type { Character, ErrorCode, MatchFormat, RoomSnapshot } from "@fireflydl
 export interface RoomParticipant {
   userId: string;
   displayName: string;
+  isGuest: boolean;
   rating: number;
   rankedMatches: number;
 }

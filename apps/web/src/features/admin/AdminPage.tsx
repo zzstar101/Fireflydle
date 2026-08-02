@@ -1,13 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Ban,
   BellRing,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   Database,
   FileClock,
   FileUp,
   Layers3,
+  Gauge,
   Pencil,
   Plus,
   RefreshCw,
@@ -33,9 +36,10 @@ import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
 import { ApiClientError, apiRequest } from "../../api/client";
+import { OperationsPanel } from "./OperationsPanel";
 import "./admin.css";
 
-type AdminTab = "characters" | "taxonomy" | "announcements" | "users" | "moderation";
+type AdminTab = "overview" | "characters" | "taxonomy" | "announcements" | "users" | "moderation";
 
 interface AdminAnnouncement {
   id: string;
@@ -52,7 +56,6 @@ interface AdminUser {
   id: string;
   displayName: string;
   role: UserRole;
-  isGuest: boolean;
   emailVerified: boolean;
   elo: number;
   rankedMatches: number;
@@ -60,6 +63,14 @@ interface AdminUser {
   bannedUntil: string | null;
   banReason: string | null;
   createdAt: string;
+}
+
+interface AdminUserPage {
+  items: AdminUser[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }
 
 interface DailyTarget {
@@ -551,10 +562,24 @@ function AnnouncementsPanel({ locale }: { locale: Locale }) {
 function UsersPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole }) {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const [roleFilter, setRoleFilter] = useState<UserRole | "">("");
+  const [statusFilter, setStatusFilter] = useState<"" | "active" | "banned">("");
+  const [emailFilter, setEmailFilter] = useState<"" | "verified" | "unverified">("");
+  const [page, setPage] = useState(1);
   const [message, setMessage] = useState("");
+  useEffect(() => setPage(1), [deferredQuery, roleFilter, statusFilter, emailFilter]);
+  const search = new URLSearchParams({
+    q: deferredQuery,
+    page: String(page),
+    pageSize: "25",
+  });
+  if (roleFilter) search.set("role", roleFilter);
+  if (statusFilter) search.set("status", statusFilter);
+  if (emailFilter) search.set("email", emailFilter);
   const users = useQuery({
-    queryKey: ["admin", "users", query],
-    queryFn: () => apiRequest<AdminUser[]>(`/admin/users?q=${encodeURIComponent(query)}`),
+    queryKey: ["admin", "users", deferredQuery, roleFilter, statusFilter, emailFilter, page],
+    queryFn: () => apiRequest<AdminUserPage>(`/admin/users?${search.toString()}`),
   });
   const update = useMutation({
     mutationFn: ({ id, body }: { id: string; body: Record<string, unknown> }) =>
@@ -580,8 +605,43 @@ function UsersPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole
             placeholder={locale === "zh-CN" ? "搜索显示名、登录名或邮箱" : "Search name or email"}
           />
         </label>
-        <button className="ticket-button-secondary" onClick={() => users.refetch()}>
-          <RefreshCw size={15} /> {locale === "zh-CN" ? "刷新" : "Refresh"}
+        <select
+          value={roleFilter}
+          onChange={(event) => setRoleFilter(event.target.value as UserRole | "")}
+          aria-label={locale === "zh-CN" ? "按角色筛选" : "Filter by role"}
+        >
+          <option value="">{locale === "zh-CN" ? "全部角色" : "All roles"}</option>
+          {(["player", "moderator", "data-editor", "admin", "owner"] as const).map((role) => (
+            <option value={role} key={role}>
+              {role}
+            </option>
+          ))}
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
+          aria-label={locale === "zh-CN" ? "按状态筛选" : "Filter by status"}
+        >
+          <option value="">{locale === "zh-CN" ? "全部状态" : "All statuses"}</option>
+          <option value="active">{locale === "zh-CN" ? "正常" : "Active"}</option>
+          <option value="banned">{locale === "zh-CN" ? "已封禁" : "Banned"}</option>
+        </select>
+        <select
+          value={emailFilter}
+          onChange={(event) => setEmailFilter(event.target.value as typeof emailFilter)}
+          aria-label={locale === "zh-CN" ? "按邮箱状态筛选" : "Filter by email status"}
+        >
+          <option value="">{locale === "zh-CN" ? "全部邮箱" : "All email states"}</option>
+          <option value="verified">{locale === "zh-CN" ? "已验证" : "Verified"}</option>
+          <option value="unverified">{locale === "zh-CN" ? "未验证" : "Unverified"}</option>
+        </select>
+        <button
+          className="icon-button"
+          onClick={() => users.refetch()}
+          title={locale === "zh-CN" ? "刷新用户" : "Refresh users"}
+          aria-label={locale === "zh-CN" ? "刷新用户" : "Refresh users"}
+        >
+          <RefreshCw size={15} />
         </button>
       </header>
       {message ? <p className="admin-message">{message}</p> : null}
@@ -590,6 +650,7 @@ function UsersPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole
           <thead>
             <tr>
               <th>USER</th>
+              <th>EMAIL</th>
               <th>ELO</th>
               <th>ROLE</th>
               <th>RANK</th>
@@ -597,7 +658,7 @@ function UsersPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole
             </tr>
           </thead>
           <tbody>
-            {(users.data ?? []).map((user) => {
+            {(users.data?.items ?? []).map((user) => {
               const banned = Boolean(user.bannedUntil && Date.parse(user.bannedUntil) > Date.now());
               return (
                 <tr key={user.id}>
@@ -605,6 +666,13 @@ function UsersPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole
                     <span>
                       <strong>{user.displayName}</strong>
                       <small>{user.id}</small>
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`user-email-state ${user.emailVerified ? "verified" : "unverified"}`}
+                    >
+                      {user.emailVerified ? "VERIFIED" : "UNVERIFIED"}
                     </span>
                   </td>
                   <td>
@@ -668,8 +736,39 @@ function UsersPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole
           </tbody>
         </table>
       </div>
+      <footer className="admin-pagination">
+        <span>
+          {locale === "zh-CN" ? "注册用户" : "Registered users"}{" "}
+          {numberFormat(users.data?.total ?? 0, locale)}
+        </span>
+        <div>
+          <button
+            className="icon-button"
+            disabled={page <= 1}
+            onClick={() => setPage((value) => Math.max(1, value - 1))}
+            aria-label={locale === "zh-CN" ? "上一页" : "Previous page"}
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <b>
+            {users.data?.page ?? page} / {users.data?.totalPages ?? 1}
+          </b>
+          <button
+            className="icon-button"
+            disabled={page >= (users.data?.totalPages ?? 1)}
+            onClick={() => setPage((value) => value + 1)}
+            aria-label={locale === "zh-CN" ? "下一页" : "Next page"}
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      </footer>
     </div>
   );
+}
+
+function numberFormat(value: number, locale: Locale): string {
+  return new Intl.NumberFormat(locale).format(value);
 }
 
 function ModerationPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole }) {
@@ -746,13 +845,17 @@ function ModerationPanel({ locale, actorRole }: { locale: Locale; actorRole: Use
 export default function AdminPage() {
   const locale = usePreferences((state) => state.language);
   const session = useSession();
-  const [tab, setTab] = useState<AdminTab>("characters");
+  const [tab, setTab] = useState<AdminTab>("overview");
   const role = session.data?.user.role ?? "player";
   const dataRoles: UserRole[] = ["data-editor", "admin", "owner"];
   const moderationRoles: UserRole[] = ["moderator", "admin", "owner"];
   const canData = dataRoles.includes(role);
   const canModerate = moderationRoles.includes(role);
+  const canOperate = role === "admin" || role === "owner";
   const tabs = [
+    ...(canOperate
+      ? [{ id: "overview" as const, label: locale === "zh-CN" ? "概览" : "Overview", icon: Gauge }]
+      : []),
     ...(canData
       ? [
           {
@@ -785,7 +888,7 @@ export default function AdminPage() {
   ];
   const activeTab = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id;
 
-  if (!canData && !canModerate)
+  if (!canData && !canModerate && !canOperate)
     return (
       <main className="center-page admin-denied">
         <ShieldCheck size={42} />
@@ -802,12 +905,12 @@ export default function AdminPage() {
   return (
     <main className="page-shell admin-page">
       <PageHeader
-        eyebrow="OPERATIONS CONSOLE"
+        eyebrow="ADMIN"
         title={locale === "zh-CN" ? "萤一把管理台" : "Fireflydle operations"}
         intro={
           locale === "zh-CN"
-            ? "数据修改使用禁用与审计记录，不会硬删除已经进入历史结果的实体。"
-            : "Changes use soft-disable and audit records; entities referenced by history are never hard-deleted."
+            ? "运行状态、内容与用户管理。"
+            : "Operations, content, and user administration."
         }
       />
       <div className="admin-layout">
@@ -823,6 +926,7 @@ export default function AdminPage() {
           ))}
         </nav>
         <section className="admin-content">
+          {activeTab === "overview" ? <OperationsPanel locale={locale} /> : null}
           {activeTab === "characters" ? <CharacterPanel locale={locale} /> : null}
           {activeTab === "taxonomy" ? <TaxonomyPanel locale={locale} /> : null}
           {activeTab === "announcements" ? <AnnouncementsPanel locale={locale} /> : null}

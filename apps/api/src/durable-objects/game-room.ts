@@ -16,6 +16,7 @@ import {
   RECONNECT_GRACE_MS,
 } from "@fireflydle/game-engine";
 import { DurableObject } from "cloudflare:workers";
+import { recordDailyPlayers } from "../services/operations";
 import type { InitializeRoomInput, JoinRoomInput, RoomCommandResult } from "../domain/multiplayer";
 
 const INTERMISSION_MS = 3_000;
@@ -56,6 +57,7 @@ interface PlayerRow extends Record<string, SqlStorageValue> {
   seat: number;
   player_id: string;
   display_name: string;
+  is_guest: number;
   score: number;
   guesses_used: number;
   connected: number;
@@ -131,6 +133,7 @@ export class GameRoom extends DurableObject<Env> {
           seat INTEGER PRIMARY KEY CHECK (seat IN (0, 1)),
           player_id TEXT NOT NULL UNIQUE,
           display_name TEXT NOT NULL,
+          is_guest INTEGER NOT NULL DEFAULT 0,
           score INTEGER NOT NULL,
           guesses_used INTEGER NOT NULL,
           connected INTEGER NOT NULL,
@@ -180,6 +183,10 @@ export class GameRoom extends DurableObject<Env> {
         CREATE INDEX IF NOT EXISTS guess_rate_events_player_idx
           ON guess_rate_events(player_id, occurred_at);
       `);
+      const playerColumns = this.sql.exec<{ name: string }>("PRAGMA table_info(players)").toArray();
+      if (!playerColumns.some((column) => column.name === "is_guest")) {
+        this.sql.exec("ALTER TABLE players ADD COLUMN is_guest INTEGER NOT NULL DEFAULT 0");
+      }
     });
   }
 
@@ -468,6 +475,7 @@ export class GameRoom extends DurableObject<Env> {
     if (input.characters.length === 0 || input.targetIds.length === 0) {
       throw new Error("题库不能为空");
     }
+    let started = false;
     this.ctx.storage.transactionSync(() => {
       if (this.metaOrNull()) return;
       this.sql.exec(
@@ -488,8 +496,29 @@ export class GameRoom extends DurableObject<Env> {
       if (input.opponent) {
         this.insertPlayer(1, input.opponent);
         this.startRound(now);
+        started = true;
       }
     });
+    if (started && input.opponent) {
+      this.ctx.waitUntil(
+        recordDailyPlayers(
+          this.env,
+          [
+            { id: input.owner.userId, isGuest: input.owner.isGuest },
+            { id: input.opponent.userId, isGuest: input.opponent.isGuest },
+          ],
+          { roomId: input.roomId, now },
+        ).catch((error: unknown) => {
+          console.error(
+            JSON.stringify({
+              event: "multiplayer-operations-record-failed",
+              roomId: input.roomId,
+              error: error instanceof Error ? error.message : String(error),
+            }),
+          );
+        }),
+      );
+    }
     await this.rearmAlarm();
     return this.snapshotSync(input.owner.userId);
   }
@@ -497,12 +526,13 @@ export class GameRoom extends DurableObject<Env> {
   private insertPlayer(seat: number, participant: InitializeRoomInput["owner"]): void {
     this.sql.exec(
       `INSERT INTO players
-         (seat, player_id, display_name, score, guesses_used, connected,
+         (seat, player_id, display_name, is_guest, score, guesses_used, connected,
           reconnect_pause_used, rating, ranked_matches)
-       VALUES (?, ?, ?, 0, 0, 1, 0, ?, ?)`,
+       VALUES (?, ?, ?, ?, 0, 0, 1, 0, ?, ?)`,
       seat,
       participant.userId,
       participant.displayName,
+      participant.isGuest ? 1 : 0,
       participant.rating,
       participant.rankedMatches,
     );
@@ -511,6 +541,7 @@ export class GameRoom extends DurableObject<Env> {
   public async join(input: JoinRoomInput): Promise<RoomCommandResult> {
     const now = input.now ?? Date.now();
     let code: ErrorCode | null = null;
+    let started = false;
     this.ctx.storage.transactionSync(() => {
       this.advanceSync(now);
       const existing = this.player(input.participant.userId);
@@ -530,9 +561,29 @@ export class GameRoom extends DurableObject<Env> {
       }
       this.insertPlayer(1, input.participant);
       this.startRound(now);
+      started = true;
     });
     await this.rearmAlarm();
     if (code) return { ok: false, code };
+    if (started) {
+      const meta = this.meta();
+      const players = this.players();
+      this.ctx.waitUntil(
+        recordDailyPlayers(
+          this.env,
+          players.map((player) => ({ id: player.player_id, isGuest: player.is_guest === 1 })),
+          { roomId: meta.room_id, now },
+        ).catch((error: unknown) => {
+          console.error(
+            JSON.stringify({
+              event: "multiplayer-operations-record-failed",
+              roomId: meta.room_id,
+              error: error instanceof Error ? error.message : String(error),
+            }),
+          );
+        }),
+      );
+    }
     await this.broadcastSnapshots();
     return { ok: true, snapshot: this.snapshotSync(input.participant.userId) };
   }

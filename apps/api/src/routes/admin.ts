@@ -14,12 +14,33 @@ import { Hono, type Context } from "hono";
 import { z } from "zod";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import { requireRole } from "../services/auth";
+import {
+  getOperationsOverview,
+  type OperationsLatencyRange,
+  type OperationsTrendDays,
+} from "../services/operations-dashboard";
 import type { AppContext, AuthContext } from "../types";
 
 const CHARACTER_ROLES = ["data-editor", "admin", "owner"] as const;
 const CONTENT_ROLES = ["data-editor", "admin", "owner"] as const;
 const MODERATION_ROLES = ["moderator", "admin", "owner"] as const;
 const ADMIN_ROLES = ["admin", "owner"] as const;
+const OperationsQuerySchema = z.object({
+  range: z.enum(["1h", "24h", "7d"]).optional().default("24h"),
+  trend: z.coerce
+    .number()
+    .pipe(z.union([z.literal(7), z.literal(30)]))
+    .optional()
+    .default(7),
+});
+const UserListQuerySchema = z.object({
+  q: z.string().trim().max(100).optional().default(""),
+  role: UserRoleSchema.optional(),
+  status: z.enum(["active", "banned"]).optional(),
+  email: z.enum(["verified", "unverified"]).optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(10).max(100).optional().default(25),
+});
 const DateKeySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/u);
 const CharacterStateSchema = z
   .object({ enabled: z.boolean().optional(), targetEligible: z.boolean().optional() })
@@ -556,38 +577,78 @@ adminRoutes.patch("/admin/announcements/:announcementId", async (context) => {
   return ok(context, { id: current.id, ...next, updatedAt: new Date(now).toISOString() });
 });
 
-adminRoutes.get("/admin/users", async (context) => {
-  requireRole(context, MODERATION_ROLES);
-  const query = context.req.query("q")?.trim() ?? "";
-  const rows = await context.env.DB.prepare(
-    `SELECT id, display_name, role, is_guest, email_verified, elo, ranked_matches,
-            leaderboard_eligible, banned_until, ban_reason, created_at
-     FROM users
-     WHERE merged_into_user_id IS NULL
-       AND (? = '' OR display_name LIKE ? OR login_name LIKE ? OR email LIKE ?)
-     ORDER BY created_at DESC LIMIT 100`,
-  )
-    .bind(query, `%${query}%`, `%${query}%`, `%${query}%`)
-    .all<{
-      id: string;
-      display_name: string;
-      role: UserRole;
-      is_guest: number;
-      email_verified: number;
-      elo: number;
-      ranked_matches: number;
-      leaderboard_eligible: number;
-      banned_until: number | null;
-      ban_reason: string | null;
-      created_at: number;
-    }>();
+adminRoutes.get("/admin/operations", async (context) => {
+  requireRole(context, ADMIN_ROLES);
+  const parsed = OperationsQuerySchema.safeParse(context.req.query());
+  if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
   return ok(
     context,
-    rows.results.map((row) => ({
+    await getOperationsOverview(
+      context.env,
+      parsed.data.range satisfies OperationsLatencyRange,
+      parsed.data.trend satisfies OperationsTrendDays,
+    ),
+  );
+});
+
+adminRoutes.get("/admin/users", async (context) => {
+  requireRole(context, MODERATION_ROLES);
+  const parsed = UserListQuerySchema.safeParse(context.req.query());
+  if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  const now = Date.now();
+  const conditions = ["is_guest = 0", "merged_into_user_id IS NULL"];
+  const bindings: Array<string | number> = [];
+  if (parsed.data.q) {
+    conditions.push("(display_name LIKE ? OR login_name LIKE ? OR email LIKE ?)");
+    const like = `%${parsed.data.q}%`;
+    bindings.push(like, like, like);
+  }
+  if (parsed.data.role) {
+    conditions.push("role = ?");
+    bindings.push(parsed.data.role);
+  }
+  if (parsed.data.status === "banned") {
+    conditions.push("banned_until IS NOT NULL AND banned_until > ?");
+    bindings.push(now);
+  } else if (parsed.data.status === "active") {
+    conditions.push("(banned_until IS NULL OR banned_until <= ?)");
+    bindings.push(now);
+  }
+  if (parsed.data.email === "verified") conditions.push("email_verified = 1");
+  if (parsed.data.email === "unverified") conditions.push("email_verified = 0");
+  const where = conditions.join(" AND ");
+  const offset = (parsed.data.page - 1) * parsed.data.pageSize;
+  const [rows, totalRow] = await Promise.all([
+    context.env.DB.prepare(
+      `SELECT id, display_name, role, email_verified, elo, ranked_matches,
+              leaderboard_eligible, banned_until, ban_reason, created_at
+       FROM users
+       WHERE ${where}
+       ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+    )
+      .bind(...bindings, parsed.data.pageSize, offset)
+      .all<{
+        id: string;
+        display_name: string;
+        role: UserRole;
+        email_verified: number;
+        elo: number;
+        ranked_matches: number;
+        leaderboard_eligible: number;
+        banned_until: number | null;
+        ban_reason: string | null;
+        created_at: number;
+      }>(),
+    context.env.DB.prepare(`SELECT COUNT(*) AS count FROM users WHERE ${where}`)
+      .bind(...bindings)
+      .first<{ count: number }>(),
+  ]);
+  const total = totalRow?.count ?? 0;
+  return ok(context, {
+    items: rows.results.map((row) => ({
       id: row.id,
       displayName: row.display_name,
       role: row.role,
-      isGuest: row.is_guest === 1,
       emailVerified: row.email_verified === 1,
       elo: row.elo,
       rankedMatches: row.ranked_matches,
@@ -596,7 +657,11 @@ adminRoutes.get("/admin/users", async (context) => {
       banReason: row.ban_reason,
       createdAt: new Date(row.created_at).toISOString(),
     })),
-  );
+    page: parsed.data.page,
+    pageSize: parsed.data.pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / parsed.data.pageSize)),
+  });
 });
 
 adminRoutes.patch("/admin/users/:userId", async (context) => {
@@ -605,7 +670,7 @@ adminRoutes.patch("/admin/users/:userId", async (context) => {
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
   const target = await context.env.DB.prepare(
     `SELECT role, is_guest, ranked_matches, banned_until, ban_reason
-     FROM users WHERE id = ? AND merged_into_user_id IS NULL`,
+     FROM users WHERE id = ? AND is_guest = 0 AND merged_into_user_id IS NULL`,
   )
     .bind(context.req.param("userId"))
     .first<{

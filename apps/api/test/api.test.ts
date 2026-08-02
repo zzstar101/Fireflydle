@@ -69,7 +69,10 @@ async function createRegisteredSession(
   const password = `registered-${suffix}-password`;
   const response = await SELF.fetch("https://fireflydle.games/api/auth/register", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      "cf-connecting-ip": `test:${suffix}`,
+    },
     body: JSON.stringify({
       loginName: `registered_${suffix}`,
       displayName: `Reg ${suffix}`,
@@ -80,6 +83,14 @@ async function createRegisteredSession(
   const cookie = response.headers.get("set-cookie");
   if (!cookie) throw new Error("缺少注册账号 session cookie");
   return { cookie, data: await dataOf<SessionData>(response), password };
+}
+
+async function createAdminSession(suffix: string): Promise<{ cookie: string; data: SessionData }> {
+  const session = await createRegisteredSession(`admin_${suffix}`);
+  await env.DB.prepare("UPDATE users SET role = 'admin', updated_at = ? WHERE id = ?")
+    .bind(Date.now(), session.data.user.id)
+    .run();
+  return { cookie: session.cookie, data: session.data };
 }
 
 async function seedCharacter(): Promise<void> {
@@ -142,6 +153,56 @@ describe("Worker 入口与会话", () => {
     expect(session.cookie).toContain("Domain=.fireflydle.games");
     expect(session.data).not.toHaveProperty("token");
     expect(session.data.user.id).toMatch(/^[0-9a-f-]{36}$/u);
+  });
+});
+
+describe("管理概览与注册用户列表", () => {
+  it("用户列表从查询层排除访客并支持筛选分页", async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const guest = await createSession();
+    const registered = await createRegisteredSession(`listed_${suffix}`);
+    const admin = await createAdminSession(suffix);
+
+    const response = await SELF.fetch(
+      "https://fireflydle.games/api/admin/users?role=player&status=active&page=1&pageSize=10",
+      { headers: { cookie: admin.cookie } },
+    );
+    expect(response.status).toBe(200);
+    const page = await dataOf<{
+      items: Array<{ id: string; role: string; emailVerified: boolean }>;
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    }>(response);
+    expect(page).toMatchObject({ page: 1, pageSize: 10 });
+    expect(page.items.some((user) => user.id === registered.data.user.id)).toBe(true);
+    expect(page.items.some((user) => user.id === guest.data.user.id)).toBe(false);
+    expect(page.items.every((user) => user.role === "player")).toBe(true);
+  });
+
+  it("缺少只读 Token 时概览仍返回本地核心指标", async () => {
+    const admin = await createAdminSession(crypto.randomUUID().slice(0, 8));
+    const response = await SELF.fetch(
+      "https://fireflydle.games/api/admin/operations?range=24h&trend=7",
+      { headers: { cookie: admin.cookie } },
+    );
+    expect(response.status).toBe(200);
+    const overview = await dataOf<{
+      timezone: string;
+      audience: { registeredTotal: number; guestTotal: number };
+      api: { configured: boolean; available: boolean };
+      cloudflare: { configured: boolean; available: boolean };
+      trends: unknown[];
+    }>(response);
+    expect(overview.timezone).toBe("Asia/Shanghai");
+    expect(overview.audience.registeredTotal).toBeGreaterThan(0);
+    expect(overview.audience.guestTotal).toBeGreaterThan(0);
+    expect(overview.api).toEqual(expect.objectContaining({ configured: false, available: false }));
+    expect(overview.cloudflare).toEqual(
+      expect.objectContaining({ configured: false, available: false }),
+    );
+    expect(overview.trends).toHaveLength(7);
   });
 });
 

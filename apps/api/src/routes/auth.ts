@@ -27,6 +27,7 @@ import {
   sendPasswordResetEmail,
 } from "../services/password-reset";
 import { clientAddress, enforceRateLimit } from "../services/rate-limit";
+import { recordFlowMetric } from "../services/operations";
 import type { AppContext } from "../types";
 
 export const authRoutes = new Hono<AppContext>();
@@ -46,7 +47,33 @@ function scheduleEmailVerification(context: Context<AppContext>, userId: string)
   context.executionCtx.waitUntil(
     createEmailVerification(context.env, userId)
       .then(async (delivery) => {
-        if (delivery) await sendEmailVerificationEmail(context.env, delivery);
+        if (!delivery) return;
+        try {
+          const sent = await sendEmailVerificationEmail(context.env, delivery);
+          await recordFlowMetric(
+            context.env,
+            sent ? "email_send_success" : "email_send_failure",
+          ).catch((error: unknown) => {
+            console.error(
+              JSON.stringify({
+                event: "email-verification-metric-failed",
+                error: error instanceof Error ? error.message : String(error),
+              }),
+            );
+          });
+        } catch (error) {
+          await recordFlowMetric(context.env, "email_send_failure").catch(
+            (metricError: unknown) => {
+              console.error(
+                JSON.stringify({
+                  event: "email-verification-metric-failed",
+                  error: metricError instanceof Error ? metricError.message : String(metricError),
+                }),
+              );
+            },
+          );
+          throw error;
+        }
       })
       .catch((error: unknown) => {
         console.error(
@@ -74,6 +101,7 @@ authRoutes.post("/session", async (context) => {
   }
   const auth =
     existing ?? (await createGuest(context.env, context.req.header("user-agent") ?? null));
+  context.set("auth", auth);
   context.header("Set-Cookie", sessionCookie(auth.token, auth.expiresAt, context.req.url));
   return ok(context, sessionPayload(auth), existing ? 200 : 201);
 });
@@ -113,6 +141,7 @@ authRoutes.post("/auth/register", async (context) => {
     context.get("auth"),
     context.req.header("user-agent") ?? null,
   );
+  context.set("auth", auth);
   if (parsed.data.email) scheduleEmailVerification(context, auth.user.id);
   context.header("Set-Cookie", sessionCookie(auth.token, auth.expiresAt, context.req.url));
   return ok(context, sessionPayload(auth), 201);
@@ -140,6 +169,7 @@ authRoutes.post("/auth/login", async (context) => {
     context.get("auth"),
     context.req.header("user-agent") ?? null,
   );
+  context.set("auth", auth);
   context.header("Set-Cookie", sessionCookie(auth.token, auth.expiresAt, context.req.url));
   return ok(context, sessionPayload(auth));
 });

@@ -13,6 +13,7 @@ import { roomRoutes } from "./routes/rooms";
 import { ApiProblem, ok, problemResponse } from "./lib/http";
 import { resolveAuth } from "./services/auth";
 import { runScheduledMaintenance } from "./services/maintenance";
+import { recordRequestOperations } from "./services/operations";
 import type { AppContext } from "./types";
 
 export { GameRoom } from "./durable-objects/game-room";
@@ -44,7 +45,7 @@ function setCorsHeaders(
   context.header("Access-Control-Allow-Origin", origin);
   context.header("Access-Control-Allow-Credentials", "true");
   context.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  context.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  context.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Visit-Session-Id");
   context.header("Access-Control-Max-Age", "86400");
   context.header("Vary", "Origin", { append: true });
 }
@@ -72,8 +73,27 @@ app.use("*", async (context, next) => {
 const api = new Hono<AppContext>();
 api.use("*", corsMiddleware);
 api.use("*", async (context, next) => {
-  context.set("auth", await resolveAuth(context.env, context.req.raw));
-  await next();
+  const startedAt = performance.now();
+  try {
+    context.set("auth", await resolveAuth(context.env, context.req.raw));
+    await next();
+  } catch (error) {
+    const problem = error instanceof ApiProblem ? error : new ApiProblem("INTERNAL_ERROR", 500);
+    context.set("errorCode", problem.code);
+    if (!(error instanceof ApiProblem)) {
+      console.error(
+        JSON.stringify({
+          event: "request-failed",
+          requestId: context.get("requestId"),
+          method: context.req.method,
+          path: new URL(context.req.url).pathname,
+          error: error instanceof Error ? error.message : String(error),
+        }),
+      );
+    }
+    context.res = problemResponse(context, problem);
+  }
+  recordRequestOperations(context, startedAt);
 });
 
 api.get("/health", (context) =>
@@ -96,7 +116,10 @@ api.route("/", adminRoutes);
 
 app.route("/api", api);
 
-app.notFound((context) => problemResponse(context, new ApiProblem("NOT_FOUND", 404)));
+app.notFound((context) => {
+  context.set("errorCode", "NOT_FOUND");
+  return problemResponse(context, new ApiProblem("NOT_FOUND", 404));
+});
 app.onError((error, context) => {
   if (error instanceof ApiProblem) return problemResponse(context, error);
   console.error(

@@ -25,6 +25,7 @@ export type AppContext = {
   Variables: {
     requestId: string;
     auth: AuthContext | null;
+    errorCode?: string;
   };
 };
 

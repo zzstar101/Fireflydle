@@ -26,6 +26,7 @@ function participant(user: AuthUser) {
   return {
     userId: user.id,
     displayName: user.displayName,
+    isGuest: user.isGuest,
     rating: user.elo,
     rankedMatches: user.rankedMatches,
   };

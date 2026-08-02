@@ -9,7 +9,15 @@
   "vars": {
     "PUBLIC_WEB_URL": "https://fireflydle.games",
     "RESEND_FROM": "Fireflydle <account@fireflydle.games>",
+    "CLOUDFLARE_ACCOUNT_ID": "a2755937171c4310b54c98acf0128861",
+    "CLOUDFLARE_D1_DATABASE_ID": "93c0bbef-15d0-4431-9024-bfe1618e9f0e",
   },
+  "analytics_engine_datasets": [
+    {
+      "binding": "OPS_METRICS",
+      "dataset": "fireflydle_api_metrics",
+    },
+  ],
   "d1_databases": [
     {
       "binding": "DB",
@@ -37,7 +45,7 @@
     },
   ],
   "triggers": {
-    "crons": ["17 3 * * *"],
+    "crons": ["17 * * * *"],
   },
   "observability": {
     "enabled": true,
