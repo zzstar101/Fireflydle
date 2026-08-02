@@ -775,8 +775,32 @@ describe("邮箱验证", () => {
         body: JSON.stringify({ token }),
       });
     expect((await confirm(emailedTokens[0] ?? "")).status).toBe(400);
-    expect((await confirm(currentToken)).status).toBe(200);
-    expect((await confirm(currentToken)).status).toBe(400);
+    const firstConfirmation = await confirm(currentToken);
+    expect(firstConfirmation.status).toBe(200);
+    expect(
+      await dataOf<{ verified: boolean; alreadyVerified: boolean }>(firstConfirmation),
+    ).toEqual({
+      verified: true,
+      alreadyVerified: false,
+    });
+
+    const repeatedConfirmation = await confirm(currentToken);
+    expect(repeatedConfirmation.status).toBe(200);
+    expect(
+      await dataOf<{ verified: boolean; alreadyVerified: boolean }>(repeatedConfirmation),
+    ).toEqual({
+      verified: true,
+      alreadyVerified: true,
+    });
+
+    const supersededConfirmation = await confirm(emailedTokens[0] ?? "");
+    expect(supersededConfirmation.status).toBe(200);
+    expect(
+      await dataOf<{ verified: boolean; alreadyVerified: boolean }>(supersededConfirmation),
+    ).toEqual({
+      verified: true,
+      alreadyVerified: true,
+    });
 
     const me = await SELF.fetch("https://fireflydle.games/api/auth/me", { headers: { cookie } });
     expect((await dataOf<SessionData["user"]>(me)).emailVerified).toBe(true);

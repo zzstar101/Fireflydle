@@ -444,6 +444,12 @@
 .verification-actions .text-button {
   justify-self: center;
 }
+.recovery-panel > .verification-error-reference {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
 .account-page .button-spinner,
 .recovery-page .button-spinner {
   width: 15px;

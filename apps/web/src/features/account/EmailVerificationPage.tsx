@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { CheckCircle2, MailCheck, MailWarning } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { apiRequest } from "../../api/client";
+import { ApiClientError, apiRequest } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
 import { useRefreshSession } from "./useSession";
 import "./account.css";
 
 type VerificationStatus = "ready" | "done" | "error";
+
+interface VerificationFailure {
+  code: string;
+  requestId?: string;
+}
 
 export default function EmailVerificationPage() {
   const locale = usePreferences((state) => state.language);
@@ -18,29 +23,56 @@ export default function EmailVerificationPage() {
   const refreshSession = useRefreshSession();
   const [status, setStatus] = useState<VerificationStatus>("ready");
   const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState<VerificationFailure | null>(null);
 
   const confirmVerification = async () => {
     if (!token || busy) return;
     setBusy(true);
     setStatus("ready");
+    setFailure(null);
     try {
       await apiRequest("/auth/email-verification/confirm", {
         method: "POST",
         body: JSON.stringify({ token }),
       });
-      setStatus("done");
-      navigate("/verify-email", { replace: true });
-      await refreshSession();
-    } catch {
+    } catch (error) {
+      setFailure(
+        error instanceof ApiClientError
+          ? { code: error.code, ...(error.requestId ? { requestId: error.requestId } : {}) }
+          : { code: "INTERNAL_ERROR" },
+      );
       setStatus("error");
-    } finally {
       setBusy(false);
+      return;
     }
+
+    setStatus("done");
+    navigate("/verify-email", { replace: true });
+    setBusy(false);
+    void refreshSession();
   };
 
   const invalidToken = token.length === 0;
   const complete = status === "done";
   const failed = status === "error" || invalidToken;
+  const failureMessage =
+    failure?.code === "RATE_LIMITED" || failure?.code === "AUTH_RATE_LIMITED"
+      ? tr(
+          "操作太频繁，请稍后再试。",
+          "操作が多すぎます。しばらく待ってからもう一度お試しください。",
+          "Too many attempts. Wait a moment and try again.",
+        )
+      : failure?.code === "AUTH_INVALID_CREDENTIALS" || invalidToken
+        ? tr(
+            "这个链接已失效，可能已过期或被更新的验证邮件替代。请返回账号页重新发送。",
+            "このリンクは期限切れか、新しい確認メールに置き換えられています。アカウント画面から再送してください。",
+            "This link has expired or was replaced by a newer verification email. Return to your account to resend it.",
+          )
+        : tr(
+            "暂时无法完成验证，请稍后重试。若问题持续，请携带下方信息联系我们。",
+            "現在確認を完了できません。しばらくしてから再試行し、問題が続く場合は下の情報を添えてご連絡ください。",
+            "Verification could not be completed right now. Try again later, or contact us with the details below.",
+          );
 
   return (
     <main className="page-shell recovery-page email-verification-page">
@@ -70,17 +102,24 @@ export default function EmailVerificationPage() {
                 "You can now use this email to recover your password.",
               )
             : failed
-              ? tr(
-                  "验证链接无效或已经过期。请返回账号页重新发送验证邮件。",
-                  "確認リンクが無効か期限切れです。アカウント画面から確認メールを再送してください。",
-                  "This verification link is invalid or expired. Return to your account to send a new email.",
-                )
+              ? failureMessage
               : tr(
                   "请点击下方按钮完成验证。打开此页面不会自动提交验证请求。",
                   "下のボタンを押して確認を完了してください。このページを開くだけでは確認されません。",
                   "Select the button below to finish verification. Opening this page does not submit the request automatically.",
                 )}
         </p>
+        {failure && (
+          <p className="verification-error-reference">
+            {tr("错误码", "エラーコード", "Error code")}: {failure.code}
+            {failure.requestId && (
+              <>
+                {" · "}
+                {tr("请求编号", "リクエスト ID", "Request ID")}: {failure.requestId}
+              </>
+            )}
+          </p>
+        )}
         {complete || invalidToken ? (
           <Link className="ticket-button" to="/account">
             {tr("返回账号页", "アカウントへ戻る", "Back to account")}

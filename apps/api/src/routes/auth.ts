@@ -184,8 +184,8 @@ authRoutes.post("/auth/email-verification/confirm", async (context) => {
       windowMs: 60 * 60 * 1_000,
     }),
   ]);
-  await confirmEmailVerification(context.env, parsed.data.token);
-  return ok(context, { verified: true });
+  const confirmation = await confirmEmailVerification(context.env, parsed.data.token);
+  return ok(context, { verified: true, alreadyVerified: confirmation.alreadyVerified });
 });
 
 authRoutes.post("/auth/password-reset/request", async (context) => {
