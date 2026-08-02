@@ -227,8 +227,8 @@ async function apiMetrics(
         env,
         `SELECT
            SUM(_sample_interval) AS requests,
-           SUM(CASE WHEN blob3 LIKE '4%' THEN _sample_interval ELSE 0 END) AS client_errors,
-           SUM(CASE WHEN blob3 LIKE '5%' THEN _sample_interval ELSE 0 END) AS server_errors,
+           SUM(if(blob3 LIKE '4%', _sample_interval, 0)) AS client_errors,
+           SUM(if(blob3 LIKE '5%', _sample_interval, 0)) AS server_errors,
            quantileExactWeighted(0.5)(double1, _sample_interval) AS p50_ms,
            quantileExactWeighted(0.95)(double1, _sample_interval) AS p95_ms,
            quantileExactWeighted(0.99)(double1, _sample_interval) AS p99_ms
@@ -240,7 +240,7 @@ async function apiMetrics(
         `SELECT
            blob1 AS route, blob2 AS method,
            SUM(_sample_interval) AS requests,
-           SUM(CASE WHEN blob3 LIKE '5%' THEN _sample_interval ELSE 0 END) AS server_errors,
+           SUM(if(blob3 LIKE '5%', _sample_interval, 0)) AS server_errors,
            quantileExactWeighted(0.5)(double1, _sample_interval) AS p50_ms,
            quantileExactWeighted(0.95)(double1, _sample_interval) AS p95_ms,
            quantileExactWeighted(0.99)(double1, _sample_interval) AS p99_ms
