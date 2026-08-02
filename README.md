@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="apps/web/public/favicon.png" alt="萤一把图标" width="128" height="128" />
+
 # 萤一把 · Fireflydle
 
 **《崩坏：星穹铁道》角色猜谜：每日挑战、无限随机与实时 1v1**

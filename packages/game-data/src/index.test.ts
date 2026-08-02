@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { characters, getSearchText } from "./index.ts";
+import { characters, factions, getSearchText } from "./index.ts";
 
 function matchingIds(query: string): string[] {
   const normalized = query.toLocaleLowerCase();
@@ -28,7 +28,7 @@ describe("角色输入搜索", () => {
   });
 });
 
-describe("势力层级", () => {
+describe("阵营层级", () => {
   test("仙舟不同舰属于同一官网大组", () => {
     const jingYuan = characters.find((character) => character.id === "jing-yuan");
     const feixiao = characters.find((character) => character.id === "feixiao");
@@ -38,5 +38,56 @@ describe("势力层级", () => {
     expect(feixiao?.factionId).toBe("xianzhou-yaoqing");
     expect(jingYuan?.factionGroupId).toBe("xianzhou-alliance");
     expect(feixiao?.factionGroupId).toBe(jingYuan?.factionGroupId);
+  });
+
+  test("角色阵营严格采用 BWiki 图鉴的阵营字段", () => {
+    const expectedFactions: Record<string, string> = {
+      sunday: "cosmic",
+      robin: "penacony",
+      sampo: "belobog",
+      sparxie: "masked-fools",
+      ashveil: "galaxy-rangers",
+      "dan-heng-il": "xianzhou-luofu",
+      "yao-guang": "xianzhou-yuque",
+      "the-dahlia": "the-cremators",
+      herta: "herta-space-station",
+      bronya: "belobog",
+      aventurine: "ipc",
+      aglaea: "amphoreus",
+    };
+
+    for (const [characterId, factionId] of Object.entries(expectedFactions)) {
+      const character = characters.find((entry) => entry.id === characterId);
+      expect(character, characterId).toBeDefined();
+      expect(character?.factionId, characterId).toBe(factionId);
+    }
+  });
+
+  test("阵营字段不使用初始阵营或派系替换", () => {
+    const sunday = characters.find((character) => character.id === "sunday");
+    const robin = characters.find((character) => character.id === "robin");
+    expect(sunday?.factionId).toBe("cosmic");
+    expect(sunday?.factionGroupId).toBe("cosmic");
+    expect(robin?.factionId).toBe("penacony");
+    expect(robin?.factionGroupId).toBe("penacony");
+  });
+
+  test("阵营目录不包含只出现在派系字段中的组织", () => {
+    const publishedFactionIds = new Set(factions.map((faction) => faction.id));
+    const partyOnlyIds = [
+      "genius-society",
+      "silvermane-guards",
+      "wildfire",
+      "the-moles",
+      "robot-settlement",
+      "ipc-strategic-investment",
+      "the-family",
+      "bloodhound-family",
+      "chrysos-heirs",
+    ];
+
+    for (const factionId of partyOnlyIds) {
+      expect(publishedFactionIds.has(factionId), factionId).toBeFalse();
+    }
   });
 });

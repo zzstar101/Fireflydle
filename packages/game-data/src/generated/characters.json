@@ -30,7 +30,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "asta",
@@ -63,7 +63,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "bailu",
@@ -96,7 +96,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "bronya",
@@ -115,7 +115,7 @@
     "element": "wind",
     "path": "harmony",
     "rarity": 5,
-    "factionId": "silvermane-guards",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -129,7 +129,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "clara",
@@ -148,7 +148,7 @@
     "element": "physical",
     "path": "destruction",
     "rarity": 5,
-    "factionId": "robot-settlement",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -162,7 +162,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "dan-heng",
@@ -195,7 +195,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "gepard",
@@ -214,7 +214,7 @@
     "element": "ice",
     "path": "preservation",
     "rarity": 5,
-    "factionId": "silvermane-guards",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -228,7 +228,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "herta",
@@ -247,7 +247,7 @@
     "element": "ice",
     "path": "erudition",
     "rarity": 4,
-    "factionId": "genius-society",
+    "factionId": "herta-space-station",
     "factionGroupId": "herta-space-station",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -261,7 +261,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "himeko",
@@ -294,7 +294,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "hook",
@@ -313,7 +313,7 @@
     "element": "fire",
     "path": "destruction",
     "rarity": 4,
-    "factionId": "the-moles",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -327,7 +327,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "jing-yuan",
@@ -360,7 +360,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "march-7th",
@@ -393,7 +393,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "natasha",
@@ -412,7 +412,7 @@
     "element": "physical",
     "path": "abundance",
     "rarity": 4,
-    "factionId": "wildfire",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -426,7 +426,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "pela",
@@ -445,7 +445,7 @@
     "element": "ice",
     "path": "nihility",
     "rarity": 4,
-    "factionId": "silvermane-guards",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -459,7 +459,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "qingque",
@@ -492,7 +492,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "sampo",
@@ -525,7 +525,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "seele",
@@ -544,7 +544,7 @@
     "element": "quantum",
     "path": "hunt",
     "rarity": 5,
-    "factionId": "wildfire",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.0",
     "releaseOrder": 0,
@@ -558,7 +558,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "serval",
@@ -591,7 +591,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "sushang",
@@ -624,7 +624,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "tingyun",
@@ -657,7 +657,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "trailblazer-destruction",
@@ -712,7 +712,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "trailblazer-preservation",
@@ -770,7 +770,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "welt",
@@ -803,7 +803,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "yanqing",
@@ -836,7 +836,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "luocha",
@@ -869,7 +869,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "silver-wolf",
@@ -902,7 +902,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "yukong",
@@ -935,7 +935,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "blade",
@@ -968,7 +968,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "kafka",
@@ -1001,7 +1001,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "luka",
@@ -1020,7 +1020,7 @@
     "element": "physical",
     "path": "nihility",
     "rarity": 4,
-    "factionId": "wildfire",
+    "factionId": "belobog",
     "factionGroupId": "belobog",
     "releaseVersionId": "1.2",
     "releaseOrder": 2,
@@ -1034,7 +1034,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "dan-heng-il",
@@ -1068,7 +1068,7 @@
     "element": "imaginary",
     "path": "destruction",
     "rarity": 5,
-    "factionId": "xianzhou-alliance",
+    "factionId": "xianzhou-luofu",
     "factionGroupId": "xianzhou-alliance",
     "releaseVersionId": "1.3",
     "releaseOrder": 3,
@@ -1082,7 +1082,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "fu-xuan",
@@ -1115,7 +1115,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "lynx",
@@ -1148,7 +1148,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "guinaifen",
@@ -1181,7 +1181,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "jingliu",
@@ -1214,7 +1214,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "topaz-and-numby",
@@ -1252,7 +1252,7 @@
     "element": "fire",
     "path": "hunt",
     "rarity": 5,
-    "factionId": "ipc-strategic-investment",
+    "factionId": "ipc",
     "factionGroupId": "ipc",
     "releaseVersionId": "1.4",
     "releaseOrder": 4,
@@ -1266,7 +1266,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "argenti",
@@ -1299,7 +1299,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "hanya",
@@ -1332,7 +1332,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "huohuo",
@@ -1365,7 +1365,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "dr-ratio",
@@ -1398,7 +1398,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "ruan-mei",
@@ -1417,7 +1417,7 @@
     "element": "ice",
     "path": "harmony",
     "rarity": 5,
-    "factionId": "genius-society",
+    "factionId": "herta-space-station",
     "factionGroupId": "herta-space-station",
     "releaseVersionId": "1.6",
     "releaseOrder": 6,
@@ -1431,7 +1431,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "xueyi",
@@ -1464,7 +1464,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "black-swan",
@@ -1497,7 +1497,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "misha",
@@ -1530,7 +1530,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "sparkle",
@@ -1563,7 +1563,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "acheron",
@@ -1596,7 +1596,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "aventurine",
@@ -1615,7 +1615,7 @@
     "element": "imaginary",
     "path": "preservation",
     "rarity": 5,
-    "factionId": "ipc-strategic-investment",
+    "factionId": "ipc",
     "factionGroupId": "ipc",
     "releaseVersionId": "2.1",
     "releaseOrder": 8,
@@ -1629,7 +1629,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "gallagher",
@@ -1648,7 +1648,7 @@
     "element": "fire",
     "path": "abundance",
     "rarity": 4,
-    "factionId": "bloodhound-family",
+    "factionId": "penacony",
     "factionGroupId": "penacony",
     "releaseVersionId": "2.1",
     "releaseOrder": 8,
@@ -1662,7 +1662,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "boothill",
@@ -1695,7 +1695,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "robin",
@@ -1714,7 +1714,7 @@
     "element": "physical",
     "path": "harmony",
     "rarity": 5,
-    "factionId": "the-family",
+    "factionId": "penacony",
     "factionGroupId": "penacony",
     "releaseVersionId": "2.2",
     "releaseOrder": 9,
@@ -1728,7 +1728,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "trailblazer-harmony",
@@ -1783,7 +1783,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "firefly",
@@ -1816,7 +1816,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "jade",
@@ -1835,7 +1835,7 @@
     "element": "quantum",
     "path": "erudition",
     "rarity": 5,
-    "factionId": "ipc-strategic-investment",
+    "factionId": "ipc",
     "factionGroupId": "ipc",
     "releaseVersionId": "2.3",
     "releaseOrder": 10,
@@ -1849,7 +1849,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "jiaoqiu",
@@ -1882,7 +1882,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "march-7th-hunt",
@@ -1945,7 +1945,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "yunli",
@@ -1978,7 +1978,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "feixiao",
@@ -2011,7 +2011,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "lingsha",
@@ -2044,7 +2044,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "moze",
@@ -2077,7 +2077,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "rappa",
@@ -2110,7 +2110,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "fugue",
@@ -2143,7 +2143,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "sunday",
@@ -2176,7 +2176,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "aglaea",
@@ -2195,7 +2195,7 @@
     "element": "lightning",
     "path": "remembrance",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.0",
     "releaseOrder": 15,
@@ -2209,7 +2209,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "the-herta",
@@ -2228,7 +2228,7 @@
     "element": "ice",
     "path": "erudition",
     "rarity": 5,
-    "factionId": "genius-society",
+    "factionId": "herta-space-station",
     "factionGroupId": "herta-space-station",
     "releaseVersionId": "3.0",
     "releaseOrder": 15,
@@ -2242,7 +2242,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "trailblazer-remembrance",
@@ -2297,7 +2297,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "mydei",
@@ -2316,7 +2316,7 @@
     "element": "imaginary",
     "path": "destruction",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.1",
     "releaseOrder": 16,
@@ -2330,7 +2330,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "tribbie",
@@ -2349,7 +2349,7 @@
     "element": "quantum",
     "path": "harmony",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.1",
     "releaseOrder": 16,
@@ -2363,7 +2363,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "anaxa",
@@ -2382,7 +2382,7 @@
     "element": "wind",
     "path": "erudition",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.2",
     "releaseOrder": 17,
@@ -2396,7 +2396,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "castorice",
@@ -2415,7 +2415,7 @@
     "element": "quantum",
     "path": "remembrance",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.2",
     "releaseOrder": 17,
@@ -2429,7 +2429,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "cipher",
@@ -2448,7 +2448,7 @@
     "element": "quantum",
     "path": "nihility",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.3",
     "releaseOrder": 18,
@@ -2462,7 +2462,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "hyacine",
@@ -2481,7 +2481,7 @@
     "element": "wind",
     "path": "remembrance",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.3",
     "releaseOrder": 18,
@@ -2495,7 +2495,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "archer",
@@ -2528,7 +2528,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "phainon",
@@ -2547,7 +2547,7 @@
     "element": "physical",
     "path": "destruction",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.4",
     "releaseOrder": 19,
@@ -2561,7 +2561,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "saber",
@@ -2594,7 +2594,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "cerydra",
@@ -2613,7 +2613,7 @@
     "element": "wind",
     "path": "harmony",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.5",
     "releaseOrder": 20,
@@ -2627,7 +2627,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "hysilens",
@@ -2646,7 +2646,7 @@
     "element": "physical",
     "path": "nihility",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.5",
     "releaseOrder": 20,
@@ -2660,7 +2660,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "dan-heng-permansor-terrae",
@@ -2679,7 +2679,7 @@
     "element": "physical",
     "path": "preservation",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.6",
     "releaseOrder": 21,
@@ -2693,7 +2693,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "evernight",
@@ -2712,7 +2712,7 @@
     "element": "ice",
     "path": "remembrance",
     "rarity": 5,
-    "factionId": "chrysos-heirs",
+    "factionId": "amphoreus",
     "factionGroupId": "amphoreus",
     "releaseVersionId": "3.6",
     "releaseOrder": 21,
@@ -2726,7 +2726,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "cyrene",
@@ -2759,7 +2759,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "the-dahlia",
@@ -2778,7 +2778,7 @@
     "element": "fire",
     "path": "nihility",
     "rarity": 5,
-    "factionId": "ever-flame-mansion",
+    "factionId": "the-cremators",
     "factionGroupId": "cosmic",
     "releaseVersionId": "3.8",
     "releaseOrder": 23,
@@ -2792,7 +2792,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "sparxie",
@@ -2811,8 +2811,8 @@
     "element": "fire",
     "path": "elation",
     "rarity": 5,
-    "factionId": "planarcadia",
-    "factionGroupId": "planarcadia",
+    "factionId": "masked-fools",
+    "factionGroupId": "cosmic",
     "releaseVersionId": "4.0",
     "releaseOrder": 24,
     "assets": {
@@ -2825,7 +2825,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "trailblazer-elation",
@@ -2880,7 +2880,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "yao-guang",
@@ -2899,7 +2899,7 @@
     "element": "physical",
     "path": "elation",
     "rarity": 5,
-    "factionId": "xianzhou-alliance",
+    "factionId": "xianzhou-yuque",
     "factionGroupId": "xianzhou-alliance",
     "releaseVersionId": "4.0",
     "releaseOrder": 24,
@@ -2913,7 +2913,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "ashveil",
@@ -2932,8 +2932,8 @@
     "element": "lightning",
     "path": "hunt",
     "rarity": 5,
-    "factionId": "planarcadia",
-    "factionGroupId": "planarcadia",
+    "factionId": "galaxy-rangers",
+    "factionGroupId": "cosmic",
     "releaseVersionId": "4.1",
     "releaseOrder": 25,
     "assets": {
@@ -2946,7 +2946,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "evanescia",
@@ -2979,7 +2979,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "silver-wolf-lv-999",
@@ -3012,7 +3012,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "mortenax-blade",
@@ -3045,7 +3045,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "gilgamesh",
@@ -3078,7 +3078,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "himeko-nova",
@@ -3111,7 +3111,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   },
   {
     "id": "rin-tohsaka",
@@ -3144,6 +3144,6 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf"
+    "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5"
   }
 ]

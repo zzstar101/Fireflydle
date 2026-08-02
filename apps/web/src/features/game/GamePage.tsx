@@ -232,9 +232,9 @@ function GamePreparation({
             </ul>
             <small>
               {locale === "zh-CN"
-                ? "比较字段：属性、命途、稀有度、所属势力、实装版本。"
+                ? "比较字段：属性、命途、稀有度、阵营、实装版本。"
                 : locale === "ja"
-                  ? "比較項目：属性・運命・レア度・所属・実装版。"
+                  ? "比較項目：属性・運命・レア度・陣営・実装版。"
                   : "Compare element, path, rarity, faction, and release version."}
             </small>
           </div>

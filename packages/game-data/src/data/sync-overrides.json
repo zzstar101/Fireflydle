@@ -101,57 +101,11 @@
     "cha_tab_10": "another-world",
     "cha_tab_11": "planarcadia"
   },
+  "factionGroupByOfficialId": {
+    "1501": "cosmic",
+    "1504": "cosmic"
+  },
   "subfactionDefinitions": [
-    {
-      "id": "genius-society",
-      "groupId": "herta-space-station",
-      "names": {
-        "zh-CN": "天才俱乐部",
-        "en": "Genius Society",
-        "ja": "天才クラブ"
-      },
-      "sourceOfficialIds": ["1013", "1303", "1401"]
-    },
-    {
-      "id": "silvermane-guards",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "银鬃铁卫",
-        "en": "Silvermane Guards",
-        "ja": "シルバーメイン"
-      },
-      "sourceOfficialIds": ["1101", "1104", "1106"]
-    },
-    {
-      "id": "wildfire",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "地火",
-        "en": "Wildfire",
-        "ja": "地炎"
-      },
-      "sourceOfficialIds": ["1102", "1105", "1111"]
-    },
-    {
-      "id": "the-moles",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "鼹鼠党",
-        "en": "The Moles",
-        "ja": "モグラ党"
-      },
-      "sourceOfficialIds": ["1109"]
-    },
-    {
-      "id": "robot-settlement",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "机械聚落",
-        "en": "Robot Settlement",
-        "ja": "機械集落"
-      },
-      "sourceOfficialIds": ["1107"]
-    },
     {
       "id": "xianzhou-luofu",
       "groupId": "xianzhou-alliance",
@@ -160,7 +114,25 @@
         "en": "Xianzhou Luofu",
         "ja": "仙舟「羅浮」"
       },
-      "sourceOfficialIds": ["1201", "1204", "1207", "1208", "1217", "1222"]
+      "sourceOfficialIds": [
+        "1201",
+        "1202",
+        "1203",
+        "1204",
+        "1206",
+        "1207",
+        "1208",
+        "1209",
+        "1210",
+        "1211",
+        "1212",
+        "1213",
+        "1214",
+        "1215",
+        "1217",
+        "1222",
+        "1225"
+      ]
     },
     {
       "id": "xianzhou-yaoqing",
@@ -183,34 +155,14 @@
       "sourceOfficialIds": ["1221"]
     },
     {
-      "id": "ipc-strategic-investment",
-      "groupId": "ipc",
+      "id": "xianzhou-yuque",
+      "groupId": "xianzhou-alliance",
       "names": {
-        "zh-CN": "战略投资部",
-        "en": "Strategic Investment Department",
-        "ja": "戦略投資部"
+        "zh-CN": "仙舟「玉阙」",
+        "en": "Xianzhou Yuque",
+        "ja": "仙舟「玉殿」"
       },
-      "sourceOfficialIds": ["1112", "1304", "1314"]
-    },
-    {
-      "id": "the-family",
-      "groupId": "penacony",
-      "names": {
-        "zh-CN": "家族",
-        "en": "The Family",
-        "ja": "ファミリー"
-      },
-      "sourceOfficialIds": ["1309"]
-    },
-    {
-      "id": "bloodhound-family",
-      "groupId": "penacony",
-      "names": {
-        "zh-CN": "猎犬家系",
-        "en": "Bloodhound Family",
-        "ja": "ハウンド家"
-      },
-      "sourceOfficialIds": ["1301"]
+      "sourceOfficialIds": ["1502"]
     },
     {
       "id": "self-annihilators",
@@ -260,7 +212,7 @@
         "en": "Masked Fools",
         "ja": "仮面の愚者"
       },
-      "sourceOfficialIds": ["1306"]
+      "sourceOfficialIds": ["1306", "1501"]
     },
     {
       "id": "galaxy-rangers",
@@ -270,64 +222,30 @@
         "en": "Galaxy Rangers",
         "ja": "巡海レンジャー"
       },
-      "sourceOfficialIds": ["1315", "1317"]
+      "sourceOfficialIds": ["1315", "1317", "1504"]
     },
     {
-      "id": "ever-flame-mansion",
+      "id": "the-cremators",
       "groupId": "cosmic",
       "names": {
-        "zh-CN": "永火官邸",
-        "en": "Ever-Flame Mansion",
-        "ja": "永火の官邸"
+        "zh-CN": "焚化工",
+        "en": "The Cremators",
+        "ja": "焼却人"
       },
       "sourceOfficialIds": ["1321"]
-    },
-    {
-      "id": "chrysos-heirs",
-      "groupId": "amphoreus",
-      "names": {
-        "zh-CN": "黄金裔",
-        "en": "Chrysos Heirs",
-        "ja": "黄金裔"
-      },
-      "sourceOfficialIds": [
-        "1402",
-        "1403",
-        "1404",
-        "1405",
-        "1406",
-        "1407",
-        "1408",
-        "1409",
-        "1410",
-        "1412",
-        "1413",
-        "1414"
-      ]
     },
     {
       "id": "fate-stay-night",
       "groupId": "another-world",
       "names": {
-        "zh-CN": "Fate/stay night 联动",
-        "en": "Fate/stay night Collaboration",
-        "ja": "Fate/stay night コラボ"
+        "zh-CN": "异界(Fate系列)",
+        "en": "Another World (Fate Series)",
+        "ja": "異界（Fateシリーズ）"
       },
       "sourceOfficialIds": ["1014", "1015", "1508", "1509"]
     }
   ],
   "subfactionByOfficialId": {
-    "1013": "genius-society",
-    "1303": "genius-society",
-    "1401": "genius-society",
-    "1101": "silvermane-guards",
-    "1104": "silvermane-guards",
-    "1106": "silvermane-guards",
-    "1102": "wildfire",
-    "1105": "wildfire",
-    "1111": "wildfire",
-    "1109": "the-moles",
-    "1107": "robot-settlement",
     "1201": "xianzhou-luofu",
     "1202": "xianzhou-luofu",
     "1203": "xianzhou-luofu",
@@ -339,6 +257,7 @@
     "1210": "xianzhou-luofu",
     "1211": "xianzhou-luofu",
     "1212": "xianzhou-luofu",
+    "1213": "xianzhou-luofu",
     "1214": "xianzhou-luofu",
     "1215": "xianzhou-luofu",
     "1217": "xianzhou-luofu",
@@ -348,31 +267,17 @@
     "1220": "xianzhou-yaoqing",
     "1223": "xianzhou-yaoqing",
     "1221": "xianzhou-zhuming",
-    "1112": "ipc-strategic-investment",
-    "1304": "ipc-strategic-investment",
-    "1314": "ipc-strategic-investment",
-    "1309": "the-family",
-    "1301": "bloodhound-family",
+    "1502": "xianzhou-yuque",
     "1308": "self-annihilators",
     "1302": "knights-of-beauty",
     "1305": "intelligentsia-guild",
     "1307": "garden-of-recollection",
     "1306": "masked-fools",
+    "1501": "masked-fools",
     "1315": "galaxy-rangers",
     "1317": "galaxy-rangers",
-    "1321": "ever-flame-mansion",
-    "1402": "chrysos-heirs",
-    "1403": "chrysos-heirs",
-    "1404": "chrysos-heirs",
-    "1405": "chrysos-heirs",
-    "1406": "chrysos-heirs",
-    "1407": "chrysos-heirs",
-    "1408": "chrysos-heirs",
-    "1409": "chrysos-heirs",
-    "1410": "chrysos-heirs",
-    "1412": "chrysos-heirs",
-    "1413": "chrysos-heirs",
-    "1414": "chrysos-heirs",
+    "1504": "galaxy-rangers",
+    "1321": "the-cremators",
     "1014": "fate-stay-night",
     "1015": "fate-stay-night",
     "1508": "fate-stay-night",

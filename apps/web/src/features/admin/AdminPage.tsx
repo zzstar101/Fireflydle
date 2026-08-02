@@ -391,7 +391,7 @@ function TaxonomyPanel({ locale }: { locale: Locale }) {
   return (
     <div className="admin-stack">
       <JsonCatalogEditor
-        title={locale === "zh-CN" ? "势力与层级" : "Factions and hierarchy"}
+        title={locale === "zh-CN" ? "阵营与层级" : "Factions and hierarchy"}
         data={factionsQuery.data ?? []}
         endpoint="/admin/factions"
         locale={locale}

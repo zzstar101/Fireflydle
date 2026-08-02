@@ -76,6 +76,7 @@ interface SyncOverrides {
   pinyinOverridesByOfficialId: Record<string, string[]>;
   romajiOverridesByOfficialId: Record<string, string[]>;
   factionIdsByCategory: Record<string, string>;
+  factionGroupByOfficialId: Record<string, string>;
   subfactionDefinitions: SubfactionOverride[];
   subfactionByOfficialId: Record<string, string>;
   trailblazerForms: TrailblazerOverride[];
@@ -1050,9 +1051,13 @@ function buildDrafts(
     if (releaseOrder === undefined) {
       throw new Error(`${officialId} 缺少版本顺序：${releaseVersionId}`);
     }
-    const factionGroupId = overrides.factionIdsByCategory[localized.en.category];
-    if (!factionGroupId) {
+    const officialFactionGroupId = overrides.factionIdsByCategory[localized.en.category];
+    if (!officialFactionGroupId) {
       throw new Error(`${officialId} 的官方分类 ${localized.en.category} 未审核映射。`);
+    }
+    const factionGroupId = overrides.factionGroupByOfficialId[officialId] ?? officialFactionGroupId;
+    if (!Object.values(overrides.factionIdsByCategory).includes(factionGroupId)) {
+      throw new Error(`${officialId} 的势力大组覆盖 ${factionGroupId} 不存在。`);
     }
     const factionId = overrides.subfactionByOfficialId[officialId] ?? factionGroupId;
     const subfaction = overrides.subfactionDefinitions.find(
@@ -1094,6 +1099,12 @@ function buildDrafts(
       sourceUpdatedAt: latestCreatedAt,
       targetEligible: true,
     });
+  }
+
+  for (const officialId of Object.keys(overrides.factionGroupByOfficialId)) {
+    if (!usedOfficialIds.has(officialId)) {
+      throw new Error(`势力大组覆盖引用未收录角色 ${officialId}。`);
+    }
   }
 
   for (const form of overrides.trailblazerForms) {
@@ -1698,9 +1709,9 @@ async function main(): Promise<void> {
       exclusions:
         "No leak-only, future-dated, expired, or unmatched community-only character is admitted.",
       factions:
-        "Official HoYoverse character-page tabs are used as the auditable faction taxonomy.",
+        "Official HoYoverse character-page tabs seed the parent groups; reviewed BWiki Character Atlas faction values select the published faction.",
       subfactions:
-        "Version-controlled subfactions refine official tabs only where official character introductions identify an organization, ship, family, or department; otherwise factionId remains the official group.",
+        "Each character publishes one factionId from BWiki's faction field, never its initial-faction or organization fields. factionGroupId is only the related-group hint.",
       assets:
         "A single official/local fallback thumbnail is downloaded and used for both avatar and portrait to avoid hotlinking and minimize redistribution.",
     },
@@ -1727,7 +1738,14 @@ async function main(): Promise<void> {
       reviewedOverrides: {
         path: "packages/game-data/src/data/sync-overrides.json",
         sha256: overrideDigest,
-        use: "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and sourced subfaction hierarchy.",
+        use: "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings.",
+      },
+      bwiki: {
+        characterAtlas: "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",
+        semanticApi: "https://wiki.biligame.com/sr/api.php?action=ask&format=json",
+        field: "阵营",
+        excludedFields: ["初始阵营", "派系"],
+        reviewedAt: options.asOfLabel,
       },
       hoyoverse: {
         characterPage: "https://hsr.hoyoverse.com/en-us/character",

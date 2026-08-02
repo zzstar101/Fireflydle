@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-01",
-  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf",
+  "asOf": "2026-08-02",
+  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5",
   "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
   "policy": {
     "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
     "exclusions": "No leak-only, future-dated, expired, or unmatched community-only character is admitted.",
-    "factions": "Official HoYoverse character-page tabs are used as the auditable faction taxonomy.",
-    "subfactions": "Version-controlled subfactions refine official tabs only where official character introductions identify an organization, ship, family, or department; otherwise factionId remains the official group.",
+    "factions": "Official HoYoverse character-page tabs seed the parent groups; reviewed BWiki Character Atlas faction values select the published faction.",
+    "subfactions": "Each character publishes one factionId from BWiki's faction field, never its initial-faction or organization fields. factionGroupId is only the related-group hint.",
     "assets": "A single official/local fallback thumbnail is downloaded and used for both avatar and portrait to avoid hotlinking and minimize redistribution."
   },
   "coverage": {
@@ -19,7 +19,7 @@
     "romajiSearchAliases": "90/90",
     "elementPathRarity": "90/90",
     "faction": "90/90",
-    "distinctFactionHierarchyPairs": 29,
+    "distinctFactionHierarchyPairs": 21,
     "releaseVersion": "90/90",
     "localAssets": "90/90"
   },
@@ -31,105 +31,6 @@
     "trailblazer-elation": ["8009", "8010"]
   },
   "subfactionAudit": [
-    {
-      "id": "genius-society",
-      "groupId": "herta-space-station",
-      "names": {
-        "zh-CN": "天才俱乐部",
-        "en": "Genius Society",
-        "ja": "天才クラブ"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1013",
-          "hoyoverseContentId": 101870
-        },
-        {
-          "officialId": "1303",
-          "hoyoverseContentId": 114133
-        },
-        {
-          "officialId": "1401",
-          "hoyoverseContentId": 127762
-        }
-      ]
-    },
-    {
-      "id": "silvermane-guards",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "银鬃铁卫",
-        "en": "Silvermane Guards",
-        "ja": "シルバーメイン"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1101",
-          "hoyoverseContentId": 101861
-        },
-        {
-          "officialId": "1104",
-          "hoyoverseContentId": 101860
-        },
-        {
-          "officialId": "1106",
-          "hoyoverseContentId": 101862
-        }
-      ]
-    },
-    {
-      "id": "wildfire",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "地火",
-        "en": "Wildfire",
-        "ja": "地炎"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1102",
-          "hoyoverseContentId": 101865
-        },
-        {
-          "officialId": "1105",
-          "hoyoverseContentId": 101864
-        },
-        {
-          "officialId": "1111",
-          "hoyoverseContentId": 112259
-        }
-      ]
-    },
-    {
-      "id": "the-moles",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "鼹鼠党",
-        "en": "The Moles",
-        "ja": "モグラ党"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1109",
-          "hoyoverseContentId": 102868
-        }
-      ]
-    },
-    {
-      "id": "robot-settlement",
-      "groupId": "belobog",
-      "names": {
-        "zh-CN": "机械聚落",
-        "en": "Robot Settlement",
-        "ja": "機械集落"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1107",
-          "hoyoverseContentId": 101867
-        }
-      ]
-    },
     {
       "id": "xianzhou-luofu",
       "groupId": "xianzhou-alliance",
@@ -144,8 +45,20 @@
           "hoyoverseContentId": 102953
         },
         {
+          "officialId": "1202",
+          "hoyoverseContentId": 102941
+        },
+        {
+          "officialId": "1203",
+          "hoyoverseContentId": 111803
+        },
+        {
           "officialId": "1204",
           "hoyoverseContentId": 102897
+        },
+        {
+          "officialId": "1206",
+          "hoyoverseContentId": 102952
         },
         {
           "officialId": "1207",
@@ -156,12 +69,44 @@
           "hoyoverseContentId": 112750
         },
         {
+          "officialId": "1209",
+          "hoyoverseContentId": 102936
+        },
+        {
+          "officialId": "1210",
+          "hoyoverseContentId": 113258
+        },
+        {
+          "officialId": "1211",
+          "hoyoverseContentId": 102940
+        },
+        {
+          "officialId": "1212",
+          "hoyoverseContentId": 113257
+        },
+        {
+          "officialId": "1213",
+          "hoyoverseContentId": 112751
+        },
+        {
+          "officialId": "1214",
+          "hoyoverseContentId": 114135
+        },
+        {
+          "officialId": "1215",
+          "hoyoverseContentId": 113552
+        },
+        {
           "officialId": "1217",
           "hoyoverseContentId": 113549
         },
         {
           "officialId": "1222",
           "hoyoverseContentId": 125610
+        },
+        {
+          "officialId": "1225",
+          "hoyoverseContentId": 127090
         }
       ]
     },
@@ -204,55 +149,17 @@
       ]
     },
     {
-      "id": "ipc-strategic-investment",
-      "groupId": "ipc",
+      "id": "xianzhou-yuque",
+      "groupId": "xianzhou-alliance",
       "names": {
-        "zh-CN": "战略投资部",
-        "en": "Strategic Investment Department",
-        "ja": "戦略投資部"
+        "zh-CN": "仙舟「玉阙」",
+        "en": "Xianzhou Yuque",
+        "ja": "仙舟「玉殿」"
       },
       "sourceEntries": [
         {
-          "officialId": "1112",
-          "hoyoverseContentId": 113259
-        },
-        {
-          "officialId": "1304",
-          "hoyoverseContentId": 122838
-        },
-        {
-          "officialId": "1314",
-          "hoyoverseContentId": 123958
-        }
-      ]
-    },
-    {
-      "id": "the-family",
-      "groupId": "penacony",
-      "names": {
-        "zh-CN": "家族",
-        "en": "The Family",
-        "ja": "ファミリー"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1309",
-          "hoyoverseContentId": 123309
-        }
-      ]
-    },
-    {
-      "id": "bloodhound-family",
-      "groupId": "penacony",
-      "names": {
-        "zh-CN": "猎犬家系",
-        "en": "Bloodhound Family",
-        "ja": "ハウンド家"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1301",
-          "hoyoverseContentId": 122839
+          "officialId": "1502",
+          "hoyoverseContentId": 162605
         }
       ]
     },
@@ -328,6 +235,10 @@
         {
           "officialId": "1306",
           "hoyoverseContentId": 122124
+        },
+        {
+          "officialId": "1501",
+          "hoyoverseContentId": 162607
         }
       ]
     },
@@ -347,16 +258,20 @@
         {
           "officialId": "1317",
           "hoyoverseContentId": 126410
+        },
+        {
+          "officialId": "1504",
+          "hoyoverseContentId": 163118
         }
       ]
     },
     {
-      "id": "ever-flame-mansion",
+      "id": "the-cremators",
       "groupId": "cosmic",
       "names": {
-        "zh-CN": "永火官邸",
-        "en": "Ever-Flame Mansion",
-        "ja": "永火の官邸"
+        "zh-CN": "焚化工",
+        "en": "The Cremators",
+        "ja": "焼却人"
       },
       "sourceEntries": [
         {
@@ -366,71 +281,12 @@
       ]
     },
     {
-      "id": "chrysos-heirs",
-      "groupId": "amphoreus",
-      "names": {
-        "zh-CN": "黄金裔",
-        "en": "Chrysos Heirs",
-        "ja": "黄金裔"
-      },
-      "sourceEntries": [
-        {
-          "officialId": "1402",
-          "hoyoverseContentId": 127763
-        },
-        {
-          "officialId": "1403",
-          "hoyoverseContentId": 154334
-        },
-        {
-          "officialId": "1404",
-          "hoyoverseContentId": 154335
-        },
-        {
-          "officialId": "1405",
-          "hoyoverseContentId": 155154
-        },
-        {
-          "officialId": "1406",
-          "hoyoverseContentId": 155820
-        },
-        {
-          "officialId": "1407",
-          "hoyoverseContentId": 155153
-        },
-        {
-          "officialId": "1408",
-          "hoyoverseContentId": 157029
-        },
-        {
-          "officialId": "1409",
-          "hoyoverseContentId": 155819
-        },
-        {
-          "officialId": "1410",
-          "hoyoverseContentId": 158011
-        },
-        {
-          "officialId": "1412",
-          "hoyoverseContentId": 158016
-        },
-        {
-          "officialId": "1413",
-          "hoyoverseContentId": 159043
-        },
-        {
-          "officialId": "1414",
-          "hoyoverseContentId": 159044
-        }
-      ]
-    },
-    {
       "id": "fate-stay-night",
       "groupId": "another-world",
       "names": {
-        "zh-CN": "Fate/stay night 联动",
-        "en": "Fate/stay night Collaboration",
-        "ja": "Fate/stay night コラボ"
+        "zh-CN": "异界(Fate系列)",
+        "en": "Another World (Fate Series)",
+        "ja": "異界（Fateシリーズ）"
       },
       "sourceEntries": [
         {
@@ -455,8 +311,15 @@
   "sources": {
     "reviewedOverrides": {
       "path": "packages/game-data/src/data/sync-overrides.json",
-      "sha256": "681bcff26dcfbe8cbd2a65db425a0aaf4c844d6b1ce1ad9117f3a046dafefe09",
-      "use": "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and sourced subfaction hierarchy."
+      "sha256": "1585312382b559c29bef306f17ad2bce1ca23da78fda24ac4feb9a8a8a3bbb0f",
+      "use": "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
+    },
+    "bwiki": {
+      "characterAtlas": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",
+      "semanticApi": "https://wiki.biligame.com/sr/api.php?action=ask&format=json",
+      "field": "阵营",
+      "excludedFields": ["初始阵营", "派系"],
+      "reviewedAt": "2026-08-02"
     },
     "hoyoverse": {
       "characterPage": "https://hsr.hoyoverse.com/en-us/character",

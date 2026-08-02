@@ -1,13 +1,15 @@
 # Fireflydle 角色数据来源与发布规则
 
+候选来源的字段覆盖、稳定性、许可风险和取舍记录见[角色数据源调研](./CHARACTER_DATA_SOURCE_RESEARCH.md)。
+
 ## 结论与覆盖率
 
 当前发布快照截止 **2026-08-02 UTC**，收录国服已正式实装的 **90** 个可玩形态：
 
 - HoYoverse 官网角色频道中已生效的 85 个形态，包含正式联动角色。
 - 官网角色页未单列的 5 个开拓者命途形态。每个命途仅保留一行，男/女游戏 ID 成对合并；不同命途仍是独立猜测对象。
-- 中/英/日名称 270/270，拼音输入和日文罗马字降级均为 90/90；element/path/rarity、势力层级、首发版本和本地素材也均为 90/90。
-- 共有 11 个官网势力大组、20 个审核子势力、29 个正式版本公告、90 个经 SHA-256 校验的本地缩略图。
+- 中/英/日名称 270/270，拼音输入和日文罗马字降级均为 90/90；element/path/rarity、阵营层级、首发版本和本地素材也均为 90/90。
+- 共有 11 个官网阵营大组、12 个 BWiki 阵营细分、29 个正式版本公告、90 个经 SHA-256 校验的本地缩略图。
 
 机器可读的实际来源修订、API URL、版本公告 ID、合并 ID 和覆盖率见
 [`packages/game-data/src/generated/sync-metadata.json`](../packages/game-data/src/generated/sync-metadata.json)。
@@ -41,6 +43,12 @@ HoYoverse 角色页不公开游戏内部 ID、稀有度和命途枚举，也不�
 
 该仓库标记 [AGPL-3.0](https://github.com/Mar-7th/StarRailRes/blob/master/LICENSE)。这一标记不可解读为对 HoYoverse 图像、角色、商标或其他游戏内容的授权。本项目仅提取少量枚举事实，不复制该仓库的工具代码；实际 commit 和许可证链接保存在同步元数据中。
 
+## 阵营来源：BWiki 角色图鉴
+
+角色公开显示的阵营严格采用 [BWiki 角色图鉴](https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4)的 `阵营` 字段。`初始阵营`与`派系`只用于人工核对，不会替换公开阵营。例如星期日为银河、桑博为贝洛伯格、知更鸟为匹诺康尼；不会分别改成家族、假面愚者或其他组织。
+
+同步时通过 Semantic MediaWiki API 生成差异报告，再把已审核映射写入版本控制的 override，避免 BWiki 临时不可用或页面误改直接污染生产数据。BWiki 尚未填写阵营的正式角色继续使用 HoYoverse 角色页分类，待图鉴补全后人工复核。
+
 ## 权利边界
 
 - Fireflydle 的 MIT 许可证只覆盖项目原创代码和文档。
@@ -65,17 +73,15 @@ HoYoverse 角色页不公开游戏内部 ID、稀有度和命途枚举，也不�
 - 日文名优先读取 HoYoverse `<ruby><rt>` 注音，再用 [`WanaKana`](https://github.com/WaniKani/WanaKana) 转成可输入罗马字；长音同时保存完整与键盘简化形。官方日文只有汉字且未给 ruby 时，至少使用官方英文名作降级，不猜测读音。
 - 两个工具库均为 MIT 许可，它们只用于生成搜索键，不提供任何游戏数据或素材权利。
 
-### 势力层级
+### 阵营层级
 
-`factionGroupId` 始终是 HoYoverse 角色页的 11 个官方大组。`factionId` 仅在官方角色介绍明确了组织、仙舟舰、部门或家系时下钻，例如：
+每个角色只发布一个 `factionId`，界面也只显示这一项。`factionGroupId` 仅用于黄色“接近”判定，不作为第二阵营展示。BWiki 阵营属于更大的官网分类时使用父级，例如：
 
-- 仙舟同盟 → 罗浮/曜青/朱明；
-- 贝洛伯格 → 银鬃铁卫/地火/鼹鼠党/机械聚落；
-- 星际和平公司 → 战略投资部；
-- 匹诺康尼 → 家族/猎犬家系；
-- 银河 → 自灭者/纯美骑士团/博识学会/流光忆庭/假面愚者/巡海游侠/永火官邸。
+- 仙舟同盟 → 罗浮/曜青/朱明/玉阙；
+- 银河 → 自灭者/纯美骑士团/博识学会/流光忆庭/假面愚者/巡海游侠/焚化工；
+- 异界 → 异界(Fate系列)。
 
-一个角色可能有多重叙事身份；这里的 `factionId` 是为猜题规则选定的单值分类，不声称它是唯一归属。如果当前官方介绍不足以证明细分（例如当前的爻光），`factionId` 保持与大组相同。override 中每个子势力都列出支撑它的游戏 ID，生成元数据再记录对应 HoYoverse `iInfoId`，可回溯到频道 242 的官方介绍。
+`factionId` 不从人物介绍推测，也不采用 BWiki 的`派系`数组。override 中每个细分阵营都列出使用它的游戏 ID，生成元数据再记录对应 HoYoverse `iInfoId`，可回溯审核。
 
 新的同名角色、未知命途/阵营或无法对齐的版本会让同步失败；不允许用模糊猜测默默继续。
 
@@ -110,6 +116,6 @@ bun run sync:data -- --cache-dir tmp/fireflydle-data-cache --refresh-cache
 | `apps/web/public/assets/manifest.json`                | 每个素材的本地路径、来源 URL、字节数与 SHA-256 |
 | `apps/web/public/assets/manifest.sha256`              | `manifest.json` 本身的 SHA-256                 |
 
-D1 SQL 按 `versions` → `factions` → `characters` 的顺序发布，三张表都以 `id` UPSERT，且不改写已有行的 `created_at`。每张表完成全量 UPSERT 后才把清单外历史行 soft-disable；角色还会同时清除 `target_eligible`，不会 `DELETE` 任何可能被历史数据引用的记录。这样 fresh D1 与已运行实例使用同一份 seed，都能得到 29 个版本、31 个阵营和 90 个可选角色。
+D1 SQL 按 `versions` → `factions` → `characters` 的顺序发布，三张表都以 `id` UPSERT，且不改写已有行的 `created_at`。每张表完成全量 UPSERT 后才把清单外历史行 soft-disable；角色还会同时清除 `target_eligible`，不会 `DELETE` 任何可能被历史数据引用的记录。这样 fresh D1 与已运行实例使用同一份 seed，都能得到 29 个版本、23 个阵营和 90 个可选角色。
 
 Cloudflare `d1 execute --file` 要求 import 文件不含显式 `BEGIN/COMMIT`，因此每个 UPSERT 和 soft-disable 都是足够小、可重试的独立语句。只有完整同步通过来源、覆盖率、schema 与素材安全阈门后，才会生成并原子替换这份 seed。

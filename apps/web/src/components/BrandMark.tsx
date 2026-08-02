@@ -6,8 +6,7 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <Link className="brand-mark" to="/" aria-label={t("brand.name")}>
       <span className="brand-sigil" aria-hidden="true">
-        <span className="brand-star" />
-        <span className="brand-rail" />
+        <img className="brand-sigil-image" src="/favicon.png" alt="" width="38" height="38" />
       </span>
       <span className="brand-copy">
         <strong>{t("brand.name")}</strong>

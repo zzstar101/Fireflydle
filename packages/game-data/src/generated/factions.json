@@ -40,26 +40,6 @@
     "enabled": true
   },
   {
-    "id": "bloodhound-family",
-    "groupId": "penacony",
-    "names": {
-      "zh-CN": "猎犬家系",
-      "en": "Bloodhound Family",
-      "ja": "ハウンド家"
-    },
-    "enabled": true
-  },
-  {
-    "id": "chrysos-heirs",
-    "groupId": "amphoreus",
-    "names": {
-      "zh-CN": "黄金裔",
-      "en": "Chrysos Heirs",
-      "ja": "黄金裔"
-    },
-    "enabled": true
-  },
-  {
     "id": "cosmic",
     "groupId": "cosmic",
     "names": {
@@ -70,22 +50,12 @@
     "enabled": true
   },
   {
-    "id": "ever-flame-mansion",
-    "groupId": "cosmic",
-    "names": {
-      "zh-CN": "永火官邸",
-      "en": "Ever-Flame Mansion",
-      "ja": "永火の官邸"
-    },
-    "enabled": true
-  },
-  {
     "id": "fate-stay-night",
     "groupId": "another-world",
     "names": {
-      "zh-CN": "Fate/stay night 联动",
-      "en": "Fate/stay night Collaboration",
-      "ja": "Fate/stay night コラボ"
+      "zh-CN": "异界(Fate系列)",
+      "en": "Another World (Fate Series)",
+      "ja": "異界（Fateシリーズ）"
     },
     "enabled": true
   },
@@ -106,16 +76,6 @@
       "zh-CN": "流光忆庭",
       "en": "Garden of Recollection",
       "ja": "流光の庭"
-    },
-    "enabled": true
-  },
-  {
-    "id": "genius-society",
-    "groupId": "herta-space-station",
-    "names": {
-      "zh-CN": "天才俱乐部",
-      "en": "Genius Society",
-      "ja": "天才クラブ"
     },
     "enabled": true
   },
@@ -146,16 +106,6 @@
       "zh-CN": "星际和平公司",
       "en": "Interastral Peace Corporation",
       "ja": "スターピースカンパニー"
-    },
-    "enabled": true
-  },
-  {
-    "id": "ipc-strategic-investment",
-    "groupId": "ipc",
-    "names": {
-      "zh-CN": "战略投资部",
-      "en": "Strategic Investment Department",
-      "ja": "戦略投資部"
     },
     "enabled": true
   },
@@ -200,32 +150,12 @@
     "enabled": true
   },
   {
-    "id": "robot-settlement",
-    "groupId": "belobog",
-    "names": {
-      "zh-CN": "机械聚落",
-      "en": "Robot Settlement",
-      "ja": "機械集落"
-    },
-    "enabled": true
-  },
-  {
     "id": "self-annihilators",
     "groupId": "cosmic",
     "names": {
       "zh-CN": "自灭者",
       "en": "Self-Annihilators",
       "ja": "自滅者"
-    },
-    "enabled": true
-  },
-  {
-    "id": "silvermane-guards",
-    "groupId": "belobog",
-    "names": {
-      "zh-CN": "银鬃铁卫",
-      "en": "Silvermane Guards",
-      "ja": "シルバーメイン"
     },
     "enabled": true
   },
@@ -240,32 +170,12 @@
     "enabled": true
   },
   {
-    "id": "the-family",
-    "groupId": "penacony",
+    "id": "the-cremators",
+    "groupId": "cosmic",
     "names": {
-      "zh-CN": "家族",
-      "en": "The Family",
-      "ja": "ファミリー"
-    },
-    "enabled": true
-  },
-  {
-    "id": "the-moles",
-    "groupId": "belobog",
-    "names": {
-      "zh-CN": "鼹鼠党",
-      "en": "The Moles",
-      "ja": "モグラ党"
-    },
-    "enabled": true
-  },
-  {
-    "id": "wildfire",
-    "groupId": "belobog",
-    "names": {
-      "zh-CN": "地火",
-      "en": "Wildfire",
-      "ja": "地炎"
+      "zh-CN": "焚化工",
+      "en": "The Cremators",
+      "ja": "焼却人"
     },
     "enabled": true
   },
@@ -296,6 +206,16 @@
       "zh-CN": "仙舟「曜青」",
       "en": "Xianzhou Yaoqing",
       "ja": "仙舟「曜青」"
+    },
+    "enabled": true
+  },
+  {
+    "id": "xianzhou-yuque",
+    "groupId": "xianzhou-alliance",
+    "names": {
+      "zh-CN": "仙舟「玉阙」",
+      "en": "Xianzhou Yuque",
+      "ja": "仙舟「玉殿」"
     },
     "enabled": true
   },

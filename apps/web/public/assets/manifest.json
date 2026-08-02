@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-01",
-  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-681bcff26dcf",
+  "asOf": "2026-08-02",
+  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5",
   "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
   "policy": "One audited local thumbnail serves both avatarPath and portraitPath to minimize redistributed copyrighted material and site weight.",
   "files": [
