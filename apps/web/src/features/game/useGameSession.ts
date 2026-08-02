@@ -19,6 +19,7 @@ import { currentGamesQueryKey } from "./useCurrentGames";
 
 type PlayableMode = Extract<GameMode, "daily" | "random">;
 type SessionSource = "server" | "local" | null;
+const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
 
 interface GameSession {
   game: PublicGame | null;
@@ -70,10 +71,20 @@ function stringHash(value: string): number {
   return hash >>> 0;
 }
 
+function localPlayerSeed(): string {
+  const existing = window.localStorage.getItem(LOCAL_PLAYER_SEED_KEY);
+  if (existing) return existing;
+  const created = crypto.randomUUID();
+  window.localStorage.setItem(LOCAL_PLAYER_SEED_KEY, created);
+  return created;
+}
+
 function targetFor(mode: PlayableMode, difficulty: Difficulty, salt = ""): Character {
   const eligible = characters.filter((character) => character.enabled && character.targetEligible);
   const seed =
-    mode === "daily" ? getBeijingDateKey() : `${crypto.randomUUID()}-${difficulty}-${salt}`;
+    mode === "daily"
+      ? `${getBeijingDateKey()}-${localPlayerSeed()}`
+      : `${crypto.randomUUID()}-${difficulty}-${salt}`;
   const target = eligible[stringHash(seed) % eligible.length];
   if (!target) throw new Error("题库为空");
   return target;

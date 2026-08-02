@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -13,33 +14,34 @@ import {
   BookOpen,
   Check,
   Clock3,
-  Copy,
   Gauge,
+  ImageDown,
   Info,
   RadioTower,
   RotateCcw,
-  Share2,
   Signal,
   Sparkles,
   Trophy,
   WifiOff,
 } from "lucide-react";
 import type { Difficulty, PersonalStats, PublicGame } from "@fireflydle/contracts";
-import {
-  ATTEMPTS_BY_DIFFICULTY,
-  createSpoilerFreeShareText,
-  getBeijingDateKey,
-} from "@fireflydle/game-engine";
+import { ATTEMPTS_BY_DIFFICULTY, getBeijingDateKey } from "@fireflydle/game-engine";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
+import { ShareResultDialog } from "./ShareResultDialog";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
 import "./game.css";
 
 const difficulties: Difficulty[] = ["casual", "standard", "hard"];
+
+interface SharePreview {
+  imageUrl: string;
+  fileName: string;
+}
 
 function formatTime(milliseconds: number): string {
   const total = Math.max(0, Math.floor(milliseconds / 1000));
@@ -254,12 +256,15 @@ function ActiveGame({
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const [now, setNow] = useState(Date.now());
-  const [shared, setShared] = useState(false);
+  const [sharePreview, setSharePreview] = useState<SharePreview | null>(null);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const gameHeadingRef = useRef<HTMLHeadingElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const abandonButtonRef = useRef<HTMLButtonElement>(null);
   const confirmAbandonButtonRef = useRef<HTMLButtonElement>(null);
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
   const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
     session;
   const playerStats = useQuery({
@@ -288,6 +293,13 @@ function ActiveGame({
     return () => window.clearInterval(interval);
   }, [game.status]);
 
+  useEffect(
+    () => () => {
+      if (sharePreview) URL.revokeObjectURL(sharePreview.imageUrl);
+    },
+    [sharePreview],
+  );
+
   const elapsedMs =
     game.status === "active" ? now - new Date(game.startedAt).getTime() : game.elapsedMs;
   const remaining = Math.max(0, game.maxAttempts - game.guesses.length);
@@ -298,31 +310,37 @@ function ActiveGame({
   const finished = game.status !== "active";
   const shareable = game.status === "won" || game.status === "lost";
 
-  const share = async () => {
-    if (!shareable) return;
-    const text = createSpoilerFreeShareText({
-      locale,
-      dateKey: game.dateKey ?? getBeijingDateKey(),
-      difficulty: game.difficulty,
-      guesses: game.guesses,
-      won: game.status === "won",
-      elapsedMs: game.elapsedMs,
-      url: window.location.origin,
-    });
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "Fireflydle", text });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
-      }
-    }
+  const closeSharePreview = useCallback(() => {
+    setSharePreview(null);
+    window.requestAnimationFrame(() => shareButtonRef.current?.focus());
+  }, []);
+
+  const createShareImage = async () => {
+    if (!shareable || shareBusy) return;
+    setShareBusy(true);
+    setShareError(false);
     try {
-      await navigator.clipboard.writeText(text);
-      setShared(true);
-      window.setTimeout(() => setShared(false), 1_800);
+      const { generateShareResultImage, shareImageFileName } = await import("./share-result-image");
+      const dateKey = game.dateKey ?? getBeijingDateKey();
+      const blob = await generateShareResultImage({
+        locale,
+        mode,
+        dateKey,
+        difficulty: game.difficulty,
+        guesses: game.guesses,
+        maxAttempts: game.maxAttempts,
+        won: game.status === "won",
+        elapsedMs: game.elapsedMs,
+        siteUrl: window.location.origin,
+      });
+      setSharePreview({
+        imageUrl: URL.createObjectURL(blob),
+        fileName: shareImageFileName({ dateKey, mode }),
+      });
     } catch {
-      setShared(false);
+      setShareError(true);
+    } finally {
+      setShareBusy(false);
     }
   };
 
@@ -535,15 +553,26 @@ function ActiveGame({
                 )}
                 {shareable && (
                   <button
+                    ref={shareButtonRef}
                     className="result-share-button"
                     type="button"
-                    onClick={() => void share()}
+                    disabled={shareBusy}
+                    onClick={() => void createShareImage()}
                   >
-                    {shared ? <Copy size={17} /> : <Share2 size={17} />}{" "}
-                    {shared ? t("common.copied") : t("game.share")}
+                    {shareBusy ? (
+                      <span className="button-spinner" aria-hidden="true" />
+                    ) : (
+                      <ImageDown size={17} />
+                    )}{" "}
+                    {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
                   </button>
                 )}
               </div>
+              {shareError && (
+                <p className="share-image-error" role="alert">
+                  {t("game.shareImageError")}
+                </p>
+              )}
             </section>
           )}
 
@@ -573,6 +602,13 @@ function ActiveGame({
           </Link>
         </aside>
       </section>
+      {sharePreview ? (
+        <ShareResultDialog
+          imageUrl={sharePreview.imageUrl}
+          fileName={sharePreview.fileName}
+          onClose={closeSharePreview}
+        />
+      ) : null}
     </main>
   );
 }

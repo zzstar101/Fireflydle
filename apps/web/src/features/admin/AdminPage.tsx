@@ -383,7 +383,7 @@ function TaxonomyPanel({ locale }: { locale: Locale }) {
         body: JSON.stringify({ characterId }),
       }),
     onSuccess: async () => {
-      setMessage(locale === "zh-CN" ? "每日答案覆盖已保存。" : "Daily override saved.");
+      setMessage(locale === "zh-CN" ? "每日分配种子已保存。" : "Daily assignment seed saved.");
       await queryClient.invalidateQueries({ queryKey: ["admin", "daily-targets"] });
     },
     onError: (error) => setMessage(mutationMessage(error, locale)),
@@ -405,21 +405,21 @@ function TaxonomyPanel({ locale }: { locale: Locale }) {
       <section className="admin-card">
         <header>
           <CalendarDays size={18} />
-          <span>{locale === "zh-CN" ? "每日答案覆盖" : "Daily answer override"}</span>
+          <span>{locale === "zh-CN" ? "每日分配种子" : "Daily assignment seed"}</span>
         </header>
         <div className="inline-admin-form">
           <input type="date" value={dateKey} onChange={(event) => setDateKey(event.target.value)} />
           <input
             value={characterId}
             onChange={(event) => setCharacterId(event.target.value)}
-            placeholder="character-id"
+            placeholder={locale === "zh-CN" ? "种子角色 ID" : "seed character ID"}
           />
           <button
             className="ticket-button"
             disabled={!dateKey || !characterId}
             onClick={() => override.mutate()}
           >
-            <Save size={15} /> {locale === "zh-CN" ? "覆盖" : "Override"}
+            <Save size={15} /> {locale === "zh-CN" ? "设置种子" : "Set seed"}
           </button>
         </div>
         {message ? <p className="admin-message">{message}</p> : null}

@@ -156,7 +156,7 @@ export async function getReplayGame(
   return toPublicGame(row, await readGuessResults(db, gameId), now);
 }
 
-async function selectDailyTarget(
+async function selectDailyAnchor(
   db: D1Database,
   pool: Character[],
   dateKey: string,
@@ -198,18 +198,36 @@ async function selectDailyTarget(
   throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "daily-target-contention" });
 }
 
+async function personalizedDailyIndex(
+  poolLength: number,
+  dateKey: string,
+  userId: string,
+  anchorCharacterId: string,
+): Promise<number> {
+  const input = new TextEncoder().encode(`${dateKey}\0${userId}\0${anchorCharacterId}`);
+  const digest = await crypto.subtle.digest("SHA-256", input);
+  return new DataView(digest).getUint32(0, false) % poolLength;
+}
+
 async function selectTarget(
   db: D1Database,
+  userId: string,
   input: CreateGameRequest,
   now: number,
 ): Promise<{ targetId: string; dateKey: string | null }> {
   const pool = await getTargetPool(db);
-  const candidate = pool[secureRandomIndex(pool.length)];
-  if (!candidate) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
-  if (input.mode === "random") return { targetId: candidate.id, dateKey: null };
+  if (input.mode === "random") {
+    const candidate = pool[secureRandomIndex(pool.length)];
+    if (!candidate) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
+    return { targetId: candidate.id, dateKey: null };
+  }
 
   const dateKey = getBeijingDateKey(now);
-  return { targetId: await selectDailyTarget(db, pool, dateKey, now), dateKey };
+  const anchorCharacterId = await selectDailyAnchor(db, pool, dateKey, now);
+  const target =
+    pool[await personalizedDailyIndex(pool.length, dateKey, userId, anchorCharacterId)];
+  if (!target) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
+  return { targetId: target.id, dateKey };
 }
 
 export async function createGame(
@@ -222,7 +240,7 @@ export async function createGame(
   const currentId = await readCurrentGameId(db, userId, input.mode, dateKey);
   if (currentId) return getPublicGame(db, currentId, userId, now);
 
-  const target = await selectTarget(db, input, now);
+  const target = await selectTarget(db, userId, input, now);
 
   const gameId = crypto.randomUUID();
   try {

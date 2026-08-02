@@ -507,6 +507,144 @@
   padding: 0 12px;
 }
 
+.result-share-button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.result-share-button .button-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: orbit 700ms linear infinite;
+}
+
+.share-image-error {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+  color: var(--danger);
+  font-size: 0.68rem;
+}
+
+.share-image-backdrop {
+  position: fixed;
+  z-index: 100;
+  display: grid;
+  padding: 28px;
+  background: rgb(2 7 13 / 78%);
+  backdrop-filter: blur(12px);
+  inset: 0;
+  overflow-y: auto;
+  place-items: center;
+  animation: share-backdrop-in 180ms ease-out both;
+}
+
+.share-image-dialog {
+  width: min(100%, 690px);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  box-shadow: 0 30px 100px rgb(0 0 0 / 55%);
+  animation: share-dialog-in 220ms cubic-bezier(0.2, 0.72, 0.25, 1) both;
+}
+
+.share-image-dialog > header,
+.share-image-dialog > footer {
+  display: flex;
+  align-items: center;
+  padding: 22px 24px;
+  gap: 18px;
+}
+
+.share-image-dialog > header {
+  border-bottom: 1px solid var(--border);
+}
+
+.share-image-dialog > header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.share-image-dialog .eyebrow {
+  margin: 0;
+}
+
+.share-image-dialog h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.share-dialog-close {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  place-items: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.share-dialog-close:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.share-image-preview {
+  display: grid;
+  max-height: 62vh;
+  padding: 24px;
+  background:
+    linear-gradient(45deg, rgb(255 255 255 / 3%) 25%, transparent 25%),
+    linear-gradient(-45deg, rgb(255 255 255 / 3%) 25%, transparent 25%), var(--canvas-deep);
+  background-position:
+    0 0,
+    12px 12px;
+  background-size: 24px 24px;
+  overflow: auto;
+  place-items: center;
+}
+
+.share-image-preview img {
+  display: block;
+  width: min(100%, 470px);
+  height: auto;
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 38%);
+}
+
+.share-image-dialog > footer {
+  border-top: 1px solid var(--border);
+}
+
+.share-image-dialog > footer p {
+  max-width: 360px;
+  margin: 0 auto 0 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.65;
+}
+
+.share-image-dialog > footer .ticket-button {
+  flex: 0 0 auto;
+}
+
+@keyframes share-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes share-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+}
+
 @keyframes prep-arrive {
   from {
     opacity: 0;
@@ -1494,6 +1632,25 @@
     display: grid;
   }
   .result-actions > * {
+    width: 100%;
+  }
+  .share-image-backdrop {
+    padding: 10px;
+    place-items: start center;
+  }
+  .share-image-dialog > header,
+  .share-image-dialog > footer {
+    padding: 17px;
+  }
+  .share-image-preview {
+    max-height: 58vh;
+    padding: 12px;
+  }
+  .share-image-dialog > footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .share-image-dialog > footer .ticket-button {
     width: 100%;
   }
 }
