@@ -4,12 +4,6 @@
   "main": "src/index.ts",
   "workers_dev": false,
   "preview_urls": false,
-  "routes": [
-    {
-      "pattern": "api.fireflydle.games",
-      "custom_domain": true,
-    },
-  ],
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {

@@ -118,9 +118,9 @@ bunx wrangler deploy
 
 ### 4.1 绑定 API 自定义域
 
-`apps/api/wrangler.jsonc` 已把 `api.fireflydle.games` 声明为 `custom_domain`。执行 `wrangler deploy` 时，Cloudflare 会创建或更新该 Worker 自定义域。
+首次 `wrangler deploy` 完成后，在 Cloudflare 控制台进入 `fireflydle-api` Worker 的 **Settings → Domains & Routes → Add → Custom domain**，添加 `api.fireflydle.games`。这是一次性引导操作；生产 CD 只更新 Worker 代码、bindings、Durable Object migration 和 cron，不重复改写已建立的 route。
 
-Cloudflare 会为 Worker 创建所需 DNS 和证书。不要再手工添加同名 A/CNAME，也不要把 `api` 指向 GitHub Pages。等待域名 Active 后验证：
+`wrangler.jsonc` 有意不包含 `route` 或 `routes`，并保留 `workers_dev=false`。这样 GitHub Actions 的 token 不需要 Zone 权限，已存在的 Custom Domain 由 Cloudflare 控制台管理且不会在代码部署时被删除。Cloudflare 会为 Custom Domain 创建所需 DNS 和证书；不要再手工添加同名 A/CNAME，也不要把 `api` 指向 GitHub Pages。等待域名 Active 后验证：
 
 ```bash
 curl --fail-with-body https://api.fireflydle.games/api/health
@@ -135,7 +135,7 @@ curl --fail-with-body https://api.fireflydle.games/api/health
 - **Account / Workers Scripts / Edit**；
 - **Account / D1 / Edit**；
 - 仅选择实际生产账号；
-- workflow 不管理 DNS，因此不要无故授予全局 Zone DNS Edit。
+- workflow 不管理 DNS 或 Worker routes，因此不要授予 Zone DNS Edit 或 Workers Routes Edit。
 
 若 Cloudflare 控制台当时使用了新的权限名称，以 Wrangler 部署 Worker、D1 migration 所需的最小权限为准。不要使用 Global API Key。
 
