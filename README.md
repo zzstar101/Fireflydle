@@ -121,7 +121,7 @@ Pull request 和 `main` push 都会运行格式、类型、测试和构建检查
 | Resend                 | `account@fireflydle.games`     | 邮箱验证与密码重置发信         |
 | Cloudflare Email       | `account@fireflydle.games`     | 将站点来信转发到维护者收件箱   |
 
-`.github/workflows/deploy.yml` 会从同一次数据同步生成 Pages artifact 和 D1 seed，先迁移并验证 API，再发布对应的前端版本。首次上线前仍需在 GitHub 与 Cloudflare 控制台完成 Pages、自定义域、D1、Worker、Environment secrets 和可选邮件能力的配置；详见 [部署手册](docs/DEPLOYMENT.md)。
+手动发布 GitHub Release 后，`.github/workflows/deploy.yml` 会自动从该 Release 的 tag 构建同一批 Pages artifact 与 D1 seed，依次迁移 D1、发布并验证 Worker，最后发布对应的 Pages 版本。任一步失败都会阻止后续部署；配置与发布步骤见 [部署手册](docs/DEPLOYMENT.md)。
 
 ## 数据与素材
 

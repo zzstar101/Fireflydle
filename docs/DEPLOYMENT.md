@@ -139,7 +139,7 @@ curl --fail-with-body https://api.fireflydle.games/api/health
 
 若 Cloudflare 控制台当时使用了新的权限名称，以 Wrangler 部署 Worker、D1 migration 所需的最小权限为准。不要使用 Global API Key。
 
-在 GitHub 仓库创建名为 `production-api` 的 Environment，建议仅允许 `main` 且配置 required reviewer。加入两个 Environment secrets：
+在 GitHub 仓库创建名为 `production-api` 的 Environment，建议只允许 tag、配置 required reviewer，并依靠流水线校验 tag 对应的 commit 属于 `main`。加入两个 Environment secrets：
 
 | Secret                  | 值                    |
 | ----------------------- | --------------------- |
@@ -147,8 +147,6 @@ curl --fail-with-body https://api.fireflydle.games/api/health
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 
 不要把 token 放进 repository variable、workflow YAML、README、命令输出或 artifact。Account ID 本身不是凭据，但作为 Environment secret 管理可以减少配置散落。
-
-Secrets 配置完成后，创建 repository variable `CLOUDFLARE_DEPLOY_ENABLED=true`。未启用该变量时，生产 workflow 会跳过 API job，但仍会发布通过验证的 GitHub Pages；这适合首次由本机 Wrangler 引导生产资源，不能作为长期发布方式。
 
 GitHub Pages 使用 `github-pages` Environment。`.github/workflows/deploy.yml` 仅给 Pages job `pages: write` 与 `id-token: write`，其他 job 保持只读仓库权限。
 
@@ -206,7 +204,7 @@ catch-all 保持关闭，避免接收未声明地址的垃圾邮件。修改路�
 
 ## 7. 自动发布流程
 
-`.github/workflows/deploy.yml` 在 `main` push 或手动 dispatch 时运行。只有 repository variable `PRODUCTION_ENABLED=true` 时才开始正式发布，且整个生产环境只有一个并发发布：
+`.github/workflows/deploy.yml` 只在维护者手动发布 GitHub Release 时运行；草稿 Release 不会触发。发布时应让 tag 指向 `main` 上已经通过 CI 的 commit，流水线也会再次验证这一点。整个生产环境只有一个并发发布：
 
 1. 按 `package.json` 设置 Bun，并使用 `bun.lock` 冻结安装依赖；
 2. 执行一次 `bun run sync:data`，同步并校验角色数据、图片、来源与 SHA-256；
@@ -220,11 +218,21 @@ catch-all 保持关闭，避免接收未声明地址的垃圾邮件。修改路�
 10. 检查 `/api/health`；
 11. 只有 API 成功后才把预先构建好的 artifact 发布到 GitHub Pages。
 
-没有独立的素材 workflow 或定时素材发布。`github-pages` 与 `release-data-<commit>` artifact 均保留 30 天，便于失败 job 重试、页面回退和事故审计。若只重跑失败的 API/Pages job，它会继续使用原 build job 的 artifact，而不会再次抓取上游数据。
+没有独立的素材 workflow 或定时素材发布。`github-pages` 与 `release-data-*` artifact 均保留 30 天，便于失败 job 重试、页面回退和事故审计。若只重跑失败的 API/Pages job，它会继续使用原 build job 的 artifact，而不会再次抓取上游数据。
 
 生产同步需要访问角色内容 API/CDN 和 GitHub 补充源。任何来源不可用、schema 不符、哈希异常、格式错误、测试失败或构建失败都会在部署前停止发布。
 
 CI workflow 在 pull request 和 `main` push 上执行同一套格式、类型、测试和构建检查，但不会同步或发布素材。
+
+### 发布一个版本
+
+1. 确认目标 commit 已合并到 `main`，且 CI 通过；
+2. 在 GitHub 仓库的 **Releases → Draft a new release** 创建新 tag（建议使用 `vX.Y.Z`），Target 选择 `main`；
+3. 填写版本说明并点击 **Publish release**；首次 Release 的 notes 应汇总初始提交之后的新增功能与修复，后续版本则汇总上一个 Release 之后的变化；
+4. 在 Actions 的 **Deploy production** 中观察 D1、Worker 和 Pages 三段部署；
+5. 流水线完成后检查 `https://api.fireflydle.games/api/health` 与 `https://fireflydle.games`。
+
+不再需要 `PRODUCTION_ENABLED` 或 `CLOUDFLARE_DEPLOY_ENABLED` repository variables。删除、取消发布或修改 Release 不会触发生产部署；失败时直接重跑失败 job，不要为同一版本重复创建 tag。
 
 ## 8. Migration 规则
 

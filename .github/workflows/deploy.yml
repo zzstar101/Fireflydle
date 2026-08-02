@@ -1,10 +1,9 @@
 name: Deploy production
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  release:
+    types:
+      - published
 
 permissions:
   contents: read
@@ -16,7 +15,6 @@ concurrency:
 jobs:
   build_release:
     name: Synchronize, verify, and build
-    if: github.ref == 'refs/heads/main' && vars.PRODUCTION_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
@@ -30,7 +28,17 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
           persist-credentials: false
+
+      - name: Verify released commit belongs to main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
+            echo "::error::Release tag must point to a commit on main."
+            exit 1
+          fi
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
@@ -83,7 +91,7 @@ jobs:
       - name: Preserve synchronized release data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: release-data-${{ github.sha }}
+          name: release-data-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             apps/web/public/assets/manifest.json
             apps/web/public/assets/manifest.sha256
@@ -94,7 +102,6 @@ jobs:
   deploy_api:
     name: Migrate data and deploy API
     needs: build_release
-    if: needs.build_release.result == 'success' && vars.CLOUDFLARE_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -107,6 +114,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.event.release.tag_name }}
           persist-credentials: false
 
       - name: Set up Bun
@@ -120,8 +128,22 @@ jobs:
       - name: Download synchronized release data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          name: release-data-${{ github.sha }}
+          name: release-data-${{ github.run_id }}-${{ github.run_attempt }}
           path: .
+
+      - name: Verify Cloudflare deployment credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo "::error::production-api is missing CLOUDFLARE_API_TOKEN."
+            exit 1
+          fi
+          if [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "::error::production-api is missing CLOUDFLARE_ACCOUNT_ID."
+            exit 1
+          fi
 
       - name: Report optional password email configuration
         working-directory: apps/api
@@ -172,10 +194,6 @@ jobs:
     needs:
       - build_release
       - deploy_api
-    if: >-
-      always() &&
-      needs.build_release.result == 'success' &&
-      (needs.deploy_api.result == 'success' || needs.deploy_api.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

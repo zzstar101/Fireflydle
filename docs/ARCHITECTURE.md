@@ -72,13 +72,13 @@ D1 是长期、可查询的数据源，包含账号、会话、角色、每日�
 
 ## 数据发布一致性
 
-一次生产发布的标识由 Git commit、GitHub Actions run 和素材 manifest 摘要共同确定。`.github/workflows/deploy.yml` 只同步一次数据，然后：
+一次生产发布由手动发布的 GitHub Release 触发，标识由 Release tag、Git commit、GitHub Actions run 和素材 manifest 摘要共同确定。流水线先确认 tag 指向 `main` 历史中的 commit；`.github/workflows/deploy.yml` 只同步一次数据，然后：
 
 1. 校验数据来源、schema、素材哈希与生成文件；
 2. 对同步后的工作区执行格式、类型、测试和构建检查；
 3. 上传由该工作区生成的 GitHub Pages artifact；
-4. 把同次生成的 manifest、manifest 摘要和 D1 seed 保存为 `release-data-<commit>` artifact；
-5. 从该 artifact 校验必需的 `RESEND_API_KEY`，应用 D1 migration 与角色 seed，再发布 Worker；
+4. 把同次生成的 manifest、manifest 摘要和 D1 seed 保存为本次 Actions run 专属的 `release-data-*` artifact；
+5. 从该 artifact 检查可选的 `RESEND_API_KEY`，应用 D1 migration 与角色 seed，再发布 Worker；
 6. API 健康检查成功后，才发布已经构建好的 Pages artifact。
 
 流水线没有素材专用的 schedule，也没有把图片直接上传到另一个存储服务。即使上游数据发生变化，线上内容也只在完整发布成功后一起变化。跨 GitHub Pages 与 Cloudflare 无法实现真正的分布式原子提交；发布顺序和保留的 artifact 将故障窗口缩小，并为重试与审计提供依据。
