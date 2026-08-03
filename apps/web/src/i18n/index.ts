@@ -75,7 +75,7 @@ const resources = {
       prep: {
         dailyEyebrow: "01 · 每日一题",
         randomEyebrow: "02 · 随机挑战",
-        dailyIntro: "每天会为你分配一个专属答案。选择难度，准备好后再开始。",
+        dailyIntro: "每天会为你分配一个专属答案，固定有 6 次猜测机会。准备好后再开始。",
         randomIntro: "每局随机选择一个答案，不影响每日题成绩。",
         chooseDifficulty: "选择难度",
         difficultyHint: "开始后不能更改难度；不同难度的猜测次数不同。",
@@ -168,13 +168,13 @@ const resources = {
       leaderboard: {
         eyebrow: "每日排行榜",
         title: "今日排行",
-        intro: "先按是否猜中，再按猜测次数和完成时间排序。注册且完成 10 场排位后公开上榜。",
+        intro: "每日榜按当天猜中时间排序并包含访客；Elo 榜展示已注册用户。",
         rank: "名次",
         player: "玩家",
         guesses: "猜测",
         time: "用时",
         streak: "连续",
-        empty: "今天还没有符合条件的记录。",
+        empty: "今天还没有玩家猜中。",
       },
       account: {
         signIn: "登录",
@@ -287,7 +287,7 @@ const resources = {
         dailyEyebrow: "01 · DAILY PUZZLE",
         randomEyebrow: "02 · RANDOM CHALLENGE",
         dailyIntro:
-          "You get a personalized answer each day. Choose a difficulty, then start when ready.",
+          "You get a personalized answer and 6 guesses each day. Start when you're ready.",
         randomIntro: "Each game picks a new random answer without affecting your daily result.",
         chooseDifficulty: "Choose a difficulty",
         difficultyHint: "Difficulty cannot be changed after the game starts.",
@@ -382,13 +382,13 @@ const resources = {
         eyebrow: "DAILY LEADERBOARD",
         title: "Today's results",
         intro:
-          "Solved first, then fewer guesses and faster time. Register and finish 10 ranked matches to appear publicly.",
+          "Daily results are ordered by solve time and include guests; the Elo board lists registered users.",
         rank: "Rank",
         player: "Player",
         guesses: "Guesses",
         time: "Time",
         streak: "Streak",
-        empty: "No eligible results yet today.",
+        empty: "No one has solved today's puzzle yet.",
       },
       account: {
         signIn: "Sign in",
@@ -502,7 +502,7 @@ const resources = {
         dailyEyebrow: "01 · デイリー問題",
         randomEyebrow: "02 · ランダム挑戦",
         dailyIntro:
-          "毎日プレイヤーごとに答えが割り当てられます。難易度を選び、準備ができたら開始してください。",
+          "毎日プレイヤーごとに答えが割り当てられ、推測は6回固定です。準備ができたら開始してください。",
         randomIntro: "毎回ランダムな答えが選ばれ、デイリーの成績には影響しません。",
         chooseDifficulty: "難易度を選ぶ",
         difficultyHint: "開始後は難易度を変更できません。",
@@ -596,13 +596,13 @@ const resources = {
       leaderboard: {
         eyebrow: "デイリーランキング",
         title: "今日の記録",
-        intro: "正解、回答回数、時間の順で順位を決定。登録後、ランク戦10回で公開されます。",
+        intro: "デイリーは当日の正解時刻順でゲストも対象。Eloは登録ユーザーを表示します。",
         rank: "順位",
         player: "プレイヤー",
         guesses: "回答",
         time: "時間",
         streak: "連続",
-        empty: "今日の公開記録はまだありません。",
+        empty: "今日はまだ正解者がいません。",
       },
       account: {
         signIn: "ログイン",

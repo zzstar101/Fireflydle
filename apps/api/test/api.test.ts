@@ -1,12 +1,15 @@
 import {
   PASSWORD_MIN_LENGTH,
+  type Announcement,
   type Character,
+  type ReplayResponse,
   type PublicGame,
   type RoomSnapshot,
 } from "@fireflydle/contracts";
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getBeijingDateKey, MULTIPLAYER_ROUND_MS } from "@fireflydle/game-engine";
 import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
 
 const character: Character = {
@@ -39,10 +42,12 @@ interface SessionData {
   expiresAt: string;
   user: {
     id: string;
+    displayName: string;
     hasEmail: boolean;
     emailVerified: boolean;
     elo?: number;
     rankedMatches?: number;
+    leaderboardEligible?: boolean;
   };
 }
 
@@ -156,6 +161,128 @@ describe("Worker 入口与会话", () => {
   });
 });
 
+describe("公告中心", () => {
+  it("按受众返回公告并持久保存关闭状态", async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const admin = await createAdminSession(`ann_${suffix}`);
+    const guest = await createSession();
+    const createdResponse = await SELF.fetch("https://fireflydle.games/api/admin/announcements", {
+      method: "POST",
+      headers: { cookie: admin.cookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        title: { "zh-CN": "版本更新", en: "", ja: "" },
+        body: { "zh-CN": "- 新增公告中心", en: "", ja: "" },
+        category: "update",
+        audience: "all",
+        published: true,
+        startsAt: null,
+        endsAt: null,
+      }),
+    });
+    expect(createdResponse.status).toBe(201);
+    const created = await dataOf<Announcement>(createdResponse);
+    expect(created).toMatchObject({ status: "active", category: "update", readAt: null });
+    expect(created.title.en).toBe("版本更新");
+
+    const scheduledResponse = await SELF.fetch("https://fireflydle.games/api/admin/announcements", {
+      method: "POST",
+      headers: { cookie: admin.cookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        title: { "zh-CN": "定时通知", en: "", ja: "" },
+        body: { "zh-CN": "尚未到生效时间。", en: "", ja: "" },
+        published: true,
+        startsAt: new Date(Date.now() + 60 * 60_000).toISOString(),
+      }),
+    });
+    const scheduled = await dataOf<Announcement>(scheduledResponse);
+    expect(scheduled.status).toBe("scheduled");
+
+    const before = await SELF.fetch("https://fireflydle.games/api/announcements", {
+      headers: { cookie: guest.cookie },
+    });
+    const beforeItems = await dataOf<Announcement[]>(before);
+    expect(beforeItems.find((item) => item.id === created.id)?.readAt).toBeNull();
+    expect(beforeItems.some((item) => item.id === scheduled.id)).toBe(false);
+
+    const read = await SELF.fetch("https://fireflydle.games/api/announcements/read", {
+      method: "POST",
+      headers: { cookie: guest.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ ids: [created.id] }),
+    });
+    expect(read.status).toBe(200);
+
+    const after = await SELF.fetch("https://fireflydle.games/api/announcements", {
+      headers: { cookie: guest.cookie },
+    });
+    const afterItems = await dataOf<Announcement[]>(after);
+    expect(afterItems.find((item) => item.id === created.id)?.readAt).not.toBeNull();
+  });
+
+  it("访客登录已有账号后合并公告已读记录", async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const admin = await createAdminSession(`am_${suffix}`);
+    const guest = await createSession();
+    const target = await createRegisteredSession(`at_${suffix}`);
+    const createdResponse = await SELF.fetch("https://fireflydle.games/api/admin/announcements", {
+      method: "POST",
+      headers: { cookie: admin.cookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        title: { "zh-CN": "合并测试", en: "", ja: "" },
+        body: { "zh-CN": "关闭后登录不应重弹。", en: "", ja: "" },
+        published: true,
+      }),
+    });
+    const created = await dataOf<Announcement>(createdResponse);
+    await SELF.fetch("https://fireflydle.games/api/announcements/read", {
+      method: "POST",
+      headers: { cookie: guest.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ ids: [created.id] }),
+    });
+
+    const login = await SELF.fetch("https://fireflydle.games/api/auth/login", {
+      method: "POST",
+      headers: { cookie: guest.cookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        loginName: `registered_at_${suffix}`,
+        password: target.password,
+      }),
+    });
+    expect(login.status).toBe(200);
+    const mergedCookie = login.headers.get("set-cookie");
+    if (!mergedCookie) throw new Error("缺少合并后的 session cookie");
+    const announcements = await SELF.fetch("https://fireflydle.games/api/announcements", {
+      headers: { cookie: mergedCookie },
+    });
+    const items = await dataOf<Announcement[]>(announcements);
+    expect(items.find((item) => item.id === created.id)?.readAt).not.toBeNull();
+  });
+
+  it("按 Release 标签幂等发布玩家公告", async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    await createAdminSession(`rel_${suffix}`);
+    const request = () =>
+      SELF.fetch("https://fireflydle.games/api/announcements/releases", {
+        method: "POST",
+        headers: {
+          authorization: "Bearer test-release-announcement-token-0001",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          tagName: `v-test-${suffix}`,
+          name: "萤一把测试版本",
+          body: "## 玩家更新\n\n- 新增公告系统",
+        }),
+      });
+    const first = await request();
+    expect(first.status).toBe(201);
+    const created = await dataOf<Announcement>(first);
+    expect(created).toMatchObject({ category: "update", source: "release", status: "active" });
+    const second = await request();
+    expect(second.status).toBe(200);
+    expect((await dataOf<Announcement>(second)).id).toBe(created.id);
+  });
+});
+
 describe("管理概览与注册用户列表", () => {
   it("用户列表从查询层排除访客并支持筛选分页", async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
@@ -203,6 +330,23 @@ describe("管理概览与注册用户列表", () => {
       expect.objectContaining({ configured: false, available: false }),
     );
     expect(overview.trends).toHaveLength(7);
+
+    const presenceResponse = await SELF.fetch("https://fireflydle.games/api/admin/presence", {
+      headers: { cookie: admin.cookie },
+    });
+    expect(presenceResponse.status).toBe(200);
+    const presence = await dataOf<{
+      windowMinutes: number;
+      total: number | null;
+      registered: number | null;
+      guests: number | null;
+    }>(presenceResponse);
+    expect(presence).toMatchObject({
+      windowMinutes: 5,
+      total: null,
+      registered: null,
+      guests: null,
+    });
   });
 });
 
@@ -244,7 +388,10 @@ describe("服务端游戏裁决", () => {
     const casual = await dataOf<PublicGame>(casualResponse);
     const hard = await dataOf<PublicGame>(hardResponse);
     expect(hard.id).toBe(casual.id);
-    expect(hard.difficulty).toBe(casual.difficulty);
+    expect(casual.difficulty).toBe("standard");
+    expect(casual.maxAttempts).toBe(6);
+    expect(hard.difficulty).toBe("standard");
+    expect(hard.maxAttempts).toBe(6);
 
     const concede = async (id: string) =>
       dataOf<PublicGame>(
@@ -343,7 +490,342 @@ describe("服务端游戏裁决", () => {
   });
 });
 
+describe("排行榜准入", () => {
+  it("每日榜按猜中先后展示访客，Elo 榜展示全部未隐藏的注册用户", async () => {
+    const registered = await createRegisteredSession("public_boards");
+    const guest = await createSession();
+    expect(registered.data.user.leaderboardEligible).toBe(true);
+
+    const playDaily = async (cookie: string, difficulty: "casual" | "hard") => {
+      const game = await dataOf<PublicGame>(
+        await SELF.fetch("https://fireflydle.games/api/games", {
+          method: "POST",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify({ mode: "daily", difficulty }),
+        }),
+      );
+      expect(game.difficulty).toBe("standard");
+      expect(game.maxAttempts).toBe(6);
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: character.id }),
+      });
+      return game.id;
+    };
+
+    const registeredGameId = await playDaily(registered.cookie, "hard");
+    const guestGameId = await playDaily(guest.cookie, "casual");
+    const baseTime = Date.now();
+    await env.DB.batch([
+      env.DB.prepare(
+        "UPDATE game_results SET guess_count = 1, completed_at = ? WHERE game_id = ?",
+      ).bind(baseTime + 2_000, registeredGameId),
+      env.DB.prepare(
+        "UPDATE game_results SET guess_count = 6, completed_at = ? WHERE game_id = ?",
+      ).bind(baseTime + 1_000, guestGameId),
+    ]);
+
+    const daily = await dataOf<
+      Array<{ displayName: string; isGuest: boolean; guesses: number; completedAt: string }>
+    >(
+      await SELF.fetch(
+        `https://fireflydle.games/api/leaderboards/daily?date=${getBeijingDateKey()}`,
+      ),
+    );
+    const relevantDaily = daily.filter(
+      (entry) =>
+        entry.displayName === guest.data.user.displayName ||
+        entry.displayName === registered.data.user.displayName,
+    );
+    expect(relevantDaily).toEqual([
+      expect.objectContaining({
+        displayName: guest.data.user.displayName,
+        isGuest: true,
+        guesses: 6,
+      }),
+      expect.objectContaining({
+        displayName: registered.data.user.displayName,
+        isGuest: false,
+        guesses: 1,
+      }),
+    ]);
+
+    const elo = await dataOf<Array<{ displayName: string; elo: number; rankedMatches: number }>>(
+      await SELF.fetch("https://fireflydle.games/api/leaderboards/elo"),
+    );
+    expect(elo).toContainEqual(
+      expect.objectContaining({
+        displayName: registered.data.user.displayName,
+        elo: 1000,
+        rankedMatches: 0,
+      }),
+    );
+    expect(elo.some((entry) => entry.displayName === guest.data.user.displayName)).toBe(false);
+
+    await env.DB.prepare("UPDATE users SET leaderboard_eligible = 0 WHERE id = ?")
+      .bind(registered.data.user.id)
+      .run();
+    const eloAfterHide = await dataOf<Array<{ displayName: string }>>(
+      await SELF.fetch("https://fireflydle.games/api/leaderboards/elo"),
+    );
+    expect(
+      eloAfterHide.some((entry) => entry.displayName === registered.data.user.displayName),
+    ).toBe(false);
+  });
+});
+
 describe("匹配、SQLite Durable Object 与 WebSocket", () => {
+  it("只在回合结束后公开答案，连续平局也会一直加赛", async () => {
+    const roomId = crypto.randomUUID();
+    const ownerId = crypto.randomUUID();
+    const opponentId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    const playing = await roomObject.initialize({
+      roomId,
+      code: "DRW22",
+      format: 3,
+      ranked: false,
+      owner: {
+        userId: ownerId,
+        displayName: "Draw Left",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponentId,
+        displayName: "Draw Right",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      characters: [character],
+      targetIds: [character.id],
+      now: startedAt,
+    });
+    expect(playing.roundAnswer).toBeNull();
+    expect(playing.nextRoundAt).toBeNull();
+
+    let roundStartedAt = startedAt;
+    for (let round = 1; round <= 4; round += 1) {
+      const ended = await roomObject.snapshot(ownerId, roundStartedAt + MULTIPLAYER_ROUND_MS + 1);
+      expect(ended.ok).toBe(true);
+      if (!ended.ok) return;
+      expect(ended.snapshot.state).toBe("round-ended");
+      expect(ended.snapshot.round).toBe(round);
+      expect(ended.snapshot.roundAnswer?.id).toBe(character.id);
+      expect(ended.snapshot.roundWinnerId).toBeNull();
+      expect(ended.snapshot.winnerId).toBeNull();
+      expect(ended.snapshot.consecutiveDraws).toBe(round);
+      const nextRoundAt = ended.snapshot.nextRoundAt;
+      expect(nextRoundAt).not.toBeNull();
+      if (nextRoundAt === null) return;
+      roundStartedAt = nextRoundAt + 1;
+      const advanced = await roomObject.snapshot(ownerId, roundStartedAt);
+      expect(advanced.ok).toBe(true);
+      if (!advanced.ok) return;
+      expect(advanced.snapshot.state).toBe("playing");
+      expect(advanced.snapshot.round).toBe(round + 1);
+      expect(advanced.snapshot.roundAnswer).toBeNull();
+    }
+  });
+
+  it("只有对手接受提议后才以平局结束整场", async () => {
+    const roomId = crypto.randomUUID();
+    const ownerId = crypto.randomUUID();
+    const opponentId = crypto.randomUUID();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "AGR42",
+      format: 3,
+      ranked: false,
+      owner: {
+        userId: ownerId,
+        displayName: "Offer Left",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponentId,
+        displayName: "Offer Right",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      characters: [character],
+      targetIds: [character.id],
+    });
+
+    const offered = await roomObject.offerDraw(ownerId);
+    expect(offered.ok && offered.snapshot.drawOfferByPlayerId).toBe(ownerId);
+    expect((await roomObject.respondDraw(ownerId, true)).ok).toBe(false);
+    const rejected = await roomObject.respondDraw(opponentId, false);
+    expect(rejected.ok && rejected.snapshot.drawOfferByPlayerId).toBeNull();
+    expect(rejected.ok && rejected.snapshot.state).toBe("playing");
+
+    await roomObject.offerDraw(ownerId);
+    const accepted = await roomObject.respondDraw(opponentId, true);
+    expect(accepted.ok).toBe(true);
+    if (!accepted.ok) return;
+    expect(accepted.snapshot.state).toBe("finished");
+    expect(accepted.snapshot.finishReason).toBe("agreed-draw");
+    expect(accepted.snapshot.winnerId).toBeNull();
+    expect(accepted.snapshot.drawOfferByPlayerId).toBeNull();
+  });
+
+  it("排位结算向双方返回各自的 Elo 加减分", async () => {
+    const roomId = crypto.randomUUID();
+    const ownerId = crypto.randomUUID();
+    const opponentId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "ELR24",
+      format: 1,
+      ranked: true,
+      owner: {
+        userId: ownerId,
+        displayName: "Rated Left",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponentId,
+        displayName: "Rated Right",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      characters: [character],
+      targetIds: [character.id],
+      now: startedAt,
+    });
+    const won = await roomObject.guess(ownerId, character.id, crypto.randomUUID(), startedAt + 100);
+    expect(won.ok).toBe(true);
+    if (!won.ok) return;
+    expect(won.snapshot.state).toBe("finished");
+    expect(won.snapshot.roundAnswer?.id).toBe(character.id);
+    expect(won.snapshot.ratingChange).toEqual({ before: 1000, after: 1024, delta: 24 });
+
+    const lost = await roomObject.snapshot(opponentId, startedAt + 101);
+    expect(lost.ok).toBe(true);
+    if (!lost.ok) return;
+    expect(lost.snapshot.ratingChange).toEqual({ before: 1000, after: 976, delta: -24 });
+  });
+
+  it("归档并仅向参赛者返回完整多人复盘", async () => {
+    const left = await createRegisteredSession("replay_left");
+    const right = await createRegisteredSession("replay_right");
+    const outsider = await createSession();
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'RPY42', ?, ?, 'active', 1, 3, ?, ?)`,
+    )
+      .bind(roomId, roomId, left.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "RPY42",
+      format: 3,
+      ranked: true,
+      owner: {
+        userId: left.data.user.id,
+        displayName: left.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: right.data.user.id,
+        displayName: right.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      characters: [character],
+      targetIds: [character.id],
+      now: startedAt,
+    });
+
+    const first = await roomObject.guess(
+      left.data.user.id,
+      character.id,
+      crypto.randomUUID(),
+      startedAt + 10,
+    );
+    expect(first.ok).toBe(true);
+    if (!first.ok || first.snapshot.nextRoundAt === null) return;
+    const roundTwoAt = first.snapshot.nextRoundAt + 1;
+    await roomObject.snapshot(left.data.user.id, roundTwoAt);
+    const second = await roomObject.guess(
+      right.data.user.id,
+      character.id,
+      crypto.randomUUID(),
+      roundTwoAt + 10,
+    );
+    expect(second.ok).toBe(true);
+    if (!second.ok || second.snapshot.nextRoundAt === null) return;
+    const roundThreeAt = second.snapshot.nextRoundAt + 1;
+    await roomObject.snapshot(left.data.user.id, roundThreeAt);
+    const finished = await roomObject.guess(
+      left.data.user.id,
+      character.id,
+      crypto.randomUUID(),
+      roundThreeAt + 10,
+    );
+    expect(finished.ok && finished.snapshot.state).toBe("finished");
+    expect(await roomObject.archiveForPlayer(left.data.user.id, roundThreeAt + 11)).toBe(true);
+
+    const response = await SELF.fetch(`https://fireflydle.games/api/replays/${roomId}`, {
+      headers: { cookie: left.cookie },
+    });
+    expect(response.status).toBe(200);
+    const replay = await dataOf<ReplayResponse>(response);
+    expect(replay.kind).toBe("multiplayer");
+    if (replay.kind !== "multiplayer") return;
+    expect(replay.match.players).toHaveLength(2);
+    expect(replay.match.rounds).toHaveLength(3);
+    expect(replay.match.rounds.map((round) => round.answer.id)).toEqual([
+      character.id,
+      character.id,
+      character.id,
+    ]);
+    expect(replay.match.rounds.flatMap((round) => round.guesses)).toHaveLength(3);
+    expect(
+      replay.match.players.find((player) => player.playerId === left.data.user.id),
+    ).toMatchObject({
+      score: 2,
+      ratingBefore: 1000,
+      ratingAfter: 1024,
+    });
+
+    const forbidden = await SELF.fetch(`https://fireflydle.games/api/replays/${roomId}`, {
+      headers: { cookie: outsider.cookie },
+    });
+    expect(forbidden.status).toBe(404);
+    const stats = await dataOf<{
+      recent: Array<{ id: string; scoreFor?: number; scoreAgainst?: number }>;
+    }>(
+      await SELF.fetch("https://fireflydle.games/api/stats/me", {
+        headers: { cookie: left.cookie },
+      }),
+    );
+    expect(stats.recent).toContainEqual(
+      expect.objectContaining({ id: roomId, scoreFor: 2, scoreAgainst: 1 }),
+    );
+  });
+
   it("固定 BO3 排位并建立只对局内玩家可用的房间", async () => {
     const guest = await createSession();
     const guestRanked = await SELF.fetch("https://fireflydle.games/api/matchmaking", {

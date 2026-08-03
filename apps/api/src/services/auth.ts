@@ -198,6 +198,14 @@ async function mergeGuestProgress(
       .bind(targetUserId, guestUserId, claimToken),
     db
       .prepare(
+        `INSERT OR IGNORE INTO announcement_reads (announcement_id, user_id, read_at)
+         SELECT announcement_id, ?, read_at
+         FROM announcement_reads
+         WHERE user_id = ? AND ${claimExists}`,
+      )
+      .bind(targetUserId, guestUserId, claimToken),
+    db
+      .prepare(
         `UPDATE users SET
            elo = CASE
              WHEN ranked_matches + COALESCE(
@@ -217,24 +225,10 @@ async function mergeGuestProgress(
            ranked_matches = ranked_matches + COALESCE(
              (SELECT ranked_matches FROM users WHERE id = ?), 0
            ),
-           leaderboard_eligible = CASE
-             WHEN ranked_matches + COALESCE(
-               (SELECT ranked_matches FROM users WHERE id = ?), 0
-             ) >= 10 THEN 1 ELSE 0
-           END,
            updated_at = ?
          WHERE id = ? AND ${claimExists}`,
       )
-      .bind(
-        guestUserId,
-        guestUserId,
-        guestUserId,
-        guestUserId,
-        guestUserId,
-        now,
-        targetUserId,
-        claimToken,
-      ),
+      .bind(guestUserId, guestUserId, guestUserId, guestUserId, now, targetUserId, claimToken),
     db
       .prepare(
         `UPDATE sessions SET revoked_at = ?
@@ -474,7 +468,7 @@ export async function registerUser(
          login_name = ?, login_name_normalized = ?, display_name = ?, display_name_normalized = ?,
          password_hash = ?, password_salt = ?, password_iterations = ?,
          email = ?, email_normalized = ?, email_verified = 0, is_guest = 0,
-         leaderboard_eligible = CASE WHEN ranked_matches >= 10 THEN 1 ELSE 0 END,
+         leaderboard_eligible = 1,
          updated_at = ?
        WHERE id = ? AND is_guest = 1`,
     )
@@ -500,7 +494,7 @@ export async function registerUser(
         isGuest: false,
         hasEmail: input.email !== undefined,
         emailVerified: false,
-        leaderboardEligible: current.user.rankedMatches >= 10,
+        leaderboardEligible: true,
       },
     };
   }
@@ -510,7 +504,7 @@ export async function registerUser(
        (id, login_name, login_name_normalized, display_name, display_name_normalized,
         password_hash, password_salt, password_iterations, email, email_normalized,
         role, is_guest, email_verified, elo, ranked_matches, leaderboard_eligible, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'player', 0, 0, 1000, 0, 0, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'player', 0, 0, 1000, 0, 1, ?, ?)`,
   )
     .bind(
       userId,
@@ -541,7 +535,7 @@ export async function registerUser(
       emailVerified: false,
       elo: 1000,
       rankedMatches: 0,
-      leaderboardEligible: false,
+      leaderboardEligible: true,
       createdAt: now,
     },
   };

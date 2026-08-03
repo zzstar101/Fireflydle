@@ -2,10 +2,12 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Ban,
+  Archive,
   BellRing,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Database,
   FileClock,
   FileUp,
@@ -13,16 +15,21 @@ import {
   Gauge,
   Pencil,
   Plus,
+  Radio,
   RefreshCw,
   Save,
   Search,
   ShieldCheck,
+  Trash2,
   ToggleLeft,
   ToggleRight,
   UsersRound,
   X,
 } from "lucide-react";
 import type {
+  Announcement,
+  AnnouncementAudience,
+  AnnouncementCategory,
   Character,
   Faction,
   Locale,
@@ -33,6 +40,7 @@ import type {
 import { characters, getFactionName, pathLabels } from "@fireflydle/game-data";
 import { PageHeader } from "../../components/PageHeader";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
+import { MarkdownContent } from "../../components/MarkdownContent";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
 import { ApiClientError, apiRequest } from "../../api/client";
@@ -40,17 +48,6 @@ import { OperationsPanel } from "./OperationsPanel";
 import "./admin.css";
 
 type AdminTab = "overview" | "characters" | "taxonomy" | "announcements" | "users" | "moderation";
-
-interface AdminAnnouncement {
-  id: string;
-  title: LocalizedText;
-  body: LocalizedText;
-  published: boolean;
-  startsAt: string | null;
-  endsAt: string | null;
-  createdAt: string;
-  updatedAt?: string;
-}
 
 interface AdminUser {
   id: string;
@@ -93,7 +90,25 @@ interface AuditLog {
   createdAt: string;
 }
 
+interface OnlinePresence {
+  generatedAt: string;
+  windowMinutes: 5;
+  total: number | null;
+  registered: number | null;
+  guests: number | null;
+}
+
 const emptyLocalized = (): LocalizedText => ({ "zh-CN": "", en: "", ja: "" });
+
+function beijingInputValue(value: string | null): string {
+  if (!value) return "";
+  return new Date(Date.parse(value) + 8 * 60 * 60_000).toISOString().slice(0, 16);
+}
+
+function beijingInputIso(value: string): string | null {
+  if (!value) return null;
+  return new Date(`${value}:00+08:00`).toISOString();
+}
 
 function mutationMessage(error: unknown, locale: Locale) {
   const code = error instanceof ApiClientError ? error.code : "INTERNAL_ERROR";
@@ -201,7 +216,7 @@ function CharacterPanel({ locale }: { locale: Locale }) {
         </label>
         <input
           ref={fileInput}
-          className="visually-hidden"
+          hidden
           type="file"
           accept="application/json,.json"
           onChange={async (event) => {
@@ -454,80 +469,227 @@ function AnnouncementsPanel({ locale }: { locale: Locale }) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState<LocalizedText>(emptyLocalized);
   const [body, setBody] = useState<LocalizedText>(emptyLocalized);
-  const [published, setPublished] = useState(false);
+  const [category, setCategory] = useState<AnnouncementCategory>("notice");
+  const [audience, setAudience] = useState<AnnouncementAudience>("all");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [previewLanguage, setPreviewLanguage] = useState<Locale>("zh-CN");
   const [message, setMessage] = useState("");
   const list = useQuery({
     queryKey: ["admin", "announcements"],
-    queryFn: () => apiRequest<AdminAnnouncement[]>("/admin/announcements"),
+    queryFn: () => apiRequest<Announcement[]>("/admin/announcements"),
   });
-  const create = useMutation({
-    mutationFn: () =>
-      apiRequest<AdminAnnouncement>("/admin/announcements", {
-        method: "POST",
-        body: JSON.stringify({ title, body, published, startsAt: null, endsAt: null }),
-      }),
+
+  const resetForm = () => {
+    setTitle(emptyLocalized());
+    setBody(emptyLocalized());
+    setCategory("notice");
+    setAudience("all");
+    setStartsAt("");
+    setEndsAt("");
+    setEditingId(null);
+  };
+
+  const save = useMutation({
+    mutationFn: ({ publish }: { publish?: boolean }) => {
+      const payload = {
+        title,
+        body,
+        category,
+        audience,
+        startsAt: beijingInputIso(startsAt),
+        endsAt: beijingInputIso(endsAt),
+        ...(publish === undefined ? {} : { published: publish }),
+      };
+      return apiRequest<Announcement>(
+        editingId ? `/admin/announcements/${editingId}` : "/admin/announcements",
+        {
+          method: editingId ? "PATCH" : "POST",
+          body: JSON.stringify({
+            ...payload,
+            ...(!editingId && publish === undefined ? { published: false } : {}),
+          }),
+        },
+      );
+    },
     onSuccess: async () => {
-      setTitle(emptyLocalized());
-      setBody(emptyLocalized());
-      setPublished(false);
-      setMessage(locale === "zh-CN" ? "公告已创建。" : "Announcement created.");
+      resetForm();
+      setMessage(locale === "zh-CN" ? "公告已保存。" : "Announcement saved.");
       await queryClient.invalidateQueries({ queryKey: ["admin", "announcements"] });
     },
     onError: (error) => setMessage(mutationMessage(error, locale)),
   });
-  const toggle = useMutation({
-    mutationFn: ({ id, next }: { id: string; next: boolean }) =>
-      apiRequest<AdminAnnouncement>(`/admin/announcements/${id}`, {
+
+  const archive = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<Announcement>(`/admin/announcements/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ published: next }),
+        body: JSON.stringify({ published: false }),
       }),
     onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["admin", "announcements"] }),
     onError: (error) => setMessage(mutationMessage(error, locale)),
   });
+
+  const remove = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<{ deleted: boolean }>(`/admin/announcements/${id}`, { method: "DELETE" }),
+    onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["admin", "announcements"] }),
+    onError: (error) => setMessage(mutationMessage(error, locale)),
+  });
+
+  const loadForm = (item: Announcement, duplicate = false) => {
+    setTitle(item.title);
+    setBody(item.body);
+    setCategory(item.category);
+    setAudience(item.audience);
+    setStartsAt(duplicate ? "" : beijingInputValue(item.startsAt));
+    setEndsAt(duplicate ? "" : beijingInputValue(item.endsAt));
+    setEditingId(duplicate ? null : item.id);
+    setMessage(duplicate && locale === "zh-CN" ? "已复制为新公告草稿。" : "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const categoryText = (value: AnnouncementCategory) =>
+    value === "update" ? "更新" : value === "maintenance" ? "维护" : "通知";
+  const audienceText = (value: AnnouncementAudience) =>
+    value === "registered" ? "注册用户" : value === "guest" ? "访客" : "全部用户";
+  const statusText = (item: Announcement) => {
+    if (item.status === "draft") return "草稿";
+    if (item.status === "scheduled") return "待发布";
+    if (item.status === "active") return "已生效";
+    if (item.status === "ended") return "已结束";
+    return "已归档";
+  };
+
+  const canSubmit = title["zh-CN"].trim().length > 0 && body["zh-CN"].trim().length > 0;
   return (
     <div className="admin-stack">
       <section className="admin-card announcement-form">
         <header>
           <BellRing size={18} />
-          <span>{locale === "zh-CN" ? "新建多语言公告" : "New localized announcement"}</span>
+          <span>
+            {locale === "zh-CN"
+              ? editingId
+                ? "编辑公告"
+                : "新建公告"
+              : editingId
+                ? "Edit announcement"
+                : "New announcement"}
+          </span>
+          {editingId ? (
+            <button className="icon-button" type="button" onClick={resetForm} title="取消编辑">
+              <X size={17} />
+            </button>
+          ) : null}
         </header>
+        <div className="announcement-options">
+          <label>
+            <span>{locale === "zh-CN" ? "分类" : "Category"}</span>
+            <select
+              value={category}
+              onChange={(event) => setCategory(event.target.value as AnnouncementCategory)}
+            >
+              <option value="update">{locale === "zh-CN" ? "版本更新" : "Update"}</option>
+              <option value="notice">{locale === "zh-CN" ? "通知" : "Notice"}</option>
+              <option value="maintenance">{locale === "zh-CN" ? "维护" : "Maintenance"}</option>
+            </select>
+          </label>
+          <label>
+            <span>{locale === "zh-CN" ? "触达对象" : "Audience"}</span>
+            <select
+              value={audience}
+              onChange={(event) => setAudience(event.target.value as AnnouncementAudience)}
+            >
+              <option value="all">{locale === "zh-CN" ? "全部用户" : "Everyone"}</option>
+              <option value="registered">
+                {locale === "zh-CN" ? "仅注册用户" : "Registered only"}
+              </option>
+              <option value="guest">{locale === "zh-CN" ? "仅访客" : "Guests only"}</option>
+            </select>
+          </label>
+          <label>
+            <span>{locale === "zh-CN" ? "生效时间（北京时间）" : "Starts (Beijing)"}</span>
+            <input
+              type="datetime-local"
+              value={startsAt}
+              onChange={(event) => setStartsAt(event.target.value)}
+            />
+          </label>
+          <label>
+            <span>{locale === "zh-CN" ? "结束时间（可选）" : "Ends (optional)"}</span>
+            <input
+              type="datetime-local"
+              value={endsAt}
+              onChange={(event) => setEndsAt(event.target.value)}
+            />
+          </label>
+        </div>
         {(["zh-CN", "en", "ja"] as const).map((language) => (
           <div className="localized-row" key={language}>
-            <b>{language}</b>
+            <b>
+              {language}
+              {language === "zh-CN" ? " *" : ""}
+            </b>
             <input
               value={title[language]}
               onChange={(event) =>
                 setTitle((current) => ({ ...current, [language]: event.target.value }))
               }
-              placeholder={locale === "zh-CN" ? "标题" : "Title"}
+              placeholder={language === "zh-CN" ? "标题（必填）" : "标题（留空时显示中文）"}
             />
             <textarea
               value={body[language]}
               onChange={(event) =>
                 setBody((current) => ({ ...current, [language]: event.target.value }))
               }
-              placeholder={locale === "zh-CN" ? "正文" : "Body"}
+              placeholder={
+                language === "zh-CN" ? "Markdown 正文（必填，不支持图片）" : "留空时显示中文"
+              }
             />
           </div>
         ))}
+        <div className="announcement-preview">
+          <header>
+            <strong>{locale === "zh-CN" ? "实时预览" : "Preview"}</strong>
+            <div className="segmented-control">
+              {(["zh-CN", "en", "ja"] as const).map((language) => (
+                <button
+                  key={language}
+                  type="button"
+                  className={previewLanguage === language ? "active" : ""}
+                  onClick={() => setPreviewLanguage(language)}
+                >
+                  {language}
+                </button>
+              ))}
+            </div>
+          </header>
+          <h3>{title[previewLanguage] || title["zh-CN"] || "公告标题"}</h3>
+          <MarkdownContent>
+            {body[previewLanguage] || body["zh-CN"] || "公告正文将在这里预览。"}
+          </MarkdownContent>
+        </div>
         <footer>
-          <label className="admin-check">
-            <input
-              type="checkbox"
-              checked={published}
-              onChange={(event) => setPublished(event.target.checked)}
-            />
-            {locale === "zh-CN" ? "立即发布" : "Publish now"}
-          </label>
+          <span>
+            {locale === "zh-CN"
+              ? "留空生效时间将立即发布"
+              : "Leave start time empty to publish now"}
+          </span>
+          <button
+            className="ticket-button-secondary"
+            disabled={!canSubmit || save.isPending}
+            onClick={() => save.mutate({})}
+          >
+            <Save size={15} /> {locale === "zh-CN" ? (editingId ? "保存修改" : "保存草稿") : "Save"}
+          </button>
           <button
             className="ticket-button"
-            disabled={
-              Object.values(title).some((value) => !value) ||
-              Object.values(body).some((value) => !value)
-            }
-            onClick={() => create.mutate()}
+            disabled={!canSubmit || save.isPending}
+            onClick={() => save.mutate({ publish: true })}
           >
-            <Plus size={15} /> {locale === "zh-CN" ? "创建公告" : "Create"}
+            <BellRing size={15} />{" "}
+            {locale === "zh-CN" ? (startsAt ? "安排发布" : "立即发布") : "Publish"}
           </button>
         </footer>
         {message ? <p className="admin-message">{message}</p> : null}
@@ -539,18 +701,56 @@ function AnnouncementsPanel({ locale }: { locale: Locale }) {
         </header>
         <div className="compact-records">
           {(list.data ?? []).map((item) => (
-            <div key={item.id}>
-              <span>
-                <strong>{item.title[locale]}</strong>
-                <small>{item.body[locale]}</small>
+            <div className="announcement-record" key={item.id}>
+              <span className="announcement-record-state" data-status={item.status}>
+                {statusText(item)}
               </span>
-              <button
-                className={`state-button ${item.published ? "enabled" : "disabled"}`}
-                onClick={() => toggle.mutate({ id: item.id, next: !item.published })}
-              >
-                {item.published ? <ToggleRight size={17} /> : <ToggleLeft size={17} />}
-                {item.published ? "PUBLISHED" : "DRAFT"}
-              </button>
+              <span className="announcement-record-copy">
+                <strong>{item.title[locale]}</strong>
+                <small>
+                  {categoryText(item.category)} · {audienceText(item.audience)} ·{" "}
+                  {item.source === "release" ? "RELEASE" : "ADMIN"}
+                </small>
+              </span>
+              <div className="announcement-record-actions">
+                <button
+                  className="icon-button"
+                  type="button"
+                  onClick={() => loadForm(item)}
+                  title="编辑"
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  className="icon-button"
+                  type="button"
+                  onClick={() => loadForm(item, true)}
+                  title="复制为新公告"
+                >
+                  <Copy size={16} />
+                </button>
+                {item.status === "draft" ? (
+                  <button
+                    className="icon-button"
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm("确定永久删除这条草稿吗？")) remove.mutate(item.id);
+                    }}
+                    title="删除草稿"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                ) : item.status === "active" || item.status === "scheduled" ? (
+                  <button
+                    className="icon-button"
+                    type="button"
+                    onClick={() => archive.mutate(item.id)}
+                    title="归档"
+                  >
+                    <Archive size={16} />
+                  </button>
+                ) : null}
+              </div>
             </div>
           ))}
         </div>
@@ -852,6 +1052,14 @@ export default function AdminPage() {
   const canData = dataRoles.includes(role);
   const canModerate = moderationRoles.includes(role);
   const canOperate = role === "admin" || role === "owner";
+  const presence = useQuery({
+    queryKey: ["admin", "presence"],
+    queryFn: () => apiRequest<OnlinePresence>("/admin/presence"),
+    enabled: canOperate,
+    retry: false,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+  });
   const tabs = [
     ...(canOperate
       ? [{ id: "overview" as const, label: locale === "zh-CN" ? "概览" : "Overview", icon: Gauge }]
@@ -911,6 +1119,28 @@ export default function AdminPage() {
           locale === "zh-CN"
             ? "运行状态、内容与用户管理。"
             : "Operations, content, and user administration."
+        }
+        aside={
+          canOperate ? (
+            <div className="admin-presence" aria-live="polite">
+              <i className={presence.data?.total === null ? "unavailable" : undefined}>
+                <Radio size={16} />
+              </i>
+              <span>{locale === "zh-CN" ? "近 5 分钟在线" : "ONLINE · 5 MIN"}</span>
+              <strong>
+                {presence.data?.total === null || presence.data?.total === undefined
+                  ? "--"
+                  : numberFormat(presence.data.total, locale)}
+              </strong>
+              <small>
+                {presence.data?.registered === null || presence.data?.registered === undefined
+                  ? locale === "zh-CN"
+                    ? "等待实时数据"
+                    : "Waiting for analytics"
+                  : `${locale === "zh-CN" ? "注册" : "REG"} ${numberFormat(presence.data.registered, locale)} · ${locale === "zh-CN" ? "访客" : "GUEST"} ${numberFormat(presence.data.guests ?? 0, locale)}`}
+              </small>
+            </div>
+          ) : undefined
         }
       />
       <div className="admin-layout">

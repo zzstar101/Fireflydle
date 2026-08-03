@@ -2,35 +2,37 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { Award, Clock3, Medal, Radio, ShieldCheck } from "lucide-react";
-import type { DailyLeaderboardEntry, Difficulty, EloLeaderboardEntry } from "@fireflydle/contracts";
+import type { DailyLeaderboardEntry, EloLeaderboardEntry } from "@fireflydle/contracts";
 import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
 import "./leaderboard.css";
 
-function time(milliseconds: number) {
-  const seconds = Math.floor(milliseconds / 1000);
-  return `${Math.floor(seconds / 60)
-    .toString()
-    .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+function completionTime(value: string, locale: "zh-CN" | "en" | "ja") {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: "Asia/Shanghai",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
 }
 
 export default function LeaderboardPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const [searchParams, setSearchParams] = useSearchParams();
-  const views = ["casual", "standard", "hard", "elo"] as const;
+  const views = ["daily", "elo"] as const;
   const requestedView = searchParams.get("view");
-  const view: Difficulty | "elo" = views.includes(requestedView as (typeof views)[number])
-    ? (requestedView as Difficulty | "elo")
-    : "standard";
-  const setView = (next: Difficulty | "elo") => setSearchParams({ view: next }, { replace: true });
+  const view: (typeof views)[number] = requestedView === "elo" ? "elo" : "daily";
+  const setView = (next: (typeof views)[number]) =>
+    setSearchParams({ view: next }, { replace: true });
   const leaderboard = useQuery<Array<DailyLeaderboardEntry | EloLeaderboardEntry>>({
     queryKey: ["leaderboard", view],
     queryFn: () =>
       view === "elo"
         ? apiRequest<EloLeaderboardEntry[]>("/leaderboards/elo")
-        : apiRequest<DailyLeaderboardEntry[]>(`/leaderboards/daily?difficulty=${view}`),
+        : apiRequest<DailyLeaderboardEntry[]>("/leaderboards/daily"),
     retry: false,
   });
   const entries = leaderboard.data ?? [];
@@ -81,18 +83,16 @@ export default function LeaderboardPage() {
                   : locale === "ja"
                     ? "対戦 Elo"
                     : "Duel Elo"
-                : t(`game.${value}`)}
+                : t("game.daily")}
             </span>
             <small>
               {value === "elo"
                 ? locale === "ja"
-                  ? "10戦で公開"
-                  : "10 MATCHES TO RANK"
-                : value === "casual"
-                  ? "8 ATTEMPTS"
-                  : value === "standard"
-                    ? "6 ATTEMPTS"
-                    : "4 ATTEMPTS"}
+                  ? "登録ユーザー"
+                  : "REGISTERED USERS"
+                : locale === "ja"
+                  ? "6回固定"
+                  : "6 FIXED ATTEMPTS"}
             </small>
           </button>
         ))}
@@ -110,15 +110,14 @@ export default function LeaderboardPage() {
                   <th>
                     {locale === "zh-CN" ? "排位场次" : locale === "ja" ? "対戦数" : "MATCHES"}
                   </th>
-                  <th>
-                    {locale === "zh-CN" ? "公开状态" : locale === "ja" ? "公開状態" : "STATUS"}
-                  </th>
                 </>
               ) : (
                 <>
+                  <th>
+                    {locale === "zh-CN" ? "猜中时间" : locale === "ja" ? "正解時刻" : "SOLVED AT"}
+                  </th>
                   <th>{t("leaderboard.guesses")}</th>
-                  <th>{t("leaderboard.time")}</th>
-                  <th>{t("leaderboard.streak")}</th>
+                  <th>{locale === "zh-CN" ? "身份" : locale === "ja" ? "種別" : "TYPE"}</th>
                 </>
               )}
             </tr>
@@ -144,19 +143,27 @@ export default function LeaderboardPage() {
                       <b>{entry.elo}</b>
                     </td>
                     <td>{entry.rankedMatches}</td>
-                    <td>
-                      <small>PUBLIC</small>
-                    </td>
                   </>
                 ) : (
                   <>
                     <td>
-                      <b>{entry.guesses}</b>
+                      <b>{completionTime(entry.completedAt, locale)}</b>
                     </td>
-                    <td className="mono">{time(entry.elapsedMs)}</td>
+                    <td>{entry.guesses}</td>
                     <td>
-                      {entry.streak}
-                      <small> DAYS</small>
+                      <small>
+                        {entry.isGuest
+                          ? locale === "zh-CN"
+                            ? "访客"
+                            : locale === "ja"
+                              ? "ゲスト"
+                              : "GUEST"
+                          : locale === "zh-CN"
+                            ? "注册用户"
+                            : locale === "ja"
+                              ? "登録ユーザー"
+                              : "REGISTERED"}
+                      </small>
                     </td>
                   </>
                 )}
@@ -200,10 +207,16 @@ export default function LeaderboardPage() {
             </strong>
             <span>
               {locale === "zh-CN"
-                ? "注册账号并完成 10 场排位赛。访客战绩会在注册后自动合并。"
+                ? view === "elo"
+                  ? "所有注册账号默认公开；管理员可隐藏异常账号。"
+                  : "当天猜中的玩家均可上榜，包括访客。"
                 : locale === "ja"
-                  ? "アカウント登録後、ランク戦を10回完了すると公開されます。ゲスト Elo は登録時に統合されます。"
-                  : "Register and complete 10 ranked matches. Guest Elo merges on registration."}
+                  ? view === "elo"
+                    ? "登録アカウントは既定で公開され、管理者が非表示にできます。"
+                    : "当日に正解した全プレイヤーが対象で、ゲストも含まれます。"
+                  : view === "elo"
+                    ? "Registered accounts are public by default; admins can hide exceptions."
+                    : "Everyone who solves today's puzzle is ranked, including guests."}
             </span>
           </p>
         </div>
@@ -213,10 +226,16 @@ export default function LeaderboardPage() {
             <strong>{locale === "zh-CN" ? "排序方式" : locale === "ja" ? "順位" : "ORDER"}</strong>
             <span>
               {locale === "zh-CN"
-                ? "猜中优先；次数更少优先；用时更短优先。"
+                ? view === "elo"
+                  ? "Elo 更高优先；同分时排位场次更多者优先。"
+                  : "按当天猜中角色的时间先后排序。"
                 : locale === "ja"
-                  ? "正解者を優先し、推測回数、所要時間の順で並びます。"
-                  : "Solved first, then fewer guesses, then faster completion."}
+                  ? view === "elo"
+                    ? "Eloが高い順。同点の場合はランク戦数が多い方を優先します。"
+                    : "当日に正解した時刻の早い順に並びます。"
+                  : view === "elo"
+                    ? "Higher Elo first; ties favor more ranked matches."
+                    : "Ordered by who solved today's character first."}
             </span>
           </p>
         </div>

@@ -18,7 +18,7 @@ import type { Locale } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
 import { useSession } from "../features/account/useSession";
 import { BrandMark } from "./BrandMark";
-import { AnnouncementBanner } from "./AnnouncementBanner";
+import { AnnouncementCenter } from "./AnnouncementCenter";
 
 const mainNavigation = [
   { to: "/", key: "nav.hub", icon: Home, end: true },
@@ -153,6 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <option value="ja">日</option>
               </select>
             </label>
+            <AnnouncementCenter />
             <button
               className="icon-button"
               type="button"
@@ -182,7 +183,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <AnnouncementBanner />
 
       {menuOpen && (
         <div

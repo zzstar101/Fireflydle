@@ -236,11 +236,13 @@ export async function createGame(
   input: CreateGameRequest,
   now = Date.now(),
 ): Promise<PublicGame> {
+  const normalizedInput: CreateGameRequest =
+    input.mode === "daily" ? { mode: "daily", difficulty: "standard" } : input;
   const dateKey = input.mode === "daily" ? getBeijingDateKey(now) : undefined;
   const currentId = await readCurrentGameId(db, userId, input.mode, dateKey);
   if (currentId) return getPublicGame(db, currentId, userId, now);
 
-  const target = await selectTarget(db, userId, input, now);
+  const target = await selectTarget(db, userId, normalizedInput, now);
 
   const gameId = crypto.randomUUID();
   try {
@@ -254,11 +256,11 @@ export async function createGame(
       .bind(
         gameId,
         userId,
-        input.mode,
-        input.difficulty,
+        normalizedInput.mode,
+        normalizedInput.difficulty,
         target.dateKey,
         target.targetId,
-        ATTEMPTS_BY_DIFFICULTY[input.difficulty],
+        ATTEMPTS_BY_DIFFICULTY[normalizedInput.difficulty],
         now,
         now,
       )

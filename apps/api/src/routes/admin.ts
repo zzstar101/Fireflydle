@@ -1,12 +1,12 @@
 import {
   CharacterSchema,
   FactionSchema,
-  LocalizedTextSchema,
+  AnnouncementAudienceSchema,
+  AnnouncementCategorySchema,
   UserRoleSchema,
   VersionSchema,
   type Character,
   type Faction,
-  type LocalizedText,
   type UserRole,
   type Version,
 } from "@fireflydle/contracts";
@@ -15,6 +15,14 @@ import { z } from "zod";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import { requireRole } from "../services/auth";
 import {
+  fillLocalizedText,
+  hasUnsupportedMarkdownImage,
+  localizedText,
+  serializeAnnouncement,
+  type AnnouncementRow,
+} from "../services/announcements";
+import {
+  getOnlinePresence,
   getOperationsOverview,
   type OperationsLatencyRange,
   type OperationsTrendDays,
@@ -60,17 +68,31 @@ const VersionPutSchema = z.union([
   z.array(VersionAdminSchema).min(1).max(100),
   z.object({ versions: z.array(VersionAdminSchema).min(1).max(100) }),
 ]);
+const AnnouncementTitleSchema = z.object({
+  "zh-CN": z.string().trim().min(1).max(200),
+  en: z.string().max(200).optional().default(""),
+  ja: z.string().max(200).optional().default(""),
+});
+const AnnouncementBodySchema = z.object({
+  "zh-CN": z.string().trim().min(1).max(30_000),
+  en: z.string().max(30_000).optional().default(""),
+  ja: z.string().max(30_000).optional().default(""),
+});
 const AnnouncementSchema = z.object({
-  title: LocalizedTextSchema,
-  body: LocalizedTextSchema,
+  title: AnnouncementTitleSchema,
+  body: AnnouncementBodySchema,
+  category: AnnouncementCategorySchema.optional().default("notice"),
+  audience: AnnouncementAudienceSchema.optional().default("all"),
   published: z.boolean().optional().default(false),
   startsAt: z.string().datetime().nullable().optional().default(null),
   endsAt: z.string().datetime().nullable().optional().default(null),
 });
 const AnnouncementPatchSchema = z
   .object({
-    title: LocalizedTextSchema.optional(),
-    body: LocalizedTextSchema.optional(),
+    title: AnnouncementTitleSchema.optional(),
+    body: AnnouncementBodySchema.optional(),
+    category: AnnouncementCategorySchema.optional(),
+    audience: AnnouncementAudienceSchema.optional(),
     published: z.boolean().optional(),
     startsAt: z.string().datetime().nullable().optional(),
     endsAt: z.string().datetime().nullable().optional(),
@@ -95,17 +117,6 @@ interface StoredCharacterRow {
   payload_json: string;
 }
 
-interface AnnouncementRow {
-  id: string;
-  title: string;
-  body: string;
-  published: number;
-  starts_at: number | null;
-  ends_at: number | null;
-  created_at: number;
-  updated_at: number;
-}
-
 interface DailyScheduleRow {
   date_key: string;
   character_id: string;
@@ -113,14 +124,6 @@ interface DailyScheduleRow {
   source: "auto" | "override";
   created_at: number;
   updated_at: number;
-}
-
-function localizedText(value: string): LocalizedText {
-  try {
-    return LocalizedTextSchema.parse(JSON.parse(value));
-  } catch {
-    return { "zh-CN": value, en: value, ja: value };
-  }
 }
 
 async function audit(
@@ -250,19 +253,6 @@ async function saveVersion(
       now,
     )
     .run();
-}
-
-function announcement(row: AnnouncementRow) {
-  return {
-    id: row.id,
-    title: localizedText(row.title),
-    body: localizedText(row.body),
-    published: row.published === 1,
-    startsAt: row.starts_at === null ? null : new Date(row.starts_at).toISOString(),
-    endsAt: row.ends_at === null ? null : new Date(row.ends_at).toISOString(),
-    createdAt: new Date(row.created_at).toISOString(),
-    updatedAt: new Date(row.updated_at).toISOString(),
-  };
 }
 
 export const adminRoutes = new Hono<AppContext>();
@@ -502,34 +492,60 @@ adminRoutes.get("/admin/announcements", async (context) => {
   const rows = await context.env.DB.prepare(
     "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 100",
   ).all<AnnouncementRow>();
-  return ok(context, rows.results.map(announcement));
+  const now = Date.now();
+  return ok(
+    context,
+    rows.results.map((row) => serializeAnnouncement(row, now)),
+  );
 });
 
 adminRoutes.post("/admin/announcements", async (context) => {
   const auth = requireRole(context, CONTENT_ROLES);
   const parsed = AnnouncementSchema.safeParse(await readJson(context));
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  const title = fillLocalizedText(parsed.data.title);
+  const body = fillLocalizedText(parsed.data.body);
+  if (hasUnsupportedMarkdownImage(body)) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "announcement-images-disabled" });
+  }
   const id = crypto.randomUUID();
   const now = Date.now();
+  const startsAt = parsed.data.startsAt ? Date.parse(parsed.data.startsAt) : null;
+  const endsAt = parsed.data.endsAt ? Date.parse(parsed.data.endsAt) : null;
+  if (endsAt !== null && endsAt <= (startsAt ?? now)) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "invalid-announcement-window" });
+  }
   await context.env.DB.prepare(
     `INSERT INTO announcements
-       (id, title, body, published, starts_at, ends_at, created_by_user_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, title, body, published, starts_at, ends_at, created_by_user_id,
+        created_at, updated_at, category, audience, published_at, archived_at, source, source_ref)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'admin', NULL)`,
   )
     .bind(
       id,
-      JSON.stringify(parsed.data.title),
-      JSON.stringify(parsed.data.body),
+      JSON.stringify(title),
+      JSON.stringify(body),
       parsed.data.published ? 1 : 0,
-      parsed.data.startsAt ? Date.parse(parsed.data.startsAt) : null,
-      parsed.data.endsAt ? Date.parse(parsed.data.endsAt) : null,
+      startsAt,
+      endsAt,
       auth.user.id,
       now,
       now,
+      parsed.data.category,
+      parsed.data.audience,
+      parsed.data.published ? now : null,
     )
     .run();
-  await audit(context, auth, "announcement.create", "announcement", id);
-  return ok(context, { id, ...parsed.data, createdAt: new Date(now).toISOString() }, 201);
+  await audit(context, auth, "announcement.create", "announcement", id, {
+    category: parsed.data.category,
+    audience: parsed.data.audience,
+    published: parsed.data.published,
+  });
+  const created = await context.env.DB.prepare("SELECT * FROM announcements WHERE id = ?")
+    .bind(id)
+    .first<AnnouncementRow>();
+  if (!created) throw new ApiProblem("INTERNAL_ERROR", 500);
+  return ok(context, serializeAnnouncement(created, now), 201);
 });
 
 adminRoutes.patch("/admin/announcements/:announcementId", async (context) => {
@@ -540,9 +556,19 @@ adminRoutes.patch("/admin/announcements/:announcementId", async (context) => {
     .bind(context.req.param("announcementId"))
     .first<AnnouncementRow>();
   if (!current) throw new ApiProblem("NOT_FOUND", 404);
+  const now = Date.now();
+  const title = parsed.data.title
+    ? fillLocalizedText(parsed.data.title)
+    : localizedText(current.title);
+  const body = parsed.data.body ? fillLocalizedText(parsed.data.body) : localizedText(current.body);
+  if (hasUnsupportedMarkdownImage(body)) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "announcement-images-disabled" });
+  }
   const next = {
-    title: parsed.data.title ?? localizedText(current.title),
-    body: parsed.data.body ?? localizedText(current.body),
+    title,
+    body,
+    category: parsed.data.category ?? current.category,
+    audience: parsed.data.audience ?? current.audience,
     published: parsed.data.published ?? current.published === 1,
     startsAt:
       parsed.data.startsAt === undefined
@@ -556,25 +582,62 @@ adminRoutes.patch("/admin/announcements/:announcementId", async (context) => {
         : parsed.data.endsAt === null
           ? null
           : Date.parse(parsed.data.endsAt),
+    publishedAt:
+      parsed.data.published === true && current.published_at === null ? now : current.published_at,
+    archivedAt:
+      parsed.data.published === false && current.published_at !== null
+        ? now
+        : parsed.data.published === true
+          ? null
+          : current.archived_at,
   };
-  const now = Date.now();
+  if (next.endsAt !== null && next.endsAt <= (next.startsAt ?? next.publishedAt ?? now)) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "invalid-announcement-window" });
+  }
   await context.env.DB.prepare(
     `UPDATE announcements SET
-       title = ?, body = ?, published = ?, starts_at = ?, ends_at = ?, updated_at = ?
+       title = ?, body = ?, category = ?, audience = ?, published = ?, starts_at = ?, ends_at = ?,
+       published_at = ?, archived_at = ?, updated_at = ?
      WHERE id = ?`,
   )
     .bind(
       JSON.stringify(next.title),
       JSON.stringify(next.body),
+      next.category,
+      next.audience,
       next.published ? 1 : 0,
       next.startsAt,
       next.endsAt,
+      next.publishedAt,
+      next.archivedAt,
       now,
       current.id,
     )
     .run();
-  await audit(context, auth, "announcement.update", "announcement", current.id);
-  return ok(context, { id: current.id, ...next, updatedAt: new Date(now).toISOString() });
+  await audit(context, auth, "announcement.update", "announcement", current.id, {
+    published: next.published,
+    category: next.category,
+    audience: next.audience,
+  });
+  const updated = await context.env.DB.prepare("SELECT * FROM announcements WHERE id = ?")
+    .bind(current.id)
+    .first<AnnouncementRow>();
+  if (!updated) throw new ApiProblem("INTERNAL_ERROR", 500);
+  return ok(context, serializeAnnouncement(updated, now));
+});
+
+adminRoutes.delete("/admin/announcements/:announcementId", async (context) => {
+  const auth = requireRole(context, CONTENT_ROLES);
+  const current = await context.env.DB.prepare("SELECT * FROM announcements WHERE id = ?")
+    .bind(context.req.param("announcementId"))
+    .first<AnnouncementRow>();
+  if (!current) throw new ApiProblem("NOT_FOUND", 404);
+  if (current.published_at !== null) {
+    throw new ApiProblem("VALIDATION_FAILED", 409, { reason: "published-announcement-retained" });
+  }
+  await context.env.DB.prepare("DELETE FROM announcements WHERE id = ?").bind(current.id).run();
+  await audit(context, auth, "announcement.delete", "announcement", current.id);
+  return ok(context, { deleted: true });
 });
 
 adminRoutes.get("/admin/operations", async (context) => {
@@ -589,6 +652,11 @@ adminRoutes.get("/admin/operations", async (context) => {
       parsed.data.trend satisfies OperationsTrendDays,
     ),
   );
+});
+
+adminRoutes.get("/admin/presence", async (context) => {
+  requireRole(context, ADMIN_ROLES);
+  return ok(context, await getOnlinePresence(context.env));
 });
 
 adminRoutes.get("/admin/users", async (context) => {
@@ -695,7 +763,7 @@ adminRoutes.patch("/admin/users/:userId", async (context) => {
   const eligible =
     parsed.data.leaderboardEligible === undefined
       ? null
-      : parsed.data.leaderboardEligible && target.is_guest === 0 && target.ranked_matches >= 10
+      : parsed.data.leaderboardEligible && target.is_guest === 0
         ? 1
         : 0;
   const bannedUntil =

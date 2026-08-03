@@ -322,6 +322,25 @@ async function onlineMetrics(env: Env): Promise<{
   }
 }
 
+export interface OnlinePresence {
+  generatedAt: string;
+  windowMinutes: 5;
+  total: number | null;
+  registered: number | null;
+  guests: number | null;
+}
+
+export async function getOnlinePresence(env: Env, now = Date.now()): Promise<OnlinePresence> {
+  const metrics = await onlineMetrics(env);
+  return {
+    generatedAt: new Date(now).toISOString(),
+    windowMinutes: 5,
+    total: metrics.total,
+    registered: metrics.registered,
+    guests: metrics.guests,
+  };
+}
+
 function utcResetAt(now: number): string {
   const next = new Date(now);
   next.setUTCHours(24, 0, 0, 0);
@@ -610,7 +629,7 @@ export async function getOperationsOverview(
          (SELECT COUNT(*) FROM game_results WHERE completed_at >= ? AND completed_at < ?) AS solo_completed,
          (SELECT COUNT(*) FROM game_results WHERE completed_at >= ? AND completed_at < ? AND result IN ('conceded', 'expired')) AS solo_interrupted,
          (SELECT COUNT(*) FROM matches WHERE completed_at >= ? AND completed_at < ?) AS matches_completed,
-         (SELECT COUNT(*) FROM matches WHERE completed_at >= ? AND completed_at < ? AND finish_reason IN ('disconnect', 'left', 'cancelled')) AS matches_interrupted`,
+         (SELECT COUNT(*) FROM matches WHERE completed_at >= ? AND completed_at < ? AND COALESCE(resolution, finish_reason) IN ('disconnect', 'left', 'cancelled')) AS matches_interrupted`,
     )
       .bind(
         now,

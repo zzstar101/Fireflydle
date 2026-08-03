@@ -258,6 +258,22 @@ export const RoomPlayerSchema = z.object({
 });
 export type RoomPlayer = z.infer<typeof RoomPlayerSchema>;
 
+export const RatingChangeSchema = z.object({
+  before: z.number().int(),
+  after: z.number().int(),
+  delta: z.number().int(),
+});
+export type RatingChange = z.infer<typeof RatingChangeSchema>;
+
+export const MatchFinishReasonSchema = z.enum([
+  "score",
+  "agreed-draw",
+  "disconnect",
+  "left",
+  "cancelled",
+]);
+export type MatchFinishReason = z.infer<typeof MatchFinishReasonSchema>;
+
 export const RoomSnapshotSchema = z.object({
   roomId: z.string().uuid(),
   code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
@@ -267,11 +283,17 @@ export const RoomSnapshotSchema = z.object({
   round: z.number().int().positive(),
   consecutiveDraws: z.number().int().nonnegative(),
   roundEndsAt: z.number().int().nullable(),
+  nextRoundAt: z.number().int().nullable(),
   reconnectDeadline: z.number().int().nullable(),
   players: z.array(RoomPlayerSchema).max(2),
   ownGuesses: z.array(GuessResultSchema),
   opponentFeedback: z.array(z.array(GuessCellSchema)),
+  roundAnswer: CharacterSchema.nullable(),
+  roundWinnerId: z.string().uuid().nullable(),
+  drawOfferByPlayerId: z.string().uuid().nullable(),
   winnerId: z.string().uuid().nullable(),
+  finishReason: MatchFinishReasonSchema.nullable(),
+  ratingChange: RatingChangeSchema.nullable(),
 });
 export type RoomSnapshot = z.infer<typeof RoomSnapshotSchema>;
 
@@ -282,6 +304,8 @@ export const ClientRoomMessageSchema = z.discriminatedUnion("type", [
     characterId: z.string().min(1),
     actionId: z.string().uuid().optional(),
   }),
+  z.object({ type: z.literal("offer-draw") }),
+  z.object({ type: z.literal("respond-draw"), accepted: z.boolean() }),
   z.object({ type: z.literal("leave") }),
   z.object({ type: z.literal("ping"), sentAt: z.number().int() }),
 ]);
@@ -327,9 +351,9 @@ export type MatchmakingResult = z.infer<typeof MatchmakingResultSchema>;
 export const DailyLeaderboardEntrySchema = z.object({
   rank: z.number().int().positive(),
   displayName: z.string().min(1),
+  isGuest: z.boolean(),
   guesses: z.number().int().positive(),
-  elapsedMs: z.number().int().nonnegative(),
-  streak: z.number().int().nonnegative(),
+  completedAt: z.string().datetime(),
 });
 export type DailyLeaderboardEntry = z.infer<typeof DailyLeaderboardEntrySchema>;
 
@@ -348,6 +372,10 @@ export const RecentGameSummarySchema = z.object({
   guesses: z.number().int().nonnegative(),
   elapsedMs: z.number().int().nonnegative(),
   playedAt: z.string().datetime(),
+  opponentDisplayName: z.string().nullable().optional(),
+  scoreFor: z.number().int().nonnegative().optional(),
+  scoreAgainst: z.number().int().nonnegative().optional(),
+  ranked: z.boolean().optional(),
 });
 
 export const PersonalStatsSchema = z.object({
@@ -365,11 +393,61 @@ export const PersonalStatsSchema = z.object({
 export type PersonalStats = z.infer<typeof PersonalStatsSchema>;
 
 export const ReplayVisibilitySchema = z.enum(["private", "shared"]);
-export const ReplayResponseSchema = z.object({
+export const SoloReplayResponseSchema = z.object({
+  kind: z.literal("solo"),
   game: PublicGameSchema,
   visibility: ReplayVisibilitySchema,
   expiresAt: z.string().datetime().nullable(),
 });
+
+export const MultiplayerReplayPlayerSchema = z.object({
+  playerId: z.string().uuid(),
+  seat: z.union([z.literal(0), z.literal(1)]),
+  displayName: z.string().min(1),
+  score: z.number().int().nonnegative(),
+  ratingBefore: z.number().int(),
+  ratingAfter: z.number().int(),
+});
+
+export const MultiplayerReplayGuessSchema = z.object({
+  playerId: z.string().uuid(),
+  ordinal: z.number().int().positive(),
+  result: GuessResultSchema,
+});
+
+export const MultiplayerReplayRoundSchema = z.object({
+  roundNumber: z.number().int().positive(),
+  answer: CharacterSummarySchema,
+  winnerPlayerId: z.string().uuid().nullable(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
+  guesses: z.array(MultiplayerReplayGuessSchema),
+});
+
+export const MultiplayerReplaySchema = z.object({
+  id: z.string().uuid(),
+  format: MatchFormatSchema,
+  ranked: z.boolean(),
+  finishReason: MatchFinishReasonSchema,
+  winnerPlayerId: z.string().uuid().nullable(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
+  players: z.array(MultiplayerReplayPlayerSchema).length(2),
+  rounds: z.array(MultiplayerReplayRoundSchema),
+});
+export type MultiplayerReplay = z.infer<typeof MultiplayerReplaySchema>;
+
+export const MultiplayerReplayResponseSchema = z.object({
+  kind: z.literal("multiplayer"),
+  match: MultiplayerReplaySchema,
+  visibility: z.literal("private"),
+  expiresAt: z.null(),
+});
+
+export const ReplayResponseSchema = z.discriminatedUnion("kind", [
+  SoloReplayResponseSchema,
+  MultiplayerReplayResponseSchema,
+]);
 export type ReplayResponse = z.infer<typeof ReplayResponseSchema>;
 
 export const ReplayShareResponseSchema = z.object({
@@ -378,17 +456,41 @@ export const ReplayShareResponseSchema = z.object({
 });
 export type ReplayShareResponse = z.infer<typeof ReplayShareResponseSchema>;
 
+export const ANNOUNCEMENT_CATEGORIES = ["update", "notice", "maintenance"] as const;
+export const AnnouncementCategorySchema = z.enum(ANNOUNCEMENT_CATEGORIES);
+export type AnnouncementCategory = z.infer<typeof AnnouncementCategorySchema>;
+
+export const ANNOUNCEMENT_AUDIENCES = ["all", "registered", "guest"] as const;
+export const AnnouncementAudienceSchema = z.enum(ANNOUNCEMENT_AUDIENCES);
+export type AnnouncementAudience = z.infer<typeof AnnouncementAudienceSchema>;
+
+export const ANNOUNCEMENT_STATUSES = ["draft", "scheduled", "active", "ended", "archived"] as const;
+export const AnnouncementStatusSchema = z.enum(ANNOUNCEMENT_STATUSES);
+export type AnnouncementStatus = z.infer<typeof AnnouncementStatusSchema>;
+
 export const AnnouncementSchema = z.object({
   id: z.string().uuid(),
   title: LocalizedTextSchema,
   body: LocalizedTextSchema,
-  published: z.boolean(),
+  category: AnnouncementCategorySchema,
+  audience: AnnouncementAudienceSchema,
+  status: AnnouncementStatusSchema,
+  source: z.enum(["admin", "release"]),
+  sourceRef: z.string().nullable(),
+  publishedAt: z.string().datetime().nullable(),
   startsAt: z.string().datetime().nullable(),
   endsAt: z.string().datetime().nullable(),
+  archivedAt: z.string().datetime().nullable(),
+  readAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 export type Announcement = z.infer<typeof AnnouncementSchema>;
+
+export const AnnouncementReadRequestSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(20),
+});
+export type AnnouncementReadRequest = z.infer<typeof AnnouncementReadRequestSchema>;
 
 export const DailyOverrideRequestSchema = z.object({
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

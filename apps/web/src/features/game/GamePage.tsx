@@ -127,34 +127,74 @@ function GamePreparation({
         <div className="prep-section-label">
           <span>01</span>
           <div>
-            <h2 id="difficulty-heading">{t("prep.chooseDifficulty")}</h2>
-            <p>{t("prep.difficultyHint")}</p>
+            <h2 id="difficulty-heading">
+              {mode === "daily"
+                ? locale === "zh-CN"
+                  ? "今日规则"
+                  : locale === "ja"
+                    ? "今日のルール"
+                    : "TODAY'S RULE"
+                : t("prep.chooseDifficulty")}
+            </h2>
+            <p>
+              {mode === "daily"
+                ? locale === "zh-CN"
+                  ? "每日一题固定 6 次猜测，每位玩家每天只有一局。"
+                  : locale === "ja"
+                    ? "デイリーは6回固定で、1日1回だけ挑戦できます。"
+                    : "Daily puzzles always allow 6 guesses and one run per player."
+                : t("prep.difficultyHint")}
+            </p>
           </div>
         </div>
-        <div className="prep-difficulties" role="radiogroup" aria-label={t("game.difficulty")}>
-          {difficulties.map((value) => (
-            <button
-              key={value}
-              data-difficulty={value}
-              type="button"
-              role="radio"
-              aria-checked={difficulty === value}
-              tabIndex={difficulty === value ? 0 : -1}
-              className={difficulty === value ? "active" : undefined}
-              disabled={busy}
-              onClick={() => setDifficulty(value)}
-              onKeyDown={(event) => moveDifficultyFocus(event, value)}
-            >
-              <span>
-                <strong>{t(`game.${value}`)}</strong>
-                <small>{t(`prep.${value}Hint`)}</small>
-              </span>
-              <b>{ATTEMPTS_BY_DIFFICULTY[value]}</b>
-              <em>{t("prep.attemptUnit")}</em>
-              {difficulty === value && <Check size={17} aria-hidden="true" />}
-            </button>
-          ))}
-        </div>
+        {mode === "daily" ? (
+          <div className="prep-daily-rule">
+            <Gauge size={22} aria-hidden="true" />
+            <span>
+              <strong>
+                {locale === "zh-CN"
+                  ? "标准猜测次数"
+                  : locale === "ja"
+                    ? "固定推測回数"
+                    : "FIXED ATTEMPTS"}
+              </strong>
+              <small>
+                {locale === "zh-CN"
+                  ? "所有玩家使用相同次数规则"
+                  : locale === "ja"
+                    ? "すべてのプレイヤーに同じルール"
+                    : "The same attempt limit for every player"}
+              </small>
+            </span>
+            <b>6</b>
+            <em>{t("prep.attemptUnit")}</em>
+          </div>
+        ) : (
+          <div className="prep-difficulties" role="radiogroup" aria-label={t("game.difficulty")}>
+            {difficulties.map((value) => (
+              <button
+                key={value}
+                data-difficulty={value}
+                type="button"
+                role="radio"
+                aria-checked={difficulty === value}
+                tabIndex={difficulty === value ? 0 : -1}
+                className={difficulty === value ? "active" : undefined}
+                disabled={busy}
+                onClick={() => setDifficulty(value)}
+                onKeyDown={(event) => moveDifficultyFocus(event, value)}
+              >
+                <span>
+                  <strong>{t(`game.${value}`)}</strong>
+                  <small>{t(`prep.${value}Hint`)}</small>
+                </span>
+                <b>{ATTEMPTS_BY_DIFFICULTY[value]}</b>
+                <em>{t("prep.attemptUnit")}</em>
+                {difficulty === value ? <Check size={17} aria-hidden="true" /> : null}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="prep-start-zone">
           <div className="timer-notice">
@@ -381,11 +421,35 @@ function ActiveGame({
         <aside className="game-left-rail">
           <div className="rail-section">
             <span className="rail-number">01</span>
-            <h2>{t("game.difficulty")}</h2>
+            <h2>
+              {mode === "daily"
+                ? locale === "zh-CN"
+                  ? "猜测次数"
+                  : locale === "ja"
+                    ? "推測回数"
+                    : "ATTEMPTS"
+                : t("game.difficulty")}
+            </h2>
             <div className="locked-difficulty">
-              <span>{t(`game.${game.difficulty}`)}</span>
+              <span>
+                {mode === "daily"
+                  ? locale === "zh-CN"
+                    ? "固定"
+                    : locale === "ja"
+                      ? "固定"
+                      : "FIXED"
+                  : t(`game.${game.difficulty}`)}
+              </span>
               <strong>{game.maxAttempts}</strong>
-              <small>{t("prep.locked")}</small>
+              <small>
+                {mode === "daily"
+                  ? locale === "zh-CN"
+                    ? "每日统一"
+                    : locale === "ja"
+                      ? "全員共通"
+                      : "SAME FOR EVERYONE"
+                  : t("prep.locked")}
+              </small>
             </div>
           </div>
           <div className="rail-section compact">
@@ -616,7 +680,9 @@ function ActiveGame({
 export default function GamePage({ mode }: { mode: "daily" | "random" }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedGameId = searchParams.get("game");
-  const [difficulty, setDifficultyState] = useState<Difficulty>(() => storedDifficulty(mode));
+  const [difficulty, setDifficultyState] = useState<Difficulty>(() =>
+    mode === "daily" ? "standard" : storedDifficulty(mode),
+  );
   const currentGames = useCurrentGames();
   const requestedGame = useQuery({
     queryKey: ["games", "detail", requestedGameId],
@@ -643,6 +709,7 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
       : session.game);
 
   const setDifficulty = (value: Difficulty) => {
+    if (mode === "daily") return;
     setDifficultyState(value);
     window.localStorage.setItem(`fireflydle-${mode}-difficulty`, value);
   };

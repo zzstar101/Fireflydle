@@ -3,9 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, CalendarDays, Clock3, RadioTower, Shuffle, Swords } from "lucide-react";
-import type { Announcement, PersonalStats, PublicGame } from "@fireflydle/contracts";
+import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { apiRequest } from "../../api/client";
-import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
 import { useCurrentGames } from "../game/useCurrentGames";
 import "./hub.css";
@@ -97,7 +96,6 @@ function ModeBoard({
 
 export default function HubPage() {
   const { t } = useTranslation();
-  const locale = usePreferences((state) => state.language);
   const [now, setNow] = useState(Date.now());
   const currentGames = useCurrentGames();
   const session = useSession();
@@ -107,13 +105,6 @@ export default function HubPage() {
     enabled: currentGames.isSuccess,
     retry: false,
   });
-  const announcements = useQuery({
-    queryKey: ["announcements"],
-    queryFn: () => apiRequest<Announcement[]>("/announcements"),
-    retry: false,
-    staleTime: 5 * 60_000,
-  });
-
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 1_000);
     return () => window.clearInterval(interval);
@@ -123,8 +114,6 @@ export default function HubPage() {
   const random = currentGames.data?.random ?? null;
   const serviceOnline = currentGames.isSuccess;
   const serviceChecking = currentGames.isPending;
-  const announcement = announcements.data?.[0];
-
   const dailyStatus = serviceChecking
     ? t("hub.statusSyncing")
     : daily?.status === "active"
@@ -227,10 +216,6 @@ export default function HubPage() {
                 ? t("common.online")
                 : t("hub.statusUnavailable")}
           </strong>
-        </div>
-        <div className="station-announcement">
-          <span>{t("hub.announcement")}</span>
-          <strong>{announcement?.title[locale] ?? t("hub.defaultAnnouncement")}</strong>
         </div>
       </section>
     </main>

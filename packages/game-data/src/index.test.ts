@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { characters, factions, getSearchText } from "./index.ts";
+import { characters, factions, getSearchText, versions } from "./index.ts";
 
 function matchingIds(query: string): string[] {
   const normalized = query.toLocaleLowerCase();
@@ -88,6 +88,22 @@ describe("阵营层级", () => {
 
     for (const factionId of partyOnlyIds) {
       expect(publishedFactionIds.has(factionId), factionId).toBeFalse();
+    }
+  });
+});
+
+describe("角色版本", () => {
+  test("欢愉开拓者从 4.2 开始实装", () => {
+    const trailblazer = characters.find((character) => character.id === "trailblazer-elation");
+    expect(trailblazer?.releaseVersionId).toBe("4.2");
+  });
+
+  test("每个角色的版本引用与排序一致", () => {
+    const orderByVersion = new Map(versions.map((version) => [version.id, version.order]));
+    for (const character of characters) {
+      const expectedOrder = orderByVersion.get(character.releaseVersionId);
+      if (expectedOrder === undefined) throw new Error(`${character.id} 引用了未知版本`);
+      expect(character.releaseOrder, character.id).toBe(expectedOrder);
     }
   });
 });

@@ -278,7 +278,7 @@
 
 .station-status {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
+  grid-template-columns: 1fr 1fr;
   margin-top: 26px;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -325,10 +325,6 @@
   color: var(--danger);
 }
 
-.station-announcement {
-  grid-template-columns: 1fr !important;
-}
-
 @keyframes hub-arrive {
   from {
     opacity: 0;
@@ -357,16 +353,6 @@
 
   .station-status {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .station-status > div:nth-child(3) {
-    border-left: 0;
-    border-top: 1px solid var(--border);
-  }
-
-  .station-announcement {
-    grid-column: 1 / -1;
-    border-top: 1px solid var(--border);
   }
 }
 
@@ -406,13 +392,8 @@
     grid-template-columns: 1fr;
   }
 
-  .station-status > div + div,
-  .station-status > div:nth-child(3) {
+  .station-status > div + div {
     border-top: 1px solid var(--border);
     border-left: 0;
-  }
-
-  .station-announcement {
-    grid-column: auto;
   }
 }

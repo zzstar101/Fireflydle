@@ -86,6 +86,8 @@ async function answerFor(cookie: string): Promise<string> {
       body: JSON.stringify({ mode: "daily", difficulty: "casual" }),
     });
   const game = await dataOf<PublicGame>(await create());
+  expect(game.difficulty).toBe("standard");
+  expect(game.maxAttempts).toBe(6);
   expect((await dataOf<PublicGame>(await create())).id).toBe(game.id);
 
   let current = game;

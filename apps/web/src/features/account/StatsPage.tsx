@@ -30,6 +30,8 @@ export default function StatsPage() {
   const resultLabel = (result: string) => {
     if (result === "won") return locale === "zh-CN" ? "胜利" : locale === "ja" ? "勝利" : "Won";
     if (result === "lost") return locale === "zh-CN" ? "失败" : locale === "ja" ? "敗北" : "Lost";
+    if (result === "draw")
+      return locale === "zh-CN" ? "平局" : locale === "ja" ? "引き分け" : "Draw";
     if (result === "conceded")
       return locale === "zh-CN" ? "已放弃" : locale === "ja" ? "棄権" : "Conceded";
     return locale === "zh-CN" ? "已结束" : locale === "ja" ? "終了" : "Finished";
@@ -121,11 +123,16 @@ export default function StatsPage() {
                   <strong>
                     {modeLabel(item.mode)} · {resultLabel(item.result)}
                   </strong>
-                  <small>{new Date(item.playedAt).toLocaleString(locale)}</small>
+                  <small>
+                    {item.mode === "multiplayer" && item.opponentDisplayName
+                      ? `${item.ranked ? (locale === "zh-CN" ? "排位" : "RANKED") : locale === "zh-CN" ? "休闲" : "CASUAL"} · ${locale === "zh-CN" ? "对阵" : "VS"} ${item.opponentDisplayName}`
+                      : new Date(item.playedAt).toLocaleString(locale)}
+                  </small>
                 </span>
                 <i>
-                  {item.guesses} · {Math.round(item.elapsedMs / 1000)}
-                  {locale === "zh-CN" ? " 秒" : "s"}
+                  {item.mode === "multiplayer" && item.scoreFor !== undefined
+                    ? `${item.scoreFor} : ${item.scoreAgainst}`
+                    : `${item.guesses} · ${Math.round(item.elapsedMs / 1000)}${locale === "zh-CN" ? " 秒" : "s"}`}
                 </i>
                 <ChevronRight size={16} />
               </Link>

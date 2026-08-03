@@ -1,6 +1,6 @@
 {
   "name": "@fireflydle/web",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,6 +21,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.11",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.2",
     "zustand": "^5.0.14"
   },

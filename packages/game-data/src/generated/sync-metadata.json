@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asOf": "2026-08-02",
-  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-1585312382b5",
+  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-98f4eb36ebfb",
   "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
   "policy": {
     "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
@@ -311,7 +311,7 @@
   "sources": {
     "reviewedOverrides": {
       "path": "packages/game-data/src/data/sync-overrides.json",
-      "sha256": "1585312382b559c29bef306f17ad2bce1ca23da78fda24ac4feb9a8a8a3bbb0f",
+      "sha256": "98f4eb36ebfb2de77f681e6591aea47fb71067d68f4cc0a4140b4b95ef06c943",
       "use": "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
     },
     "bwiki": {

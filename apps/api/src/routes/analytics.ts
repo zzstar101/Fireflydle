@@ -1,4 +1,3 @@
-import { DifficultySchema } from "@fireflydle/contracts";
 import { getBeijingDateKey } from "@fireflydle/game-engine";
 import { Hono } from "hono";
 import { ApiProblem, ok } from "../lib/http";
@@ -27,11 +26,23 @@ interface RecentRow {
   completed_at: number;
 }
 
-interface DailyBoardRow {
-  user_id: string;
-  display_name: string;
+interface MultiplayerRecentRow {
+  match_id: string;
+  winner_user_id: string | null;
+  opponent_display_name: string;
+  score_for: number;
+  score_against: number;
   guess_count: number;
-  elapsed_ms: number;
+  ranked: number;
+  started_at: number;
+  completed_at: number;
+}
+
+interface DailyBoardRow {
+  display_name: string;
+  is_guest: number;
+  guess_count: number;
+  completed_at: number;
 }
 
 function shiftDateKey(dateKey: string, days: number): string {
@@ -64,7 +75,7 @@ export const analyticsRoutes = new Hono<AppContext>();
 
 analyticsRoutes.get("/stats/me", async (context) => {
   const auth = requireAuth(context);
-  const [aggregate, ranked, recentRows, dailyRows] = await Promise.all([
+  const [aggregate, ranked, recentRows, multiplayerRows, dailyRows] = await Promise.all([
     context.env.DB.prepare(
       `SELECT
          SUM(CASE WHEN mode = 'daily' THEN 1 ELSE 0 END) AS daily_played,
@@ -82,7 +93,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
          SUM(CASE WHEN m.winner_user_id = ? THEN 1 ELSE 0 END) AS ranked_won
        FROM matches m
        JOIN match_players mp ON mp.match_id = m.id
-       WHERE mp.user_id = ? AND m.ranked = 1 AND m.finish_reason <> 'cancelled'`,
+       WHERE mp.user_id = ? AND m.ranked = 1
+         AND COALESCE(m.resolution, m.finish_reason) <> 'cancelled'`,
     )
       .bind(auth.user.id, auth.user.id)
       .first<RankedRow>(),
@@ -93,6 +105,22 @@ analyticsRoutes.get("/stats/me", async (context) => {
     )
       .bind(auth.user.id)
       .all<RecentRow>(),
+    context.env.DB.prepare(
+      `SELECT m.id AS match_id, m.winner_user_id,
+              opponent.display_name AS opponent_display_name,
+              own.score AS score_for, opponent.score AS score_against,
+              COUNT(mg.ordinal) AS guess_count, m.ranked, m.started_at, m.completed_at
+       FROM matches m
+       JOIN match_players own ON own.match_id = m.id AND own.user_id = ?
+       JOIN match_players opponent ON opponent.match_id = m.id AND opponent.user_id <> own.user_id
+       LEFT JOIN match_guesses mg ON mg.match_id = m.id AND mg.user_id = own.user_id
+       WHERE COALESCE(m.resolution, m.finish_reason) <> 'cancelled'
+       GROUP BY m.id, m.winner_user_id, opponent.display_name, own.score, opponent.score,
+                m.ranked, m.started_at, m.completed_at
+       ORDER BY m.completed_at DESC LIMIT 20`,
+    )
+      .bind(auth.user.id)
+      .all<MultiplayerRecentRow>(),
     context.env.DB.prepare(
       `SELECT DISTINCT date_key
        FROM game_results
@@ -116,60 +144,63 @@ analyticsRoutes.get("/stats/me", async (context) => {
     rankedPlayed: ranked?.ranked_played ?? 0,
     rankedWon: ranked?.ranked_won ?? 0,
     averageGuesses: aggregate?.average_guesses ?? 0,
-    recent: recentRows.results.map((row) => ({
-      id: row.game_id,
-      mode: row.mode,
-      result: row.result === "expired" ? "lost" : row.result,
-      guesses: row.guess_count,
-      elapsedMs: row.elapsed_ms,
-      playedAt: new Date(row.completed_at).toISOString(),
-    })),
+    recent: [
+      ...recentRows.results.map((row) => ({
+        id: row.game_id,
+        mode: row.mode,
+        result: row.result === "expired" ? "lost" : row.result,
+        guesses: row.guess_count,
+        elapsedMs: row.elapsed_ms,
+        playedAt: new Date(row.completed_at).toISOString(),
+      })),
+      ...multiplayerRows.results.map((row) => ({
+        id: row.match_id,
+        mode: "multiplayer",
+        result:
+          row.winner_user_id === null
+            ? "draw"
+            : row.winner_user_id === auth.user.id
+              ? "won"
+              : "lost",
+        guesses: row.guess_count,
+        elapsedMs: Math.max(0, row.completed_at - row.started_at),
+        playedAt: new Date(row.completed_at).toISOString(),
+        opponentDisplayName: row.opponent_display_name,
+        scoreFor: row.score_for,
+        scoreAgainst: row.score_against,
+        ranked: row.ranked === 1,
+      })),
+    ]
+      .sort((left, right) => Date.parse(right.playedAt) - Date.parse(left.playedAt))
+      .slice(0, 20),
   });
 });
 
 analyticsRoutes.get("/leaderboards/daily", async (context) => {
-  const difficulty = DifficultySchema.safeParse(context.req.query("difficulty") ?? "standard");
-  if (!difficulty.success) throw new ApiProblem("VALIDATION_FAILED", 400);
   const dateKey = context.req.query("date") ?? getBeijingDateKey();
   if (!/^\d{4}-\d{2}-\d{2}$/u.test(dateKey)) {
     throw new ApiProblem("VALIDATION_FAILED", 400, { field: "date" });
   }
   const entries = await context.env.DB.prepare(
-    `SELECT gr.user_id, u.display_name, gr.guess_count, gr.elapsed_ms
+    `SELECT u.display_name, u.is_guest, gr.guess_count, gr.completed_at
      FROM game_results gr
      JOIN users u ON u.id = gr.user_id
      WHERE gr.mode = 'daily' AND gr.result = 'won' AND gr.date_key = ?
-       AND gr.difficulty = ? AND u.is_guest = 0 AND u.leaderboard_eligible = 1
+       AND u.merged_into_user_id IS NULL
        AND gr.leaderboard_hidden_at IS NULL
-     ORDER BY gr.guess_count ASC, gr.elapsed_ms ASC, gr.completed_at ASC
+     ORDER BY gr.completed_at ASC, gr.game_id ASC
      LIMIT 100`,
   )
-    .bind(dateKey, difficulty.data)
+    .bind(dateKey)
     .all<DailyBoardRow>();
-  const streakRows = await context.env.DB.prepare(
-    `SELECT DISTINCT gr.user_id, gr.date_key
-     FROM game_results gr
-     JOIN users u ON u.id = gr.user_id
-     WHERE gr.mode = 'daily' AND gr.result = 'won' AND gr.date_key <= ?
-       AND u.is_guest = 0 AND u.leaderboard_eligible = 1
-       AND gr.date_key >= ?`,
-  )
-    .bind(dateKey, shiftDateKey(dateKey, -400))
-    .all<{ user_id: string; date_key: string }>();
-  const datesByUser = new Map<string, string[]>();
-  for (const row of streakRows.results) {
-    const dates = datesByUser.get(row.user_id) ?? [];
-    dates.push(row.date_key);
-    datesByUser.set(row.user_id, dates);
-  }
   return ok(
     context,
     entries.results.map((entry, index) => ({
       rank: index + 1,
       displayName: entry.display_name,
+      isGuest: entry.is_guest === 1,
       guesses: entry.guess_count,
-      elapsedMs: entry.elapsed_ms,
-      streak: streaks(datesByUser.get(entry.user_id) ?? [], dateKey).current,
+      completedAt: new Date(entry.completed_at).toISOString(),
     })),
   );
 });
@@ -178,7 +209,7 @@ analyticsRoutes.get("/leaderboards/elo", async (context) => {
   const rows = await context.env.DB.prepare(
     `SELECT display_name, elo, ranked_matches
      FROM users
-     WHERE is_guest = 0 AND leaderboard_eligible = 1 AND merged_into_user_id IS NULL
+      WHERE is_guest = 0 AND leaderboard_eligible = 1 AND merged_into_user_id IS NULL
      ORDER BY elo DESC, ranked_matches DESC, created_at ASC
      LIMIT 100`,
   ).all<{ display_name: string; elo: number; ranked_matches: number }>();

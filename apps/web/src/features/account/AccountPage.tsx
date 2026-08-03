@@ -263,11 +263,7 @@ export default function AccountPage() {
             <small>
               {user.leaderboardEligible
                 ? tr("公开", "公開", "PUBLIC")
-                : tr(
-                    `再完成 ${Math.max(0, 10 - user.rankedMatches)} 场即可公开`,
-                    `公開まであと${Math.max(0, 10 - user.rankedMatches)}戦`,
-                    `${Math.max(0, 10 - user.rankedMatches)} MATCHES TO PUBLIC`,
-                  )}
+                : tr("已被管理员隐藏", "管理者により非公開", "HIDDEN BY ADMIN")}
             </small>
           </div>
           <div>

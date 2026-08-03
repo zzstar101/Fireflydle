@@ -1,14 +1,134 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { CalendarClock, Copy, Eye, Link2Off, LockKeyhole, Share2 } from "lucide-react";
-import type { ReplayResponse, ReplayShareResponse } from "@fireflydle/contracts";
+import { CalendarClock, Copy, Eye, Link2Off, LockKeyhole, Share2, Swords } from "lucide-react";
+import type {
+  Locale,
+  MultiplayerReplay,
+  ReplayResponse,
+  ReplayShareResponse,
+} from "@fireflydle/contracts";
 import { useParams } from "react-router-dom";
 import { apiRequest } from "../../api/client";
 import { LoadingScreen } from "../../components/LoadingScreen";
 import { PageHeader } from "../../components/PageHeader";
+import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { GuessBoard } from "./GuessBoard";
 import "./game.css";
+
+function MultiplayerReplayView({ match, locale }: { match: MultiplayerReplay; locale: Locale }) {
+  const reason =
+    match.finishReason === "agreed-draw"
+      ? locale === "zh-CN"
+        ? "双方同意平局"
+        : locale === "ja"
+          ? "合意による引き分け"
+          : "Draw by agreement"
+      : match.finishReason === "score"
+        ? locale === "zh-CN"
+          ? "比分决胜"
+          : locale === "ja"
+            ? "スコア決着"
+            : "Decided by score"
+        : locale === "zh-CN"
+          ? "对局提前结束"
+          : locale === "ja"
+            ? "対戦終了"
+            : "Match ended";
+  return (
+    <main className="page-shell replay-page multiplayer-replay-page">
+      <PageHeader
+        eyebrow={`DUEL REPLAY · ${match.id.slice(0, 8).toUpperCase()}`}
+        title={
+          locale === "zh-CN" ? "多人对战复盘" : locale === "ja" ? "対戦リプレイ" : "Duel replay"
+        }
+        intro={`BO${match.format} · ${match.ranked ? (locale === "zh-CN" ? "排位赛" : "RANKED") : locale === "zh-CN" ? "休闲赛" : "CASUAL"} · ${reason}`}
+        aside={
+          <div className="rank-live">
+            <LockKeyhole size={16} />
+            <span>PRIVATE</span>
+            <strong>{match.rounds.length} R</strong>
+          </div>
+        }
+      />
+      <section
+        className="replay-scoreboard"
+        aria-label={locale === "zh-CN" ? "最终比分" : "Final score"}
+      >
+        {match.players.map((player) => (
+          <div
+            key={player.playerId}
+            className={match.winnerPlayerId === player.playerId ? "winner" : ""}
+          >
+            <span>{player.seat === 0 ? "PLAYER A" : "PLAYER B"}</span>
+            <strong>{player.displayName}</strong>
+            <b>{player.score}</b>
+            {match.ranked ? (
+              <small>
+                {player.ratingBefore} → {player.ratingAfter} Elo
+              </small>
+            ) : null}
+          </div>
+        ))}
+      </section>
+      <div className="replay-rounds">
+        {match.rounds.map((round) => {
+          const roundWinner = match.players.find(
+            (player) => player.playerId === round.winnerPlayerId,
+          );
+          return (
+            <section className="replay-round" key={round.roundNumber}>
+              <header>
+                <div>
+                  <span>ROUND {round.roundNumber}</span>
+                  <strong>
+                    {roundWinner
+                      ? `${roundWinner.displayName} ${locale === "zh-CN" ? "胜出" : locale === "ja" ? "勝利" : "won"}`
+                      : locale === "zh-CN"
+                        ? "本回合平局"
+                        : locale === "ja"
+                          ? "ラウンド引き分け"
+                          : "Round draw"}
+                  </strong>
+                </div>
+                <div className="replay-answer">
+                  <CharacterAvatar character={round.answer} size="medium" />
+                  <span>
+                    <small>
+                      {locale === "zh-CN" ? "正确答案" : locale === "ja" ? "正解" : "ANSWER"}
+                    </small>
+                    <strong>{round.answer.names[locale]}</strong>
+                  </span>
+                </div>
+              </header>
+              <div className="replay-player-guesses">
+                {match.players.map((player) => {
+                  const playerGuesses = round.guesses
+                    .filter((guess) => guess.playerId === player.playerId)
+                    .map((guess) => guess.result);
+                  return (
+                    <div key={player.playerId}>
+                      <h3>
+                        <Swords size={16} /> {player.displayName} · {playerGuesses.length}
+                      </h3>
+                      {playerGuesses.length > 0 ? (
+                        <GuessBoard guesses={playerGuesses} locale={locale} />
+                      ) : (
+                        <p className="muted">
+                          {locale === "zh-CN" ? "本回合没有猜测" : "No guesses this round"}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </main>
+  );
+}
 
 export default function ReplayPage() {
   const { replayId } = useParams();
@@ -45,6 +165,9 @@ export default function ReplayPage() {
         </p>
       </main>
     );
+  if (replay.data.kind === "multiplayer") {
+    return <MultiplayerReplayView match={replay.data.match} locale={locale} />;
+  }
   const { game } = replay.data;
   const createShare = async () => {
     if (!replayId) return;

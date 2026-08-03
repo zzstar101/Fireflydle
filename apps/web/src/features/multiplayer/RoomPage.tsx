@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
+  Check,
   Clock3,
+  CircleDot,
   Copy,
   LogOut,
   Radio,
@@ -11,15 +13,23 @@ import {
   UserRound,
   Wifi,
   WifiOff,
+  X,
 } from "lucide-react";
-import { ServerRoomMessageSchema, type Character, type RoomSnapshot } from "@fireflydle/contracts";
+import {
+  GUESS_FIELDS,
+  ServerRoomMessageSchema,
+  type Character,
+  type RoomSnapshot,
+} from "@fireflydle/contracts";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { characters } from "@fireflydle/game-data";
 import { apiRequest, getWebSocketUrl } from "../../api/client";
 import { CharacterCombobox } from "../game/CharacterCombobox";
 import { GuessBoard } from "../game/GuessBoard";
+import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
+import "../game/game.css";
 import "./multiplayer.css";
 
 function formatSeconds(milliseconds: number) {
@@ -151,7 +161,9 @@ export default function RoomPage() {
     ? snapshot.roundEndsAt - now
     : snapshot?.reconnectDeadline
       ? snapshot.reconnectDeadline - now
-      : 0;
+      : snapshot?.nextRoundAt
+        ? snapshot.nextRoundAt - now
+        : 0;
   const canGuess = connection === "open" && snapshot?.state === "playing";
   const roomStateLabel = snapshot
     ? snapshot.state === "waiting"
@@ -176,6 +188,9 @@ export default function RoomPage() {
     socketRef.current?.send(
       JSON.stringify({ type: "guess", characterId, actionId: crypto.randomUUID() }),
     );
+  const offerDraw = () => socketRef.current?.send(JSON.stringify({ type: "offer-draw" }));
+  const respondDraw = (accepted: boolean) =>
+    socketRef.current?.send(JSON.stringify({ type: "respond-draw", accepted }));
   const leave = async () => {
     if (
       snapshot &&
@@ -335,6 +350,79 @@ export default function RoomPage() {
             </div>
           )}
 
+          {!["waiting", "finished"].includes(snapshot.state) && (
+            <section
+              className="draw-controls"
+              aria-label={tr("平局协商", "引き分け交渉", "Draw offer")}
+            >
+              {snapshot.drawOfferByPlayerId === session.data?.user.id ? (
+                <p>
+                  {tr(
+                    "已提出平局，等待对手回应",
+                    "引き分けを提案しました。相手の返答を待っています",
+                    "Draw offered. Waiting for your opponent",
+                  )}
+                </p>
+              ) : snapshot.drawOfferByPlayerId ? (
+                <>
+                  <p>
+                    {tr(
+                      "对手提议本场平局",
+                      "相手が引き分けを提案しました",
+                      "Your opponent offered a draw",
+                    )}
+                  </p>
+                  <div>
+                    <button
+                      className="ticket-button"
+                      type="button"
+                      onClick={() => respondDraw(true)}
+                    >
+                      <Check size={16} /> {tr("接受", "承諾", "Accept")}
+                    </button>
+                    <button
+                      className="ticket-button-secondary"
+                      type="button"
+                      onClick={() => respondDraw(false)}
+                    >
+                      <X size={16} /> {tr("拒绝", "拒否", "Decline")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button className="ticket-button-secondary" type="button" onClick={offerDraw}>
+                  {tr("提议平局", "引き分けを提案", "Offer draw")}
+                </button>
+              )}
+            </section>
+          )}
+
+          {(snapshot.state === "round-ended" || snapshot.state === "finished") &&
+            snapshot.roundAnswer && (
+              <section className="round-reveal" aria-labelledby="round-reveal-title">
+                <CharacterAvatar character={snapshot.roundAnswer} size="large" />
+                <div>
+                  <p>
+                    {snapshot.roundWinnerId
+                      ? snapshot.roundWinnerId === session.data?.user.id
+                        ? tr("你赢得本回合", "このラウンドに勝利", "ROUND WON")
+                        : tr("对手赢得本回合", "相手がラウンド勝利", "RIVAL WON")
+                      : tr("本回合平局", "このラウンドは引き分け", "ROUND DRAW")}
+                  </p>
+                  <h2 id="round-reveal-title">{snapshot.roundAnswer.names[locale]}</h2>
+                  <span>
+                    {snapshot.state === "round-ended"
+                      ? tr(
+                          `正确角色 · ${snapshot.nextRoundAt ? `${formatSeconds(snapshot.nextRoundAt - now)} 秒后进入下一回合` : "即将进入下一回合"}`,
+                          `正解キャラクター · ${snapshot.nextRoundAt ? `${formatSeconds(snapshot.nextRoundAt - now)}秒後に次のラウンド` : "次のラウンドへ"}`,
+                          `Correct character · ${snapshot.nextRoundAt ? `next round in ${formatSeconds(snapshot.nextRoundAt - now)}s` : "next round starting"}`,
+                        )
+                      : tr("本局正确角色", "このラウンドの正解", "Correct character")}
+                  </span>
+                </div>
+              </section>
+            )}
+
           {snapshot.state === "playing" && (
             <CharacterCombobox
               characters={roster}
@@ -363,6 +451,12 @@ export default function RoomPage() {
                 <span>{tr("对手反馈", "相手のフィードバック", "RIVAL SIGNALS")}</span>
                 <strong>{snapshot.opponentFeedback.length} / 6</strong>
               </header>
+              <div className="opponent-feedback-head" aria-hidden="true">
+                <span />
+                {GUESS_FIELDS.map((field) => (
+                  <b key={field}>{t(`game.${field}`)}</b>
+                ))}
+              </div>
               <div className="masked-feedback-grid">
                 {snapshot.opponentFeedback.map((row, rowIndex) => (
                   <div key={rowIndex}>
@@ -382,6 +476,29 @@ export default function RoomPage() {
                     ))}
                   </div>
                 ))}
+              </div>
+              <div
+                className="feedback-legend"
+                aria-label={tr("反馈颜色说明", "色の説明", "Feedback legend")}
+              >
+                <span>
+                  <i className="state-exact">
+                    <Check size={12} />
+                  </i>
+                  {t("game.exact")}
+                </span>
+                <span>
+                  <i className="state-close">
+                    <CircleDot size={11} />
+                  </i>
+                  {t("game.close")}
+                </span>
+                <span>
+                  <i className="state-miss">
+                    <X size={12} />
+                  </i>
+                  {t("game.miss")}
+                </span>
               </div>
               {snapshot.opponentFeedback.length === 0 && (
                 <p>
@@ -414,18 +531,53 @@ export default function RoomPage() {
                           ? "今回は敗北しました"
                           : "You lost the match"
                     : locale === "zh-CN"
-                      ? "本场平局"
+                      ? snapshot.finishReason === "agreed-draw"
+                        ? "双方同意，本场平局"
+                        : "本场无胜者"
                       : locale === "ja"
-                        ? "引き分け"
-                        : "Draw"}
+                        ? snapshot.finishReason === "agreed-draw"
+                          ? "合意により引き分け"
+                          : "勝者なし"
+                        : snapshot.finishReason === "agreed-draw"
+                          ? "Draw by agreement"
+                          : "No winner"}
                 </h2>
+                {snapshot.ranked && snapshot.ratingChange ? (
+                  <div
+                    className={`rating-change ${
+                      snapshot.ratingChange.delta > 0
+                        ? "positive"
+                        : snapshot.ratingChange.delta < 0
+                          ? "negative"
+                          : "neutral"
+                    }`}
+                  >
+                    <strong>
+                      {snapshot.ratingChange.delta > 0 ? "+" : ""}
+                      {snapshot.ratingChange.delta} Elo
+                    </strong>
+                    <span>
+                      {snapshot.ratingChange.before} → {snapshot.ratingChange.after}
+                    </span>
+                  </div>
+                ) : null}
               </div>
-              <button
-                className="ticket-button"
-                onClick={() => void acknowledgeMatchTicket().finally(() => navigate("/duel"))}
-              >
-                {tr("返回对战大厅", "対戦ロビーへ戻る", "Back to lobby")}
-              </button>
+              <div className="match-finished-actions">
+                <button
+                  className="ticket-button-secondary"
+                  type="button"
+                  onClick={() => navigate(`/replay/${snapshot.roomId}`)}
+                >
+                  {tr("查看完整复盘", "完全なリプレイを見る", "View full replay")}
+                </button>
+                <button
+                  className="ticket-button"
+                  type="button"
+                  onClick={() => void acknowledgeMatchTicket().finally(() => navigate("/duel"))}
+                >
+                  {tr("返回对战大厅", "対戦ロビーへ戻る", "Back to lobby")}
+                </button>
+              </div>
             </section>
           )}
         </>

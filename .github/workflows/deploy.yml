@@ -48,6 +48,19 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Validate player-facing release announcement
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_ANNOUNCEMENT_TOKEN: ${{ secrets.RELEASE_ANNOUNCEMENT_TOKEN }}
+        run: |
+          if [ -z "${RELEASE_ANNOUNCEMENT_TOKEN:-}" ]; then
+            echo "::error::RELEASE_ANNOUNCEMENT_TOKEN is not configured."
+            exit 1
+          fi
+          bun scripts/extract-release-announcement.ts release-announcement.json
+
       - name: Synchronize character data and assets
         run: bun run sync:data
 
@@ -96,6 +109,7 @@ jobs:
             apps/web/public/assets/manifest.json
             apps/web/public/assets/manifest.sha256
             packages/game-data/generated/characters.sql
+            release-announcement.json
           if-no-files-found: error
           retention-days: 30
 
@@ -161,6 +175,12 @@ jobs:
           else
             echo "::warning::CLOUDFLARE_ANALYTICS_TOKEN is not configured; latency and quota panels remain unavailable."
           fi
+          if bunx wrangler secret list --format json | jq --exit-status 'any(.[]; .name == "RELEASE_ANNOUNCEMENT_TOKEN")'; then
+            echo "Release announcement publishing is configured."
+          else
+            echo "::error::RELEASE_ANNOUNCEMENT_TOKEN is not configured on the Worker."
+            exit 1
+          fi
 
       - name: Apply D1 migrations
         working-directory: apps/api
@@ -213,3 +233,32 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128
+
+  publish_announcement:
+    name: Publish release announcement
+    needs:
+      - build_release
+      - deploy_api
+      - deploy_pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download release announcement
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-data-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .
+
+      - name: Publish player-facing announcement
+        env:
+          RELEASE_ANNOUNCEMENT_TOKEN: ${{ secrets.RELEASE_ANNOUNCEMENT_TOKEN }}
+        run: >-
+          curl --fail-with-body --silent --show-error
+          --retry 3 --retry-delay 3 --retry-all-errors
+          -H "Authorization: Bearer ${RELEASE_ANNOUNCEMENT_TOKEN}"
+          -H "Content-Type: application/json"
+          --data-binary @release-announcement.json
+          https://api.fireflydle.games/api/announcements/releases

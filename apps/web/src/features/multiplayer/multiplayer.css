@@ -478,6 +478,24 @@
   border-left: 2px solid var(--gold);
   background: rgb(216 182 107 / 7%);
 }
+.draw-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 44px;
+  margin-bottom: 18px;
+  gap: 14px;
+}
+.draw-controls p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.draw-controls > div,
+.match-finished-actions {
+  display: flex;
+  gap: 10px;
+}
 .invite-strip span {
   display: flex;
   align-items: center;
@@ -501,11 +519,49 @@
   border-left-color: var(--danger);
   background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
+.room-page .guess-composer {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.round-reveal {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 118px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  gap: 18px;
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--gold);
+  background: var(--surface);
+}
+.round-reveal p,
+.round-reveal h2 {
+  margin: 0;
+}
+.round-reveal p {
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  letter-spacing: 0.08em;
+}
+.round-reveal h2 {
+  margin: 3px 0;
+  font-size: 1.55rem;
+}
+.round-reveal span {
+  color: var(--text-muted);
+  font-size: 0.69rem;
+}
 .multiplayer-boards {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.7fr);
   gap: 28px;
   margin-top: 30px;
+}
+.multiplayer-boards > section {
+  min-width: 0;
 }
 .multiplayer-boards section > header {
   display: flex;
@@ -531,6 +587,21 @@
   gap: 9px;
   padding-top: 16px;
 }
+.opponent-feedback-head {
+  display: grid;
+  grid-template-columns: 28px repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  padding-top: 14px;
+}
+.opponent-feedback-head b {
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: 0.52rem;
+  font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .masked-feedback-grid > div {
   display: grid;
   grid-template-columns: 28px repeat(5, 1fr);
@@ -553,6 +624,55 @@
 .masked-feedback-grid i.state-close {
   background: var(--close);
 }
+.feedback-legend {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  gap: 8px 14px;
+  color: var(--text-muted);
+  font-size: 0.58rem;
+}
+.feedback-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.feedback-legend i {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 3px;
+  color: #fff;
+  background: var(--miss);
+}
+.feedback-legend i.state-exact {
+  background: var(--exact);
+}
+.feedback-legend i.state-close {
+  background: var(--close);
+}
+.rating-change {
+  display: flex;
+  align-items: baseline;
+  margin-top: 8px;
+  gap: 10px;
+}
+.rating-change strong {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.rating-change.positive strong {
+  color: var(--exact);
+}
+.rating-change.negative strong {
+  color: var(--danger);
+}
+.rating-change span {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
 .match-finished {
   display: flex;
   align-items: center;
@@ -574,7 +694,7 @@
 .match-finished h2 {
   margin: 0;
 }
-.match-finished button {
+.match-finished-actions {
   margin-left: auto;
 }
 @keyframes radar-pulse {
@@ -693,6 +813,24 @@
   }
   .match-finished {
     flex-wrap: wrap;
+  }
+  .draw-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .draw-controls > div,
+  .match-finished-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  .match-finished-actions {
+    margin-left: 0;
+  }
+  .match-finished-actions button {
+    width: 100%;
+  }
+  .round-reveal {
+    padding: 16px;
   }
   .match-finished button {
     width: 100%;
