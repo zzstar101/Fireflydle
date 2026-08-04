@@ -343,10 +343,25 @@ describe("管理概览与注册用户列表", () => {
     }>(presenceResponse);
     expect(presence).toMatchObject({
       windowMinutes: 5,
-      total: null,
-      registered: null,
-      guests: null,
+      total: 0,
+      registered: 0,
+      guests: 0,
     });
+  });
+
+  it("持续请求会刷新在线会话的最后活动时间", async () => {
+    const session = await createSession();
+    const visitSessionId = crypto.randomUUID();
+    const response = await SELF.fetch("https://fireflydle.games/api/session", {
+      headers: { cookie: session.cookie, "x-visit-session-id": visitSessionId },
+    });
+    expect(response.status).toBe(200);
+    const row = await env.DB.prepare(
+      "SELECT started_at, last_seen_at FROM operations_visit_sessions WHERE id = ?",
+    )
+      .bind(visitSessionId)
+      .first<{ started_at: number; last_seen_at: number | null }>();
+    expect(row?.last_seen_at).toBeGreaterThanOrEqual(row?.started_at ?? Number.MAX_SAFE_INTEGER);
   });
 });
 

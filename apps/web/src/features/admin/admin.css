@@ -836,6 +836,15 @@
   font-size: 0.56rem;
   text-align: right;
 }
+.ops-quota-list > div > .ops-quota-limit-note {
+  height: auto;
+  overflow: visible;
+  background: transparent;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  white-space: nowrap;
+}
 .ops-alert-history {
   display: grid;
   border-top: 1px solid var(--border);

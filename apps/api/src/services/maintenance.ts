@@ -164,9 +164,9 @@ export async function runScheduledMaintenance(env: Env, now = Date.now()): Promi
     ).bind(now - 7 * DAY_MS, now - 7 * DAY_MS),
     env.DB.prepare("DELETE FROM rate_limits WHERE updated_at <= ?").bind(now - 7 * DAY_MS),
     env.DB.prepare("DELETE FROM room_directory WHERE expires_at <= ?").bind(now),
-    env.DB.prepare("DELETE FROM operations_visit_sessions WHERE started_at <= ?").bind(
-      now - OPERATIONS_DETAIL_RETENTION_MS,
-    ),
+    env.DB.prepare(
+      "DELETE FROM operations_visit_sessions WHERE COALESCE(last_seen_at, started_at) <= ?",
+    ).bind(now - OPERATIONS_DETAIL_RETENTION_MS),
     env.DB.prepare("DELETE FROM operations_daily_players WHERE first_started_at <= ?").bind(
       now - OPERATIONS_DETAIL_RETENTION_MS,
     ),

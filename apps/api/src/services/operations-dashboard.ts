@@ -13,6 +13,8 @@ const FREE_LIMITS = {
   d1StorageBytes: 5 * 1024 * 1024 * 1024,
 } as const;
 
+type CloudflareMetricKind = "quota" | "limit";
+
 export type OperationsLatencyRange = "1h" | "24h" | "7d";
 export type OperationsTrendDays = 7 | 30;
 
@@ -119,6 +121,7 @@ export interface OperationsOverview {
       limit: number;
       percent: number;
       unit: "requests" | "ms" | "rows" | "bytes";
+      kind: CloudflareMetricKind;
     }>;
     error: string | null;
   };
@@ -295,19 +298,51 @@ async function apiMetrics(
   }
 }
 
-async function onlineMetrics(env: Env): Promise<{
+async function d1OnlineMetrics(
+  env: Env,
+  now: number,
+): Promise<{
   total: number | null;
   registered: number | null;
   guests: number | null;
 }> {
-  if (!analyticsToken(env)) return { total: null, registered: null, guests: null };
+  try {
+    const row = await env.DB.prepare(
+      `SELECT
+         COUNT(DISTINCT user_id) AS total,
+         COUNT(DISTINCT CASE WHEN is_guest = 0 THEN user_id ELSE NULL END) AS registered,
+         COUNT(DISTINCT CASE WHEN is_guest = 1 THEN user_id ELSE NULL END) AS guests
+       FROM operations_visit_sessions
+       WHERE COALESCE(last_seen_at, started_at) >= ?`,
+    )
+      .bind(now - 5 * 60 * 1_000)
+      .first<{ total: number; registered: number; guests: number }>();
+    return {
+      total: finiteNumber(row?.total),
+      registered: finiteNumber(row?.registered),
+      guests: finiteNumber(row?.guests),
+    };
+  } catch {
+    return { total: null, registered: null, guests: null };
+  }
+}
+
+async function onlineMetrics(
+  env: Env,
+  now = Date.now(),
+): Promise<{
+  total: number | null;
+  registered: number | null;
+  guests: number | null;
+}> {
+  if (!analyticsToken(env)) return d1OnlineMetrics(env, now);
   try {
     const rows = await analyticsEngineRows(
       env,
       `SELECT
-         COUNT(DISTINCT CASE WHEN index1 != 'anonymous' THEN index1 ELSE NULL END) AS total,
-         COUNT(DISTINCT CASE WHEN blob4 = 'registered' THEN index1 ELSE NULL END) AS registered,
-         COUNT(DISTINCT CASE WHEN blob4 = 'guest' THEN index1 ELSE NULL END) AS guests
+           COUNT(DISTINCT if(index1 != 'anonymous', index1, NULL)) AS total,
+           COUNT(DISTINCT if(blob4 = 'registered', index1, NULL)) AS registered,
+           COUNT(DISTINCT if(blob4 = 'guest', index1, NULL)) AS guests
        FROM ${ANALYTICS_DATASET}
        WHERE timestamp >= NOW() - INTERVAL '5' MINUTE`,
     );
@@ -318,7 +353,7 @@ async function onlineMetrics(env: Env): Promise<{
       guests: finiteNumber(row.guests),
     };
   } catch {
-    return { total: null, registered: null, guests: null };
+    return d1OnlineMetrics(env, now);
   }
 }
 
@@ -331,7 +366,7 @@ export interface OnlinePresence {
 }
 
 export async function getOnlinePresence(env: Env, now = Date.now()): Promise<OnlinePresence> {
-  const metrics = await onlineMetrics(env);
+  const metrics = await onlineMetrics(env, now);
   return {
     generatedAt: new Date(now).toISOString(),
     windowMinutes: 5,
@@ -353,8 +388,9 @@ function quota(
   used: number,
   limit: number,
   unit: "requests" | "ms" | "rows" | "bytes",
+  kind: CloudflareMetricKind = "quota",
 ): OperationsOverview["cloudflare"]["quotas"][number] {
-  return { id, label, used, limit, percent: limit === 0 ? 0 : used / limit, unit };
+  return { id, label, used, limit, percent: limit === 0 ? 0 : used / limit, unit, kind };
 }
 
 async function databaseSize(env: Env): Promise<number> {
@@ -481,7 +517,14 @@ async function cloudflareUsageFresh(
           FREE_LIMITS.workerRequests,
           "requests",
         ),
-        quota("worker-cpu", "Worker CPU p99", cpuP99, FREE_LIMITS.workerCpuMs, "ms"),
+        quota(
+          "worker-cpu",
+          "Worker CPU p99 / 单次请求上限",
+          cpuP99,
+          FREE_LIMITS.workerCpuMs,
+          "ms",
+          "limit",
+        ),
         quota("d1-reads", "D1 读取行", rowsRead, FREE_LIMITS.d1RowsRead, "rows"),
         quota("d1-writes", "D1 写入行", rowsWritten, FREE_LIMITS.d1RowsWritten, "rows"),
         quota("d1-storage", "D1 存储", size, FREE_LIMITS.d1StorageBytes, "bytes"),
@@ -515,7 +558,18 @@ function validCloudflareCache(value: unknown): OperationsOverview["cloudflare"] 
       ) {
         return null;
       }
-      return quota(item.id, item.label, finiteNumber(item.used), finiteNumber(item.limit), unit);
+      const kind =
+        item.kind === "limit" || (item.kind === undefined && item.id === "worker-cpu")
+          ? "limit"
+          : "quota";
+      return quota(
+        item.id,
+        item.label,
+        finiteNumber(item.used),
+        finiteNumber(item.limit),
+        unit,
+        kind,
+      );
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
   return {
@@ -556,6 +610,48 @@ async function cloudflareUsage(env: Env, now: number): Promise<OperationsOvervie
       .run();
   }
   return fresh;
+}
+
+function cloudflareAlertTasks(
+  env: Env,
+  cloudflare: OperationsOverview["cloudflare"],
+  now: number,
+): Promise<void>[] {
+  const quotaAlerts = cloudflare.quotas
+    .filter((item) => item.kind === "quota")
+    .map((item) =>
+      syncOperationsAlert(
+        env,
+        {
+          kind: `quota-${item.id}`,
+          severity: item.percent >= 0.95 ? "critical" : "warning",
+          title: `${item.label}接近免费额度`,
+          message: `当前已使用免费额度的 ${(item.percent * 100).toFixed(1)}%。`,
+          active: item.percent >= 0.8,
+          notifyByEmail: item.percent >= 0.8,
+        },
+        now,
+      ),
+    );
+  const cpu = cloudflare.quotas.find((item) => item.id === "worker-cpu");
+  if (cpu) {
+    quotaAlerts.push(
+      syncOperationsAlert(
+        env,
+        {
+          // 沿用旧 kind，让已存在的 CPU 告警自动迁移为新的准确口径。
+          kind: "quota-worker-cpu",
+          severity: cpu.percent >= 2 ? "critical" : "warning",
+          title: "Worker CPU p99 超过单次请求上限",
+          message: `p99 为 ${cpu.used.toFixed(2)} ms / ${cpu.limit.toFixed(2)} ms（${cpu.percent.toFixed(2)}x）。`,
+          active: cpu.percent >= 1,
+          notifyByEmail: cpu.percent >= 1,
+        },
+        now,
+      ),
+    );
+  }
+  return quotaAlerts;
 }
 
 function dateKeys(days: number, now: number): string[] {
@@ -721,22 +817,8 @@ export async function getOperationsOverview(
   )
     .bind(now - 5 * 60 * 1_000)
     .first<{ count: number }>();
-  const quotaAlerts = cloudflare.quotas.map((item) =>
-    syncOperationsAlert(
-      env,
-      {
-        kind: `quota-${item.id}`,
-        severity: item.percent >= 0.95 ? "critical" : "warning",
-        title: `${item.label}接近免费额度`,
-        message: `当前已使用免费额度的 ${(item.percent * 100).toFixed(1)}%。`,
-        active: item.percent >= 0.8,
-        notifyByEmail: item.percent >= 0.8,
-      },
-      now,
-    ),
-  );
   await Promise.all([
-    ...quotaAlerts,
+    ...cloudflareAlertTasks(env, cloudflare, now),
     syncOperationsAlert(
       env,
       {
@@ -856,20 +938,5 @@ export async function getOperationsOverview(
 
 export async function runScheduledOperations(env: Env, now = Date.now()): Promise<void> {
   const usage = await cloudflareUsageFresh(env, now);
-  await Promise.all(
-    usage.quotas.map((item) =>
-      syncOperationsAlert(
-        env,
-        {
-          kind: `quota-${item.id}`,
-          severity: item.percent >= 0.95 ? "critical" : "warning",
-          title: `${item.label}接近免费额度`,
-          message: `当前已使用免费额度的 ${(item.percent * 100).toFixed(1)}%。`,
-          active: item.percent >= 0.8,
-          notifyByEmail: item.percent >= 0.8,
-        },
-        now,
-      ),
-    ),
-  );
+  await Promise.all(cloudflareAlertTasks(env, usage, now));
 }

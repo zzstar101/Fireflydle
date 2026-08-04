@@ -100,6 +100,7 @@ interface OperationsOverview {
       limit: number;
       percent: number;
       unit: "requests" | "ms" | "rows" | "bytes";
+      kind: "quota" | "limit";
     }>;
     error: string | null;
   };
@@ -288,7 +289,7 @@ export function OperationsPanel({ locale }: { locale: Locale }) {
       <header className="ops-toolbar">
         <div>
           <strong>
-            {activeAlerts.length > 0 ? `${activeAlerts.length} ACTIVE` : "SYSTEM NORMAL"}
+            {activeAlerts.length > 0 ? `${activeAlerts.length} ACTIVE ALERTS` : "SYSTEM NORMAL"}
           </strong>
           <span>{new Date(data.generatedAt).toLocaleString(locale)}</span>
         </div>
@@ -353,8 +354,8 @@ export function OperationsPanel({ locale }: { locale: Locale }) {
             detail={
               data.live.onlineRegistered === null
                 ? locale === "zh-CN"
-                  ? "等待 Analytics 数据"
-                  : "Waiting for analytics"
+                  ? "实时数据暂不可用"
+                  : "Live data unavailable"
                 : `${locale === "zh-CN" ? "注册" : "Registered"} ${data.live.onlineRegistered} · ${locale === "zh-CN" ? "访客" : "Guests"} ${data.live.onlineGuests ?? 0}`
             }
           />
@@ -539,21 +540,34 @@ export function OperationsPanel({ locale }: { locale: Locale }) {
           ) : null}
           <div className="ops-quota-list">
             {data.cloudflare.quotas.map((item) => (
-              <div key={item.id}>
+              <div key={item.id} className={item.kind === "limit" ? "ops-quota-limit" : undefined}>
                 <span>
                   <strong>{item.label}</strong>
                   <small>
                     {quotaValue(item.used, item.unit, locale)} /{" "}
                     {quotaValue(item.limit, item.unit, locale)}
+                    {item.kind === "limit"
+                      ? locale === "zh-CN"
+                        ? " · 单次请求"
+                        : " · per request"
+                      : null}
                   </small>
                 </span>
-                <div>
-                  <i
-                    className={item.percent >= 0.8 ? "warning" : undefined}
-                    style={{ width: `${Math.min(100, item.percent * 100)}%` }}
-                  />
-                </div>
-                <b>{percent(item.percent)}</b>
+                {item.kind === "limit" ? (
+                  <div className="ops-quota-limit-note">
+                    {locale === "zh-CN" ? "p99 / 单次上限" : "p99 / request limit"}
+                  </div>
+                ) : (
+                  <div>
+                    <i
+                      className={item.percent >= 0.8 ? "warning" : undefined}
+                      style={{ width: `${Math.min(100, item.percent * 100)}%` }}
+                    />
+                  </div>
+                )}
+                <b>
+                  {item.kind === "limit" ? `${item.percent.toFixed(2)}x` : percent(item.percent)}
+                </b>
               </div>
             ))}
           </div>

@@ -72,10 +72,17 @@ async function recordVisitSession(
   const dateKey = getBeijingDateKey(now);
   const inserted = await env.DB.prepare(
     `INSERT OR IGNORE INTO operations_visit_sessions
-       (id, user_id, is_guest, date_key, started_at)
-     VALUES (?, ?, ?, ?, ?)`,
+       (id, user_id, is_guest, date_key, started_at, last_seen_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
   )
-    .bind(sessionId, user.id, user.isGuest ? 1 : 0, dateKey, now)
+    .bind(sessionId, user.id, user.isGuest ? 1 : 0, dateKey, now, now)
+    .run();
+  await env.DB.prepare(
+    `UPDATE operations_visit_sessions
+     SET last_seen_at = ?
+     WHERE id = ? AND COALESCE(last_seen_at, started_at) < ?`,
+  )
+    .bind(now, sessionId, now)
     .run();
   if ((inserted.meta.changes ?? 0) > 0) {
     await incrementDailyMetric(env.DB, dateKey, "visit_sessions", now);

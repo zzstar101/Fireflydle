@@ -1135,8 +1135,8 @@ export default function AdminPage() {
               <small>
                 {presence.data?.registered === null || presence.data?.registered === undefined
                   ? locale === "zh-CN"
-                    ? "等待实时数据"
-                    : "Waiting for analytics"
+                    ? "实时数据暂不可用"
+                    : "Live data unavailable"
                   : `${locale === "zh-CN" ? "注册" : "REG"} ${numberFormat(presence.data.registered, locale)} · ${locale === "zh-CN" ? "访客" : "GUEST"} ${numberFormat(presence.data.guests ?? 0, locale)}`}
               </small>
             </div>
