@@ -26,9 +26,9 @@ function cell(field: GuessField, state: FeedbackState, direction: Direction = "n
 }
 
 export type SnapshotFieldRule =
-  | { field: "element" | "path" | "rarity"; comparison: "exact" }
-  | { field: "faction"; comparison: "faction" }
-  | { field: "version"; comparison: "version" };
+  | { field: string; comparison: "exact" }
+  | { field: string; comparison: "faction" }
+  | { field: string; comparison: "version" };
 
 export const DEFAULT_SNAPSHOT_FIELD_RULES: readonly SnapshotFieldRule[] = [
   { field: "element", comparison: "exact" },
@@ -37,6 +37,27 @@ export const DEFAULT_SNAPSHOT_FIELD_RULES: readonly SnapshotFieldRule[] = [
   { field: "faction", comparison: "faction" },
   { field: "version", comparison: "version" },
 ];
+
+/** 将当前 manifest 的普通角色字段映射为迁移期可用的快照比较规则。 */
+export function snapshotRulesFromFieldDefinitions(
+  fields: readonly { id: string; comparison?: string }[],
+): SnapshotFieldRule[] {
+  return fields.flatMap((field): SnapshotFieldRule[] => {
+    if (field.id === "faction") return [{ field: field.id, comparison: "faction" as const }];
+    if (field.id === "version") return [{ field: field.id, comparison: "version" as const }];
+    if (field.id === "element" || field.id === "path" || field.id === "rarity") {
+      return [{ field: field.id, comparison: "exact" as const }];
+    }
+    return [];
+  });
+}
+
+export function selectSnapshotFieldDefinitions<T extends { id: string; comparison?: string }>(
+  fields: readonly T[],
+): T[] {
+  const ids = new Set(snapshotRulesFromFieldDefinitions(fields).map((rule) => rule.field));
+  return fields.filter((field) => ids.has(field.id));
+}
 
 export function compareCharactersWithRules(
   target: Character,
@@ -60,16 +81,30 @@ export function compareCharactersWithRules(
         distance === 0 ? "none" : target.releaseOrder > guess.releaseOrder ? "higher" : "lower";
       return cell(rule.field, state, direction);
     }
-    const targetValue =
-      rule.field === "element"
-        ? target.element
-        : rule.field === "path"
-          ? target.path
-          : target.rarity;
-    const guessValue =
-      rule.field === "element" ? guess.element : rule.field === "path" ? guess.path : guess.rarity;
+    const targetValue = characterFieldValue(target, rule.field);
+    const guessValue = characterFieldValue(guess, rule.field);
+    if (targetValue === undefined || guessValue === undefined) {
+      return cell(rule.field, "unavailable");
+    }
     return cell(rule.field, targetValue === guessValue ? "exact" : "miss");
   });
+}
+
+function characterFieldValue(character: Character, field: string): unknown {
+  switch (field) {
+    case "element":
+      return character.element;
+    case "path":
+      return character.path;
+    case "rarity":
+      return character.rarity;
+    case "faction":
+      return character.factionId;
+    case "version":
+      return character.releaseVersionId;
+    default:
+      return (character as unknown as Record<string, unknown>)[field];
+  }
 }
 
 export function compareCharacters(target: Character, guess: Character): GuessCell[] {

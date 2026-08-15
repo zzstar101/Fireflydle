@@ -1,10 +1,12 @@
 import {
   CharacterSchema,
   CharacterSummarySchema,
+  FieldDefinitionSchema,
   GuessResultSchema,
   type Character,
   type CreateGameRequest,
   type CurrentGames,
+  type FieldDefinition,
   type GuessResult,
   type PublicGame,
 } from "@fireflydle/contracts";
@@ -12,6 +14,8 @@ import {
   ATTEMPTS_BY_DIFFICULTY,
   createGuessResultWithRules,
   getBeijingDateKey,
+  selectSnapshotFieldDefinitions,
+  snapshotRulesFromFieldDefinitions,
   type SnapshotFieldRule,
 } from "@fireflydle/game-engine";
 import { contentManifest } from "@fireflydle/game-data";
@@ -98,8 +102,40 @@ async function readCurrentGameId(
   return row?.id ?? null;
 }
 
+function fieldDefinitionsForRules(rules: readonly SnapshotFieldRule[]): FieldDefinition[] {
+  const seen = new Set<string>();
+  return rules.flatMap((rule) => {
+    if (seen.has(rule.field)) return [];
+    seen.add(rule.field);
+    const definition = playableMode!.fields.find((field) => field.id === rule.field);
+    return definition ? [definition] : [];
+  });
+}
+
+function readFieldDefinitions(
+  row: GameRow,
+  rules: readonly SnapshotFieldRule[],
+): FieldDefinition[] {
+  const parsed = JSON.parse(row.field_rules_json) as unknown;
+  if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+    const definitions = FieldDefinitionSchema.array().safeParse(
+      (parsed as { definitions?: unknown }).definitions,
+    );
+    if (definitions.success) {
+      const byId = new Map(definitions.data.map((field) => [field.id, field]));
+      const ordered = rules.flatMap((rule) => {
+        const definition = byId.get(rule.field);
+        return definition ? [definition] : [];
+      });
+      if (ordered.length === rules.length) return ordered;
+    }
+  }
+  return fieldDefinitionsForRules(rules);
+}
+
 function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): PublicGame {
   const finished = row.status !== "active";
+  const rules = readFieldRules(row);
   return {
     id: row.id,
     mode: row.mode,
@@ -116,6 +152,7 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
     completedAt: row.completed_at === null ? null : new Date(row.completed_at).toISOString(),
     elapsedMs: Math.max(0, (row.completed_at ?? now) - row.started_at),
     answer: finished ? CharacterSummarySchema.parse(JSON.parse(row.target_payload_json)) : null,
+    fieldDefinitions: readFieldDefinitions(row, rules),
   };
 }
 
@@ -245,17 +282,11 @@ async function selectTarget(
 const playableMode = contentManifest.modes.find((mode) => mode.id === "playable");
 if (!playableMode) throw new Error("普通角色模式未注册");
 
-// 旧五格公开协议保留，但比较语义从当前 manifest 字段声明映射后写入对局。
-const snapshotFieldRules: readonly SnapshotFieldRule[] = (
-  ["element", "path", "rarity", "faction", "version"] as const
-).map((field) => {
-  if (!playableMode.fields.some((definition) => definition.id === field)) {
-    throw new Error(`普通角色 manifest 缺少字段 ${field}`);
-  }
-  if (field === "faction") return { field, comparison: "faction" };
-  if (field === "version") return { field, comparison: "version" };
-  return { field, comparison: "exact" };
-});
+// T07 之前仍保留现有五项快照，但字段顺序由 manifest 声明决定。
+const snapshotFieldRules: readonly SnapshotFieldRule[] = snapshotRulesFromFieldDefinitions(
+  playableMode.fields,
+);
+if (snapshotFieldRules.length === 0) throw new Error("普通角色 manifest 没有可比较字段");
 
 function readCandidateSnapshot(row: GameRow, characterId: string): Character | null {
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
@@ -272,18 +303,22 @@ function hasCandidateSnapshotPool(row: GameRow): boolean {
 
 function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {
   const parsed = JSON.parse(row.field_rules_json) as unknown;
-  if (!Array.isArray(parsed)) return snapshotFieldRules;
-  const rules = parsed.filter((rule): rule is SnapshotFieldRule => {
+  const encodedRules = Array.isArray(parsed)
+    ? parsed
+    : typeof parsed === "object" && parsed !== null
+      ? (parsed as { rules?: unknown }).rules
+      : null;
+  if (!Array.isArray(encodedRules)) return snapshotFieldRules;
+  const rules = encodedRules.filter((rule): rule is SnapshotFieldRule => {
     if (typeof rule !== "object" || rule === null) return false;
     const value = rule as { field?: unknown; comparison?: unknown };
-    return (
-      ((value.field === "element" || value.field === "path" || value.field === "rarity") &&
-        value.comparison === "exact") ||
-      (value.field === "faction" && value.comparison === "faction") ||
-      (value.field === "version" && value.comparison === "version")
-    );
+    const definition = playableMode!.fields.find((field) => field.id === value.field);
+    if (!definition) return false;
+    if (value.comparison === "faction") return value.field === "faction";
+    if (value.comparison === "version") return value.field === "version";
+    return value.comparison === "exact" && definition.comparison === "exact";
   });
-  return rules.length === snapshotFieldRules.length ? rules : snapshotFieldRules;
+  return rules.length > 0 ? rules : snapshotFieldRules;
 }
 
 export async function createGame(
@@ -327,7 +362,10 @@ export async function createGame(
             })(),
         ),
         JSON.stringify(target.candidateSnapshots),
-        JSON.stringify(snapshotFieldRules),
+        JSON.stringify({
+          rules: snapshotFieldRules,
+          definitions: selectSnapshotFieldDefinitions(playableMode!.fields),
+        }),
         ATTEMPTS_BY_DIFFICULTY[normalizedInput.difficulty],
         now,
         now,

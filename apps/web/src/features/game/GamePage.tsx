@@ -25,7 +25,12 @@ import {
   WifiOff,
 } from "lucide-react";
 import type { Difficulty, PersonalStats, PublicGame } from "@fireflydle/contracts";
-import { ATTEMPTS_BY_DIFFICULTY, getBeijingDateKey } from "@fireflydle/game-engine";
+import {
+  ATTEMPTS_BY_DIFFICULTY,
+  getBeijingDateKey,
+  selectSnapshotFieldDefinitions,
+} from "@fireflydle/game-engine";
+import { contentManifest } from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
@@ -53,6 +58,15 @@ function formatTime(milliseconds: number): string {
 function storedDifficulty(mode: "daily" | "random"): Difficulty {
   const value = window.localStorage.getItem(`fireflydle-${mode}-difficulty`);
   return value === "casual" || value === "hard" ? value : "standard";
+}
+
+function playableFieldSummary(locale: "zh-CN" | "en" | "ja"): string {
+  const fields = selectSnapshotFieldDefinitions(
+    contentManifest.modes.find((mode) => mode.id === "playable")?.fields ?? [],
+  )
+    .map((field) => field.label[locale])
+    .join(locale === "ja" ? "・" : ", ");
+  return fields ?? "";
 }
 
 function GamePreparation({
@@ -271,14 +285,19 @@ function GamePreparation({
                   {t("prep.missRule")}
                 </span>
               </li>
+              <li>
+                <i className="key-unavailable">?</i>
+                <span>
+                  <strong>{t("game.unavailable")}</strong>
+                  {locale === "zh-CN"
+                    ? "该字段缺少可比较值"
+                    : locale === "ja"
+                      ? "比較できる値がありません"
+                      : "No comparable value is available"}
+                </span>
+              </li>
             </ul>
-            <small>
-              {locale === "zh-CN"
-                ? "比较字段：属性、命途、稀有度、阵营、实装版本。"
-                : locale === "ja"
-                  ? "比較項目：属性・運命・レア度・陣営・実装版。"
-                  : "Compare element, path, rarity, faction, and release version."}
-            </small>
+            <small>{playableFieldSummary(locale)}</small>
           </div>
         </details>
       </section>
@@ -483,6 +502,19 @@ function ActiveGame({
                   {t("prep.missRule")}
                 </span>
               </li>
+              <li>
+                <i className="key-unavailable">
+                  <span>?</span>
+                </i>
+                <span>
+                  <strong>{t("game.unavailable")}</strong>
+                  {locale === "zh-CN"
+                    ? "该字段缺少可比较值"
+                    : locale === "ja"
+                      ? "比較できる値がありません"
+                      : "No comparable value is available"}
+                </span>
+              </li>
             </ul>
           </div>
         </aside>
@@ -640,7 +672,7 @@ function ActiveGame({
             </section>
           )}
 
-          <GuessBoard guesses={game.guesses} locale={locale} />
+          <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
         </div>
 
         <aside className="game-right-rail">

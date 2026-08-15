@@ -123,6 +123,16 @@ describe("单人模式快照迁移", () => {
       activityId: "practice",
       poolRuleVersion: expect.stringMatching(/^\d+\.\d+(?:\.\d+)?$/),
       manifestVersion: expect.stringMatching(/^\d+\.\d+(?:\.\d+)?$/),
+      fieldDefinitions: [
+        expect.objectContaining({
+          id: "element",
+          label: { "zh-CN": "属性", en: "Element", ja: "属性" },
+        }),
+        expect.objectContaining({ id: "path" }),
+        expect.objectContaining({ id: "rarity" }),
+        expect.objectContaining({ id: "faction" }),
+        expect.objectContaining({ id: "version" }),
+      ],
     });
     expect(resumed).toMatchObject({
       id: created.id,
@@ -149,6 +159,48 @@ describe("单人模式快照迁移", () => {
       activityId: "daily",
       difficulty: "standard",
       answer: null,
+    });
+  });
+
+  it("恢复和回放使用创建时保存的字段标签与顺序", async () => {
+    await seedCharacters();
+    const cookie = await createSession();
+    const created = await dataOf<PublicGame>(
+      await SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+      }),
+    );
+    const stored = await env.DB.prepare("SELECT field_rules_json FROM games WHERE id = ?")
+      .bind(created.id)
+      .first<{ field_rules_json: string }>();
+    if (!stored) throw new Error("缺少对局字段快照");
+    const snapshot = JSON.parse(stored.field_rules_json) as {
+      rules: unknown[];
+      definitions: Array<{ id: string; label: Record<string, string> }>;
+    };
+    snapshot.definitions = snapshot.definitions.map((field) =>
+      field.id === "element"
+        ? { ...field, label: { "zh-CN": "快照属性", en: "Snapshot element", ja: "スナップ属性" } }
+        : field,
+    );
+    await env.DB.prepare("UPDATE games SET field_rules_json = ? WHERE id = ?")
+      .bind(JSON.stringify(snapshot), created.id)
+      .run();
+
+    const restored = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${created.id}`, {
+        headers: { cookie },
+      }),
+    );
+    expect(restored.fieldDefinitions?.map((field) => field.id)).toEqual(
+      created.fieldDefinitions?.map((field) => field.id),
+    );
+    expect(restored.fieldDefinitions?.[0]?.label).toEqual({
+      "zh-CN": "快照属性",
+      en: "Snapshot element",
+      ja: "スナップ属性",
     });
   });
 

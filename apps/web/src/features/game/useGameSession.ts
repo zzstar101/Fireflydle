@@ -10,9 +10,11 @@ import type {
 import { characters, contentManifest } from "@fireflydle/game-data";
 import {
   ATTEMPTS_BY_DIFFICULTY,
-  createGuessResult,
+  createGuessResultWithRules,
   getBeijingDateKey,
   hasDuplicateGuess,
+  selectSnapshotFieldDefinitions,
+  snapshotRulesFromFieldDefinitions,
 } from "@fireflydle/game-engine";
 import { ApiClientError, apiRequest, ensureSession } from "../../api/client";
 import { currentGamesQueryKey } from "./useCurrentGames";
@@ -20,6 +22,10 @@ import { currentGamesQueryKey } from "./useCurrentGames";
 type PlayableMode = Extract<GameMode, "daily" | "random">;
 type SessionSource = "server" | "local" | null;
 const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
+const playableMode = contentManifest.modes.find((item) => item.id === "playable");
+if (!playableMode) throw new Error("普通角色模式未注册");
+const playableFieldDefinitions = playableMode.fields;
+const snapshotFieldRules = snapshotRulesFromFieldDefinitions(playableFieldDefinitions);
 
 interface GameSession {
   game: PublicGame | null;
@@ -109,6 +115,7 @@ function createLocalGame(mode: PlayableMode, difficulty: Difficulty): PublicGame
     completedAt: null,
     elapsedMs: 0,
     answer: null,
+    fieldDefinitions: selectSnapshotFieldDefinitions(playableFieldDefinitions),
   };
 }
 
@@ -256,7 +263,7 @@ export function useGameSession(
         setBusy(false);
         return;
       }
-      const result = createGuessResult(target, guess);
+      const result = createGuessResultWithRules(target, guess, snapshotFieldRules);
       const guesses = [...game.guesses, result];
       const ended = result.isCorrect || guesses.length >= game.maxAttempts;
       const completedAt = ended ? new Date().toISOString() : null;

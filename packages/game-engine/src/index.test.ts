@@ -11,6 +11,7 @@ import {
   pickFromShuffleBag,
   compareFieldValues,
   compareCharactersWithRules,
+  snapshotRulesFromFieldDefinitions,
 } from "./index";
 
 const asset = {
@@ -87,6 +88,35 @@ describe("角色反馈", () => {
     ]);
     expect(cells).toHaveLength(5);
     expect(cells.every((item) => item.field === "path" && item.state === "exact")).toBe(true);
+  });
+
+  test("字段规则可以使用题池自定义顺序并对缺失值返回 unavailable", () => {
+    const target = character({ element: "fire" });
+    const guess = character({ id: "another-character", element: "ice" });
+    const cells = compareCharactersWithRules(target, guess, [
+      { field: "rarity", comparison: "exact" },
+      { field: "custom-field", comparison: "exact" },
+      { field: "element", comparison: "exact" },
+    ]);
+
+    expect(cells.map((cell) => cell.field)).toEqual(["rarity", "custom-field", "element"]);
+    expect(cells[1]).toEqual({ field: "custom-field", state: "unavailable", direction: "none" });
+    expect(cells[2]).toEqual({ field: "element", state: "miss", direction: "none" });
+  });
+
+  test("在线和离线可从题池字段定义得到同一迁移期规则顺序", () => {
+    expect(
+      snapshotRulesFromFieldDefinitions([
+        { id: "path", comparison: "exact" },
+        { id: "region", comparison: "exact" },
+        { id: "version", comparison: "direction" },
+        { id: "faction", comparison: "exact" },
+      ]),
+    ).toEqual([
+      { field: "path", comparison: "exact" },
+      { field: "version", comparison: "version" },
+      { field: "faction", comparison: "faction" },
+    ]);
   });
 });
 

@@ -73,7 +73,8 @@ export const RuleVersionSchema = ManifestVersionSchema;
 export type RuleVersion = z.infer<typeof RuleVersionSchema>;
 
 export const GUESS_FIELDS = ["element", "path", "rarity", "faction", "version"] as const;
-export const GuessFieldSchema = z.enum(GUESS_FIELDS);
+/** 字段 ID 来自当前内容模式；GUESS_FIELDS 仅保留给旧多人协议的兼容常量。 */
+export const GuessFieldSchema = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
 export type GuessField = z.infer<typeof GuessFieldSchema>;
 
 export const LocalizedTextSchema = z.object({
@@ -189,7 +190,7 @@ export type GuessCell = z.infer<typeof GuessCellSchema>;
 
 export const GuessResultSchema = z.object({
   character: CharacterSummarySchema,
-  cells: z.array(GuessCellSchema).length(GUESS_FIELDS.length),
+  cells: z.array(GuessCellSchema).min(1),
   isCorrect: z.boolean(),
   guessedAt: z.string().datetime(),
 });
@@ -215,6 +216,8 @@ export const PublicGameSchema = z.object({
   completedAt: z.string().datetime().nullable(),
   elapsedMs: z.number().int().nonnegative(),
   answer: CharacterSummarySchema.nullable(),
+  /** 创建对局时绑定的字段定义，旧响应缺失时由客户端使用兼容 manifest。 */
+  fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)).optional(),
 });
 export type PublicGame = z.infer<typeof PublicGameSchema>;
 

@@ -1111,6 +1111,10 @@
 .key-miss {
   background: var(--miss);
 }
+.key-unavailable {
+  color: var(--text-muted) !important;
+  border: 1px dashed currentcolor;
+}
 
 .game-main-column {
   min-width: 0;
@@ -1351,6 +1355,11 @@
 }
 .guess-board thead th:first-child {
   width: 175px;
+  min-width: 175px;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--surface);
   text-align: left;
 }
 .guess-board tbody tr {
@@ -1364,10 +1373,12 @@
   display: flex;
   align-items: center;
   min-height: 78px;
+  width: 175px;
+  min-width: 175px;
   padding: 10px;
   gap: 10px;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  background: var(--surface);
   box-shadow: 10px 0 18px rgb(0 0 0 / 7%);
   text-align: left;
 }
@@ -1414,6 +1425,17 @@
 .feedback-cell.state-miss {
   background: color-mix(in srgb, var(--miss) 92%, #171d26);
 }
+.feedback-cell.state-unavailable {
+  color: var(--text);
+  border-style: dashed;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--miss) 48%, var(--surface)),
+    color-mix(in srgb, var(--miss) 48%, var(--surface)) 8px,
+    color-mix(in srgb, var(--surface) 92%, var(--miss)) 8px,
+    color-mix(in srgb, var(--surface) 92%, var(--miss)) 16px
+  );
+}
 .feedback-cell > * {
   position: relative;
   z-index: 1;
@@ -1430,6 +1452,14 @@
   margin-top: 1px;
   color: rgb(255 255 255 / 72%);
   font-size: 0.58rem;
+}
+.feedback-cell .feedback-direction {
+  margin-top: 0;
+  color: rgb(255 255 255 / 86%);
+  font-weight: 700;
+}
+.feedback-cell.state-unavailable small {
+  color: var(--text-muted);
 }
 .feedback-icon {
   display: grid;

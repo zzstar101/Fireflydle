@@ -275,7 +275,7 @@ export default function ReplayPage() {
           <strong>{game.answer?.names[locale] ?? "—"}</strong>
         </div>
       </div>
-      <GuessBoard guesses={game.guesses} locale={locale} />
+      <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
       <section className="replay-actions">
         <p>
           {locale === "zh-CN"
