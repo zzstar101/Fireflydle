@@ -7,7 +7,7 @@ import type {
   GameMode,
   PublicGame,
 } from "@fireflydle/contracts";
-import { characters } from "@fireflydle/game-data";
+import { characters, contentManifest } from "@fireflydle/game-data";
 import {
   ATTEMPTS_BY_DIFFICULTY,
   createGuessResult,
@@ -95,6 +95,11 @@ function createLocalGame(mode: PlayableMode, difficulty: Difficulty): PublicGame
   return {
     id: crypto.randomUUID(),
     mode,
+    modeId: "playable",
+    activityId: mode === "daily" ? "daily" : "practice",
+    poolRuleVersion:
+      contentManifest.modes.find((item) => item.id === "playable")?.rulesVersion ?? "1.0.0",
+    manifestVersion: contentManifest.manifestVersion,
     difficulty,
     dateKey: mode === "daily" ? getBeijingDateKey() : null,
     maxAttempts: ATTEMPTS_BY_DIFFICULTY[difficulty],

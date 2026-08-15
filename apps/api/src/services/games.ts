@@ -1,4 +1,5 @@
 import {
+  CharacterSchema,
   CharacterSummarySchema,
   GuessResultSchema,
   type Character,
@@ -9,10 +10,12 @@ import {
 } from "@fireflydle/contracts";
 import {
   ATTEMPTS_BY_DIFFICULTY,
-  createGuessResult,
+  createGuessResultWithRules,
   getBeijingDateKey,
+  type SnapshotFieldRule,
 } from "@fireflydle/game-engine";
-import { getCharacter, getTargetPool } from "../lib/db";
+import { contentManifest } from "@fireflydle/game-data";
+import { getCharacterSnapshot, getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
 
 interface GameRow {
@@ -22,11 +25,17 @@ interface GameRow {
   difficulty: PublicGame["difficulty"];
   date_key: string | null;
   target_character_id: string;
-  target_payload_json: string;
   max_attempts: number;
   status: PublicGame["status"];
   started_at: number;
   completed_at: number | null;
+  mode_id: PublicGame["modeId"];
+  activity_id: PublicGame["activityId"];
+  pool_rule_version: PublicGame["poolRuleVersion"];
+  manifest_version: PublicGame["manifestVersion"];
+  target_payload_json: string;
+  candidate_pool_json: string;
+  field_rules_json: string;
 }
 
 interface GuessRow {
@@ -48,14 +57,7 @@ function secureRandomIndex(length: number): number {
 }
 
 async function readGameRow(db: D1Database, gameId: string): Promise<GameRow | null> {
-  return db
-    .prepare(
-      `SELECT g.*, c.payload_json AS target_payload_json
-       FROM games g JOIN characters c ON c.id = g.target_character_id
-       WHERE g.id = ?`,
-    )
-    .bind(gameId)
-    .first<GameRow>();
+  return db.prepare(`SELECT * FROM games WHERE id = ?`).bind(gameId).first<GameRow>();
 }
 
 async function readGuessResults(db: D1Database, gameId: string): Promise<GuessResult[]> {
@@ -101,6 +103,10 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
   return {
     id: row.id,
     mode: row.mode,
+    modeId: row.mode_id,
+    activityId: row.activity_id,
+    poolRuleVersion: row.pool_rule_version,
+    manifestVersion: row.manifest_version,
     difficulty: row.difficulty,
     dateKey: row.date_key,
     maxAttempts: row.max_attempts,
@@ -214,12 +220,18 @@ async function selectTarget(
   userId: string,
   input: CreateGameRequest,
   now: number,
-): Promise<{ targetId: string; dateKey: string | null }> {
+): Promise<{
+  targetId: string;
+  dateKey: string | null;
+  candidateSnapshots: Record<string, Character>;
+}> {
   const pool = await getTargetPool(db);
+  const candidatePool = await getEnabledCharacters(db);
+  const candidateSnapshots = Object.fromEntries(candidatePool.map((item) => [item.id, item]));
   if (input.mode === "random") {
     const candidate = pool[secureRandomIndex(pool.length)];
     if (!candidate) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
-    return { targetId: candidate.id, dateKey: null };
+    return { targetId: candidate.id, dateKey: null, candidateSnapshots };
   }
 
   const dateKey = getBeijingDateKey(now);
@@ -227,7 +239,51 @@ async function selectTarget(
   const target =
     pool[await personalizedDailyIndex(pool.length, dateKey, userId, anchorCharacterId)];
   if (!target) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
-  return { targetId: target.id, dateKey };
+  return { targetId: target.id, dateKey, candidateSnapshots };
+}
+
+const playableMode = contentManifest.modes.find((mode) => mode.id === "playable");
+if (!playableMode) throw new Error("普通角色模式未注册");
+
+// 旧五格公开协议保留，但比较语义从当前 manifest 字段声明映射后写入对局。
+const snapshotFieldRules: readonly SnapshotFieldRule[] = (
+  ["element", "path", "rarity", "faction", "version"] as const
+).map((field) => {
+  if (!playableMode.fields.some((definition) => definition.id === field)) {
+    throw new Error(`普通角色 manifest 缺少字段 ${field}`);
+  }
+  if (field === "faction") return { field, comparison: "faction" };
+  if (field === "version") return { field, comparison: "version" };
+  return { field, comparison: "exact" };
+});
+
+function readCandidateSnapshot(row: GameRow, characterId: string): Character | null {
+  const encoded = JSON.parse(row.candidate_pool_json) as unknown;
+  if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
+  const payload = (encoded as Record<string, unknown>)[characterId];
+  const parsed = CharacterSchema.safeParse(payload);
+  return parsed.success ? parsed.data : null;
+}
+
+function hasCandidateSnapshotPool(row: GameRow): boolean {
+  const encoded = JSON.parse(row.candidate_pool_json) as unknown;
+  return typeof encoded === "object" && encoded !== null && !Array.isArray(encoded);
+}
+
+function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {
+  const parsed = JSON.parse(row.field_rules_json) as unknown;
+  if (!Array.isArray(parsed)) return snapshotFieldRules;
+  const rules = parsed.filter((rule): rule is SnapshotFieldRule => {
+    if (typeof rule !== "object" || rule === null) return false;
+    const value = rule as { field?: unknown; comparison?: unknown };
+    return (
+      ((value.field === "element" || value.field === "path" || value.field === "rarity") &&
+        value.comparison === "exact") ||
+      (value.field === "faction" && value.comparison === "faction") ||
+      (value.field === "version" && value.comparison === "version")
+    );
+  });
+  return rules.length === snapshotFieldRules.length ? rules : snapshotFieldRules;
 }
 
 export async function createGame(
@@ -238,8 +294,8 @@ export async function createGame(
 ): Promise<PublicGame> {
   const normalizedInput: CreateGameRequest =
     input.mode === "daily" ? { mode: "daily", difficulty: "standard" } : input;
-  const dateKey = input.mode === "daily" ? getBeijingDateKey(now) : undefined;
-  const currentId = await readCurrentGameId(db, userId, input.mode, dateKey);
+  const dateKey = normalizedInput.mode === "daily" ? getBeijingDateKey(now) : undefined;
+  const currentId = await readCurrentGameId(db, userId, normalizedInput.mode, dateKey);
   if (currentId) return getPublicGame(db, currentId, userId, now);
 
   const target = await selectTarget(db, userId, normalizedInput, now);
@@ -249,24 +305,41 @@ export async function createGame(
     await db
       .prepare(
         `INSERT INTO games
-           (id, user_id, mode, difficulty, date_key, target_character_id, max_attempts,
-            status, started_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+           (id, user_id, mode, mode_id, activity_id, pool_rule_version, manifest_version,
+            difficulty, date_key, target_character_id, target_payload_json,
+            candidate_pool_json, field_rules_json, max_attempts, status, started_at, updated_at)
+         VALUES (?, ?, ?, 'playable', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
       )
       .bind(
         gameId,
         userId,
         normalizedInput.mode,
+        normalizedInput.mode === "daily" ? "daily" : "practice",
+        playableMode!.rulesVersion,
+        contentManifest.manifestVersion,
         normalizedInput.difficulty,
         target.dateKey,
         target.targetId,
+        JSON.stringify(
+          (await getCharacterSnapshot(db, target.targetId)) ??
+            (() => {
+              throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
+            })(),
+        ),
+        JSON.stringify(target.candidateSnapshots),
+        JSON.stringify(snapshotFieldRules),
         ATTEMPTS_BY_DIFFICULTY[normalizedInput.difficulty],
         now,
         now,
       )
       .run();
   } catch (error) {
-    const existingId = await readCurrentGameId(db, userId, input.mode, target.dateKey ?? undefined);
+    const existingId = await readCurrentGameId(
+      db,
+      userId,
+      normalizedInput.mode,
+      target.dateKey ?? undefined,
+    );
     if (existingId) return getPublicGame(db, existingId, userId, now);
     throw error;
   }
@@ -290,10 +363,19 @@ export async function submitGameGuess(
   if (existingGuesses.length >= row.max_attempts) {
     throw new ApiProblem("GAME_ATTEMPTS_EXHAUSTED", 409);
   }
-  const guess = await getCharacter(db, characterId);
+  let guess: Character | null;
+  if (hasCandidateSnapshotPool(row)) {
+    guess = readCandidateSnapshot(row, characterId);
+  } else {
+    const legacyIds = JSON.parse(row.candidate_pool_json) as unknown;
+    if (!Array.isArray(legacyIds) || !legacyIds.includes(characterId)) {
+      throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
+    }
+    guess = await getCharacterSnapshot(db, characterId);
+  }
   if (!guess) throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
   const target = JSON.parse(row.target_payload_json) as Character;
-  const result = createGuessResult(target, guess, new Date(now));
+  const result = createGuessResultWithRules(target, guess, readFieldRules(row), new Date(now));
   const guessId = crypto.randomUUID();
   const correct = result.isCorrect ? 1 : 0;
 

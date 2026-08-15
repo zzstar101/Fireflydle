@@ -25,27 +25,55 @@ function cell(field: GuessField, state: FeedbackState, direction: Direction = "n
   return { field, state, direction };
 }
 
+export type SnapshotFieldRule =
+  | { field: "element" | "path" | "rarity"; comparison: "exact" }
+  | { field: "faction"; comparison: "faction" }
+  | { field: "version"; comparison: "version" };
+
+export const DEFAULT_SNAPSHOT_FIELD_RULES: readonly SnapshotFieldRule[] = [
+  { field: "element", comparison: "exact" },
+  { field: "path", comparison: "exact" },
+  { field: "rarity", comparison: "exact" },
+  { field: "faction", comparison: "faction" },
+  { field: "version", comparison: "version" },
+];
+
+export function compareCharactersWithRules(
+  target: Character,
+  guess: Character,
+  rules: readonly SnapshotFieldRule[],
+): GuessCell[] {
+  return rules.map((rule) => {
+    if (rule.comparison === "faction") {
+      const state: FeedbackState =
+        target.factionId === guess.factionId
+          ? "exact"
+          : target.factionGroupId === guess.factionGroupId
+            ? "close"
+            : "miss";
+      return cell(rule.field, state);
+    }
+    if (rule.comparison === "version") {
+      const distance = Math.abs(target.releaseOrder - guess.releaseOrder);
+      const state: FeedbackState = distance === 0 ? "exact" : distance <= 2 ? "close" : "miss";
+      const direction: Direction =
+        distance === 0 ? "none" : target.releaseOrder > guess.releaseOrder ? "higher" : "lower";
+      return cell(rule.field, state, direction);
+    }
+    const targetValue =
+      rule.field === "element"
+        ? target.element
+        : rule.field === "path"
+          ? target.path
+          : target.rarity;
+    const guessValue =
+      rule.field === "element" ? guess.element : rule.field === "path" ? guess.path : guess.rarity;
+    return cell(rule.field, targetValue === guessValue ? "exact" : "miss");
+  });
+}
+
 export function compareCharacters(target: Character, guess: Character): GuessCell[] {
-  const factionState: FeedbackState =
-    target.factionId === guess.factionId
-      ? "exact"
-      : target.factionGroupId === guess.factionGroupId
-        ? "close"
-        : "miss";
-
-  const versionDistance = Math.abs(target.releaseOrder - guess.releaseOrder);
-  const versionState: FeedbackState =
-    versionDistance === 0 ? "exact" : versionDistance <= 2 ? "close" : "miss";
-  const versionDirection: Direction =
-    versionDistance === 0 ? "none" : target.releaseOrder > guess.releaseOrder ? "higher" : "lower";
-
-  return [
-    cell("element", target.element === guess.element ? "exact" : "miss"),
-    cell("path", target.path === guess.path ? "exact" : "miss"),
-    cell("rarity", target.rarity === guess.rarity ? "exact" : "miss"),
-    cell("faction", factionState),
-    cell("version", versionState, versionDirection),
-  ];
+  return compareCharactersWithRules(target, guess, DEFAULT_SNAPSHOT_FIELD_RULES);
 }
 
 export function createGuessResult(
@@ -56,6 +84,20 @@ export function createGuessResult(
   return {
     character: CharacterSummarySchema.parse(guess),
     cells: compareCharacters(target, guess),
+    isCorrect: target.id === guess.id,
+    guessedAt: guessedAt.toISOString(),
+  };
+}
+
+export function createGuessResultWithRules(
+  target: Character,
+  guess: Character,
+  rules: readonly SnapshotFieldRule[],
+  guessedAt = new Date(),
+): GuessResult {
+  return {
+    character: CharacterSummarySchema.parse(guess),
+    cells: compareCharactersWithRules(target, guess, rules),
     isCorrect: target.id === guess.id,
     guessedAt: guessedAt.toISOString(),
   };

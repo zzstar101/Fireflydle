@@ -198,6 +198,11 @@ export type GuessResult = z.infer<typeof GuessResultSchema>;
 export const PublicGameSchema = z.object({
   id: z.string().uuid(),
   mode: GameModeSchema,
+  /** 统一内容模式/活动契约元数据，旧 mode 保留兼容现有客户端。 */
+  modeId: ContentModeIdSchema,
+  activityId: ActivityIdSchema,
+  poolRuleVersion: RuleVersionSchema,
+  manifestVersion: ManifestVersionSchema,
   difficulty: DifficultySchema,
   dateKey: z
     .string()

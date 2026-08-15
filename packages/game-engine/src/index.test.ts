@@ -10,6 +10,7 @@ import {
   hasDuplicateGuess,
   pickFromShuffleBag,
   compareFieldValues,
+  compareCharactersWithRules,
 } from "./index";
 
 const asset = {
@@ -72,6 +73,20 @@ describe("角色反馈", () => {
     const result = createGuessResult(target, guess);
     expect(result.cells.every((item) => item.state === "exact")).toBe(true);
     expect(result.isCorrect).toBe(false);
+  });
+
+  test("字段规则快照实际决定输出字段", () => {
+    const target = character({ element: "fire", path: "harmony" });
+    const guess = character({ id: "another-character", element: "ice", path: "harmony" });
+    const cells = compareCharactersWithRules(target, guess, [
+      { field: "path", comparison: "exact" },
+      { field: "path", comparison: "exact" },
+      { field: "path", comparison: "exact" },
+      { field: "path", comparison: "exact" },
+      { field: "path", comparison: "exact" },
+    ]);
+    expect(cells).toHaveLength(5);
+    expect(cells.every((item) => item.field === "path" && item.state === "exact")).toBe(true);
   });
 });
 
