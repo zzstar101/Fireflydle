@@ -29,8 +29,11 @@ import { GuessBoard } from "../game/GuessBoard";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
+import { getDefaultMode, getDefaultModeNavigation } from "../modes/mode-registry";
 import "../game/game.css";
 import "./multiplayer.css";
+
+const duelLobbyPath = getDefaultModeNavigation("duel")?.path ?? getDefaultMode().path;
 
 function formatSeconds(milliseconds: number) {
   return Math.max(0, Math.ceil(milliseconds / 1000))
@@ -215,7 +218,7 @@ export default function RoomPage() {
         // WebSocket leave 与 HTTP leave 任一成功即可完成可靠退出。
       }
     }
-    navigate("/duel", { replace: true });
+    navigate(duelLobbyPath, { replace: true });
   };
 
   const copyRoomCode = async () => {
@@ -573,7 +576,9 @@ export default function RoomPage() {
                 <button
                   className="ticket-button"
                   type="button"
-                  onClick={() => void acknowledgeMatchTicket().finally(() => navigate("/duel"))}
+                  onClick={() =>
+                    void acknowledgeMatchTicket().finally(() => navigate(duelLobbyPath))
+                  }
                 >
                   {tr("返回对战大厅", "対戦ロビーへ戻る", "Back to lobby")}
                 </button>

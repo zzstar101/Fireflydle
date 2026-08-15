@@ -7,9 +7,14 @@ import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { apiRequest } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { useCurrentGames } from "../game/useCurrentGames";
+import { getDefaultModeNavigation } from "../modes/mode-registry";
 import "./hub.css";
 
 type HubMode = "daily" | "random" | "duel";
+
+const dailyActivity = getDefaultModeNavigation("daily");
+const practiceActivity = getDefaultModeNavigation("practice");
+const duelActivity = getDefaultModeNavigation("duel");
 
 function formatTime(milliseconds: number): string {
   const total = Math.max(0, Math.floor(milliseconds / 1000));
@@ -150,54 +155,60 @@ export default function HubPage() {
       </section>
 
       <section className="mode-board-grid" aria-label={t("hub.modesLabel")}>
-        <ModeBoard
-          mode="daily"
-          to={daily ? `/daily?game=${daily.id}` : "/daily"}
-          icon={<CalendarDays size={30} />}
-          status={dailyStatus}
-          title={t("game.daily")}
-          description={t("hub.dailyDescription")}
-          metricLabel={daily ? t("hub.currentRecord") : t("home.streak")}
-          metricValue={dailyMetric}
-          action={
-            daily?.status === "active"
-              ? t("hub.continueGame")
-              : daily
-                ? t("hub.viewResult")
-                : t("hub.startDaily")
-          }
-          active={daily?.status === "active"}
-        />
-        <ModeBoard
-          mode="random"
-          to={random ? `/random?game=${random.id}` : "/random"}
-          icon={<Shuffle size={30} />}
-          status={randomStatus}
-          title={t("game.random")}
-          description={t("hub.randomDescription")}
-          metricLabel={random ? t("game.elapsed") : t("hub.completedRuns")}
-          metricValue={randomMetric}
-          action={random ? t("hub.continueGame") : t("hub.startRandom")}
-          active={Boolean(random)}
-        />
-        <ModeBoard
-          mode="duel"
-          to="/duel"
-          icon={<Swords size={30} />}
-          status={
-            serviceChecking
-              ? t("hub.statusSyncing")
-              : serviceOnline
-                ? t("hub.statusReady")
-                : t("hub.statusUnavailable")
-          }
-          title={t("nav.duel")}
-          description={t("hub.duelDescription")}
-          metricLabel="ELO"
-          metricValue={String(session.data?.user.elo ?? 1000)}
-          action={serviceOnline ? t("hub.enterDuel") : t("hub.duelUnavailable")}
-          disabled={!serviceChecking && !serviceOnline}
-        />
+        {dailyActivity ? (
+          <ModeBoard
+            mode="daily"
+            to={daily ? `${dailyActivity.path}?game=${daily.id}` : dailyActivity.path}
+            icon={<CalendarDays size={30} />}
+            status={dailyStatus}
+            title={t("game.daily")}
+            description={t("hub.dailyDescription")}
+            metricLabel={daily ? t("hub.currentRecord") : t("home.streak")}
+            metricValue={dailyMetric}
+            action={
+              daily?.status === "active"
+                ? t("hub.continueGame")
+                : daily
+                  ? t("hub.viewResult")
+                  : t("hub.startDaily")
+            }
+            active={daily?.status === "active"}
+          />
+        ) : null}
+        {practiceActivity ? (
+          <ModeBoard
+            mode="random"
+            to={random ? `${practiceActivity.path}?game=${random.id}` : practiceActivity.path}
+            icon={<Shuffle size={30} />}
+            status={randomStatus}
+            title={t("game.random")}
+            description={t("hub.randomDescription")}
+            metricLabel={random ? t("game.elapsed") : t("hub.completedRuns")}
+            metricValue={randomMetric}
+            action={random ? t("hub.continueGame") : t("hub.startRandom")}
+            active={Boolean(random)}
+          />
+        ) : null}
+        {duelActivity ? (
+          <ModeBoard
+            mode="duel"
+            to={duelActivity.path}
+            icon={<Swords size={30} />}
+            status={
+              serviceChecking
+                ? t("hub.statusSyncing")
+                : serviceOnline
+                  ? t("hub.statusReady")
+                  : t("hub.statusUnavailable")
+            }
+            title={t("nav.duel")}
+            description={t("hub.duelDescription")}
+            metricLabel="ELO"
+            metricValue={String(session.data?.user.elo ?? 1000)}
+            action={serviceOnline ? t("hub.enterDuel") : t("hub.duelUnavailable")}
+            disabled={!serviceChecking && !serviceOnline}
+          />
+        ) : null}
       </section>
 
       <section className="station-status" aria-label={t("hub.stationStatus")}>

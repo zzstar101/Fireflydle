@@ -1,0 +1,117 @@
+.mode-shell-navigation {
+  width: 100%;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--canvas) 92%, var(--surface-soft));
+}
+
+.mode-shell-navigation-inner {
+  display: flex;
+  align-items: stretch;
+  width: min(calc(100% - 40px), var(--content));
+  min-height: 58px;
+  margin: 0 auto;
+}
+
+.mode-switcher,
+.activity-switcher {
+  display: flex;
+  align-items: stretch;
+}
+
+.mode-switcher {
+  flex: 0 0 auto;
+  padding-right: 22px;
+  border-right: 1px solid var(--border);
+}
+
+.activity-switcher {
+  min-width: 0;
+  padding-left: 22px;
+  gap: 4px;
+}
+
+.mode-switcher a,
+.activity-switcher a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 58px;
+  padding: 0 14px;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.mode-switcher a::after,
+.activity-switcher a::after {
+  position: absolute;
+  right: 14px;
+  bottom: -1px;
+  left: 14px;
+  height: 2px;
+  content: "";
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 160ms ease;
+}
+
+.mode-switcher a:hover,
+.activity-switcher a:hover,
+.mode-switcher a[aria-current="page"],
+.activity-switcher a[aria-current="page"] {
+  color: var(--text);
+}
+
+.mode-switcher a[aria-current="page"]::after,
+.activity-switcher a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.mode-switcher a:focus-visible,
+.activity-switcher a:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: -3px;
+}
+
+.mode-switcher svg {
+  color: var(--gold);
+}
+
+.activity-switcher svg {
+  color: var(--cyan);
+}
+
+@media (max-width: 680px) {
+  .mode-shell-navigation-inner {
+    display: block;
+    width: 100%;
+  }
+
+  .mode-switcher,
+  .activity-switcher {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .mode-switcher {
+    min-height: 48px;
+    padding: 0 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .activity-switcher {
+    min-height: 52px;
+    padding: 0 12px;
+  }
+
+  .mode-switcher a {
+    min-height: 48px;
+  }
+
+  .activity-switcher a {
+    min-height: 52px;
+  }
+}

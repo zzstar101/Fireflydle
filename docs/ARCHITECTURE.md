@@ -31,7 +31,7 @@ flowchart LR
 
 `apps/web` 是 React、Vite 与 React Router 构建的单页应用。Vite 输出 `apps/web/dist`，构建时通过 `VITE_API_URL=https://api.fireflydle.games` 固定生产 API 地址。构建插件复制 `index.html` 为 `404.html`，让 GitHub Pages 上的客户端路由可刷新。
 
-`/` 是总站大厅，平级展示每日、随机和对战线路；`/daily` 与 `/random` 先进入准备页。准备页通过只读的 `GET /api/games/current` 恢复状态，只有用户明确点击开始后才调用 `POST /api/games`。服务不可用时，单人模式可以进入不保存、不计入统计和排行的离线练习；排位对战始终要求注册账号。
+`/` 默认进入普通角色模式 `/playable`，模式外壳只从当前版本内容 manifest 注册可用活动；`/playable/daily`、`/playable/practice` 与 `/playable/duel` 分别承接现有每日、随机练习和对战流程，旧 `/daily`、`/random`、`/duel` 路径保留兼容重定向。每日与练习先进入准备页，通过只读的 `GET /api/games/current` 恢复状态，只有用户明确点击开始后才调用 `POST /api/games`。服务不可用时，单人模式可以进入不保存、不计入统计和排行的离线练习；排位对战始终要求注册账号。
 
 角色图片随 Pages 构建产物发布，不从运行时第三方 CDN 直接读取。浏览器因此看到的角色清单、图片 manifest 与本次发布相互匹配。
 

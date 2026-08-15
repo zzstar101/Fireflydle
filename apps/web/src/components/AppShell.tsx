@@ -1,30 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  BarChart3,
-  Home,
-  Languages,
-  Menu,
-  MoonStar,
-  Shuffle,
-  Sparkles,
-  Sun,
-  Swords,
-  UserRound,
-  X,
-} from "lucide-react";
+import { BarChart3, Home, Languages, Menu, MoonStar, Sun, UserRound, X } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import type { Locale } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
 import { useSession } from "../features/account/useSession";
 import { BrandMark } from "./BrandMark";
 import { AnnouncementCenter } from "./AnnouncementCenter";
+import { getDefaultMode } from "../features/modes/mode-registry";
 
 const mainNavigation = [
-  { to: "/", key: "nav.hub", icon: Home, end: true },
-  { to: "/daily", key: "nav.daily", icon: Sparkles, end: false },
-  { to: "/random", key: "nav.random", icon: Shuffle, end: false },
-  { to: "/duel", key: "nav.duel", icon: Swords, end: false },
+  { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
   { to: "/leaderboard", key: "nav.leaderboard", icon: BarChart3, end: false },
 ] as const;
 

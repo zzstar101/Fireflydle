@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import {
   MatchmakingResultSchema,
+  type ActivityId,
   type MatchFormat,
   type MatchmakingResult,
   type RoomApiResponse,
@@ -24,7 +25,7 @@ import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
 import "./multiplayer.css";
 
-export default function DuelPage() {
+export default function DuelPage({ activityIds }: { activityIds: readonly ActivityId[] }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const session = useSession();
@@ -37,6 +38,8 @@ export default function DuelPage() {
   const [accountRequired, setAccountRequired] = useState(false);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
+  const rankedMatchEnabled = activityIds.includes("ranked-match");
+  const privateRoomEnabled = activityIds.includes("private-room");
 
   const openMatchedRoom = (result: Extract<MatchmakingResult, { status: "matched" }>) => {
     navigate(`/room/${result.roomId}`, {
@@ -45,6 +48,9 @@ export default function DuelPage() {
   };
 
   const action = async (kind: "match" | "create" | "join") => {
+    if ((kind === "match" && !rankedMatchEnabled) || (kind !== "match" && !privateRoomEnabled)) {
+      return;
+    }
     if (kind === "match" && session.data?.user.isGuest) {
       setAccountRequired(true);
       setError(null);
@@ -244,7 +250,10 @@ export default function DuelPage() {
         }
       />
 
-      <section className="duel-stage" inert={matchTicket ? true : undefined}>
+      <section
+        className={`duel-stage${rankedMatchEnabled ? " has-ranked" : ""}`}
+        inert={matchTicket ? true : undefined}
+      >
         <div className="duel-signal" aria-hidden="true">
           <span>{locale === "zh-CN" ? "你" : locale === "ja" ? "あなた" : "YOU"}</span>
           <i />
@@ -252,94 +261,100 @@ export default function DuelPage() {
           <i />
           <span>{locale === "zh-CN" ? "对手" : locale === "ja" ? "相手" : "RIVAL"}</span>
         </div>
-        <article className="match-card primary-match-card">
-          <div className="match-card-number">01 / RANKED</div>
-          <Swords size={34} aria-hidden="true" />
-          <h2>{t("duel.matchmaking")}</h2>
-          <p>{t("duel.ranked")}</p>
-          <div className="elo-band">
-            <span>ELO</span>
-            <strong>{session.data?.user.elo ?? 1000}</strong>
-            <small>±100 → ±600</small>
-          </div>
-          <button
-            className="ticket-button"
-            type="button"
-            disabled={busy !== null || Boolean(matchTicket) || session.isPending}
-            onClick={() => void action("match")}
-          >
-            {busy === "match" ? <span className="button-spinner" /> : <Radio size={17} />}{" "}
-            {t("duel.matchmaking")} <ArrowRight size={16} />
-          </button>
-        </article>
+        {rankedMatchEnabled ? (
+          <article className="match-card primary-match-card">
+            <div className="match-card-number">01 / RANKED</div>
+            <Swords size={34} aria-hidden="true" />
+            <h2>{t("duel.matchmaking")}</h2>
+            <p>{t("duel.ranked")}</p>
+            <div className="elo-band">
+              <span>ELO</span>
+              <strong>{session.data?.user.elo ?? 1000}</strong>
+              <small>±100 → ±600</small>
+            </div>
+            <button
+              className="ticket-button"
+              type="button"
+              disabled={busy !== null || Boolean(matchTicket) || session.isPending}
+              onClick={() => void action("match")}
+            >
+              {busy === "match" ? <span className="button-spinner" /> : <Radio size={17} />}{" "}
+              {t("duel.matchmaking")} <ArrowRight size={16} />
+            </button>
+          </article>
+        ) : null}
 
-        <article className="match-card">
-          <div className="match-card-number">02 / PRIVATE</div>
-          <DoorOpen size={32} aria-hidden="true" />
-          <h2>{t("duel.create")}</h2>
-          <p>{t("duel.unranked")}</p>
-          <div className="format-picker" role="radiogroup" aria-label={t("duel.format")}>
-            {formats.map((value) => (
-              <button
-                key={value}
-                data-format={value}
-                type="button"
-                role="radio"
-                aria-checked={format === value}
-                tabIndex={format === value ? 0 : -1}
+        {privateRoomEnabled ? (
+          <article className="match-card">
+            <div className="match-card-number">{rankedMatchEnabled ? "02" : "01"} / PRIVATE</div>
+            <DoorOpen size={32} aria-hidden="true" />
+            <h2>{t("duel.create")}</h2>
+            <p>{t("duel.unranked")}</p>
+            <div className="format-picker" role="radiogroup" aria-label={t("duel.format")}>
+              {formats.map((value) => (
+                <button
+                  key={value}
+                  data-format={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={format === value}
+                  tabIndex={format === value ? 0 : -1}
+                  disabled={Boolean(matchTicket)}
+                  className={format === value ? "active" : undefined}
+                  onClick={() => setFormat(value)}
+                  onKeyDown={(event) => moveFormatFocus(event, value)}
+                >
+                  BO{value}
+                </button>
+              ))}
+            </div>
+            <button
+              className="ticket-button-secondary"
+              type="button"
+              disabled={busy !== null || Boolean(matchTicket)}
+              onClick={() => void action("create")}
+            >
+              {busy === "create" ? <span className="button-spinner" /> : <UsersRound size={17} />}{" "}
+              {t("duel.create")}
+            </button>
+          </article>
+        ) : null}
+
+        {privateRoomEnabled ? (
+          <article className="match-card">
+            <div className="match-card-number">{rankedMatchEnabled ? "03" : "02"} / INVITE</div>
+            <Hash size={32} aria-hidden="true" />
+            <h2>{t("duel.join")}</h2>
+            <p>
+              {locale === "zh-CN"
+                ? "输入好友分享的 5 位房间码。"
+                : locale === "ja"
+                  ? "友達から共有された5桁のコードを入力。"
+                  : "Enter the 5-character code shared by a friend."}
+            </p>
+            <label className="room-code-input">
+              <span className="sr-only">{t("duel.roomCode")}</span>
+              <input
+                value={roomCode}
+                maxLength={5}
+                placeholder="A7K9P"
                 disabled={Boolean(matchTicket)}
-                className={format === value ? "active" : undefined}
-                onClick={() => setFormat(value)}
-                onKeyDown={(event) => moveFormatFocus(event, value)}
-              >
-                BO{value}
-              </button>
-            ))}
-          </div>
-          <button
-            className="ticket-button-secondary"
-            type="button"
-            disabled={busy !== null || Boolean(matchTicket)}
-            onClick={() => void action("create")}
-          >
-            {busy === "create" ? <span className="button-spinner" /> : <UsersRound size={17} />}{" "}
-            {t("duel.create")}
-          </button>
-        </article>
-
-        <article className="match-card">
-          <div className="match-card-number">03 / INVITE</div>
-          <Hash size={32} aria-hidden="true" />
-          <h2>{t("duel.join")}</h2>
-          <p>
-            {locale === "zh-CN"
-              ? "输入好友分享的 5 位房间码。"
-              : locale === "ja"
-                ? "友達から共有された5桁のコードを入力。"
-                : "Enter the 5-character code shared by a friend."}
-          </p>
-          <label className="room-code-input">
-            <span className="sr-only">{t("duel.roomCode")}</span>
-            <input
-              value={roomCode}
-              maxLength={5}
-              placeholder="A7K9P"
-              disabled={Boolean(matchTicket)}
-              onChange={(event) =>
-                setRoomCode(event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, ""))
-              }
-            />
-          </label>
-          <button
-            className="ticket-button-secondary"
-            type="button"
-            disabled={busy !== null || Boolean(matchTicket) || roomCode.length !== 5}
-            onClick={() => void action("join")}
-          >
-            {busy === "join" ? <span className="button-spinner" /> : <DoorOpen size={17} />}{" "}
-            {t("duel.join")}
-          </button>
-        </article>
+                onChange={(event) =>
+                  setRoomCode(event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, ""))
+                }
+              />
+            </label>
+            <button
+              className="ticket-button-secondary"
+              type="button"
+              disabled={busy !== null || Boolean(matchTicket) || roomCode.length !== 5}
+              onClick={() => void action("join")}
+            >
+              {busy === "join" ? <span className="button-spinner" /> : <DoorOpen size={17} />}{" "}
+              {t("duel.join")}
+            </button>
+          </article>
+        ) : null}
       </section>
 
       {matchTicket && (

@@ -6,12 +6,17 @@ import { useLocation } from "react-router-dom";
 import type { Announcement, AnnouncementCategory, Locale } from "@fireflydle/contracts";
 import { apiRequest } from "../api/client";
 import { useSession } from "../features/account/useSession";
+import { getDefaultModeNavigation } from "../features/modes/mode-registry";
 import { usePreferences } from "../state/preferences";
 import { MarkdownContent } from "./MarkdownContent";
 
+const quietActivityPaths = (["daily", "practice"] as const).flatMap((navigationId) => {
+  const activity = getDefaultModeNavigation(navigationId);
+  return activity ? [activity.path, activity.legacyPath] : [];
+});
+
 const quietPaths = [
-  "/daily",
-  "/random",
+  ...quietActivityPaths,
   "/room/",
   "/account",
   "/recover",

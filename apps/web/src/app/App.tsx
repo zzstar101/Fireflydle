@@ -1,8 +1,11 @@
 import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AppShell } from "../components/AppShell";
 import { LoadingScreen } from "../components/LoadingScreen";
+import { ModeShell } from "../features/modes/ModeShell";
+import { getDefaultMode, type ModeNavigationItem } from "../features/modes/mode-registry";
+import { getLegacyActivityRedirect } from "../features/modes/mode-routing";
 import { usePreferences } from "../state/preferences";
 
 const GamePage = lazy(() => import("../features/game/GamePage"));
@@ -53,6 +56,32 @@ function RouteScrollReset() {
   return null;
 }
 
+const defaultMode = getDefaultMode();
+
+function DefaultModeRedirect() {
+  return <Navigate to={defaultMode.path} replace />;
+}
+
+function LegacyActivityRedirect() {
+  const { pathname, search } = useLocation();
+  return <Navigate to={getLegacyActivityRedirect(pathname, search) ?? defaultMode.path} replace />;
+}
+
+function DefaultModeLayout() {
+  const locale = usePreferences((state) => state.language);
+  return (
+    <ModeShell mode={defaultMode} locale={locale}>
+      <Outlet />
+    </ModeShell>
+  );
+}
+
+function activityPage(activity: ModeNavigationItem) {
+  if (activity.id === "daily") return <GamePage key="daily" mode="daily" />;
+  if (activity.id === "practice") return <GamePage key="random" mode="random" />;
+  return <DuelPage activityIds={activity.activityIds} />;
+}
+
 export function App() {
   return (
     <BrowserRouter>
@@ -61,10 +90,20 @@ export function App() {
       <AppShell>
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
-            <Route path="/" element={<HubPage />} />
-            <Route path="/daily" element={<GamePage key="daily" mode="daily" />} />
-            <Route path="/random" element={<GamePage key="random" mode="random" />} />
-            <Route path="/duel" element={<DuelPage />} />
+            <Route path="/" element={<DefaultModeRedirect />} />
+            <Route path={defaultMode.path} element={<DefaultModeLayout />}>
+              <Route index element={<HubPage />} />
+              {defaultMode.navigation.map((activity) => (
+                <Route key={activity.id} path={activity.segment} element={activityPage(activity)} />
+              ))}
+            </Route>
+            {defaultMode.navigation.map((activity) => (
+              <Route
+                key={activity.legacyPath}
+                path={activity.legacyPath}
+                element={<LegacyActivityRedirect />}
+              />
+            ))}
             <Route path="/room/:roomId" element={<RoomPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/stats" element={<StatsPage />} />
