@@ -3,7 +3,7 @@
 快照日期：**2026-08-16**。对应 [T10 / Issue #11](https://github.com/zzstar101/Fireflydle/issues/11) 与[父规格 #1](https://github.com/zzstar101/Fireflydle/issues/1)。
 
 机器可读快照位于
-[`packages/game-data/src/data/npc-census.json`](../packages/game-data/src/data/npc-census.json)，生成与校验入口分别为 `bun run sync:npc-census` 和 `bun run validate:npc-census`。本工作只提供 census、建议和审核依据，**不实现 NPC 运行时、不创建正式题池 manifest，也不表示 v1.0 NPC 白名单已经最终批准**。
+[`packages/game-data/src/data/npc-census.json`](../packages/game-data/src/data/npc-census.json)，生成与校验入口分别为 `bun run sync:npc-census` 和 `bun run validate:npc-census`。正式题池与验收工件见 [`NPC_MANIFEST.md`](./NPC_MANIFEST.md)，其校验入口为 `bun run validate:npc-manifest`。
 
 ## 结论
 
@@ -18,7 +18,7 @@
 | pending        |  431 | 仍有身份、字段、素材或来源争议，不属于可搜索候选池           |
 | excluded       |    2 | 已确认是可玩角色重复项或同人格重复项                         |
 
-规模由实际证据决定，不设置最低凑池数量。3 个 target 是可继续进入可玩验收的**建议起点**；本次没有批准 candidate-only。target 建议不是自动发布授权，父规格要求的正式白名单仍需在后续 manifest/运行时工作中整体批准和验收。
+规模由实际证据决定，不设置最低凑池数量。3 个 target 是本次正式题池的实际规模；本次没有批准 candidate-only。数据 gate 已由 manifest 校验通过，但正式 v1.0 仍需完成运行时/搜索隔离/4 猜和真实浏览器可玩验收。
 
 ## 数据来源与可追溯性
 

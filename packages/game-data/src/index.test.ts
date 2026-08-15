@@ -6,6 +6,7 @@ import {
   contentManifest,
   factions,
   getSearchText,
+  npcManifest,
   versions,
 } from "./index.ts";
 
@@ -32,6 +33,33 @@ describe("角色输入搜索", () => {
       expect(character.aliases["zh-CN"].some((alias) => asciiAlias.test(alias))).toBeTrue();
       expect(character.aliases.ja.some((alias) => asciiAlias.test(alias))).toBeTrue();
     }
+  });
+});
+
+describe("NPC 正式题池", () => {
+  test("只发布审核通过的三名正式 target", () => {
+    const mode = npcManifest.modes.find((entry) => entry.id === "npc");
+    const pool = npcManifest.pools.find((entry) => entry.id === mode?.targetPoolId);
+
+    expect(mode?.maxAttempts).toBe(4);
+    expect(mode?.fields.map((field) => field.id)).toEqual(["region", "faction", "debut-version"]);
+    expect(pool?.targetIds).toEqual(["npc-pom-pom", "npc-siobhan", "npc-skott"]);
+    expect(
+      npcManifest.entities.every(
+        (entity) => entity.kind === "npc" && entity.reviewStatus === "approved",
+      ),
+    ).toBeTrue();
+  });
+
+  test("候选池没有把非 target 或其它模式实体带入 NPC", () => {
+    const pool = npcManifest.pools.find((entry) => entry.id === "npc-candidates");
+
+    expect(pool?.candidateIds).toEqual(["npc-pom-pom", "npc-siobhan", "npc-skott"]);
+    expect(
+      pool?.candidateIds.every(
+        (id) => npcManifest.entities.find((entity) => entity.id === id)?.kind === "npc",
+      ),
+    ).toBeTrue();
   });
 });
 

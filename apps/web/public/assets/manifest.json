@@ -6754,6 +6754,39 @@
       "sha256": "8a2e54b49880d5678bd699e4602a4a4e462babbbb957c74bf77e585febc3cf95",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124839/d759b33d72c0bec02a1293d3155d820f_8871451623128806042.png"
+    },
+    {
+      "bytes": 43559,
+      "format": "png",
+      "mimeType": "image/png",
+      "path": "/assets/npcs/pom-pom-avatar-cfbd7189940e.png",
+      "roles": ["npc", "portrait", "fallback"],
+      "sha256": "cfbd7189940e664415d79e4a856b1027f066257e74502d5dd333cfeb50d993ff",
+      "sourceKind": "official-hoyowiki",
+      "sourceUrl": "https://upload-static.hoyoverse.com/hoyolab-wiki/2023/05/07/84496276/afb6ea39dd4a9ef3e034f5426debb592_6380372957216716981.png",
+      "sourceUpdatedAt": "2026-08-16T08:00:00.000Z"
+    },
+    {
+      "bytes": 23390,
+      "format": "png",
+      "mimeType": "image/png",
+      "path": "/assets/npcs/siobhan-avatar-b2bf4ce51d43.png",
+      "roles": ["npc", "portrait", "fallback"],
+      "sha256": "b2bf4ce51d431819500bdf54b4ef1f7e0bb2376044ff50d64e71e95dcd7826fc",
+      "sourceKind": "official-hoyowiki",
+      "sourceUrl": "https://act-upload.hoyoverse.com/event-ugc-hoyowiki/2024/05/05/255555375/d41a10aa230b62e5ea50ef29e20f4871_6801633911007188858.png",
+      "sourceUpdatedAt": "2026-08-16T08:00:00.000Z"
+    },
+    {
+      "bytes": 187146,
+      "format": "png",
+      "mimeType": "image/png",
+      "path": "/assets/npcs/skott-avatar-c067d5bb9ded.png",
+      "roles": ["npc", "portrait", "fallback"],
+      "sha256": "c067d5bb9ded0addc9337c86bdf91787b82adbe4a5347f7e92c0c1384206b5cf",
+      "sourceKind": "official-hoyowiki",
+      "sourceUrl": "https://act-upload.hoyoverse.com/event-ugc-hoyowiki/2025/04/02/130460543/c71d269489f82ca6328147dc5e7528db_3234009202597711329.png",
+      "sourceUpdatedAt": "2026-08-16T08:00:00.000Z"
     }
   ]
 }

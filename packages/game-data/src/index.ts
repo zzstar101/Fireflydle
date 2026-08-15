@@ -16,6 +16,7 @@ import contentManifestData from "./generated/content-manifest.json";
 import factionData from "./generated/factions.json";
 import versionData from "./generated/versions.json";
 import { buildPlayableManifest } from "./content-manifest";
+import npcManifestData from "./data/npc-manifest.json";
 
 /**
  * 发布数据由 scripts/sync-characters.ts 从已审核来源生成。
@@ -53,6 +54,8 @@ export const characters: readonly Character[] = Object.freeze(
 );
 
 export { buildPlayableManifest } from "./content-manifest";
+/** NPC 正式题池只读发布快照；正式目标和候选成员由发布 seam 另行核对来源证据。 */
+export const npcManifest = Object.freeze(ContentManifestSchema.parse(npcManifestData));
 
 export const elementLabels: Record<Element, LocalizedText> = {
   physical: { "zh-CN": "物理", en: "Physical", ja: "物理" },
