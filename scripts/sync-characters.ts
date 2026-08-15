@@ -18,6 +18,7 @@ import {
   type Version,
 } from "../packages/contracts/src/index.ts";
 import overridesJson from "../packages/game-data/src/data/sync-overrides.json";
+import { generateResponsiveVariants, type ResponsiveVariantResult } from "./responsive-assets.ts";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, "..");
@@ -176,6 +177,7 @@ interface AssetResult {
   sha256: string;
   sourceKind: CharacterDraft["assetSourceKind"];
   sourceUrl: string;
+  responsiveVariants: ResponsiveVariantResult[];
 }
 
 interface CachedJson<T> {
@@ -1291,6 +1293,7 @@ async function downloadAsset(options: CliOptions, draft: CharacterDraft): Promis
 
   const digest = sha256(downloaded.bytes);
   const { extension } = imageExtension(downloaded.mimeType, draft.assetSourceUrl);
+  const responsiveVariants = await generateResponsiveVariants(downloaded.bytes);
   return {
     bytes: downloaded.bytes,
     characterId: draft.id,
@@ -1300,6 +1303,7 @@ async function downloadAsset(options: CliOptions, draft: CharacterDraft): Promis
     sha256: digest,
     sourceKind: draft.assetSourceKind,
     sourceUrl: draft.assetSourceUrl,
+    responsiveVariants,
   };
 }
 
@@ -1334,6 +1338,15 @@ function charactersWithAssets(
     const localPath = asset
       ? `/assets/characters/${asset.localFileName}`
       : `/assets/characters/${draft.id}-avatar-planned.png`;
+    const responsive = asset?.responsiveVariants.map((variant) => ({
+      width: variant.width,
+      avifPath: `/assets/characters/${draft.id}-avatar-${asset.sha256.slice(0, 12)}-${variant.width}.avif`,
+      webpPath: `/assets/characters/${draft.id}-avatar-${asset.sha256.slice(0, 12)}-${variant.width}.webp`,
+      avifBytes: variant.avifBytes,
+      webpBytes: variant.webpBytes,
+      avifSha256: variant.avifSha256,
+      webpSha256: variant.webpSha256,
+    }));
     return CharacterSchema.parse({
       ...character,
       assets: {
@@ -1343,6 +1356,7 @@ function charactersWithAssets(
         sha256: asset?.sha256 ?? PLANNED_HASH,
         sourceUpdatedAt,
         sourceUrl: assetSourceUrl,
+        ...(responsive ? { responsive } : {}),
       },
     });
   });
@@ -1515,6 +1529,24 @@ async function writePublishedOutputs(
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
       await writeAtomicBytes(path, asset.bytes);
     }
+    for (const variant of asset.responsiveVariants) {
+      const prefix = `${asset.characterId}-avatar-${asset.sha256.slice(0, 12)}-${variant.width}`;
+      for (const [format, bytes, digest] of [
+        ["avif", variant.avif, variant.avifSha256],
+        ["webp", variant.webp, variant.webpSha256],
+      ] as const) {
+        const variantPath = join(CHARACTER_ASSET_DIR, `${prefix}.${format}`);
+        try {
+          const existing = await readFile(variantPath);
+          if (sha256(existing) !== digest) {
+            throw new Error(`内容寻址响应式素材已存在但哈希不匹配：${variantPath}`);
+          }
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+          await writeAtomicBytes(variantPath, bytes);
+        }
+      }
+    }
   }
 
   const manifest = {
@@ -1523,17 +1555,46 @@ async function writePublishedOutputs(
     sourceRevision: metadata.sourceRevision,
     rightsNotice: RIGHTS_NOTICE,
     policy:
-      "One audited local thumbnail serves both avatarPath and portraitPath to minimize redistributed copyrighted material and site weight.",
+      "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
     files: assets
-      .map((asset) => ({
-        bytes: asset.bytes.byteLength,
-        mimeType: asset.mimeType,
-        path: `/assets/characters/${asset.localFileName}`,
-        roles: ["avatar", "portrait"],
-        sha256: asset.sha256,
-        sourceKind: asset.sourceKind,
-        sourceUrl: asset.sourceUrl,
-      }))
+      .flatMap((asset) => [
+        {
+          bytes: asset.bytes.byteLength,
+          mimeType: asset.mimeType,
+          path: `/assets/characters/${asset.localFileName}`,
+          roles: ["avatar", "portrait", "fallback"],
+          sha256: asset.sha256,
+          sourceKind: asset.sourceKind,
+          sourceUrl: asset.sourceUrl,
+        },
+        ...asset.responsiveVariants.flatMap((variant) => {
+          const prefix = `${asset.characterId}-avatar-${asset.sha256.slice(0, 12)}-${variant.width}`;
+          return [
+            {
+              bytes: variant.avifBytes,
+              format: "avif",
+              mimeType: "image/avif",
+              path: `/assets/characters/${prefix}.avif`,
+              roles: ["avatar", "responsive"],
+              sha256: variant.avifSha256,
+              sourceKind: asset.sourceKind,
+              sourceUrl: asset.sourceUrl,
+              width: variant.width,
+            },
+            {
+              bytes: variant.webpBytes,
+              format: "webp",
+              mimeType: "image/webp",
+              path: `/assets/characters/${prefix}.webp`,
+              roles: ["avatar", "responsive"],
+              sha256: variant.webpSha256,
+              sourceKind: asset.sourceKind,
+              sourceUrl: asset.sourceUrl,
+              width: variant.width,
+            },
+          ];
+        }),
+      ])
       .sort((left, right) => left.path.localeCompare(right.path)),
   };
   const [factionsText, versionsText, metadataText, charactersText, manifestText] =

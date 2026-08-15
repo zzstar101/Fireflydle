@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "concurrently --kill-others-on-fail --names web,api --prefix-colors cyan,magenta \"bun --cwd apps/web dev\" \"bun --cwd apps/api dev\"",
     "build": "bun run typecheck && bun --cwd apps/web build && bun --cwd apps/api build",
-    "test": "bun run validate:npc-census && bun --cwd packages/contracts test && bun --cwd packages/game-data test && bun --cwd packages/game-engine test && bun --cwd apps/web test && bun --cwd apps/api test",
+    "test": "bun run validate:npc-census && bun --cwd packages/contracts test && bun --cwd packages/game-data test && bun --cwd packages/game-engine test && bun --cwd apps/web test && bun --cwd apps/api test && bun run test:assets",
     "test:worker": "bun --cwd apps/api test",
     "typecheck": "bun --cwd packages/contracts typecheck && bun --cwd packages/game-data typecheck && bun --cwd packages/game-engine typecheck && bun --cwd apps/web typecheck && bun --cwd apps/api typecheck",
     "format": "prettier --write .",
@@ -19,12 +19,15 @@
     "sync:data": "bun scripts/sync-characters.ts",
     "sync:npc-census": "bun scripts/sync-npc-census.ts",
     "validate:npc-census": "bun scripts/validate-npc-census.ts",
+    "generate:assets": "bun scripts/generate-responsive-assets.ts",
+    "test:assets": "bunx vitest run scripts/responsive-assets.test.ts",
     "deploy:api": "bun --cwd apps/api deploy"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
     "concurrently": "^10.0.4",
     "prettier": "^3.9.6",
+    "sharp": "0.35.2",
     "typescript": "5.9.3",
     "zod": "^4.4.3"
   }

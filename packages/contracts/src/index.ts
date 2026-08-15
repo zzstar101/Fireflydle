@@ -97,6 +97,30 @@ export const CharacterAssetSchema = z.object({
   sourceUpdatedAt: z.string().datetime(),
   sha256: z.string().regex(/^[a-f0-9]{64}$/),
   rightsNotice: z.string().min(1),
+  responsive: z
+    .array(
+      z.object({
+        width: z.union([z.literal(40), z.literal(80), z.literal(160)]),
+        avifPath: z.string().min(1),
+        webpPath: z.string().min(1),
+        avifBytes: z.number().int().positive(),
+        webpBytes: z.number().int().positive(),
+        avifSha256: z.string().regex(/^[a-f0-9]{64}$/),
+        webpSha256: z.string().regex(/^[a-f0-9]{64}$/),
+      }),
+    )
+    .superRefine((variants, context) => {
+      const widths = variants
+        .map((variant) => variant.width)
+        .toSorted((left, right) => left - right);
+      if (widths.join(",") !== "40,80,160") {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "响应式头像必须包含唯一的 40/80/160px 三档变体。",
+        });
+      }
+    })
+    .optional(),
 });
 export type CharacterAsset = z.infer<typeof CharacterAssetSchema>;
 
