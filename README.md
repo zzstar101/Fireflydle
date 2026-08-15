@@ -100,6 +100,7 @@ Web 默认运行在 `http://localhost:5173`，并把 `/api` 代理到本地 Work
 | -------------------------------- | ----------------------------------------- |
 | `bun run dev`                    | 同时启动 Web 与本地 Worker                |
 | `bun run sync:data`              | 同步并校验角色数据、素材和 D1 seed        |
+| `bun run sync:content`           | 从旧角色导出生成版本化内容 manifest       |
 | `bun run sync:data -- --dry-run` | 只验证上游数据，不改写发布文件            |
 | `bun run format:check`           | 检查全仓格式                              |
 | `bun run typecheck`              | 检查所有 workspace 类型和 Worker bindings |

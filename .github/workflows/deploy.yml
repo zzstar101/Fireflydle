@@ -69,6 +69,7 @@ jobs:
           test -s apps/web/public/assets/manifest.json
           test -s apps/web/public/assets/manifest.sha256
           test -s packages/game-data/generated/characters.sql
+          test -s packages/game-data/src/generated/content-manifest.json
           (cd apps/web/public/assets && sha256sum --check manifest.sha256)
 
       - name: Check formatting
@@ -110,9 +111,10 @@ jobs:
           name: release-data-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             apps/web/public/assets/manifest.json
-            apps/web/public/assets/manifest.sha256
-            packages/game-data/generated/characters.sql
-            release-announcement.json
+             apps/web/public/assets/manifest.sha256
+             packages/game-data/generated/characters.sql
+             packages/game-data/src/generated/content-manifest.json
+             release-announcement.json
           if-no-files-found: error
           retention-days: 30
 

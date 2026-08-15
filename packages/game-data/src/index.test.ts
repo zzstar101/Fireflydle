@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
-import { characters, factions, getSearchText, versions } from "./index.ts";
+import {
+  buildPlayableManifest,
+  characters,
+  contentManifest,
+  factions,
+  getSearchText,
+  versions,
+} from "./index.ts";
 
 function matchingIds(query: string): string[] {
   const normalized = query.toLocaleLowerCase();
@@ -105,5 +112,14 @@ describe("角色版本", () => {
       if (expectedOrder === undefined) throw new Error(`${character.id} 引用了未知版本`);
       expect(character.releaseOrder, character.id).toBe(expectedOrder);
     }
+  });
+});
+
+describe("普通角色内容兼容入口", () => {
+  test("旧角色导出与版本化 manifest 来自同一份发布数据", () => {
+    expect(contentManifest).toEqual(buildPlayableManifest(characters));
+    const mode = contentManifest.modes.find((entry) => entry.id === "playable");
+    expect(mode?.maxAttempts).toBe(6);
+    expect(contentManifest.entities).toHaveLength(characters.length);
   });
 });

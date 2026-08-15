@@ -18,6 +18,7 @@ import {
   type Version,
 } from "../packages/contracts/src/index.ts";
 import overridesJson from "../packages/game-data/src/data/sync-overrides.json";
+import { buildPlayableManifest } from "../packages/game-data/src/content-manifest.ts";
 import { generateResponsiveVariants, type ResponsiveVariantResult } from "./responsive-assets.ts";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -1605,6 +1606,7 @@ async function writePublishedOutputs(
       formattedJsonText(characters),
       formattedJsonText(manifest),
     ]);
+  const contentManifestText = await formattedJsonText(buildPlayableManifest(characters));
   const manifestDigest = sha256(manifestText);
 
   // 先写内容寻址素材，再更新小型清单；抓取/验证失败时不会触碰上次有效数据。
@@ -1618,6 +1620,7 @@ async function writePublishedOutputs(
     `${manifestDigest}  manifest.json\n`,
   );
   await writeAtomic(join(GENERATED_DATA_DIR, "characters.json"), charactersText);
+  await writeAtomic(join(GENERATED_DATA_DIR, "content-manifest.json"), contentManifestText);
 }
 
 function latestSourceEpochSeconds(

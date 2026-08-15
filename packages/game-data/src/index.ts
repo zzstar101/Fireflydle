@@ -1,5 +1,6 @@
 import {
   CharacterSchema,
+  ContentManifestSchema,
   FactionSchema,
   VersionSchema,
   type Character,
@@ -11,8 +12,10 @@ import {
 } from "@fireflydle/contracts";
 
 import characterData from "./generated/characters.json";
+import contentManifestData from "./generated/content-manifest.json";
 import factionData from "./generated/factions.json";
 import versionData from "./generated/versions.json";
+import { buildPlayableManifest } from "./content-manifest";
 
 /**
  * 发布数据由 scripts/sync-characters.ts 从已审核来源生成。
@@ -25,6 +28,16 @@ export const characters: readonly Character[] = Object.freeze(
 export const factions: readonly Faction[] = Object.freeze(FactionSchema.array().parse(factionData));
 
 export const versions: readonly Version[] = Object.freeze(VersionSchema.array().parse(versionData));
+
+/** 新内容系统的普通角色 manifest；旧角色导出仍是迁移期的兼容公开入口。 */
+const derivedContentManifest = buildPlayableManifest(characters);
+const publishedContentManifest = ContentManifestSchema.parse(contentManifestData);
+if (JSON.stringify(derivedContentManifest) !== JSON.stringify(publishedContentManifest)) {
+  throw new Error("内容 manifest 与旧角色发布数据不一致，请重新运行 sync:content。");
+}
+export const contentManifest = Object.freeze(publishedContentManifest);
+
+export { buildPlayableManifest } from "./content-manifest";
 
 export const elementLabels: Record<Element, LocalizedText> = {
   physical: { "zh-CN": "物理", en: "Physical", ja: "物理" },

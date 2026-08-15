@@ -7,7 +7,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "bun test src/index.test.ts",
+    "test": "bun test src",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

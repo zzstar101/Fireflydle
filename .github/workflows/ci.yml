@@ -40,7 +40,7 @@ jobs:
         run: bun run typecheck
 
       - name: Test game data
-        run: bun test packages/game-data/src/index.test.ts
+        run: bun --cwd packages/game-data test
 
       - name: Test NPC release manifest
         run: bun run validate:npc-census && bun run test:npc-manifest

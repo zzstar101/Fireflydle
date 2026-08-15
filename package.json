@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:data": "bun scripts/sync-characters.ts",
+    "sync:content": "bun scripts/generate-content-manifest.ts",
     "sync:npc-census": "bun scripts/sync-npc-census.ts",
     "validate:npc-census": "bun scripts/validate-npc-census.ts",
     "test:npc-manifest": "bun test scripts/npc-manifest.test.ts",
