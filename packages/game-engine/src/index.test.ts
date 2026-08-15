@@ -9,6 +9,7 @@ import {
   getBeijingDateKey,
   hasDuplicateGuess,
   pickFromShuffleBag,
+  compareFieldValues,
 } from "./index";
 
 const asset = {
@@ -71,6 +72,37 @@ describe("角色反馈", () => {
     const result = createGuessResult(target, guess);
     expect(result.cells.every((item) => item.state === "exact")).toBe(true);
     expect(result.isCorrect).toBe(false);
+  });
+});
+
+describe("通用字段反馈", () => {
+  test("支持 exact、close、miss 与 unavailable，并只在可比较时给方向", () => {
+    expect(
+      compareFieldValues("3.0", "3.0", { kind: "version", targetOrder: 3, guessOrder: 3 }),
+    ).toEqual({
+      state: "exact",
+      direction: "none",
+    });
+    expect(
+      compareFieldValues("3.0", "2.0", { kind: "version", targetOrder: 3, guessOrder: 2 }),
+    ).toEqual({
+      state: "close",
+      direction: "higher",
+    });
+    expect(compareFieldValues(undefined, "2.0", { kind: "version" })).toEqual({
+      state: "unavailable",
+      direction: "none",
+    });
+    expect(compareFieldValues("fire", "ice", { kind: "exact" })).toEqual({
+      state: "miss",
+      direction: "none",
+    });
+    expect(compareFieldValues(["ipc", "merchant"], ["merchant", "herta"], { kind: "set" })).toEqual(
+      {
+        state: "close",
+        direction: "none",
+      },
+    );
   });
 });
 

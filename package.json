@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "concurrently --kill-others-on-fail --names web,api --prefix-colors cyan,magenta \"bun --cwd apps/web dev\" \"bun --cwd apps/api dev\"",
     "build": "bun run typecheck && bun --cwd apps/web build && bun --cwd apps/api build",
-    "test": "bun run validate:npc-census && bun --cwd packages/game-data test && bun --cwd packages/game-engine test && bun --cwd apps/web test && bun --cwd apps/api test",
+    "test": "bun run validate:npc-census && bun --cwd packages/contracts test && bun --cwd packages/game-data test && bun --cwd packages/game-engine test && bun --cwd apps/web test && bun --cwd apps/api test",
     "test:worker": "bun --cwd apps/api test",
     "typecheck": "bun --cwd packages/contracts typecheck && bun --cwd packages/game-data typecheck && bun --cwd packages/game-engine typecheck && bun --cwd apps/web typecheck && bun --cwd apps/api typecheck",
     "format": "prettier --write .",

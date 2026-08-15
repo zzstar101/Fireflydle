@@ -176,7 +176,74 @@ const CELL_EMOJI: Record<FeedbackState, string> = {
   exact: "🟩",
   close: "🟨",
   miss: "⬛",
+  unavailable: "⬜",
 };
+
+export type FieldComparisonKind = "exact" | "version" | "direction" | "set";
+export interface FieldComparisonOptions {
+  kind: FieldComparisonKind;
+  targetOrder?: number;
+  guessOrder?: number;
+}
+
+export interface FieldComparisonResult {
+  state: FeedbackState;
+  direction: Direction;
+}
+
+/** 对所有内容模式共享的最小反馈规则，不读取平台或题库实现。 */
+export function compareFieldValues(
+  targetValue: unknown,
+  guessValue: unknown,
+  options: FieldComparisonOptions,
+): FieldComparisonResult {
+  if (
+    targetValue === undefined ||
+    targetValue === null ||
+    guessValue === undefined ||
+    guessValue === null
+  ) {
+    return { state: "unavailable", direction: "none" };
+  }
+
+  if (options.kind === "version") {
+    if (options.targetOrder === undefined || options.guessOrder === undefined) {
+      return { state: "unavailable", direction: "none" };
+    }
+    const distance = Math.abs(options.targetOrder - options.guessOrder);
+    const direction: Direction =
+      distance === 0 ? "none" : options.targetOrder > options.guessOrder ? "higher" : "lower";
+    return { state: distance === 0 ? "exact" : distance <= 2 ? "close" : "miss", direction };
+  }
+
+  if (options.kind === "set") {
+    if (!Array.isArray(targetValue) || !Array.isArray(guessValue)) {
+      return { state: "unavailable", direction: "none" };
+    }
+    const targetSet = new Set(targetValue);
+    const guessSet = new Set(guessValue);
+    const same =
+      targetSet.size === guessSet.size && [...targetSet].every((value) => guessSet.has(value));
+    if (same) return { state: "exact", direction: "none" };
+    return {
+      state: [...guessSet].some((value) => targetSet.has(value)) ? "close" : "miss",
+      direction: "none",
+    };
+  }
+
+  if (targetValue === guessValue) return { state: "exact", direction: "none" };
+  if (
+    options.kind === "direction" &&
+    typeof targetValue === "number" &&
+    typeof guessValue === "number"
+  ) {
+    return {
+      state: "miss",
+      direction: targetValue > guessValue ? "higher" : "lower",
+    };
+  }
+  return { state: "miss", direction: "none" };
+}
 
 export function createSpoilerFreeShareText(input: {
   locale: Locale;

@@ -51,7 +51,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     hard: "硬核",
     character: "猜测角色",
     fields: ["属性", "命途", "稀有度", "阵营", "版本"],
-    legend: "一致  ·  接近  ·  不一致",
+    legend: "一致  ·  接近  ·  不一致  ·  不可用",
     footer: "每位玩家  ·  每日不同谜题",
   },
   en: {
@@ -69,7 +69,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     hard: "HARD",
     character: "YOUR GUESS",
     fields: ["ELEMENT", "PATH", "RARITY", "FACTION", "VERSION"],
-    legend: "EXACT  ·  CLOSE  ·  MISS",
+    legend: "EXACT  ·  CLOSE  ·  MISS  ·  UNAVAILABLE",
     footer: "ONE DAY  ·  A PUZZLE OF YOUR OWN",
   },
   ja: {
@@ -87,7 +87,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     hard: "ハード",
     character: "推測キャラ",
     fields: ["属性", "運命", "レア度", "陣営", "バージョン"],
-    legend: "一致  ·  近い  ·  不一致",
+    legend: "一致  ·  近い  ·  不一致  ·  利用不可",
     footer: "プレイヤーごとに異なるデイリー問題",
   },
 };
@@ -347,8 +347,14 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     exact: "#2eaa7b",
     close: "#d59a35",
     miss: "#3b4658",
+    unavailable: "#667085",
   };
-  const symbols: Record<FeedbackState, string> = { exact: "✓", close: "•", miss: "×" };
+  const symbols: Record<FeedbackState, string> = {
+    exact: "✓",
+    close: "•",
+    miss: "×",
+    unavailable: "–",
+  };
 
   for (let rowIndex = 0; rowIndex < model.guesses.length; rowIndex += 1) {
     const guess = model.guesses[rowIndex];

@@ -40,13 +40,37 @@ export const GAME_MODES = ["daily", "random", "multiplayer"] as const;
 export const GameModeSchema = z.enum(GAME_MODES);
 export type GameMode = z.infer<typeof GameModeSchema>;
 
-export const FEEDBACK_STATES = ["exact", "close", "miss"] as const;
+export const FEEDBACK_STATES = ["exact", "close", "miss", "unavailable"] as const;
 export const FeedbackStateSchema = z.enum(FEEDBACK_STATES);
 export type FeedbackState = z.infer<typeof FeedbackStateSchema>;
 
 export const DIRECTIONS = ["none", "higher", "lower"] as const;
 export const DirectionSchema = z.enum(DIRECTIONS);
 export type Direction = z.infer<typeof DirectionSchema>;
+
+/** 新内容系统的稳定标识。旧的 GameMode 保留给现有 API。 */
+export const CONTENT_MODE_IDS = ["playable", "npc", "currency-wars", "aeon"] as const;
+export const ContentModeIdSchema = z.enum(CONTENT_MODE_IDS);
+export type ContentModeId = z.infer<typeof ContentModeIdSchema>;
+
+export const ACTIVITY_IDS = [
+  "daily",
+  "practice",
+  "weekly",
+  "endless",
+  "friend-challenge",
+  "private-room",
+  "ranked-match",
+] as const;
+export const ActivityIdSchema = z.enum(ACTIVITY_IDS);
+export type ActivityId = z.infer<typeof ActivityIdSchema>;
+
+export const ManifestVersionSchema = z
+  .string()
+  .regex(/^\d+\.\d+(?:\.\d+)?$/, "manifest 版本必须是数字版本");
+export type ManifestVersion = z.infer<typeof ManifestVersionSchema>;
+export const RuleVersionSchema = ManifestVersionSchema;
+export type RuleVersion = z.infer<typeof RuleVersionSchema>;
 
 export const GUESS_FIELDS = ["element", "path", "rarity", "faction", "version"] as const;
 export const GuessFieldSchema = z.enum(GUESS_FIELDS);
@@ -126,11 +150,17 @@ export const VersionSchema = z.object({
 });
 export type Version = z.infer<typeof VersionSchema>;
 
-export const GuessCellSchema = z.object({
-  field: GuessFieldSchema,
-  state: FeedbackStateSchema,
-  direction: DirectionSchema,
-});
+export const GuessCellSchema = z
+  .object({
+    field: GuessFieldSchema,
+    state: FeedbackStateSchema,
+    direction: DirectionSchema,
+  })
+  .superRefine((cell, context) => {
+    if (cell.state === "unavailable" && cell.direction !== "none") {
+      context.addIssue({ code: "custom", path: ["direction"], message: "不可比较字段不能有方向" });
+    }
+  });
 export type GuessCell = z.infer<typeof GuessCellSchema>;
 
 export const GuessResultSchema = z.object({
@@ -496,6 +526,424 @@ export const DailyOverrideRequestSchema = z.object({
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   characterId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
 });
+
+const ContentIdSchema = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
+const StrictLocalizedTextSchema = z.strictObject({
+  "zh-CN": z.string().min(1),
+  en: z.string().min(1),
+  ja: z.string().min(1),
+});
+const StrictLocalizedAliasesSchema = z.strictObject({
+  "zh-CN": z.array(z.string().min(1)),
+  en: z.array(z.string().min(1)),
+  ja: z.array(z.string().min(1)),
+});
+
+export const FieldValueTypeSchema = z.enum(["enum", "number", "set", "image"]);
+export type FieldValueType = z.infer<typeof FieldValueTypeSchema>;
+export const FieldComparisonSchema = z.enum(["exact", "direction", "set"]);
+export type FieldComparison = z.infer<typeof FieldComparisonSchema>;
+
+export const FieldDefinitionSchema = z
+  .strictObject({
+    id: ContentIdSchema,
+    label: StrictLocalizedTextSchema,
+    valueType: FieldValueTypeSchema,
+    comparison: FieldComparisonSchema,
+    required: z.boolean(),
+    directional: z.boolean().optional(),
+  })
+  .superRefine((field, context) => {
+    if (field.directional && field.comparison !== "direction") {
+      context.addIssue({
+        code: "custom",
+        path: ["comparison"],
+        message: "方向字段必须使用 direction 比较",
+      });
+    }
+    if (!field.directional && field.comparison === "direction") {
+      context.addIssue({
+        code: "custom",
+        path: ["directional"],
+        message: "方向比较必须声明 directional",
+      });
+    }
+    if (field.comparison === "direction" && field.valueType !== "number") {
+      context.addIssue({ code: "custom", path: ["valueType"], message: "方向比较只支持数值字段" });
+    }
+    if (field.comparison === "set" && field.valueType !== "set") {
+      context.addIssue({ code: "custom", path: ["valueType"], message: "集合比较只支持集合字段" });
+    }
+    if (field.valueType === "image" && field.comparison !== "exact") {
+      context.addIssue({
+        code: "custom",
+        path: ["comparison"],
+        message: "图片字段只支持 exact 比较",
+      });
+    }
+  });
+export type FieldDefinition = z.infer<typeof FieldDefinitionSchema>;
+export const FieldSchema = FieldDefinitionSchema;
+
+export const QuestionPoolDefinitionSchema = z
+  .strictObject({
+    id: ContentIdSchema,
+    modeId: ContentModeIdSchema,
+    targetIds: z.array(ContentIdSchema).min(1),
+    candidateIds: z.array(ContentIdSchema).min(1),
+  })
+  .superRefine((pool, context) => {
+    if (new Set(pool.targetIds).size !== pool.targetIds.length) {
+      context.addIssue({ code: "custom", path: ["targetIds"], message: "目标 ID 不能重复" });
+    }
+    if (new Set(pool.candidateIds).size !== pool.candidateIds.length) {
+      context.addIssue({ code: "custom", path: ["candidateIds"], message: "候选 ID 不能重复" });
+    }
+  });
+export type QuestionPoolDefinition = z.infer<typeof QuestionPoolDefinitionSchema>;
+export const QuestionPoolSchema = QuestionPoolDefinitionSchema;
+
+export const ContentModeDefinitionSchema = z
+  .strictObject({
+    id: ContentModeIdSchema,
+    label: StrictLocalizedTextSchema,
+    targetPoolId: ContentIdSchema,
+    candidatePoolId: ContentIdSchema,
+    fields: z.array(FieldDefinitionSchema).min(1),
+    maxAttempts: z.number().int().positive(),
+    rulesVersion: RuleVersionSchema,
+    activities: z.array(ActivityIdSchema).min(1),
+  })
+  .superRefine((mode, context) => {
+    const ids = new Set<string>();
+    for (const [index, field] of mode.fields.entries()) {
+      if (ids.has(field.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["fields", index, "id"],
+          message: "字段 ID 不能重复",
+        });
+      }
+      ids.add(field.id);
+    }
+    if (new Set(mode.activities).size !== mode.activities.length) {
+      context.addIssue({ code: "custom", path: ["activities"], message: "活动 ID 不能重复" });
+    }
+  });
+export type ContentModeDefinition = z.infer<typeof ContentModeDefinitionSchema>;
+export const ContentModeSchema = ContentModeDefinitionSchema;
+
+export const ActivityDefinitionSchema = z.strictObject({
+  id: ActivityIdSchema,
+  label: StrictLocalizedTextSchema,
+  modeIds: z.array(ContentModeIdSchema).min(1),
+  enabled: z.boolean(),
+});
+export type ActivityDefinition = z.infer<typeof ActivityDefinitionSchema>;
+export const ActivitySchema = ActivityDefinitionSchema;
+
+const EntitySourceSchema = z.strictObject({
+  url: z.string().url(),
+  revision: z.string().min(1),
+});
+const EntityReviewStatusSchema = z.enum(["draft", "approved", "rejected"]);
+const EntityAssetsSchema = z.strictObject({
+  avatarPath: z.string().min(1),
+  portraitPath: z.string().min(1),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  rightsNotice: z.string().min(1),
+});
+const EntityEnvelopeSchema = {
+  id: ContentIdSchema,
+  names: StrictLocalizedTextSchema,
+  aliases: StrictLocalizedAliasesSchema,
+  source: EntitySourceSchema,
+  reviewStatus: EntityReviewStatusSchema,
+};
+
+export const PlayableEntityPayloadSchema = z.strictObject({
+  element: ElementSchema,
+  path: PathSchema,
+  rarity: z.union([z.literal(4), z.literal(5)]),
+  factionId: ContentIdSchema,
+  factionGroupId: ContentIdSchema,
+  regionId: ContentIdSchema,
+  releaseVersionId: z.string().regex(/^\d+\.\d+$/),
+  releaseOrder: z.number().int().nonnegative(),
+  assets: EntityAssetsSchema,
+});
+export type PlayableEntityPayload = z.infer<typeof PlayableEntityPayloadSchema>;
+
+export const NpcEntityPayloadSchema = z.strictObject({
+  regionId: ContentIdSchema,
+  factionId: ContentIdSchema,
+  debutVersionId: z.string().regex(/^\d+\.\d+$/),
+  assets: EntityAssetsSchema,
+});
+export type NpcEntityPayload = z.infer<typeof NpcEntityPayloadSchema>;
+
+export const AeonEntityPayloadSchema = z.strictObject({
+  assets: z.strictObject({ imagePath: z.string().min(1), focus: z.array(z.number()).length(2) }),
+});
+export type AeonEntityPayload = z.infer<typeof AeonEntityPayloadSchema>;
+
+export const PlayableEntitySchema = z.strictObject({
+  ...EntityEnvelopeSchema,
+  kind: z.literal("playable"),
+  payload: PlayableEntityPayloadSchema,
+});
+export const NpcEntitySchema = z.strictObject({
+  ...EntityEnvelopeSchema,
+  kind: z.literal("npc"),
+  payload: NpcEntityPayloadSchema,
+});
+export const AeonEntitySchema = z.strictObject({
+  ...EntityEnvelopeSchema,
+  kind: z.literal("aeon"),
+  payload: AeonEntityPayloadSchema,
+});
+export const ContentEntitySchema = z.discriminatedUnion("kind", [
+  PlayableEntitySchema,
+  NpcEntitySchema,
+  AeonEntitySchema,
+]);
+export type ContentEntity = z.infer<typeof ContentEntitySchema>;
+
+export const CurrencyWarsUnitSchema = z
+  .strictObject({
+    id: ContentIdSchema,
+    names: StrictLocalizedTextSchema,
+    aliases: StrictLocalizedAliasesSchema,
+    source: EntitySourceSchema,
+    reviewStatus: EntityReviewStatusSchema,
+    cost: z.number().int().min(1).max(5),
+    position: z.enum(["front", "back", "front-back"]),
+    synergies: z.array(ContentIdSchema),
+  })
+  .superRefine((unit, context) => {
+    if (new Set(unit.synergies).size !== unit.synergies.length) {
+      context.addIssue({ code: "custom", path: ["synergies"], message: "羁绊 ID 不能重复" });
+    }
+    if (unit.synergies.includes(unit.id)) {
+      context.addIssue({ code: "custom", path: ["synergies"], message: "单位不能引用自身羁绊" });
+    }
+  });
+export type CurrencyWarsUnit = z.infer<typeof CurrencyWarsUnitSchema>;
+
+export const CurrencyWarsRulesetSchema = z
+  .strictObject({
+    id: ContentIdSchema,
+    gameVersion: z.string().min(1),
+    capturedAt: z.string().datetime(),
+    source: EntitySourceSchema,
+    units: z.array(CurrencyWarsUnitSchema).min(1),
+    rulesVersion: RuleVersionSchema,
+  })
+  .superRefine((ruleset, context) => {
+    const ids = new Set<string>();
+    for (const [index, unit] of ruleset.units.entries()) {
+      if (ids.has(unit.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["units", index, "id"],
+          message: "币战单位 ID 不能重复",
+        });
+      }
+      ids.add(unit.id);
+    }
+    for (const [index, unit] of ruleset.units.entries()) {
+      for (const synergy of unit.synergies) {
+        if (!ids.has(synergy)) {
+          context.addIssue({
+            code: "custom",
+            path: ["units", index, "synergies"],
+            message: `未知羁绊 ${synergy}`,
+          });
+        }
+      }
+    }
+  });
+export type CurrencyWarsRuleset = z.infer<typeof CurrencyWarsRulesetSchema>;
+
+export const ContentManifestSchema = z
+  .strictObject({
+    manifestVersion: ManifestVersionSchema,
+    generatedAt: z.string().datetime(),
+    modes: z.array(ContentModeDefinitionSchema).min(1),
+    activities: z.array(ActivityDefinitionSchema).min(1),
+    pools: z.array(QuestionPoolDefinitionSchema).min(1),
+    entities: z.array(ContentEntitySchema).default([]),
+    currencyWars: CurrencyWarsRulesetSchema.optional(),
+  })
+  .superRefine((manifest, context) => {
+    const modeIds = new Set<string>();
+    for (const [index, mode] of manifest.modes.entries()) {
+      if (modeIds.has(mode.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["modes", index, "id"],
+          message: "模式 ID 不能重复",
+        });
+      }
+      modeIds.add(mode.id);
+    }
+
+    const activityIds = new Set<string>();
+    for (const [index, activity] of manifest.activities.entries()) {
+      if (activityIds.has(activity.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["activities", index, "id"],
+          message: "活动 ID 不能重复",
+        });
+      }
+      activityIds.add(activity.id);
+      for (const modeId of activity.modeIds) {
+        if (!modeIds.has(modeId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["activities", index, "modeIds"],
+            message: `活动引用未知模式 ${modeId}`,
+          });
+        }
+      }
+      for (const mode of manifest.modes) {
+        if (mode.activities.includes(activity.id) !== activity.modeIds.includes(mode.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["activities", index, "modeIds"],
+            message: "模式与活动引用必须双向一致",
+          });
+        }
+      }
+    }
+
+    const poolIds = new Set<string>();
+    const poolsById = new Map<string, QuestionPoolDefinition>();
+    for (const [index, pool] of manifest.pools.entries()) {
+      if (poolIds.has(pool.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["pools", index, "id"],
+          message: "题池 ID 不能重复",
+        });
+      }
+      poolIds.add(pool.id);
+      poolsById.set(pool.id, pool);
+      if (!modeIds.has(pool.modeId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["pools", index, "modeId"],
+          message: `题池引用未知模式 ${pool.modeId}`,
+        });
+      }
+      const candidates = new Set(pool.candidateIds);
+      for (const targetId of pool.targetIds) {
+        if (!candidates.has(targetId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["pools", index, "targetIds"],
+            message: "目标必须属于候选池",
+          });
+        }
+      }
+    }
+
+    const entityIds = new Set<string>();
+    const entitiesById = new Map<string, ContentEntity>();
+    for (const [index, entity] of manifest.entities.entries()) {
+      if (entityIds.has(entity.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["entities", index, "id"],
+          message: "实体 ID 不能重复",
+        });
+      }
+      entityIds.add(entity.id);
+      entitiesById.set(entity.id, entity);
+    }
+
+    for (const [index, mode] of manifest.modes.entries()) {
+      const targetPool = poolsById.get(mode.targetPoolId);
+      const candidatePool = poolsById.get(mode.candidatePoolId);
+      if (!targetPool || !candidatePool) {
+        context.addIssue({
+          code: "custom",
+          path: ["modes", index],
+          message: "模式必须引用已注册题池",
+        });
+      } else if (targetPool.modeId !== mode.id || candidatePool.modeId !== mode.id) {
+        context.addIssue({
+          code: "custom",
+          path: ["modes", index],
+          message: "模式与题池类型不兼容",
+        });
+      }
+      if (mode.id === "currency-wars" && !manifest.currencyWars) {
+        context.addIssue({
+          code: "custom",
+          path: ["currencyWars"],
+          message: "币战模式必须绑定独立规则快照",
+        });
+      }
+      for (const activityId of mode.activities) {
+        if (!activityIds.has(activityId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["modes", index, "activities"],
+            message: `模式引用未知活动 ${activityId}`,
+          });
+        }
+      }
+    }
+
+    const currencyUnitIds = new Set(manifest.currencyWars?.units.map((unit) => unit.id) ?? []);
+    {
+      for (const [index, pool] of manifest.pools.entries()) {
+        for (const entityId of [...pool.targetIds, ...pool.candidateIds]) {
+          const known =
+            pool.modeId === "currency-wars"
+              ? currencyUnitIds.has(entityId)
+              : entityIds.has(entityId);
+          if (!known) {
+            context.addIssue({
+              code: "custom",
+              path: ["pools", index],
+              message: `题池引用未知实体 ${entityId}`,
+            });
+          }
+        }
+        const mode = manifest.modes.find((entry) => entry.id === pool.modeId);
+        const expectedKind = pool.modeId === "currency-wars" ? undefined : pool.modeId;
+        for (const entityId of pool.candidateIds) {
+          const entity = entitiesById.get(entityId);
+          if (entity && expectedKind && entity.kind !== expectedKind) {
+            context.addIssue({
+              code: "custom",
+              path: ["pools", index],
+              message: `题池 ${mode?.id ?? pool.modeId} 包含不兼容实体`,
+            });
+          }
+        }
+        for (const entityId of pool.targetIds) {
+          const entity = entitiesById.get(entityId);
+          if (entity && entity.reviewStatus !== "approved") {
+            context.addIssue({
+              code: "custom",
+              path: ["pools", index],
+              message: "正式目标必须通过审核",
+            });
+          }
+        }
+      }
+    }
+  });
+export type ContentManifest = z.infer<typeof ContentManifestSchema>;
+/** ManifestSchema 是内容发布 seam 的兼容别名；新代码优先使用 ContentManifestSchema。 */
+export const ManifestSchema = ContentManifestSchema;
+/** 兼容后续迁移期间使用的信封命名。 */
+export const ContentManifestEnvelopeSchema = ContentManifestSchema;
+export const ManifestEnvelopeSchema = ContentManifestSchema;
 
 export const ERROR_CODES = [
   "AUTH_REQUIRED",
