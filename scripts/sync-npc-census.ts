@@ -3,6 +3,8 @@ import { rename, stat, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { format as prettierFormat } from "prettier";
+
 const API_BASE = "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi";
 const VERSION_NOTICE_API =
   "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us";
@@ -581,7 +583,14 @@ const output = {
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const outputPath = resolve(scriptDirectory, "../packages/game-data/src/data/npc-census.json");
-await writeAtomic(outputPath, `${JSON.stringify(output, null, 2)}\n`);
+const outputText = await prettierFormat(`${JSON.stringify(output, null, 2)}\n`, {
+  parser: "json",
+  printWidth: 100,
+  semi: true,
+  singleQuote: false,
+  trailingComma: "all",
+});
+await writeAtomic(outputPath, outputText);
 console.log(`已写入 ${entries.length} 条 NPC census：${outputPath}`);
 
 async function writeAtomic(path: string, content: string): Promise<void> {

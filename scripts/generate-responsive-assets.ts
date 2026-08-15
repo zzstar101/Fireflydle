@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { format as prettierFormat } from "prettier";
+
 import { generateResponsiveVariants } from "./responsive-assets.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -123,8 +126,17 @@ manifest.files = [
     ),
   ...variantFiles,
 ].sort((left, right) => left.path.localeCompare(right.path));
-const charactersText = `${JSON.stringify(characters, null, 2)}\n`;
-const manifestText = `${JSON.stringify(manifest, null, 2)}\n`;
+const [charactersText, manifestText] = await Promise.all(
+  [characters, manifest].map((value) =>
+    prettierFormat(`${JSON.stringify(value, null, 2)}\n`, {
+      parser: "json",
+      printWidth: 100,
+      semi: true,
+      singleQuote: false,
+      trailingComma: "all",
+    }),
+  ),
+);
 await atomicWrite(charactersPath, charactersText);
 await atomicWrite(manifestPath, manifestText);
 await atomicWrite(

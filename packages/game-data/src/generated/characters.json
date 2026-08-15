@@ -9,17 +9,9 @@
       "ja": "アーラン"
     },
     "aliases": {
-      "zh-CN": [
-        "a lan",
-        "alan"
-      ],
-      "en": [
-        "arlan"
-      ],
-      "ja": [
-        "aaran",
-        "aran"
-      ]
+      "zh-CN": ["a lan", "alan"],
+      "en": ["arlan"],
+      "ja": ["aaran", "aran"]
     },
     "element": "lightning",
     "path": "destruction",
@@ -79,17 +71,9 @@
       "ja": "アスター"
     },
     "aliases": {
-      "zh-CN": [
-        "ai si da",
-        "aisida"
-      ],
-      "en": [
-        "asta"
-      ],
-      "ja": [
-        "asutaa",
-        "asuta"
-      ]
+      "zh-CN": ["ai si da", "aisida"],
+      "en": ["asta"],
+      "ja": ["asutaa", "asuta"]
     },
     "element": "fire",
     "path": "harmony",
@@ -149,16 +133,9 @@
       "ja": "白露"
     },
     "aliases": {
-      "zh-CN": [
-        "bai lu",
-        "bailu"
-      ],
-      "en": [
-        "bailu"
-      ],
-      "ja": [
-        "byakuro"
-      ]
+      "zh-CN": ["bai lu", "bailu"],
+      "en": ["bailu"],
+      "ja": ["byakuro"]
     },
     "element": "lightning",
     "path": "abundance",
@@ -218,17 +195,9 @@
       "ja": "ブローニャ"
     },
     "aliases": {
-      "zh-CN": [
-        "bu luo ni ya",
-        "buluoniya"
-      ],
-      "en": [
-        "bronya"
-      ],
-      "ja": [
-        "buroonya",
-        "buronya"
-      ]
+      "zh-CN": ["bu luo ni ya", "buluoniya"],
+      "en": ["bronya"],
+      "ja": ["buroonya", "buronya"]
     },
     "element": "wind",
     "path": "harmony",
@@ -288,17 +257,9 @@
       "ja": "クラーラ"
     },
     "aliases": {
-      "zh-CN": [
-        "ke la la",
-        "kelala"
-      ],
-      "en": [
-        "clara"
-      ],
-      "ja": [
-        "kuraara",
-        "kurara"
-      ]
+      "zh-CN": ["ke la la", "kelala"],
+      "en": ["clara"],
+      "ja": ["kuraara", "kurara"]
     },
     "element": "physical",
     "path": "destruction",
@@ -358,17 +319,9 @@
       "ja": "丹恒"
     },
     "aliases": {
-      "zh-CN": [
-        "dan heng",
-        "danheng"
-      ],
-      "en": [
-        "dan heng",
-        "danheng"
-      ],
-      "ja": [
-        "tankou"
-      ]
+      "zh-CN": ["dan heng", "danheng"],
+      "en": ["dan heng", "danheng"],
+      "ja": ["tankou"]
     },
     "element": "wind",
     "path": "hunt",
@@ -428,17 +381,9 @@
       "ja": "ジェパード"
     },
     "aliases": {
-      "zh-CN": [
-        "jie pa de",
-        "jiepade"
-      ],
-      "en": [
-        "gepard"
-      ],
-      "ja": [
-        "jepaado",
-        "jepado"
-      ]
+      "zh-CN": ["jie pa de", "jiepade"],
+      "en": ["gepard"],
+      "ja": ["jepaado", "jepado"]
     },
     "element": "ice",
     "path": "preservation",
@@ -498,16 +443,9 @@
       "ja": "ヘルタ"
     },
     "aliases": {
-      "zh-CN": [
-        "hei ta",
-        "heita"
-      ],
-      "en": [
-        "herta"
-      ],
-      "ja": [
-        "heruta"
-      ]
+      "zh-CN": ["hei ta", "heita"],
+      "en": ["herta"],
+      "ja": ["heruta"]
     },
     "element": "ice",
     "path": "erudition",
@@ -567,16 +505,9 @@
       "ja": "姫子"
     },
     "aliases": {
-      "zh-CN": [
-        "ji zi",
-        "jizi"
-      ],
-      "en": [
-        "himeko"
-      ],
-      "ja": [
-        "himeko"
-      ]
+      "zh-CN": ["ji zi", "jizi"],
+      "en": ["himeko"],
+      "ja": ["himeko"]
     },
     "element": "fire",
     "path": "erudition",
@@ -636,16 +567,9 @@
       "ja": "フック"
     },
     "aliases": {
-      "zh-CN": [
-        "hu ke",
-        "huke"
-      ],
-      "en": [
-        "hook"
-      ],
-      "ja": [
-        "fukku"
-      ]
+      "zh-CN": ["hu ke", "huke"],
+      "en": ["hook"],
+      "ja": ["fukku"]
     },
     "element": "fire",
     "path": "destruction",
@@ -705,17 +629,9 @@
       "ja": "景元"
     },
     "aliases": {
-      "zh-CN": [
-        "jing yuan",
-        "jingyuan"
-      ],
-      "en": [
-        "jing yuan",
-        "jingyuan"
-      ],
-      "ja": [
-        "keigen"
-      ]
+      "zh-CN": ["jing yuan", "jingyuan"],
+      "en": ["jing yuan", "jingyuan"],
+      "ja": ["keigen"]
     },
     "element": "lightning",
     "path": "erudition",
@@ -775,25 +691,9 @@
       "ja": "三月なのか"
     },
     "aliases": {
-      "zh-CN": [
-        "三月",
-        "san yue qi",
-        "sanyueqi",
-        "san yue",
-        "sanyue"
-      ],
-      "en": [
-        "March",
-        "M7",
-        "march 7th",
-        "march7th"
-      ],
-      "ja": [
-        "なのか",
-        "mitsukinanoka",
-        "nanoka",
-        "mitsuki nanoka"
-      ]
+      "zh-CN": ["三月", "san yue qi", "sanyueqi", "san yue", "sanyue"],
+      "en": ["March", "M7", "march 7th", "march7th"],
+      "ja": ["なのか", "mitsukinanoka", "nanoka", "mitsuki nanoka"]
     },
     "element": "ice",
     "path": "preservation",
@@ -853,17 +753,9 @@
       "ja": "ナターシャ"
     },
     "aliases": {
-      "zh-CN": [
-        "na ta sha",
-        "natasha"
-      ],
-      "en": [
-        "natasha"
-      ],
-      "ja": [
-        "nataasha",
-        "natasha"
-      ]
+      "zh-CN": ["na ta sha", "natasha"],
+      "en": ["natasha"],
+      "ja": ["nataasha", "natasha"]
     },
     "element": "physical",
     "path": "abundance",
@@ -923,16 +815,9 @@
       "ja": "ペラ"
     },
     "aliases": {
-      "zh-CN": [
-        "pei la",
-        "peila"
-      ],
-      "en": [
-        "pela"
-      ],
-      "ja": [
-        "pera"
-      ]
+      "zh-CN": ["pei la", "peila"],
+      "en": ["pela"],
+      "ja": ["pera"]
     },
     "element": "ice",
     "path": "nihility",
@@ -992,16 +877,9 @@
       "ja": "青雀"
     },
     "aliases": {
-      "zh-CN": [
-        "qing que",
-        "qingque"
-      ],
-      "en": [
-        "qingque"
-      ],
-      "ja": [
-        "seijaku"
-      ]
+      "zh-CN": ["qing que", "qingque"],
+      "en": ["qingque"],
+      "ja": ["seijaku"]
     },
     "element": "quantum",
     "path": "erudition",
@@ -1061,16 +939,9 @@
       "ja": "サンポ"
     },
     "aliases": {
-      "zh-CN": [
-        "sang bo",
-        "sangbo"
-      ],
-      "en": [
-        "sampo"
-      ],
-      "ja": [
-        "sanpo"
-      ]
+      "zh-CN": ["sang bo", "sangbo"],
+      "en": ["sampo"],
+      "ja": ["sanpo"]
     },
     "element": "wind",
     "path": "nihility",
@@ -1130,17 +1001,9 @@
       "ja": "ゼーレ"
     },
     "aliases": {
-      "zh-CN": [
-        "xi er",
-        "xier"
-      ],
-      "en": [
-        "seele"
-      ],
-      "ja": [
-        "zeere",
-        "zere"
-      ]
+      "zh-CN": ["xi er", "xier"],
+      "en": ["seele"],
+      "ja": ["zeere", "zere"]
     },
     "element": "quantum",
     "path": "hunt",
@@ -1200,17 +1063,9 @@
       "ja": "セーバル"
     },
     "aliases": {
-      "zh-CN": [
-        "xi lu wa",
-        "xiluwa"
-      ],
-      "en": [
-        "serval"
-      ],
-      "ja": [
-        "seebaru",
-        "sebaru"
-      ]
+      "zh-CN": ["xi lu wa", "xiluwa"],
+      "en": ["serval"],
+      "ja": ["seebaru", "sebaru"]
     },
     "element": "lightning",
     "path": "erudition",
@@ -1270,16 +1125,9 @@
       "ja": "素裳"
     },
     "aliases": {
-      "zh-CN": [
-        "su shang",
-        "sushang"
-      ],
-      "en": [
-        "sushang"
-      ],
-      "ja": [
-        "sushou"
-      ]
+      "zh-CN": ["su shang", "sushang"],
+      "en": ["sushang"],
+      "ja": ["sushou"]
     },
     "element": "physical",
     "path": "hunt",
@@ -1339,16 +1187,9 @@
       "ja": "停雲"
     },
     "aliases": {
-      "zh-CN": [
-        "ting yun",
-        "tingyun"
-      ],
-      "en": [
-        "tingyun"
-      ],
-      "ja": [
-        "teiun"
-      ]
+      "zh-CN": ["ting yun", "tingyun"],
+      "en": ["tingyun"],
+      "ja": ["teiun"]
     },
     "element": "lightning",
     "path": "harmony",
@@ -1579,16 +1420,9 @@
       "ja": "ヴェルト"
     },
     "aliases": {
-      "zh-CN": [
-        "wa er te",
-        "waerte"
-      ],
-      "en": [
-        "welt"
-      ],
-      "ja": [
-        "vyeruto"
-      ]
+      "zh-CN": ["wa er te", "waerte"],
+      "en": ["welt"],
+      "ja": ["vyeruto"]
     },
     "element": "imaginary",
     "path": "nihility",
@@ -1648,16 +1482,9 @@
       "ja": "彦卿"
     },
     "aliases": {
-      "zh-CN": [
-        "yan qing",
-        "yanqing"
-      ],
-      "en": [
-        "yanqing"
-      ],
-      "ja": [
-        "genkyou"
-      ]
+      "zh-CN": ["yan qing", "yanqing"],
+      "en": ["yanqing"],
+      "ja": ["genkyou"]
     },
     "element": "ice",
     "path": "hunt",
@@ -1717,16 +1544,9 @@
       "ja": "羅刹"
     },
     "aliases": {
-      "zh-CN": [
-        "luo cha",
-        "luocha"
-      ],
-      "en": [
-        "luocha"
-      ],
-      "ja": [
-        "rasetsu"
-      ]
+      "zh-CN": ["luo cha", "luocha"],
+      "en": ["luocha"],
+      "ja": ["rasetsu"]
     },
     "element": "imaginary",
     "path": "abundance",
@@ -1786,18 +1606,9 @@
       "ja": "銀狼"
     },
     "aliases": {
-      "zh-CN": [
-        "yin lang",
-        "yinlang"
-      ],
-      "en": [
-        "SW",
-        "silver wolf",
-        "silverwolf"
-      ],
-      "ja": [
-        "ginrou"
-      ]
+      "zh-CN": ["yin lang", "yinlang"],
+      "en": ["SW", "silver wolf", "silverwolf"],
+      "ja": ["ginrou"]
     },
     "element": "quantum",
     "path": "nihility",
@@ -1857,17 +1668,9 @@
       "ja": "御空"
     },
     "aliases": {
-      "zh-CN": [
-        "yu kong",
-        "yukong"
-      ],
-      "en": [
-        "yukong"
-      ],
-      "ja": [
-        "gyokuu",
-        "gyoku"
-      ]
+      "zh-CN": ["yu kong", "yukong"],
+      "en": ["yukong"],
+      "ja": ["gyokuu", "gyoku"]
     },
     "element": "imaginary",
     "path": "harmony",
@@ -1927,15 +1730,9 @@
       "ja": "刃"
     },
     "aliases": {
-      "zh-CN": [
-        "ren"
-      ],
-      "en": [
-        "blade"
-      ],
-      "ja": [
-        "jin"
-      ]
+      "zh-CN": ["ren"],
+      "en": ["blade"],
+      "ja": ["jin"]
     },
     "element": "wind",
     "path": "destruction",
@@ -1995,16 +1792,9 @@
       "ja": "カフカ"
     },
     "aliases": {
-      "zh-CN": [
-        "ka fu ka",
-        "kafuka"
-      ],
-      "en": [
-        "kafka"
-      ],
-      "ja": [
-        "kafuka"
-      ]
+      "zh-CN": ["ka fu ka", "kafuka"],
+      "en": ["kafka"],
+      "ja": ["kafuka"]
     },
     "element": "lightning",
     "path": "nihility",
@@ -2064,16 +1854,9 @@
       "ja": "ルカ"
     },
     "aliases": {
-      "zh-CN": [
-        "lu ka",
-        "luka"
-      ],
-      "en": [
-        "luka"
-      ],
-      "ja": [
-        "ruka"
-      ]
+      "zh-CN": ["lu ka", "luka"],
+      "en": ["luka"],
+      "ja": ["ruka"]
     },
     "element": "physical",
     "path": "nihility",
@@ -2150,11 +1933,7 @@
         "danhengimbibitorlunae",
         "imbibitorlunae"
       ],
-      "ja": [
-        "飲月",
-        "tankou ingetsu",
-        "tankouingetsu"
-      ]
+      "ja": ["飲月", "tankou ingetsu", "tankouingetsu"]
     },
     "element": "imaginary",
     "path": "destruction",
@@ -2214,17 +1993,9 @@
       "ja": "符玄"
     },
     "aliases": {
-      "zh-CN": [
-        "fu xuan",
-        "fuxuan"
-      ],
-      "en": [
-        "fu xuan",
-        "fuxuan"
-      ],
-      "ja": [
-        "fugen"
-      ]
+      "zh-CN": ["fu xuan", "fuxuan"],
+      "en": ["fu xuan", "fuxuan"],
+      "ja": ["fugen"]
     },
     "element": "quantum",
     "path": "preservation",
@@ -2284,16 +2055,9 @@
       "ja": "リンクス"
     },
     "aliases": {
-      "zh-CN": [
-        "ling ke",
-        "lingke"
-      ],
-      "en": [
-        "lynx"
-      ],
-      "ja": [
-        "rinkusu"
-      ]
+      "zh-CN": ["ling ke", "lingke"],
+      "en": ["lynx"],
+      "ja": ["rinkusu"]
     },
     "element": "quantum",
     "path": "abundance",
@@ -2353,16 +2117,9 @@
       "ja": "桂乃芬"
     },
     "aliases": {
-      "zh-CN": [
-        "gui nai fen",
-        "guinaifen"
-      ],
-      "en": [
-        "guinaifen"
-      ],
-      "ja": [
-        "keinaifun"
-      ]
+      "zh-CN": ["gui nai fen", "guinaifen"],
+      "en": ["guinaifen"],
+      "ja": ["keinaifun"]
     },
     "element": "fire",
     "path": "nihility",
@@ -2422,17 +2179,9 @@
       "ja": "鏡流"
     },
     "aliases": {
-      "zh-CN": [
-        "jing liu",
-        "jingliu"
-      ],
-      "en": [
-        "jingliu"
-      ],
-      "ja": [
-        "keiryuu",
-        "keiryu"
-      ]
+      "zh-CN": ["jing liu", "jingliu"],
+      "en": ["jingliu"],
+      "ja": ["keiryuu", "keiryu"]
     },
     "element": "ice",
     "path": "destruction",
@@ -2502,12 +2251,7 @@
         "zhang zhang",
         "zhangzhang"
       ],
-      "en": [
-        "Topaz",
-        "Numby",
-        "topaz numby",
-        "topaznumby"
-      ],
+      "en": ["Topaz", "Numby", "topaz numby", "topaznumby"],
       "ja": [
         "トパーズ",
         "カブ",
@@ -2578,16 +2322,9 @@
       "ja": "アルジェンティ"
     },
     "aliases": {
-      "zh-CN": [
-        "yin zhi",
-        "yinzhi"
-      ],
-      "en": [
-        "argenti"
-      ],
-      "ja": [
-        "arujentei"
-      ]
+      "zh-CN": ["yin zhi", "yinzhi"],
+      "en": ["argenti"],
+      "ja": ["arujentei"]
     },
     "element": "physical",
     "path": "erudition",
@@ -2647,17 +2384,9 @@
       "ja": "寒鴉"
     },
     "aliases": {
-      "zh-CN": [
-        "han ya",
-        "hanya"
-      ],
-      "en": [
-        "hanya"
-      ],
-      "ja": [
-        "kan a",
-        "kana"
-      ]
+      "zh-CN": ["han ya", "hanya"],
+      "en": ["hanya"],
+      "ja": ["kan a", "kana"]
     },
     "element": "physical",
     "path": "harmony",
@@ -2717,16 +2446,9 @@
       "ja": "フォフォ"
     },
     "aliases": {
-      "zh-CN": [
-        "huo huo",
-        "huohuo"
-      ],
-      "en": [
-        "huohuo"
-      ],
-      "ja": [
-        "fuofuo"
-      ]
+      "zh-CN": ["huo huo", "huohuo"],
+      "en": ["huohuo"],
+      "ja": ["fuofuo"]
     },
     "element": "wind",
     "path": "abundance",
@@ -2786,22 +2508,9 @@
       "ja": "Dr.レイシオ"
     },
     "aliases": {
-      "zh-CN": [
-        "真理",
-        "zhen li yi sheng",
-        "zhenliyisheng",
-        "zhen li",
-        "zhenli"
-      ],
-      "en": [
-        "Ratio",
-        "Dr Ratio",
-        "drratio"
-      ],
-      "ja": [
-        "レイシオ",
-        "reishio"
-      ]
+      "zh-CN": ["真理", "zhen li yi sheng", "zhenliyisheng", "zhen li", "zhenli"],
+      "en": ["Ratio", "Dr Ratio", "drratio"],
+      "ja": ["レイシオ", "reishio"]
     },
     "element": "imaginary",
     "path": "hunt",
@@ -2861,20 +2570,9 @@
       "ja": "ルアン・メェイ"
     },
     "aliases": {
-      "zh-CN": [
-        "ruan mei",
-        "ruanmei"
-      ],
-      "en": [
-        "ruan mei",
-        "ruanmei"
-      ],
-      "ja": [
-        "ruan meei",
-        "ruanmeei",
-        "ruan mei",
-        "ruanmei"
-      ]
+      "zh-CN": ["ruan mei", "ruanmei"],
+      "en": ["ruan mei", "ruanmei"],
+      "ja": ["ruan meei", "ruanmeei", "ruan mei", "ruanmei"]
     },
     "element": "ice",
     "path": "harmony",
@@ -2934,16 +2632,9 @@
       "ja": "雪衣"
     },
     "aliases": {
-      "zh-CN": [
-        "xue yi",
-        "xueyi"
-      ],
-      "en": [
-        "xueyi"
-      ],
-      "ja": [
-        "setsui"
-      ]
+      "zh-CN": ["xue yi", "xueyi"],
+      "en": ["xueyi"],
+      "ja": ["setsui"]
     },
     "element": "quantum",
     "path": "destruction",
@@ -3003,17 +2694,9 @@
       "ja": "ブラックスワン"
     },
     "aliases": {
-      "zh-CN": [
-        "hei tian e",
-        "heitiane"
-      ],
-      "en": [
-        "black swan",
-        "blackswan"
-      ],
-      "ja": [
-        "burakkusuwan"
-      ]
+      "zh-CN": ["hei tian e", "heitiane"],
+      "en": ["black swan", "blackswan"],
+      "ja": ["burakkusuwan"]
     },
     "element": "wind",
     "path": "nihility",
@@ -3073,17 +2756,9 @@
       "ja": "ミーシャ"
     },
     "aliases": {
-      "zh-CN": [
-        "mi sha",
-        "misha"
-      ],
-      "en": [
-        "misha"
-      ],
-      "ja": [
-        "miisha",
-        "misha"
-      ]
+      "zh-CN": ["mi sha", "misha"],
+      "en": ["misha"],
+      "ja": ["miisha", "misha"]
     },
     "element": "ice",
     "path": "destruction",
@@ -3143,16 +2818,9 @@
       "ja": "花火"
     },
     "aliases": {
-      "zh-CN": [
-        "hua huo",
-        "huahuo"
-      ],
-      "en": [
-        "sparkle"
-      ],
-      "ja": [
-        "hanabi"
-      ]
+      "zh-CN": ["hua huo", "huahuo"],
+      "en": ["sparkle"],
+      "ja": ["hanabi"]
     },
     "element": "quantum",
     "path": "harmony",
@@ -3212,16 +2880,9 @@
       "ja": "黄泉"
     },
     "aliases": {
-      "zh-CN": [
-        "huang quan",
-        "huangquan"
-      ],
-      "en": [
-        "acheron"
-      ],
-      "ja": [
-        "yomi"
-      ]
+      "zh-CN": ["huang quan", "huangquan"],
+      "en": ["acheron"],
+      "ja": ["yomi"]
     },
     "element": "lightning",
     "path": "nihility",
@@ -3281,16 +2942,9 @@
       "ja": "アベンチュリン"
     },
     "aliases": {
-      "zh-CN": [
-        "sha jin",
-        "shajin"
-      ],
-      "en": [
-        "aventurine"
-      ],
-      "ja": [
-        "abenchurin"
-      ]
+      "zh-CN": ["sha jin", "shajin"],
+      "en": ["aventurine"],
+      "ja": ["abenchurin"]
     },
     "element": "imaginary",
     "path": "preservation",
@@ -3350,17 +3004,9 @@
       "ja": "ギャラガー"
     },
     "aliases": {
-      "zh-CN": [
-        "jia la he",
-        "jialahe"
-      ],
-      "en": [
-        "gallagher"
-      ],
-      "ja": [
-        "gyaragaa",
-        "gyaraga"
-      ]
+      "zh-CN": ["jia la he", "jialahe"],
+      "en": ["gallagher"],
+      "ja": ["gyaragaa", "gyaraga"]
     },
     "element": "fire",
     "path": "abundance",
@@ -3420,17 +3066,9 @@
       "ja": "ブートヒル"
     },
     "aliases": {
-      "zh-CN": [
-        "bo ti ou",
-        "botiou"
-      ],
-      "en": [
-        "boothill"
-      ],
-      "ja": [
-        "buutohiru",
-        "butohiru"
-      ]
+      "zh-CN": ["bo ti ou", "botiou"],
+      "en": ["boothill"],
+      "ja": ["buutohiru", "butohiru"]
     },
     "element": "physical",
     "path": "hunt",
@@ -3490,16 +3128,9 @@
       "ja": "ロビン"
     },
     "aliases": {
-      "zh-CN": [
-        "zhi geng niao",
-        "zhigengniao"
-      ],
-      "en": [
-        "robin"
-      ],
-      "ja": [
-        "robin"
-      ]
+      "zh-CN": ["zhi geng niao", "zhigengniao"],
+      "en": ["robin"],
+      "ja": ["robin"]
     },
     "element": "physical",
     "path": "harmony",
@@ -3643,25 +3274,9 @@
       "ja": "ホタル"
     },
     "aliases": {
-      "zh-CN": [
-        "萤宝",
-        "萨姆",
-        "liu ying",
-        "liuying",
-        "ying bao",
-        "yingbao",
-        "sa mu",
-        "samu"
-      ],
-      "en": [
-        "SAM",
-        "firefly"
-      ],
-      "ja": [
-        "サム",
-        "hotaru",
-        "samu"
-      ]
+      "zh-CN": ["萤宝", "萨姆", "liu ying", "liuying", "ying bao", "yingbao", "sa mu", "samu"],
+      "en": ["SAM", "firefly"],
+      "ja": ["サム", "hotaru", "samu"]
     },
     "element": "fire",
     "path": "destruction",
@@ -3721,16 +3336,9 @@
       "ja": "ジェイド"
     },
     "aliases": {
-      "zh-CN": [
-        "fei cui",
-        "feicui"
-      ],
-      "en": [
-        "jade"
-      ],
-      "ja": [
-        "jeido"
-      ]
+      "zh-CN": ["fei cui", "feicui"],
+      "en": ["jade"],
+      "ja": ["jeido"]
     },
     "element": "quantum",
     "path": "erudition",
@@ -3790,17 +3398,9 @@
       "ja": "椒丘"
     },
     "aliases": {
-      "zh-CN": [
-        "jiao qiu",
-        "jiaoqiu"
-      ],
-      "en": [
-        "jiaoqiu"
-      ],
-      "ja": [
-        "shoukyuu",
-        "shoukyu"
-      ]
+      "zh-CN": ["jiao qiu", "jiaoqiu"],
+      "en": ["jiaoqiu"],
+      "ja": ["shoukyuu", "shoukyu"]
     },
     "element": "fire",
     "path": "nihility",
@@ -3952,16 +3552,9 @@
       "ja": "雲璃"
     },
     "aliases": {
-      "zh-CN": [
-        "yun li",
-        "yunli"
-      ],
-      "en": [
-        "yunli"
-      ],
-      "ja": [
-        "unri"
-      ]
+      "zh-CN": ["yun li", "yunli"],
+      "en": ["yunli"],
+      "ja": ["unri"]
     },
     "element": "physical",
     "path": "destruction",
@@ -4021,16 +3614,9 @@
       "ja": "飛霄"
     },
     "aliases": {
-      "zh-CN": [
-        "fei xiao",
-        "feixiao"
-      ],
-      "en": [
-        "feixiao"
-      ],
-      "ja": [
-        "hishou"
-      ]
+      "zh-CN": ["fei xiao", "feixiao"],
+      "en": ["feixiao"],
+      "ja": ["hishou"]
     },
     "element": "wind",
     "path": "hunt",
@@ -4090,16 +3676,9 @@
       "ja": "霊砂"
     },
     "aliases": {
-      "zh-CN": [
-        "ling sha",
-        "lingsha"
-      ],
-      "en": [
-        "lingsha"
-      ],
-      "ja": [
-        "reisa"
-      ]
+      "zh-CN": ["ling sha", "lingsha"],
+      "en": ["lingsha"],
+      "ja": ["reisa"]
     },
     "element": "fire",
     "path": "abundance",
@@ -4159,16 +3738,9 @@
       "ja": "モゼ"
     },
     "aliases": {
-      "zh-CN": [
-        "mo ze",
-        "moze"
-      ],
-      "en": [
-        "moze"
-      ],
-      "ja": [
-        "moze"
-      ]
+      "zh-CN": ["mo ze", "moze"],
+      "en": ["moze"],
+      "ja": ["moze"]
     },
     "element": "lightning",
     "path": "hunt",
@@ -4228,16 +3800,9 @@
       "ja": "乱破"
     },
     "aliases": {
-      "zh-CN": [
-        "luan po",
-        "luanpo"
-      ],
-      "en": [
-        "rappa"
-      ],
-      "ja": [
-        "ranha"
-      ]
+      "zh-CN": ["luan po", "luanpo"],
+      "en": ["rappa"],
+      "ja": ["ranha"]
     },
     "element": "imaginary",
     "path": "erudition",
@@ -4297,16 +3862,9 @@
       "ja": "帰忘の流離人"
     },
     "aliases": {
-      "zh-CN": [
-        "wang gui ren",
-        "wangguiren"
-      ],
-      "en": [
-        "fugue"
-      ],
-      "ja": [
-        "kibounosasuraibito"
-      ]
+      "zh-CN": ["wang gui ren", "wangguiren"],
+      "en": ["fugue"],
+      "ja": ["kibounosasuraibito"]
     },
     "element": "fire",
     "path": "nihility",
@@ -4366,17 +3924,9 @@
       "ja": "サンデー"
     },
     "aliases": {
-      "zh-CN": [
-        "xing qi ri",
-        "xingqiri"
-      ],
-      "en": [
-        "sunday"
-      ],
-      "ja": [
-        "sandee",
-        "sande"
-      ]
+      "zh-CN": ["xing qi ri", "xingqiri"],
+      "en": ["sunday"],
+      "ja": ["sandee", "sande"]
     },
     "element": "imaginary",
     "path": "harmony",
@@ -4436,16 +3986,9 @@
       "ja": "アグライア"
     },
     "aliases": {
-      "zh-CN": [
-        "a ge lai ya",
-        "agelaiya"
-      ],
-      "en": [
-        "aglaea"
-      ],
-      "ja": [
-        "aguraia"
-      ]
+      "zh-CN": ["a ge lai ya", "agelaiya"],
+      "en": ["aglaea"],
+      "ja": ["aguraia"]
     },
     "element": "lightning",
     "path": "remembrance",
@@ -4505,26 +4048,9 @@
       "ja": "マダム・ヘルタ"
     },
     "aliases": {
-      "zh-CN": [
-        "黑塔",
-        "da hei ta",
-        "daheita",
-        "hei ta",
-        "heita"
-      ],
-      "en": [
-        "Herta",
-        "Madam Herta",
-        "the herta",
-        "theherta",
-        "madamherta"
-      ],
-      "ja": [
-        "ヘルタ",
-        "madamu heruta",
-        "madamuheruta",
-        "heruta"
-      ]
+      "zh-CN": ["黑塔", "da hei ta", "daheita", "hei ta", "heita"],
+      "en": ["Herta", "Madam Herta", "the herta", "theherta", "madamherta"],
+      "ja": ["ヘルタ", "madamu heruta", "madamuheruta", "heruta"]
     },
     "element": "ice",
     "path": "erudition",
@@ -4668,17 +4194,9 @@
       "ja": "モーディス"
     },
     "aliases": {
-      "zh-CN": [
-        "wan di",
-        "wandi"
-      ],
-      "en": [
-        "mydei"
-      ],
-      "ja": [
-        "moodeisu",
-        "modeisu"
-      ]
+      "zh-CN": ["wan di", "wandi"],
+      "en": ["mydei"],
+      "ja": ["moodeisu", "modeisu"]
     },
     "element": "imaginary",
     "path": "destruction",
@@ -4738,17 +4256,9 @@
       "ja": "トリビー"
     },
     "aliases": {
-      "zh-CN": [
-        "ti bao",
-        "tibao"
-      ],
-      "en": [
-        "tribbie"
-      ],
-      "ja": [
-        "toribii",
-        "toribi"
-      ]
+      "zh-CN": ["ti bao", "tibao"],
+      "en": ["tribbie"],
+      "ja": ["toribii", "toribi"]
     },
     "element": "quantum",
     "path": "harmony",
@@ -4808,16 +4318,9 @@
       "ja": "アナイクス"
     },
     "aliases": {
-      "zh-CN": [
-        "na ke xia",
-        "nakexia"
-      ],
-      "en": [
-        "anaxa"
-      ],
-      "ja": [
-        "anaikusu"
-      ]
+      "zh-CN": ["na ke xia", "nakexia"],
+      "en": ["anaxa"],
+      "ja": ["anaikusu"]
     },
     "element": "wind",
     "path": "erudition",
@@ -4877,16 +4380,9 @@
       "ja": "キャストリス"
     },
     "aliases": {
-      "zh-CN": [
-        "xia die",
-        "xiadie"
-      ],
-      "en": [
-        "castorice"
-      ],
-      "ja": [
-        "kyasutorisu"
-      ]
+      "zh-CN": ["xia die", "xiadie"],
+      "en": ["castorice"],
+      "ja": ["kyasutorisu"]
     },
     "element": "quantum",
     "path": "remembrance",
@@ -4946,16 +4442,9 @@
       "ja": "サフェル"
     },
     "aliases": {
-      "zh-CN": [
-        "sai fei er",
-        "saifeier"
-      ],
-      "en": [
-        "cipher"
-      ],
-      "ja": [
-        "safyeru"
-      ]
+      "zh-CN": ["sai fei er", "saifeier"],
+      "en": ["cipher"],
+      "ja": ["safyeru"]
     },
     "element": "quantum",
     "path": "nihility",
@@ -5015,17 +4504,9 @@
       "ja": "ヒアンシー"
     },
     "aliases": {
-      "zh-CN": [
-        "feng jin",
-        "fengjin"
-      ],
-      "en": [
-        "hyacine"
-      ],
-      "ja": [
-        "hianshii",
-        "hianshi"
-      ]
+      "zh-CN": ["feng jin", "fengjin"],
+      "en": ["hyacine"],
+      "ja": ["hianshii", "hianshi"]
     },
     "element": "wind",
     "path": "remembrance",
@@ -5085,16 +4566,9 @@
       "ja": "アーチャー"
     },
     "aliases": {
-      "zh-CN": [
-        "archer"
-      ],
-      "en": [
-        "archer"
-      ],
-      "ja": [
-        "aachaa",
-        "acha"
-      ]
+      "zh-CN": ["archer"],
+      "en": ["archer"],
+      "ja": ["aachaa", "acha"]
     },
     "element": "quantum",
     "path": "hunt",
@@ -5154,16 +4628,9 @@
       "ja": "ファイノン"
     },
     "aliases": {
-      "zh-CN": [
-        "bai e",
-        "baie"
-      ],
-      "en": [
-        "phainon"
-      ],
-      "ja": [
-        "fuainon"
-      ]
+      "zh-CN": ["bai e", "baie"],
+      "en": ["phainon"],
+      "ja": ["fuainon"]
     },
     "element": "physical",
     "path": "destruction",
@@ -5223,16 +4690,9 @@
       "ja": "セイバー"
     },
     "aliases": {
-      "zh-CN": [
-        "saber"
-      ],
-      "en": [
-        "saber"
-      ],
-      "ja": [
-        "seibaa",
-        "seiba"
-      ]
+      "zh-CN": ["saber"],
+      "en": ["saber"],
+      "ja": ["seibaa", "seiba"]
     },
     "element": "wind",
     "path": "destruction",
@@ -5292,16 +4752,9 @@
       "ja": "ケリュドラ"
     },
     "aliases": {
-      "zh-CN": [
-        "ke lu de la",
-        "keludela"
-      ],
-      "en": [
-        "cerydra"
-      ],
-      "ja": [
-        "keryudora"
-      ]
+      "zh-CN": ["ke lu de la", "keludela"],
+      "en": ["cerydra"],
+      "ja": ["keryudora"]
     },
     "element": "wind",
     "path": "harmony",
@@ -5361,16 +4814,9 @@
       "ja": "セイレンス"
     },
     "aliases": {
-      "zh-CN": [
-        "hai se yin",
-        "haiseyin"
-      ],
-      "en": [
-        "hysilens"
-      ],
-      "ja": [
-        "seirensu"
-      ]
+      "zh-CN": ["hai se yin", "haiseyin"],
+      "en": ["hysilens"],
+      "ja": ["seirensu"]
     },
     "element": "physical",
     "path": "nihility",
@@ -5430,18 +4876,9 @@
       "ja": "丹恒・騰荒"
     },
     "aliases": {
-      "zh-CN": [
-        "dan heng teng huang",
-        "danhengtenghuang"
-      ],
-      "en": [
-        "dan heng permansor terrae",
-        "danhengpermansorterrae"
-      ],
-      "ja": [
-        "tankou toukou",
-        "tankoutoukou"
-      ]
+      "zh-CN": ["dan heng teng huang", "danhengtenghuang"],
+      "en": ["dan heng permansor terrae", "danhengpermansorterrae"],
+      "ja": ["tankou toukou", "tankoutoukou"]
     },
     "element": "physical",
     "path": "preservation",
@@ -5501,16 +4938,9 @@
       "ja": "長夜月"
     },
     "aliases": {
-      "zh-CN": [
-        "chang ye yue",
-        "changyeyue"
-      ],
-      "en": [
-        "evernight"
-      ],
-      "ja": [
-        "nagayozuki"
-      ]
+      "zh-CN": ["chang ye yue", "changyeyue"],
+      "en": ["evernight"],
+      "ja": ["nagayozuki"]
     },
     "element": "ice",
     "path": "remembrance",
@@ -5570,16 +5000,9 @@
       "ja": "キュレネ"
     },
     "aliases": {
-      "zh-CN": [
-        "xi lian",
-        "xilian"
-      ],
-      "en": [
-        "cyrene"
-      ],
-      "ja": [
-        "kyurene"
-      ]
+      "zh-CN": ["xi lian", "xilian"],
+      "en": ["cyrene"],
+      "ja": ["kyurene"]
     },
     "element": "ice",
     "path": "remembrance",
@@ -5639,17 +5062,9 @@
       "ja": "ダリア"
     },
     "aliases": {
-      "zh-CN": [
-        "da li hua",
-        "dalihua"
-      ],
-      "en": [
-        "the dahlia",
-        "thedahlia"
-      ],
-      "ja": [
-        "daria"
-      ]
+      "zh-CN": ["da li hua", "dalihua"],
+      "en": ["the dahlia", "thedahlia"],
+      "ja": ["daria"]
     },
     "element": "fire",
     "path": "nihility",
@@ -5709,16 +5124,9 @@
       "ja": "火花"
     },
     "aliases": {
-      "zh-CN": [
-        "huo hua",
-        "huohua"
-      ],
-      "en": [
-        "sparxie"
-      ],
-      "ja": [
-        "sparxie"
-      ]
+      "zh-CN": ["huo hua", "huohua"],
+      "en": ["sparxie"],
+      "ja": ["sparxie"]
     },
     "element": "fire",
     "path": "elation",
@@ -5778,18 +5186,9 @@
       "ja": "爻光"
     },
     "aliases": {
-      "zh-CN": [
-        "yao guang",
-        "yaoguang"
-      ],
-      "en": [
-        "yao guang",
-        "yaoguang"
-      ],
-      "ja": [
-        "yao guang",
-        "yaoguang"
-      ]
+      "zh-CN": ["yao guang", "yaoguang"],
+      "en": ["yao guang", "yaoguang"],
+      "ja": ["yao guang", "yaoguang"]
     },
     "element": "physical",
     "path": "elation",
@@ -5849,16 +5248,9 @@
       "ja": "不死途"
     },
     "aliases": {
-      "zh-CN": [
-        "bu si tu",
-        "busitu"
-      ],
-      "en": [
-        "ashveil"
-      ],
-      "ja": [
-        "ashveil"
-      ]
+      "zh-CN": ["bu si tu", "busitu"],
+      "en": ["ashveil"],
+      "ja": ["ashveil"]
     },
     "element": "lightning",
     "path": "hunt",
@@ -5918,16 +5310,9 @@
       "ja": "緋英"
     },
     "aliases": {
-      "zh-CN": [
-        "fei ying",
-        "feiying"
-      ],
-      "en": [
-        "evanescia"
-      ],
-      "ja": [
-        "evanescia"
-      ]
+      "zh-CN": ["fei ying", "feiying"],
+      "en": ["evanescia"],
+      "ja": ["evanescia"]
     },
     "element": "physical",
     "path": "elation",
@@ -5987,18 +5372,9 @@
       "ja": "銀狼LV.999"
     },
     "aliases": {
-      "zh-CN": [
-        "yin lang",
-        "yinlang"
-      ],
-      "en": [
-        "silver wolf lv 999",
-        "silverwolflv999"
-      ],
-      "ja": [
-        "silver wolf lv 999",
-        "silverwolflv999"
-      ]
+      "zh-CN": ["yin lang", "yinlang"],
+      "en": ["silver wolf lv 999", "silverwolflv999"],
+      "ja": ["silver wolf lv 999", "silverwolflv999"]
     },
     "element": "imaginary",
     "path": "elation",
@@ -6142,18 +5518,9 @@
       "ja": "千冶・刃"
     },
     "aliases": {
-      "zh-CN": [
-        "qian ye ren",
-        "qianyeren"
-      ],
-      "en": [
-        "mortenax blade",
-        "mortenaxblade"
-      ],
-      "ja": [
-        "mortenax blade",
-        "mortenaxblade"
-      ]
+      "zh-CN": ["qian ye ren", "qianyeren"],
+      "en": ["mortenax blade", "mortenaxblade"],
+      "ja": ["mortenax blade", "mortenaxblade"]
     },
     "element": "fire",
     "path": "nihility",
@@ -6213,16 +5580,9 @@
       "ja": "ギルガメッシュ"
     },
     "aliases": {
-      "zh-CN": [
-        "ji er jia mei shen",
-        "jierjiameishen"
-      ],
-      "en": [
-        "gilgamesh"
-      ],
-      "ja": [
-        "girugamesshu"
-      ]
+      "zh-CN": ["ji er jia mei shen", "jierjiameishen"],
+      "en": ["gilgamesh"],
+      "ja": ["girugamesshu"]
     },
     "element": "lightning",
     "path": "destruction",
@@ -6282,17 +5642,9 @@
       "ja": "姫子・旅立ち"
     },
     "aliases": {
-      "zh-CN": [
-        "ji zi qi xing",
-        "jiziqixing"
-      ],
-      "en": [
-        "himeko nova",
-        "himekonova"
-      ],
-      "ja": [
-        "chi"
-      ]
+      "zh-CN": ["ji zi qi xing", "jiziqixing"],
+      "en": ["himeko nova", "himekonova"],
+      "ja": ["chi"]
     },
     "element": "fire",
     "path": "erudition",
@@ -6352,18 +5704,9 @@
       "ja": "遠坂凛"
     },
     "aliases": {
-      "zh-CN": [
-        "yuan ban lin",
-        "yuanbanlin"
-      ],
-      "en": [
-        "rin tohsaka",
-        "rintohsaka"
-      ],
-      "ja": [
-        "rin tohsaka",
-        "rintohsaka"
-      ]
+      "zh-CN": ["yuan ban lin", "yuanbanlin"],
+      "en": ["rin tohsaka", "rintohsaka"],
+      "ja": ["rin tohsaka", "rintohsaka"]
     },
     "element": "quantum",
     "path": "erudition",
