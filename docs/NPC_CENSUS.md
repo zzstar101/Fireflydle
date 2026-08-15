@@ -119,3 +119,16 @@ Mikhail、Gopher Wood、Tiernan 等高知名度 NPC 没有在本次官方 NPC �
 ## 小型站复杂度边界
 
 `npc-census.json` 是一次版本化快照，不是新的运行时事实来源。同步脚本按需手动运行并保存响应摘要；不增加定时抓取、数据后台、复杂审批流、跨源自动实体解析或图片下载。未来 NPC 运行时应消费经确认的更小白名单，而不是在请求时直连 HoYoWiki 或把 436 条 census 整体发布给玩家。
+
+## 发布 manifest 门禁
+
+T13 不建立第二套 NPC manifest 格式。NPC 发布候选必须使用 `packages/contracts` 的 `ContentManifestSchema`，再由 `validateNpcManifest` 将其中的 NPC 目标池、候选池和实体逐项对照本 census。维护者更新 census 或 NPC manifest 生成逻辑后执行：
+
+```powershell
+bun run validate:npc-census
+bun run test:npc-manifest
+```
+
+通过与失败 fixture 位于 `scripts/fixtures/npc-manifest`，可直接审阅 T01 manifest、来源 census 和预期失败原因。CI 会先执行完整 census 校验，再验证发布 seam；缺来源或具名首次登场证据、缺任一判题字段、未完成审核、重复永久 ID、空 target、candidate-only 被选为 target、可玩角色跨池或 excluded 首领形态入池都会失败。缺少某个非关键语言名称时必须使用该记录已审核的 `fallbackLocale`，不伪造翻译，也不把该缺口升级为发布阻塞。
+
+该门禁是既有发布 Manifest seam 的 NPC 专属部分，不会开启 NPC 模式、下载素材或写入运行时数据库；这些属于后续运行时 ticket。

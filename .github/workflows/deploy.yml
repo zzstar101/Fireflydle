@@ -80,6 +80,9 @@ jobs:
       - name: Test game data
         run: bun test packages/game-data/src/index.test.ts
 
+      - name: Test NPC release manifest
+        run: bun run validate:npc-census && bun run test:npc-manifest
+
       - name: Test game engine
         run: bun --cwd packages/game-engine test
 

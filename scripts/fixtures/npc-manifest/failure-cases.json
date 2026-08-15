@@ -1,0 +1,62 @@
+[
+  {
+    "name": "缺少来源",
+    "mutation": "missing-source",
+    "expectedMessage": "缺少来源"
+  },
+  {
+    "name": "缺少主叙事地区",
+    "mutation": "missing-region",
+    "expectedMessage": "region"
+  },
+  {
+    "name": "缺少主派系",
+    "mutation": "missing-faction",
+    "expectedMessage": "faction"
+  },
+  {
+    "name": "缺少首次剧情登场版本",
+    "mutation": "missing-debut-version",
+    "expectedMessage": "debutVersion"
+  },
+  {
+    "name": "正式目标未完成人工审核",
+    "mutation": "unreviewed-target",
+    "expectedMessage": "未获得人工批准"
+  },
+  {
+    "name": "项目永久 ID 重复",
+    "mutation": "duplicate-project-id",
+    "expectedMessage": "重复项目永久 ID"
+  },
+  {
+    "name": "目标池为空",
+    "mutation": "empty-target-pool",
+    "expectedMessage": "目标池不能为空"
+  },
+  {
+    "name": "candidate-only 被选为答案",
+    "mutation": "candidate-only-target",
+    "expectedMessage": "candidate-only"
+  },
+  {
+    "name": "可玩角色混入 NPC 池",
+    "mutation": "playable-contamination",
+    "expectedMessage": "包含不兼容实体"
+  },
+  {
+    "name": "首领形态进入候选池",
+    "mutation": "boss-form",
+    "expectedMessage": "excluded"
+  },
+  {
+    "name": "缺少具名首次登场证据",
+    "mutation": "missing-debut-evidence",
+    "expectedMessage": "缺少具名首次登场证据"
+  },
+  {
+    "name": "candidate-only 错误标记人工批准",
+    "mutation": "candidate-human-approved",
+    "expectedMessage": "不是 target 却标记为 humanApproved"
+  }
+]

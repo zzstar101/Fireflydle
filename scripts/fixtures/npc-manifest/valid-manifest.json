@@ -1,0 +1,108 @@
+{
+  "manifestVersion": "1.0.0",
+  "generatedAt": "2026-08-16T00:00:00.000Z",
+  "modes": [
+    {
+      "id": "npc",
+      "label": { "zh-CN": "NPC", "en": "NPC", "ja": "NPC" },
+      "targetPoolId": "npc-targets",
+      "candidatePoolId": "npc-candidates",
+      "fields": [
+        {
+          "id": "region",
+          "label": { "zh-CN": "地区", "en": "Region", "ja": "地域" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "faction",
+          "label": { "zh-CN": "派系", "en": "Faction", "ja": "派閥" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "debut-version",
+          "label": { "zh-CN": "首次登场", "en": "Debut", "ja": "初登場" },
+          "valueType": "number",
+          "comparison": "direction",
+          "required": true,
+          "directional": true
+        }
+      ],
+      "maxAttempts": 4,
+      "rulesVersion": "1.0.0",
+      "activities": ["practice"]
+    }
+  ],
+  "activities": [
+    {
+      "id": "practice",
+      "label": { "zh-CN": "练习", "en": "Practice", "ja": "練習" },
+      "modeIds": ["npc"],
+      "enabled": true
+    }
+  ],
+  "pools": [
+    {
+      "id": "npc-targets",
+      "modeId": "npc",
+      "targetIds": ["npc-express-guide"],
+      "candidateIds": ["npc-express-guide"]
+    },
+    {
+      "id": "npc-candidates",
+      "modeId": "npc",
+      "targetIds": ["npc-express-guide"],
+      "candidateIds": ["npc-express-guide", "npc-station-merchant"]
+    }
+  ],
+  "entities": [
+    {
+      "id": "npc-express-guide",
+      "kind": "npc",
+      "names": { "zh-CN": "列车向导", "en": "Express Guide", "ja": "列车向导" },
+      "aliases": { "zh-CN": [], "en": [], "ja": [] },
+      "source": { "url": "https://example.com/npc/express-guide", "revision": "2026-08-16" },
+      "reviewStatus": "approved",
+      "payload": {
+        "regionId": "astral-express",
+        "factionId": "astral-express",
+        "debutVersionId": "1.0",
+        "assets": {
+          "avatarPath": "/assets/npc/express-guide.webp",
+          "portraitPath": "/assets/npc/express-guide.png",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "rightsNotice": "仅用于测试"
+        }
+      }
+    },
+    {
+      "id": "npc-station-merchant",
+      "kind": "npc",
+      "names": {
+        "zh-CN": "空间站商人",
+        "en": "Station Merchant",
+        "ja": "宇宙ステーション商人"
+      },
+      "aliases": { "zh-CN": [], "en": [], "ja": [] },
+      "source": {
+        "url": "https://example.com/npc/station-merchant",
+        "revision": "2026-08-16"
+      },
+      "reviewStatus": "approved",
+      "payload": {
+        "regionId": "herta-space-station",
+        "factionId": "herta-space-station",
+        "debutVersionId": "1.0",
+        "assets": {
+          "avatarPath": "/assets/npc/station-merchant.webp",
+          "portraitPath": "/assets/npc/station-merchant.png",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rightsNotice": "仅用于测试"
+        }
+      }
+    }
+  ]
+}
