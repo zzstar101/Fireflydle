@@ -138,7 +138,7 @@ describe("单人模式快照迁移", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard", modeId: "currency-wars" }),
+        body: JSON.stringify({ modeId: "currency-wars", activityId: "practice" }),
       }),
     );
     expect(created).toMatchObject({
@@ -175,13 +175,12 @@ describe("单人模式快照迁移", () => {
       SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "hard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       });
 
     const created = await dataOf<PublicGame>(await request());
     const resumed = await dataOf<PublicGame>(await request());
     expect(created).toMatchObject({
-      mode: "random",
       modeId: "playable",
       activityId: "practice",
       poolRuleVersion: expect.stringMatching(/^\d+\.\d+(?:\.\d+)?$/),
@@ -198,8 +197,9 @@ describe("单人模式快照迁移", () => {
         expect.objectContaining({ id: "version" }),
       ],
     });
-    expect(created.difficulty).toBe("standard");
     expect(created.maxAttempts).toBe(6);
+    expect(created).not.toHaveProperty("mode");
+    expect(created).not.toHaveProperty("difficulty");
     expect(resumed).toMatchObject({
       id: created.id,
       modeId: created.modeId,
@@ -216,14 +216,12 @@ describe("单人模式快照迁移", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie: dailyCookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "daily", difficulty: "casual" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "daily" }),
       }),
     );
     expect(daily).toMatchObject({
-      mode: "daily",
       modeId: "playable",
       activityId: "daily",
-      difficulty: "standard",
       answer: null,
     });
   });
@@ -235,7 +233,7 @@ describe("单人模式快照迁移", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
     const stored = await env.DB.prepare("SELECT field_rules_json FROM games WHERE id = ?")
@@ -277,7 +275,7 @@ describe("单人模式快照迁移", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
     const row = await env.DB.prepare("SELECT target_character_id FROM games WHERE id = ?")
@@ -315,7 +313,7 @@ describe("单人模式快照迁移", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
     const targetRow = await env.DB.prepare(
@@ -353,7 +351,7 @@ describe("单人模式快照迁移", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
     await env.DB.prepare("UPDATE games SET field_rules_json = ? WHERE id = ?")
@@ -384,14 +382,14 @@ describe("单人模式快照迁移", () => {
     expect(result.guesses[0]?.cells.every((cell) => cell.field === "path")).toBe(true);
   });
 
-  it("练习无论请求旧难度值都在第六次错误猜测后结算", async () => {
+  it("练习使用规则快照固定次数并在第六次错误猜测后结算", async () => {
     await seedCharacters();
     const cookie = await createSession();
     const created = await dataOf<PublicGame>(
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "casual" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
     const row = await env.DB.prepare("SELECT target_character_id FROM games WHERE id = ?")
@@ -422,7 +420,11 @@ describe("单人模式快照迁移", () => {
       ]);
       expect(current.status).toBe(index === 5 ? "lost" : "active");
     }
-    expect(current).toMatchObject({ difficulty: "standard", maxAttempts: 6 });
+    expect(current).toMatchObject({
+      modeId: "playable",
+      activityId: "practice",
+      maxAttempts: 6,
+    });
     expect(current.answer?.id).toBe(row.target_character_id);
 
     const replay = await dataOf<{ kind: "solo"; game: PublicGame }>(

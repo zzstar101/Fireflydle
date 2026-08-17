@@ -32,14 +32,6 @@ export const PATHS = [
 export const PathSchema = z.enum(PATHS);
 export type Path = z.infer<typeof PathSchema>;
 
-export const DIFFICULTIES = ["casual", "standard", "hard"] as const;
-export const DifficultySchema = z.enum(DIFFICULTIES);
-export type Difficulty = z.infer<typeof DifficultySchema>;
-
-export const GAME_MODES = ["daily", "random", "multiplayer"] as const;
-export const GameModeSchema = z.enum(GAME_MODES);
-export type GameMode = z.infer<typeof GameModeSchema>;
-
 export const FEEDBACK_STATES = ["exact", "close", "miss", "unavailable"] as const;
 export const FeedbackStateSchema = z.enum(FEEDBACK_STATES);
 export type FeedbackState = z.infer<typeof FeedbackStateSchema>;
@@ -48,7 +40,6 @@ export const DIRECTIONS = ["none", "higher", "lower"] as const;
 export const DirectionSchema = z.enum(DIRECTIONS);
 export type Direction = z.infer<typeof DirectionSchema>;
 
-/** 新内容系统的稳定标识。旧的 GameMode 保留给现有 API。 */
 export const CONTENT_MODE_IDS = ["playable", "npc", "currency-wars", "aeon"] as const;
 export const ContentModeIdSchema = z.enum(CONTENT_MODE_IDS);
 export type ContentModeId = z.infer<typeof ContentModeIdSchema>;
@@ -149,7 +140,7 @@ export const CharacterSchema = z.object({
 });
 export type Character = z.infer<typeof CharacterSchema>;
 
-export const CharacterSummarySchema = CharacterSchema.pick({
+export const PlayableGameEntitySummarySchema = CharacterSchema.pick({
   id: true,
   names: true,
   aliases: true,
@@ -163,7 +154,7 @@ export const CharacterSummarySchema = CharacterSchema.pick({
   releaseOrder: true,
   assets: true,
 });
-export type CharacterSummary = z.infer<typeof CharacterSummarySchema>;
+export type PlayableGameEntitySummary = z.infer<typeof PlayableGameEntitySummarySchema>;
 
 export const NpcSummarySchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -201,7 +192,7 @@ export const CurrencyWarsUnitSummarySchema = z.strictObject({
 export type CurrencyWarsUnitSummary = z.infer<typeof CurrencyWarsUnitSummarySchema>;
 
 export const GameEntitySummarySchema = z.union([
-  CharacterSummarySchema,
+  PlayableGameEntitySummarySchema,
   NpcSummarySchema,
   CurrencyWarsUnitSummarySchema,
 ]);
@@ -245,13 +236,10 @@ export type GuessResult = z.infer<typeof GuessResultSchema>;
 
 export const PublicGameSchema = z.object({
   id: z.string().uuid(),
-  mode: GameModeSchema,
-  /** 统一内容模式/活动契约元数据，旧 mode 保留兼容现有客户端。 */
   modeId: ContentModeIdSchema,
   activityId: ActivityIdSchema,
   poolRuleVersion: RuleVersionSchema,
   manifestVersion: ManifestVersionSchema,
-  difficulty: DifficultySchema,
   dateKey: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -311,7 +299,7 @@ export type EndlessRoundResult = z.infer<typeof EndlessRoundResultSchema>;
 export const EndlessLastRoundSchema = z.object({
   roundNumber: z.number().int().positive(),
   result: EndlessRoundResultSchema,
-  answer: CharacterSummarySchema,
+  answer: PlayableGameEntitySummarySchema,
   guessCount: z.number().int().nonnegative(),
   completedAt: z.string().datetime(),
 });
@@ -332,7 +320,7 @@ export const PublicEndlessRunSchema = z.object({
   startedAt: z.string().datetime(),
   completedAt: z.string().datetime().nullable(),
   elapsedMs: z.number().int().nonnegative(),
-  answer: CharacterSummarySchema.nullable(),
+  answer: PlayableGameEntitySummarySchema.nullable(),
   lastRound: EndlessLastRoundSchema.nullable(),
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)),
 });
@@ -380,14 +368,13 @@ export const CurrentGamesSchema = z.object({
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   serverNow: z.string().datetime(),
   daily: PublicGameSchema.nullable(),
-  random: PublicGameSchema.nullable(),
+  practice: PublicGameSchema.nullable(),
 });
 export type CurrentGames = z.infer<typeof CurrentGamesSchema>;
 
-export const CreateGameRequestSchema = z.object({
-  mode: z.enum(["daily", "random"]),
-  modeId: z.enum(["playable", "npc", "currency-wars"]).optional(),
-  difficulty: DifficultySchema,
+export const CreateGameRequestSchema = z.strictObject({
+  modeId: z.enum(["playable", "npc", "currency-wars"]),
+  activityId: z.enum(["daily", "practice"]),
 });
 export type CreateGameRequest = z.infer<typeof CreateGameRequestSchema>;
 
@@ -603,7 +590,8 @@ export type EloLeaderboardEntry = z.infer<typeof EloLeaderboardEntrySchema>;
 
 export const RecentGameSummarySchema = z.object({
   id: z.string().uuid(),
-  mode: GameModeSchema,
+  modeId: ContentModeIdSchema,
+  activityId: ActivityIdSchema,
   result: z.enum(["won", "lost", "conceded", "draw"]),
   guesses: z.number().int().nonnegative(),
   elapsedMs: z.number().int().nonnegative(),
@@ -619,8 +607,8 @@ export const PersonalStatsSchema = z.object({
   dailyWon: z.number().int().nonnegative(),
   currentStreak: z.number().int().nonnegative(),
   bestStreak: z.number().int().nonnegative(),
-  randomPlayed: z.number().int().nonnegative(),
-  randomWon: z.number().int().nonnegative(),
+  practicePlayed: z.number().int().nonnegative(),
+  practiceWon: z.number().int().nonnegative(),
   rankedPlayed: z.number().int().nonnegative(),
   rankedWon: z.number().int().nonnegative(),
   averageGuesses: z.number().nonnegative(),
@@ -653,7 +641,7 @@ export const MultiplayerReplayGuessSchema = z.object({
 
 export const MultiplayerReplayRoundSchema = z.object({
   roundNumber: z.number().int().positive(),
-  answer: CharacterSummarySchema,
+  answer: PlayableGameEntitySummarySchema,
   winnerPlayerId: z.string().uuid().nullable(),
   startedAt: z.string().datetime(),
   completedAt: z.string().datetime(),

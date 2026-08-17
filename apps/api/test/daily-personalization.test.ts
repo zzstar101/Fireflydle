@@ -91,10 +91,10 @@ async function answerFor(cookie: string): Promise<string> {
     SELF.fetch("https://fireflydle.games/api/games", {
       method: "POST",
       headers: { cookie, "content-type": "application/json" },
-      body: JSON.stringify({ mode: "daily", difficulty: "casual" }),
+      body: JSON.stringify({ modeId: "playable", activityId: "daily" }),
     });
   const game = await dataOf<PublicGame>(await create());
-  expect(game.difficulty).toBe("standard");
+  expect(game).toMatchObject({ modeId: "playable", activityId: "daily", maxAttempts: 6 });
   expect(game.maxAttempts).toBe(6);
   expect((await dataOf<PublicGame>(await create())).id).toBe(game.id);
 

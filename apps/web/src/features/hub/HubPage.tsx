@@ -19,7 +19,7 @@ import { getDefaultModeNavigation } from "../modes/mode-registry";
 import { usePreferences } from "../../state/preferences";
 import "./hub.css";
 
-type HubMode = "daily" | "random" | "duel" | "npc" | "currency-wars";
+type HubMode = "daily" | "practice" | "duel" | "npc" | "currency-wars";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
@@ -77,7 +77,7 @@ function ModeBoard({
     <>
       <div className="mode-board-head">
         <span className="mode-index">
-          0{mode === "daily" ? 1 : mode === "random" ? 2 : mode === "duel" ? 3 : 4}
+          0{mode === "daily" ? 1 : mode === "practice" ? 2 : mode === "duel" ? 3 : 4}
         </span>
         <span className="mode-status">
           <i /> {status}
@@ -128,7 +128,7 @@ export default function HubPage() {
   }, []);
 
   const daily = currentGames.data?.daily ?? null;
-  const random = currentGames.data?.random ?? null;
+  const practice = currentGames.data?.practice ?? null;
   const serviceOnline = currentGames.isSuccess;
   const serviceChecking = currentGames.isPending;
   const dailyStatus = serviceChecking
@@ -144,14 +144,14 @@ export default function HubPage() {
         time: formatTime(elapsedFor(daily, now)),
       })
     : t("hub.streakValue", { count: stats.data?.currentStreak ?? 0 });
-  const randomStatus = serviceChecking
+  const practiceStatus = serviceChecking
     ? t("hub.statusSyncing")
-    : random
-      ? t("hub.statusProgress", { current: random.guesses.length, total: random.maxAttempts })
+    : practice
+      ? t("hub.statusProgress", { current: practice.guesses.length, total: practice.maxAttempts })
       : t("hub.statusReady");
-  const randomMetric = random
-    ? t("hub.elapsedValue", { time: formatTime(elapsedFor(random, now)) })
-    : t("hub.runValue", { count: stats.data?.randomPlayed ?? 0 });
+  const practiceMetric = practice
+    ? t("hub.elapsedValue", { time: formatTime(elapsedFor(practice, now)) })
+    : t("hub.runValue", { count: stats.data?.practicePlayed ?? 0 });
 
   return (
     <main className="hub-page">
@@ -194,16 +194,16 @@ export default function HubPage() {
         ) : null}
         {practiceActivity ? (
           <ModeBoard
-            mode="random"
-            to={random ? `${practiceActivity.path}?game=${random.id}` : practiceActivity.path}
+            mode="practice"
+            to={practice ? `${practiceActivity.path}?game=${practice.id}` : practiceActivity.path}
             icon={<Shuffle size={30} />}
-            status={randomStatus}
+            status={practiceStatus}
             title={t("game.random")}
             description={t("hub.randomDescription")}
-            metricLabel={random ? t("game.elapsed") : t("hub.completedRuns")}
-            metricValue={randomMetric}
-            action={random ? t("hub.continueGame") : t("hub.startRandom")}
-            active={Boolean(random)}
+            metricLabel={practice ? t("game.elapsed") : t("hub.completedRuns")}
+            metricValue={practiceMetric}
+            action={practice ? t("hub.continueGame") : t("hub.startRandom")}
+            active={Boolean(practice)}
           />
         ) : null}
         {duelActivity ? (

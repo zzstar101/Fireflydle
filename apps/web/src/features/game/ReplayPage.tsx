@@ -227,7 +227,7 @@ export default function ReplayPage() {
   };
 
   const copySummary = async () => {
-    const summary = `${game.mode.toUpperCase()} · ${game.status.toUpperCase()} · ${game.guesses.length}/${game.maxAttempts} · ${Math.floor(game.elapsedMs / 1000)}s`;
+    const summary = `${game.modeId.toUpperCase()} · ${game.activityId.toUpperCase()} · ${game.status.toUpperCase()} · ${game.guesses.length}/${game.maxAttempts} · ${Math.floor(game.elapsedMs / 1000)}s`;
     try {
       await navigator.clipboard.writeText(summary);
       setSummaryCopied(true);
@@ -247,7 +247,7 @@ export default function ReplayPage() {
       <PageHeader
         eyebrow={`REPLAY · ${game.id.slice(0, 8).toUpperCase()}`}
         title={locale === "zh-CN" ? "对局回放" : locale === "ja" ? "対局リプレイ" : "Game replay"}
-        intro={`${game.mode.toUpperCase()} · ${game.difficulty.toUpperCase()} · ${game.status.toUpperCase()}`}
+        intro={`${game.modeId.toUpperCase()} · ${game.activityId.toUpperCase()} · ${game.status.toUpperCase()}`}
         aside={
           <div className="rank-live">
             {replay.data.visibility === "private" ? <LockKeyhole size={16} /> : <Eye size={16} />}

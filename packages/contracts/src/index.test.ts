@@ -4,6 +4,7 @@ import {
   ContentManifestSchema,
   ContentModeDefinitionSchema,
   ContentEntitySchema,
+  CreateGameRequestSchema,
   FeedbackStateSchema,
   FieldDefinitionSchema,
   GuessCellSchema,
@@ -157,6 +158,18 @@ describe("字段定义", () => {
   test("必需字段必须声明可比较规则", () => {
     expect(() => FieldDefinitionSchema.parse({ ...field, required: false })).not.toThrow();
     expect(() => FieldDefinitionSchema.parse({ ...field, comparison: "not-a-rule" })).toThrow();
+  });
+});
+
+describe("单人对局运行时契约", () => {
+  test("创建请求只表达内容模式与活动", () => {
+    expect(CreateGameRequestSchema.parse({ modeId: "playable", activityId: "practice" })).toEqual({
+      modeId: "playable",
+      activityId: "practice",
+    });
+    expect(() =>
+      CreateGameRequestSchema.parse({ mode: "random", difficulty: "standard" }),
+    ).toThrow();
   });
 });
 

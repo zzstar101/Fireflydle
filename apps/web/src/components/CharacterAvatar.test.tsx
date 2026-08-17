@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import type { CharacterSummary } from "@fireflydle/contracts";
+import type { PlayableGameEntitySummary } from "@fireflydle/contracts";
 import { CharacterAvatar, getCharacterImageSources } from "./CharacterAvatar";
 
 const character = {
@@ -44,7 +44,7 @@ const character = {
       },
     ],
   },
-} as unknown as CharacterSummary;
+} as unknown as PlayableGameEntitySummary;
 
 describe("响应式头像来源", () => {
   it("按真实像素尺寸选择最近的不小于目标的变体并生成 srcset", () => {

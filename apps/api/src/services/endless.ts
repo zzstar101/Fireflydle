@@ -1,6 +1,6 @@
 import {
   CharacterSchema,
-  CharacterSummarySchema,
+  PlayableGameEntitySummarySchema,
   EndlessLastRoundSchema,
   FieldDefinitionSchema,
   GuessResultSchema,
@@ -139,7 +139,9 @@ async function toPublicRun(
     startedAt: new Date(row.started_at).toISOString(),
     completedAt: row.completed_at === null ? null : new Date(row.completed_at).toISOString(),
     elapsedMs: Math.max(0, (row.completed_at ?? now) - row.started_at),
-    answer: finished ? CharacterSummarySchema.parse(candidates[row.current_target_id]) : null,
+    answer: finished
+      ? PlayableGameEntitySummarySchema.parse(candidates[row.current_target_id])
+      : null,
     lastRound:
       row.last_round_json === null
         ? null
@@ -259,7 +261,7 @@ async function finishRound(
   const lastRound: EndlessLastRound = {
     roundNumber: row.round_number,
     result,
-    answer: CharacterSummarySchema.parse(answer),
+    answer: PlayableGameEntitySummarySchema.parse(answer),
     guessCount,
     completedAt: new Date(now).toISOString(),
   };

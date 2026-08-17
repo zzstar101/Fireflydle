@@ -94,9 +94,8 @@ describe("普通角色好友挑战", () => {
     const stableChallengerId = crypto.randomUUID();
     const challengerCookie = await createSession(stableChallengerId);
     const sourceResponse = await post("/games", creatorCookie, {
-      mode: "random",
       modeId: "playable",
-      difficulty: "standard",
+      activityId: "practice",
     });
     const source = await dataOf<PublicGame>(sourceResponse);
     const sourceRow = await env.DB.prepare("SELECT target_character_id FROM games WHERE id = ?")
@@ -178,9 +177,8 @@ describe("普通角色好友挑战", () => {
 
     const regularPractice = await dataOf<PublicGame>(
       await post("/games", challengerCookie, {
-        mode: "random",
         modeId: "playable",
-        difficulty: "standard",
+        activityId: "practice",
       }),
     );
     expect(regularPractice.id).not.toBe(started.attempt.game.id);

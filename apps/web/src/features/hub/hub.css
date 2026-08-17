@@ -174,7 +174,7 @@
   --mode-signal: var(--gold);
 }
 
-.mode-random {
+.mode-practice {
   --mode-signal: var(--cyan);
 }
 

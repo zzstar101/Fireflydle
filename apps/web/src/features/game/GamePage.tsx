@@ -108,7 +108,7 @@ function ruleLabels(t: (key: string) => string, locale: "zh-CN" | "en" | "ja") {
 }
 
 function GamePreparation({
-  mode,
+  activityId,
   contentModeId,
   checking,
   busy,
@@ -118,7 +118,7 @@ function GamePreparation({
   onOffline,
   onReplayTutorial,
 }: {
-  mode: "daily" | "random";
+  activityId: "daily" | "practice";
   contentModeId: SoloContentMode;
   checking: boolean;
   busy: boolean;
@@ -141,14 +141,14 @@ function GamePreparation({
     )?.candidateIds.length ?? 0;
 
   return (
-    <main className={`game-preparation prep-${mode}`}>
+    <main className={`game-preparation prep-${activityId}`}>
       <Link className="prep-back" to="/">
         <ArrowLeft size={16} aria-hidden="true" /> {t("hub.backToHub")}
       </Link>
       <header className="prep-header">
         <div>
           <p className="eyebrow">
-            {mode === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
+            {activityId === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
           </p>
           <h1>
             {contentModeId === "npc"
@@ -159,21 +159,21 @@ function GamePreparation({
                   : locale === "ja"
                     ? "コイン戦争"
                     : "Currency Wars"
-                : mode === "daily"
+                : activityId === "daily"
                   ? t("game.daily")
                   : t("game.random")}
           </h1>
           <p>
             {contentModeId === "npc" || contentModeId === "currency-wars"
               ? fieldSummary(locale, contentModeId)
-              : mode === "daily"
+              : activityId === "daily"
                 ? t("prep.dailyIntro")
                 : t("prep.randomIntro")}
           </p>
         </div>
         <div className="prep-route-mark" aria-hidden="true">
-          <span>{mode === "daily" ? "01" : "02"}</span>
-          <strong>{mode === "daily" ? t("game.dailyShort") : t("game.randomShort")}</strong>
+          <span>{activityId === "daily" ? "01" : "02"}</span>
+          <strong>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</strong>
         </div>
       </header>
 
@@ -182,7 +182,7 @@ function GamePreparation({
           <span>01</span>
           <div>
             <h2 id="rules-heading">
-              {mode === "daily"
+              {activityId === "daily"
                 ? locale === "zh-CN"
                   ? "今日规则"
                   : locale === "ja"
@@ -196,10 +196,10 @@ function GamePreparation({
             </h2>
             <p>
               {locale === "zh-CN"
-                ? `${contentModeId === "npc" ? "NPC 练习" : contentModeId === "currency-wars" ? "货币战争练习" : mode === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${mode === "daily" ? "，每位玩家每天只有一局。" : "。"}`
+                ? `${contentModeId === "npc" ? "NPC 练习" : contentModeId === "currency-wars" ? "货币战争练习" : activityId === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${activityId === "daily" ? "，每位玩家每天只有一局。" : "。"}`
                 : locale === "ja"
-                  ? `${contentModeId === "npc" ? "NPC練習" : contentModeId === "currency-wars" ? "コイン戦争練習" : mode === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${mode === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
-                  : `${contentModeId === "npc" ? "NPC practice" : contentModeId === "currency-wars" ? "Currency Wars practice" : mode === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${mode === "daily" ? " and one run per player." : "."}`}
+                  ? `${contentModeId === "npc" ? "NPC練習" : contentModeId === "currency-wars" ? "コイン戦争練習" : activityId === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${activityId === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
+                  : `${contentModeId === "npc" ? "NPC practice" : contentModeId === "currency-wars" ? "Currency Wars practice" : activityId === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${activityId === "daily" ? " and one run per player." : "."}`}
             </p>
           </div>
         </div>
@@ -256,7 +256,7 @@ function GamePreparation({
           </button>
         </div>
 
-        {connectionFailed && mode === "random" && contentModeId === "playable" && (
+        {connectionFailed && activityId === "practice" && contentModeId === "playable" && (
           <section className="connection-choice" role="alert" aria-labelledby="connection-title">
             <WifiOff size={22} aria-hidden="true" />
             <div>
@@ -302,12 +302,12 @@ function GamePreparation({
 }
 
 function ActiveGame({
-  mode,
+  activityId,
   contentModeId,
   session,
   onReplayTutorial,
 }: {
-  mode: "daily" | "random";
+  activityId: "daily" | "practice";
   contentModeId: SoloContentMode;
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
   onReplayTutorial?: () => void;
@@ -413,9 +413,8 @@ function ActiveGame({
     const dateKey = game.dateKey ?? getBeijingDateKey();
     const blob = await generateShareResultImage({
       locale,
-      mode,
+      activityId,
       dateKey,
-      difficulty: game.difficulty,
       guesses: game.guesses,
       ...(game.fieldDefinitions ? { fieldDefinitions: game.fieldDefinitions } : {}),
       maxAttempts: game.maxAttempts,
@@ -423,7 +422,7 @@ function ActiveGame({
       elapsedMs: game.elapsedMs,
       siteUrl,
     });
-    return { blob, fileName: shareImageFileName({ dateKey, mode }) };
+    return { blob, fileName: shareImageFileName({ dateKey, activityId }) };
   };
 
   const createShareImage = async () => {
@@ -534,7 +533,7 @@ function ActiveGame({
               ? "NPC · TRACER"
               : contentModeId === "currency-wars"
                 ? "CURRENCY WARS · TRACER"
-                : mode === "daily"
+                : activityId === "daily"
                   ? t("prep.dailyEyebrow")
                   : t("prep.randomEyebrow")}
           </p>
@@ -547,20 +546,20 @@ function ActiveGame({
                   : locale === "ja"
                     ? "コイン戦争"
                     : "Currency Wars"
-                : mode === "daily"
+                : activityId === "daily"
                   ? t("game.daily")
                   : t("game.random")}
           </h1>
           <p>{t("prep.activeIntro")}</p>
         </div>
         <div className="hero-stamp">
-          <span>{mode === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
+          <span>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
           <strong>
-            {mode === "daily"
+            {activityId === "daily"
               ? (game.dateKey ?? getBeijingDateKey()).slice(5).replace("-", ".")
               : "∞"}
           </strong>
-          <small>{mode === "daily" ? "UTC+8 · 00:00" : t("game.unlimited")}</small>
+          <small>{activityId === "daily" ? "UTC+8 · 00:00" : t("game.unlimited")}</small>
         </div>
       </section>
 
@@ -569,7 +568,7 @@ function ActiveGame({
           <div className="rail-section">
             <span className="rail-number">01</span>
             <h2>{locale === "zh-CN" ? "猜测次数" : locale === "ja" ? "推測回数" : "ATTEMPTS"}</h2>
-            <div className="locked-difficulty">
+            <div className="fixed-attempts">
               <span>{locale === "zh-CN" ? "固定" : locale === "ja" ? "固定" : "FIXED"}</span>
               <strong>{game.maxAttempts}</strong>
               <small>
@@ -618,7 +617,7 @@ function ActiveGame({
             <div>
               <span>
                 <Signal size={16} />{" "}
-                {mode === "daily"
+                {activityId === "daily"
                   ? t("home.dailyNumber", { date: game.dateKey })
                   : t("game.random")}
               </span>
@@ -629,7 +628,7 @@ function ActiveGame({
             </div>
           </div>
 
-          {mode === "random" && game.status === "active" && (
+          {activityId === "practice" && game.status === "active" && (
             <div className="active-game-tools">
               {!confirmAbandon ? (
                 <button
@@ -737,7 +736,7 @@ function ActiveGame({
                       {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
                     </button>
                   )}
-                  {mode === "daily" ? (
+                  {activityId === "daily" ? (
                     <Link className="ticket-button" to="/">
                       <ArrowLeft size={17} /> {t("hub.backToHub")}
                     </Link>
@@ -751,7 +750,7 @@ function ActiveGame({
                       <RotateCcw size={17} /> {t("game.playAgain")}
                     </button>
                   )}
-                  {mode === "random" && (
+                  {activityId === "practice" && (
                     <Link className="ticket-button-secondary" to="/">
                       <ArrowLeft size={17} /> {t("hub.backToHub")}
                     </Link>
@@ -809,10 +808,10 @@ function ActiveGame({
           </div>
           <div className="rail-metric">
             <span>{t("hub.nextReset")}</span>
-            <strong>{mode === "daily" ? "00:00" : "∞"}</strong>
-            <small>{mode === "daily" ? "UTC+8" : t("game.unlimited")}</small>
+            <strong>{activityId === "daily" ? "00:00" : "∞"}</strong>
+            <small>{activityId === "daily" ? "UTC+8" : t("game.unlimited")}</small>
           </div>
-          {mode === "random" ? (
+          {activityId === "practice" ? (
             <Link className="leaderboard-callout" to="/leaderboard">
               <Trophy size={18} />
               <span>{t("prep.viewLeaderboard")}</span>
@@ -843,10 +842,10 @@ function ActiveGame({
 }
 
 export default function GamePage({
-  mode,
+  activityId,
   contentModeId = "playable",
 }: {
-  mode: "daily" | "random";
+  activityId: "daily" | "practice";
   contentModeId?: SoloContentMode;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -871,7 +870,7 @@ export default function GamePage({
     queryFn: async () => {
       await ensureSession();
       const game = await apiRequest<PublicGame>(`/games/${requestedGameId}`);
-      if (game.mode !== mode || game.modeId !== contentModeId) {
+      if (game.activityId !== activityId || game.modeId !== contentModeId) {
         throw new Error("GAME_MODE_MISMATCH");
       }
       return game;
@@ -882,9 +881,9 @@ export default function GamePage({
   const initialGame = requestedGameId
     ? requestedGame.data
     : contentModeId === "playable"
-      ? currentGames.data?.[mode]
+      ? currentGames.data?.[activityId]
       : null;
-  const session = useGameSession(mode, "standard", initialGame, contentModeId);
+  const session = useGameSession(activityId, initialGame, contentModeId);
   const navigationGameId = session.navigationGameId;
   const navigationGame =
     navigationGameId && session.game?.id === navigationGameId ? session.game : null;
@@ -965,7 +964,7 @@ export default function GamePage({
 
   const page = !game ? (
     <GamePreparation
-      mode={mode}
+      activityId={activityId}
       contentModeId={contentModeId}
       checking={checking}
       busy={session.busy}
@@ -977,7 +976,7 @@ export default function GamePage({
     />
   ) : (
     <ActiveGame
-      mode={mode}
+      activityId={activityId}
       contentModeId={contentModeId}
       session={{ ...session, game }}
       onReplayTutorial={replayTutorial}

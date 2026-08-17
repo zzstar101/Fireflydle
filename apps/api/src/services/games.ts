@@ -39,8 +39,6 @@ import { ApiProblem } from "../lib/http";
 interface GameRow {
   id: string;
   user_id: string;
-  mode: PublicGame["mode"];
-  difficulty: PublicGame["difficulty"];
   date_key: string | null;
   target_character_id: string;
   max_attempts: number;
@@ -89,16 +87,16 @@ async function readGuessResults(db: D1Database, gameId: string): Promise<GuessRe
 async function readCurrentGameId(
   db: D1Database,
   userId: string,
-  mode: "daily" | "random",
+  activityId: "daily" | "practice",
   dateKey?: string,
   modeId: PublicGame["modeId"] = "playable",
 ): Promise<string | null> {
   const row =
-    mode === "daily"
+    activityId === "daily"
       ? await db
           .prepare(
             `SELECT id FROM games
-             WHERE user_id = ? AND mode = 'daily' AND date_key = ? AND mode_id = ?
+             WHERE user_id = ? AND activity_id = 'daily' AND date_key = ? AND mode_id = ?
              ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END,
                       started_at DESC, id DESC
              LIMIT 1`,
@@ -108,8 +106,8 @@ async function readCurrentGameId(
       : await db
           .prepare(
             `SELECT id FROM games
-             WHERE user_id = ? AND mode = 'random' AND status = 'active'
-               AND mode_id = ? AND activity_id = 'practice'
+             WHERE user_id = ? AND activity_id = 'practice' AND status = 'active'
+               AND mode_id = ?
              ORDER BY started_at DESC, id DESC
              LIMIT 1`,
           )
@@ -163,12 +161,10 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
   const rules = readFieldRules(row);
   return {
     id: row.id,
-    mode: row.mode,
     modeId: row.mode_id,
     activityId: row.activity_id,
     poolRuleVersion: row.pool_rule_version,
     manifestVersion: row.manifest_version,
-    difficulty: row.difficulty,
     dateKey: row.date_key,
     maxAttempts: row.max_attempts,
     guesses,
@@ -198,19 +194,19 @@ export async function getCurrentGames(
   now = Date.now(),
 ): Promise<CurrentGames> {
   const dateKey = getBeijingDateKey(now);
-  const [dailyId, randomId] = await Promise.all([
+  const [dailyId, practiceId] = await Promise.all([
     readCurrentGameId(db, userId, "daily", dateKey),
-    readCurrentGameId(db, userId, "random"),
+    readCurrentGameId(db, userId, "practice"),
   ]);
-  const [daily, random] = await Promise.all([
+  const [daily, practice] = await Promise.all([
     dailyId ? getPublicGame(db, dailyId, userId, now) : null,
-    randomId ? getPublicGame(db, randomId, userId, now) : null,
+    practiceId ? getPublicGame(db, practiceId, userId, now) : null,
   ]);
   return {
     dateKey,
     serverNow: new Date(now).toISOString(),
     daily,
-    random,
+    practice,
   };
 }
 
@@ -288,7 +284,7 @@ async function selectTarget(
   candidateSnapshots: Record<string, GameEntitySummary>;
 }> {
   if (input.modeId === "currency-wars") {
-    if (input.mode !== "random")
+    if (input.activityId !== "practice")
       throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "currency-wars-practice-only" });
     const targets = currencyWarsTargetPool.targetIds.flatMap((id) => {
       const unit = currencyWarsById.get(id);
@@ -306,7 +302,7 @@ async function selectTarget(
     return { targetId: target.id, dateKey: null, candidateSnapshots };
   }
   if (input.modeId === "npc") {
-    if (input.mode !== "random") {
+    if (input.activityId !== "practice") {
       throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "npc-practice-only" });
     }
     const targets = npcTargetPool.targetIds.flatMap((id) => {
@@ -326,7 +322,7 @@ async function selectTarget(
   const pool = await getTargetPool(db);
   const candidatePool = await getEnabledCharacters(db);
   const candidateSnapshots = Object.fromEntries(candidatePool.map((item) => [item.id, item]));
-  if (input.mode === "random") {
+  if (input.activityId === "practice") {
     const candidate = pool[secureRandomIndex(pool.length)];
     if (!candidate) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
     return { targetId: candidate.id, dateKey: null, candidateSnapshots };
@@ -435,22 +431,14 @@ export async function createGame(
   input: CreateGameRequest,
   now = Date.now(),
 ): Promise<PublicGame> {
-  const normalizedInput: CreateGameRequest = {
-    mode: input.mode,
-    modeId: input.modeId ?? "playable",
-    difficulty: "standard",
-  };
-  const dateKey = normalizedInput.mode === "daily" ? getBeijingDateKey(now) : undefined;
-  const currentId = await readCurrentGameId(
-    db,
-    userId,
-    normalizedInput.mode,
-    dateKey,
-    normalizedInput.modeId,
-  );
+  if (input.activityId === "daily" && input.modeId !== "playable") {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "daily-playable-only" });
+  }
+  const dateKey = input.activityId === "daily" ? getBeijingDateKey(now) : undefined;
+  const currentId = await readCurrentGameId(db, userId, input.activityId, dateKey, input.modeId);
   if (currentId) return getPublicGame(db, currentId, userId, now);
 
-  const target = await selectTarget(db, userId, normalizedInput, now);
+  const target = await selectTarget(db, userId, input, now);
 
   const gameId = crypto.randomUUID();
   try {
@@ -465,24 +453,24 @@ export async function createGame(
       .bind(
         gameId,
         userId,
-        normalizedInput.mode,
-        normalizedInput.modeId,
-        normalizedInput.mode === "daily" ? "daily" : "practice",
-        normalizedInput.modeId === "npc"
+        input.activityId === "daily" ? "daily" : "random",
+        input.modeId,
+        input.activityId,
+        input.modeId === "npc"
           ? npcMode.rulesVersion
-          : normalizedInput.modeId === "currency-wars"
+          : input.modeId === "currency-wars"
             ? currencyWarsMode.rulesVersion
             : playableMode!.rulesVersion,
-        normalizedInput.modeId === "npc"
+        input.modeId === "npc"
           ? npcManifest.manifestVersion
-          : normalizedInput.modeId === "currency-wars"
+          : input.modeId === "currency-wars"
             ? currencyWarsManifest.manifestVersion
             : contentManifest.manifestVersion,
-        normalizedInput.difficulty,
+        "standard",
         target.dateKey,
         target.targetId,
         JSON.stringify(
-          (normalizedInput.modeId === "npc" || normalizedInput.modeId === "currency-wars"
+          (input.modeId === "npc" || input.modeId === "currency-wars"
             ? target.candidateSnapshots[target.targetId]
             : await getCharacterSnapshot(db, target.targetId)) ??
             (() => {
@@ -492,21 +480,21 @@ export async function createGame(
         JSON.stringify(target.candidateSnapshots),
         JSON.stringify({
           rules:
-            normalizedInput.modeId === "npc"
+            input.modeId === "npc"
               ? NPC_SNAPSHOT_FIELD_RULES
-              : normalizedInput.modeId === "currency-wars"
+              : input.modeId === "currency-wars"
                 ? CURRENCY_WARS_FIELD_RULES
                 : snapshotFieldRules,
           definitions:
-            normalizedInput.modeId === "npc"
+            input.modeId === "npc"
               ? npcMode.fields
-              : normalizedInput.modeId === "currency-wars"
+              : input.modeId === "currency-wars"
                 ? currencyWarsMode.fields
                 : selectSnapshotFieldDefinitions(playableMode!.fields),
         }),
-        normalizedInput.modeId === "npc"
+        input.modeId === "npc"
           ? npcMode.maxAttempts
-          : normalizedInput.modeId === "currency-wars"
+          : input.modeId === "currency-wars"
             ? currencyWarsMode.maxAttempts
             : playableMode!.maxAttempts,
         now,
@@ -517,9 +505,9 @@ export async function createGame(
     const existingId = await readCurrentGameId(
       db,
       userId,
-      normalizedInput.mode,
+      input.activityId,
       target.dateKey ?? undefined,
-      normalizedInput.modeId,
+      input.modeId,
     );
     if (existingId) return getPublicGame(db, existingId, userId, now);
     throw error;
@@ -748,7 +736,7 @@ export async function concedeGame(
   const row = await readGameRow(db, gameId);
   if (!row || row.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
   if (row.status !== "active") throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
-  if (row.mode === "daily" || row.activity_id === "weekly") {
+  if (row.activity_id === "daily" || row.activity_id === "weekly") {
     throw new ApiProblem("FORBIDDEN", 403, { reason: "challenge-cannot-concede" });
   }
   const [statusWrite] = await db.batch([

@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import type { CharacterSummary, LocalizedAliases, LocalizedText } from "@fireflydle/contracts";
+import type {
+  LocalizedAliases,
+  LocalizedText,
+  PlayableGameEntitySummary,
+} from "@fireflydle/contracts";
 
 import { buildSearchIndexEntry, searchEntities } from "./search";
 
@@ -14,7 +18,7 @@ const entity = (
   id: string,
   entityNames: LocalizedText,
   entityAliases: LocalizedAliases = aliases(),
-): CharacterSummary => ({
+): PlayableGameEntitySummary => ({
   id,
   names: entityNames,
   aliases: entityAliases,

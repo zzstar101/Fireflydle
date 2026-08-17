@@ -5,7 +5,6 @@ import { AppShell } from "../components/AppShell";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { ModeShell } from "../features/modes/ModeShell";
 import { getDefaultMode, type ModeNavigationItem } from "../features/modes/mode-registry";
-import { getLegacyActivityRedirect } from "../features/modes/mode-routing";
 import { usePreferences } from "../state/preferences";
 
 const GamePage = lazy(() => import("../features/game/GamePage"));
@@ -64,11 +63,6 @@ function DefaultModeRedirect() {
   return <Navigate to={defaultMode.path} replace />;
 }
 
-function LegacyActivityRedirect() {
-  const { pathname, search } = useLocation();
-  return <Navigate to={getLegacyActivityRedirect(pathname, search) ?? defaultMode.path} replace />;
-}
-
 function DefaultModeLayout() {
   const locale = usePreferences((state) => state.language);
   return (
@@ -79,8 +73,8 @@ function DefaultModeLayout() {
 }
 
 function activityPage(activity: ModeNavigationItem) {
-  if (activity.id === "daily") return <GamePage key="daily" mode="daily" />;
-  if (activity.id === "practice") return <GamePage key="random" mode="random" />;
+  if (activity.id === "daily") return <GamePage key="daily" activityId="daily" />;
+  if (activity.id === "practice") return <GamePage key="practice" activityId="practice" />;
   if (activity.id === "endless") return <EndlessPage key="endless" />;
   return <DuelPage activityIds={activity.activityIds} />;
 }
@@ -97,13 +91,6 @@ function RouteContent() {
             <Route key={activity.id} path={activity.segment} element={activityPage(activity)} />
           ))}
         </Route>
-        {defaultMode.navigation.map((activity) => (
-          <Route
-            key={activity.legacyPath}
-            path={activity.legacyPath}
-            element={<LegacyActivityRedirect />}
-          />
-        ))}
         <Route path="/room/:roomId" element={<RoomPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/stats" element={<StatsPage />} />
@@ -115,12 +102,16 @@ function RouteContent() {
         <Route path="/challenge/:challengeId" element={<FriendChallengePage />} />
         <Route
           path="/npc/practice"
-          element={<GamePage key="npc-practice" mode="random" contentModeId="npc" />}
+          element={<GamePage key="npc-practice" activityId="practice" contentModeId="npc" />}
         />
         <Route
           path="/currency-wars/practice"
           element={
-            <GamePage key="currency-wars-practice" mode="random" contentModeId="currency-wars" />
+            <GamePage
+              key="currency-wars-practice"
+              activityId="practice"
+              contentModeId="currency-wars"
+            />
           }
         />
         <Route path="/legal" element={<LegalPage />} />

@@ -490,7 +490,7 @@ describe("服务端游戏裁决", () => {
       SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", modeId: "npc", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "npc", activityId: "practice" }),
       });
     const game = await dataOf<PublicGame>(await create());
     expect(game.modeId).toBe("npc");
@@ -555,13 +555,14 @@ describe("服务端游戏裁决", () => {
     expect(loss.status).toBe("lost");
     expect(loss.guesses).toHaveLength(4);
     expect(loss.answer?.id).not.toMatch(/^npc-candidate-fixture-/);
-    const stats = await dataOf<{ randomPlayed: number }>(
+    const stats = await dataOf<{ practicePlayed: number }>(
       await SELF.fetch("https://fireflydle.games/api/stats/me", { headers: { cookie } }),
     );
-    expect(stats.randomPlayed).toBe(0);
+    expect(stats.practicePlayed).toBe(0);
+    expect(stats).not.toHaveProperty("randomPlayed");
   });
 
-  it("同一模式只保留一个可继续对局，并在主动结束后允许随机换题", async () => {
+  it("旧 daily/random 请求只在创建边界映射且公开响应只返回新版契约", async () => {
     const { cookie } = await createSession();
     const create = (difficulty: "casual" | "hard") =>
       SELF.fetch("https://fireflydle.games/api/games", {
@@ -573,10 +574,11 @@ describe("服务端游戏裁决", () => {
     const casual = await dataOf<PublicGame>(casualResponse);
     const hard = await dataOf<PublicGame>(hardResponse);
     expect(hard.id).toBe(casual.id);
-    expect(casual.difficulty).toBe("standard");
     expect(casual.maxAttempts).toBe(6);
-    expect(hard.difficulty).toBe("standard");
     expect(hard.maxAttempts).toBe(6);
+    expect(casual).toMatchObject({ modeId: "playable", activityId: "daily" });
+    expect(casual).not.toHaveProperty("mode");
+    expect(casual).not.toHaveProperty("difficulty");
 
     const concede = async (id: string) =>
       dataOf<PublicGame>(
@@ -626,12 +628,13 @@ describe("服务端游戏裁决", () => {
     );
     expect(randomNext.id).not.toBe(randomFirst.id);
 
-    const current = await dataOf<{ daily: PublicGame | null; random: PublicGame | null }>(
+    const current = await dataOf<{ daily: PublicGame | null; practice: PublicGame | null }>(
       await SELF.fetch("https://fireflydle.games/api/games/current", { headers: { cookie } }),
     );
     expect(current.daily?.id).toBe(dailyDone.id);
     expect(current.daily?.status).toBe("won");
-    expect(current.random?.id).toBe(randomNext.id);
+    expect(current.practice?.id).toBe(randomNext.id);
+    expect(current).not.toHaveProperty("random");
     const schedule = await env.DB.prepare(
       "SELECT COUNT(*) AS count FROM daily_target_schedule",
     ).first<{ count: number }>();
@@ -644,7 +647,7 @@ describe("服务端游戏裁决", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
 
@@ -1775,17 +1778,17 @@ describe("访客进度合并", () => {
     expect(registered.status).toBe(201);
     const target = await dataOf<SessionData>(registered);
 
-    const createGame = async (cookie: string, mode: "daily" | "random") =>
+    const createGame = async (cookie: string, activityId: "daily" | "practice") =>
       dataOf<PublicGame>(
         await SELF.fetch("https://fireflydle.games/api/games", {
           method: "POST",
           headers: { cookie, "content-type": "application/json" },
-          body: JSON.stringify({ mode, difficulty: "standard" }),
+          body: JSON.stringify({ modeId: "playable", activityId }),
         }),
       );
     const targetDaily = await createGame(registered.headers.get("set-cookie") ?? "", "daily");
     const guestDaily = await createGame(guest.cookie, "daily");
-    const guestRandom = await createGame(guest.cookie, "random");
+    const guestRandom = await createGame(guest.cookie, "practice");
     const submitCorrect = (cookie: string, gameId: string) =>
       SELF.fetch(`https://fireflydle.games/api/games/${gameId}/guesses`, {
         method: "POST",

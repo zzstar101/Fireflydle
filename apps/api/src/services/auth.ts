@@ -64,28 +64,29 @@ async function mergeGuestProgress(
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, activity_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at,
             leaderboard_hidden_at, leaderboard_hidden_reason)
          SELECT
-           source.id, source.user_id, source.mode, source.mode_id, source.difficulty, source.date_key,
+           source.id, source.user_id, source.mode, source.mode_id, source.activity_id,
+           source.difficulty, source.date_key,
            'expired',
            (SELECT COUNT(*) FROM game_guesses gg WHERE gg.game_id = source.id),
            MAX(0, ? - source.started_at), ?, ?,
-           CASE WHEN source.mode = 'daily' THEN ? ELSE NULL END,
-           CASE WHEN source.mode = 'daily' THEN 'guest-merge-daily-conflict' ELSE NULL END
+           CASE WHEN source.activity_id = 'daily' THEN ? ELSE NULL END,
+           CASE WHEN source.activity_id = 'daily' THEN 'guest-merge-daily-conflict' ELSE NULL END
          FROM games source
          WHERE source.user_id = ? AND source.status = 'active'
            AND (
-             (source.mode = 'daily' AND EXISTS (
+             (source.activity_id = 'daily' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'daily'
+               WHERE target.user_id = ? AND target.activity_id = 'daily'
                  AND target.date_key = source.date_key
              ))
              OR
-             (source.mode = 'random' AND EXISTS (
+             (source.activity_id = 'practice' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'random'
+               WHERE target.user_id = ? AND target.activity_id = 'practice'
                  AND target.status = 'active'
              ))
            )
@@ -97,15 +98,15 @@ async function mergeGuestProgress(
         `UPDATE games SET status = 'expired', completed_at = ?, updated_at = ?
          WHERE user_id = ? AND status = 'active'
            AND (
-             (mode = 'daily' AND EXISTS (
+             (activity_id = 'daily' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'daily'
+               WHERE target.user_id = ? AND target.activity_id = 'daily'
                  AND target.date_key = games.date_key
              ))
              OR
-             (mode = 'random' AND EXISTS (
+             (activity_id = 'practice' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'random'
+               WHERE target.user_id = ? AND target.activity_id = 'practice'
                  AND target.status = 'active'
              ))
            )
@@ -120,10 +121,10 @@ async function mergeGuestProgress(
              leaderboard_hidden_reason,
              'guest-merge-daily-conflict'
            )
-         WHERE user_id = ? AND mode = 'daily' AND date_key IS NOT NULL
+         WHERE user_id = ? AND activity_id = 'daily' AND date_key IS NOT NULL
            AND EXISTS (
              SELECT 1 FROM games target
-             WHERE target.user_id = ? AND target.mode = 'daily'
+             WHERE target.user_id = ? AND target.activity_id = 'daily'
                AND target.date_key = game_results.date_key
            )
            AND ${claimExists}`,
@@ -134,9 +135,9 @@ async function mergeGuestProgress(
         `UPDATE games SET user_id = ?
          WHERE user_id = ?
            AND NOT (
-             mode = 'daily' AND EXISTS (
+             activity_id = 'daily' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'daily'
+               WHERE target.user_id = ? AND target.activity_id = 'daily'
                  AND target.date_key = games.date_key
              )
            )

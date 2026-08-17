@@ -12,7 +12,7 @@ import { MarkdownContent } from "./MarkdownContent";
 
 const quietActivityPaths = (["daily", "practice"] as const).flatMap((navigationId) => {
   const activity = getDefaultModeNavigation(navigationId);
-  return activity ? [activity.path, activity.legacyPath] : [];
+  return activity ? [activity.path] : [];
 });
 
 const quietPaths = [

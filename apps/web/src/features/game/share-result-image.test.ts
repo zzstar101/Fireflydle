@@ -20,9 +20,8 @@ describe("结果分享图片", () => {
   it("分享卡只包含猜测序号和判定状态，不包含答案身份", () => {
     const model = buildShareCardModel({
       locale: "zh-CN",
-      mode: "daily",
+      activityId: "daily",
       dateKey: "2026-08-02",
-      difficulty: "standard",
       guesses,
       maxAttempts: 6,
       won: true,
@@ -32,12 +31,12 @@ describe("结果分享图片", () => {
 
     expect(model).toMatchObject({
       brand: "萤一把",
-      mode: "每日一题",
+      activity: "每日一题",
       date: "2026.08.02",
       status: "猜中",
       attempts: "1 / 6",
       time: "01:23",
-      difficulty: "标准",
+      limit: "6",
       site: "fireflydle.games/challenge",
       qrUrl: "https://fireflydle.games/challenge/same-puzzle",
       guesses: [
@@ -50,6 +49,7 @@ describe("结果分享图片", () => {
     expect(model.fields).toEqual(["属性", "命途", "稀有度", "派系", "地区", "版本"]);
     expect(JSON.stringify(model)).not.toContain("不应出现的答案");
     expect(JSON.stringify(model)).not.toContain("Hidden");
+    expect(JSON.stringify(model)).not.toContain("难度");
   });
 
   it("按对局字段快照排列标题和反馈格", () => {
@@ -72,9 +72,8 @@ describe("结果分享图片", () => {
     ];
     const model = buildShareCardModel({
       locale: "zh-CN",
-      mode: "daily",
+      activityId: "daily",
       dateKey: "2026-08-02",
-      difficulty: "standard",
       guesses,
       fieldDefinitions,
       maxAttempts: 6,
@@ -88,16 +87,15 @@ describe("结果分享图片", () => {
   });
 
   it.each([
-    ["zh-CN" as const, "每日一题", "标准"],
-    ["en" as const, "DAILY PUZZLE", "STANDARD"],
-    ["ja" as const, "デイリー", "スタンダード"],
-  ])("%s 结果卡使用同题挑战二维码且不包含角色身份", (locale, mode, difficulty) => {
+    ["zh-CN" as const, "每日一题"],
+    ["en" as const, "DAILY PUZZLE"],
+    ["ja" as const, "デイリー"],
+  ])("%s 结果卡使用同题挑战二维码且不包含角色身份", (locale, activity) => {
     const challengeUrl = "https://fireflydle.games/challenge/00000000-0000-4000-8000-000000000029";
     const model = buildShareCardModel({
       locale,
-      mode: "daily",
+      activityId: "daily",
       dateKey: "2026-08-17",
-      difficulty: "standard",
       guesses,
       maxAttempts: 6,
       won: true,
@@ -106,8 +104,8 @@ describe("结果分享图片", () => {
     });
 
     expect(model).toMatchObject({
-      mode,
-      difficulty,
+      activity,
+      limit: "6",
       attempts: "1 / 6",
       time: "01:23",
       site: "fireflydle.games/challenge",

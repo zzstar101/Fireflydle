@@ -15,7 +15,6 @@ export interface ModeNavigationItem {
   label: LocalizedText;
   segment: string;
   path: string;
-  legacyPath: string;
   icon: ModeNavigationIcon;
   activityIds: readonly ActivityId[];
 }
@@ -53,7 +52,6 @@ function buildPlayableMode(): RegisteredContentMode {
       label: daily.label,
       segment: "daily",
       path: `${modePath}/daily`,
-      legacyPath: "/daily",
       icon: "calendar",
       activityIds: [daily.id],
     });
@@ -66,7 +64,6 @@ function buildPlayableMode(): RegisteredContentMode {
       label: practice.label,
       segment: "practice",
       path: `${modePath}/practice`,
-      legacyPath: "/random",
       icon: "shuffle",
       activityIds: [practice.id],
     });
@@ -79,7 +76,6 @@ function buildPlayableMode(): RegisteredContentMode {
       label: endless.label,
       segment: "endless",
       path: `${modePath}/endless`,
-      legacyPath: "/endless",
       icon: "infinity",
       activityIds: [endless.id],
     });
@@ -94,7 +90,6 @@ function buildPlayableMode(): RegisteredContentMode {
       label: duelLabel,
       segment: "duel",
       path: `${modePath}/duel`,
-      legacyPath: "/duel",
       icon: "swords",
       activityIds: duelActivityIds,
     });

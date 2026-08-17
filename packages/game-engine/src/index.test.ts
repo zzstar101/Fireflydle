@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Character, CurrencyWarsUnit } from "@fireflydle/contracts";
 import {
-  ATTEMPTS_BY_DIFFICULTY,
   calculateElo,
   compareCharacters,
   createGuessResult,
@@ -299,10 +298,6 @@ describe("通用字段反馈", () => {
 });
 
 describe("游戏规则", () => {
-  test("所有普通角色活动都固定六次猜测", () => {
-    expect(ATTEMPTS_BY_DIFFICULTY).toEqual({ casual: 6, standard: 6, hard: 6 });
-  });
-
   test("重复角色会被识别", () => {
     const target = character();
     const result = createGuessResult(target, target);
@@ -377,7 +372,6 @@ describe("无剧透分享", () => {
     const text = createSpoilerFreeShareText({
       locale: "zh-CN",
       dateKey: "2026-08-01",
-      difficulty: "standard",
       guesses: [guess],
       won: true,
       elapsedMs: 65_000,

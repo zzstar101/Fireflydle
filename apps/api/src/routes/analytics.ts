@@ -7,8 +7,8 @@ import type { AppContext } from "../types";
 interface AggregateRow {
   daily_played: number;
   daily_won: number;
-  random_played: number;
-  random_won: number;
+  practice_played: number;
+  practice_won: number;
   average_guesses: number | null;
 }
 
@@ -19,7 +19,8 @@ interface RankedRow {
 
 interface RecentRow {
   game_id: string;
-  mode: string;
+  mode_id: string;
+  activity_id: string;
   result: string;
   guess_count: number;
   elapsed_ms: number;
@@ -71,10 +72,10 @@ analyticsRoutes.get("/stats/me", async (context) => {
   const [aggregate, ranked, recentRows, multiplayerRows, dailyRows] = await Promise.all([
     context.env.DB.prepare(
       `SELECT
-         SUM(CASE WHEN mode = 'daily' THEN 1 ELSE 0 END) AS daily_played,
-         SUM(CASE WHEN mode = 'daily' AND result = 'won' THEN 1 ELSE 0 END) AS daily_won,
-         SUM(CASE WHEN mode = 'random' THEN 1 ELSE 0 END) AS random_played,
-         SUM(CASE WHEN mode = 'random' AND result = 'won' THEN 1 ELSE 0 END) AS random_won,
+         SUM(CASE WHEN activity_id = 'daily' THEN 1 ELSE 0 END) AS daily_played,
+         SUM(CASE WHEN activity_id = 'daily' AND result = 'won' THEN 1 ELSE 0 END) AS daily_won,
+         SUM(CASE WHEN activity_id = 'practice' THEN 1 ELSE 0 END) AS practice_played,
+         SUM(CASE WHEN activity_id = 'practice' AND result = 'won' THEN 1 ELSE 0 END) AS practice_won,
          AVG(CASE WHEN result IN ('won', 'lost') THEN guess_count END) AS average_guesses
        FROM game_results WHERE user_id = ? AND mode_id = 'playable'
          AND activity_id IN ('daily', 'practice')`,
@@ -93,7 +94,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
       .bind(auth.user.id, auth.user.id)
       .first<RankedRow>(),
     context.env.DB.prepare(
-      `SELECT game_id, mode, result, guess_count, elapsed_ms, completed_at
+      `SELECT game_id, mode_id, activity_id, result, guess_count, elapsed_ms, completed_at
        FROM game_results WHERE user_id = ? AND mode_id = 'playable'
          AND activity_id IN ('daily', 'practice')
        ORDER BY completed_at DESC LIMIT 20`,
@@ -120,7 +121,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
       `SELECT DISTINCT date_key
        FROM game_results
        WHERE user_id = ? AND mode_id = 'playable'
-         AND mode = 'daily' AND result = 'won' AND date_key IS NOT NULL
+         AND activity_id = 'daily' AND result = 'won' AND date_key IS NOT NULL
        ORDER BY date_key`,
     )
       .bind(auth.user.id)
@@ -135,15 +136,16 @@ analyticsRoutes.get("/stats/me", async (context) => {
     dailyWon: aggregate?.daily_won ?? 0,
     currentStreak: dailyStreak.current,
     bestStreak: dailyStreak.best,
-    randomPlayed: aggregate?.random_played ?? 0,
-    randomWon: aggregate?.random_won ?? 0,
+    practicePlayed: aggregate?.practice_played ?? 0,
+    practiceWon: aggregate?.practice_won ?? 0,
     rankedPlayed: ranked?.ranked_played ?? 0,
     rankedWon: ranked?.ranked_won ?? 0,
     averageGuesses: aggregate?.average_guesses ?? 0,
     recent: [
       ...recentRows.results.map((row) => ({
         id: row.game_id,
-        mode: row.mode,
+        modeId: row.mode_id,
+        activityId: row.activity_id,
         result: row.result === "expired" ? "lost" : row.result,
         guesses: row.guess_count,
         elapsedMs: row.elapsed_ms,
@@ -151,7 +153,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
       })),
       ...multiplayerRows.results.map((row) => ({
         id: row.match_id,
-        mode: "multiplayer",
+        modeId: "playable",
+        activityId: "ranked-match",
         result:
           row.winner_user_id === null
             ? "draw"

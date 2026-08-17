@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import type {
+  ActivityId,
   Character,
   CurrentGames,
-  Difficulty,
-  GameMode,
   GameEntitySummary,
   NpcSummary,
   PublicGame,
@@ -17,7 +16,6 @@ import {
   npcManifest,
 } from "@fireflydle/game-data";
 import {
-  ATTEMPTS_BY_DIFFICULTY,
   createGuessResultWithRules,
   createNpcGuessResult,
   createCurrencyWarsGuessResult,
@@ -30,7 +28,7 @@ import { ApiClientError, apiRequest, ensureSession } from "../../api/client";
 import { bundledRosterFor, loadContentRoster } from "./content-roster";
 import { currentGamesQueryKey } from "./useCurrentGames";
 
-type PlayableMode = Extract<GameMode, "daily" | "random">;
+type SoloActivity = Extract<ActivityId, "daily" | "practice">;
 type SoloContentMode = "playable" | "npc" | "currency-wars";
 type SessionSource = "server" | "local" | null;
 const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
@@ -79,15 +77,14 @@ function errorCodeOf(error: unknown): string {
 
 async function startServerGame(
   queryClient: QueryClient,
-  mode: PlayableMode,
-  difficulty: Difficulty,
+  activityId: SoloActivity,
   contentModeId: SoloContentMode,
 ): Promise<ServerStartResult> {
   // 会话与对局创建必须顺序执行，首次访客请求才能稳定携带身份 cookie。
   await ensureSession();
   const game = await apiRequest<PublicGame>("/games", {
     method: "POST",
-    body: JSON.stringify({ mode, difficulty, modeId: contentModeId }),
+    body: JSON.stringify({ modeId: contentModeId, activityId }),
   });
   const roster = await loadContentRoster(queryClient, contentModeId, game.manifestVersion);
   return { game, roster };
@@ -111,8 +108,7 @@ function localPlayerSeed(): string {
 }
 
 function targetFor(
-  mode: PlayableMode,
-  difficulty: Difficulty,
+  activityId: SoloActivity,
   contentModeId: SoloContentMode,
   salt = "",
 ): GameEntitySummary {
@@ -123,25 +119,20 @@ function targetFor(
         ? rosterFor("currency-wars")
         : characters.filter((character) => character.enabled && character.targetEligible);
   const seed =
-    mode === "daily"
+    activityId === "daily"
       ? `${getBeijingDateKey()}-${localPlayerSeed()}`
-      : `${crypto.randomUUID()}-${difficulty}-${salt}`;
+      : `${crypto.randomUUID()}-${salt}`;
   const target = eligible[stringHash(seed) % eligible.length];
   if (!target) throw new Error("题库为空");
   return target;
 }
 
-function createLocalGame(
-  mode: PlayableMode,
-  difficulty: Difficulty,
-  contentModeId: SoloContentMode,
-): PublicGame {
+function createLocalGame(activityId: SoloActivity, contentModeId: SoloContentMode): PublicGame {
   const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
-    mode,
     modeId: contentModeId,
-    activityId: mode === "daily" ? "daily" : "practice",
+    activityId,
     poolRuleVersion:
       contentModeId === "npc"
         ? npcMode.rulesVersion
@@ -154,14 +145,13 @@ function createLocalGame(
         : contentModeId === "currency-wars"
           ? currencyWarsManifest.manifestVersion
           : contentManifest.manifestVersion,
-    difficulty,
-    dateKey: mode === "daily" ? getBeijingDateKey() : null,
+    dateKey: activityId === "daily" ? getBeijingDateKey() : null,
     maxAttempts:
       contentModeId === "npc"
         ? npcMode.maxAttempts
         : contentModeId === "currency-wars"
           ? currencyWarsMode.maxAttempts
-          : ATTEMPTS_BY_DIFFICULTY[difficulty],
+          : playableMode.maxAttempts,
     guesses: [],
     status: "active",
     startedAt: now,
@@ -178,8 +168,7 @@ function createLocalGame(
 }
 
 export function useGameSession(
-  mode: PlayableMode,
-  difficulty: Difficulty,
+  activityId: SoloActivity,
   initialGame: PublicGame | null | undefined,
   contentModeId: SoloContentMode = "playable",
 ): GameSession {
@@ -194,7 +183,7 @@ export function useGameSession(
   const submitting = useRef(false);
   const startSequence = useRef(0);
   const sessionEpoch = useRef(0);
-  const sessionMode = useRef(mode);
+  const sessionActivity = useRef(activityId);
 
   const game = gameState ?? initialGame ?? null;
   const source = sourceState ?? (initialGame ? "server" : null);
@@ -207,16 +196,16 @@ export function useGameSession(
         return {
           ...current,
           serverNow: new Date().toISOString(),
-          [mode]: mode === "random" && next?.status !== "active" ? null : next,
+          [activityId]: activityId === "practice" && next?.status !== "active" ? null : next,
         };
       });
     },
-    [contentModeId, mode, queryClient],
+    [activityId, contentModeId, queryClient],
   );
 
   useEffect(() => {
-    if (sessionMode.current !== mode) {
-      sessionMode.current = mode;
+    if (sessionActivity.current !== activityId) {
+      sessionActivity.current = activityId;
       ++startSequence.current;
       sessionEpoch.current += 1;
       localTargetId.current = null;
@@ -233,7 +222,7 @@ export function useGameSession(
     setGameState(initialGame);
     setSourceState(initialGame ? "server" : null);
     localTargetId.current = null;
-  }, [contentModeId, initialGame, mode, sourceState]);
+  }, [activityId, contentModeId, initialGame, sourceState]);
 
   useEffect(() => {
     if (!initialGame || sourceState === "local") return;
@@ -266,7 +255,7 @@ export function useGameSession(
     setBusy(true);
     setErrorCode(null);
     try {
-      const result = await startServerGame(queryClient, mode, difficulty, contentModeId);
+      const result = await startServerGame(queryClient, activityId, contentModeId);
       if (sequence !== startSequence.current) return false;
       applyServerStart(result);
       setBusy(false);
@@ -277,11 +266,11 @@ export function useGameSession(
       setBusy(false);
       return false;
     }
-  }, [applyServerStart, contentModeId, difficulty, mode, queryClient]);
+  }, [activityId, applyServerStart, contentModeId, queryClient]);
 
   const startOffline = useCallback(() => {
-    const target = targetFor(mode, difficulty, contentModeId, String(Date.now()));
-    const localGame = createLocalGame(mode, difficulty, contentModeId);
+    const target = targetFor(activityId, contentModeId, String(Date.now()));
+    const localGame = createLocalGame(activityId, contentModeId);
     ++startSequence.current;
     sessionEpoch.current += 1;
     localTargetId.current = target.id;
@@ -292,7 +281,7 @@ export function useGameSession(
     setErrorCode(null);
     setBusy(false);
     return true;
-  }, [contentModeId, difficulty, mode]);
+  }, [activityId, contentModeId]);
 
   const submitGuess = useCallback(
     async (characterId: string) => {
@@ -368,16 +357,16 @@ export function useGameSession(
   );
 
   const restart = useCallback(async () => {
-    if (mode === "daily") return;
+    if (activityId === "daily") return;
     if (source === "local") {
       startOffline();
       return;
     }
     await start();
-  }, [mode, source, start, startOffline]);
+  }, [activityId, source, start, startOffline]);
 
   const abandonAndRestart = useCallback(async () => {
-    if (!game || game.status !== "active" || mode !== "random") return false;
+    if (!game || game.status !== "active" || activityId !== "practice") return false;
     if (source === "local") {
       startOffline();
       return true;
@@ -392,7 +381,7 @@ export function useGameSession(
       setGameState(conceded);
       setSourceState("server");
       writeCurrentCache(null);
-      const result = await startServerGame(queryClient, mode, difficulty, contentModeId);
+      const result = await startServerGame(queryClient, activityId, contentModeId);
       applyServerStart(result);
       void queryClient.invalidateQueries({ queryKey: ["stats"] });
       setBusy(false);
@@ -404,10 +393,9 @@ export function useGameSession(
     }
   }, [
     applyServerStart,
+    activityId,
     contentModeId,
-    difficulty,
     game,
-    mode,
     queryClient,
     source,
     startOffline,

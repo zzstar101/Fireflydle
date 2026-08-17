@@ -1,11 +1,10 @@
 import {
-  CharacterSummarySchema,
+  PlayableGameEntitySummarySchema,
   CurrencyWarsUnitSummarySchema,
   NpcSummarySchema,
 } from "@fireflydle/contracts";
 import type {
   Character,
-  Difficulty,
   Direction,
   FeedbackState,
   GuessCell,
@@ -16,12 +15,6 @@ import type {
   CurrencyWarsUnit,
   CurrencyWarsUnitSummary,
 } from "@fireflydle/contracts";
-
-export const ATTEMPTS_BY_DIFFICULTY: Readonly<Record<Difficulty, number>> = {
-  casual: 6,
-  standard: 6,
-  hard: 6,
-};
 
 export const MULTIPLAYER_ATTEMPTS = 6;
 export const MULTIPLAYER_ROUND_MS = 90_000;
@@ -236,7 +229,7 @@ export function createGuessResult(
   guessedAt = new Date(),
 ): GuessResult {
   return {
-    character: CharacterSummarySchema.parse(guess),
+    character: PlayableGameEntitySummarySchema.parse(guess),
     cells: compareCharacters(target, guess),
     isCorrect: target.id === guess.id,
     guessedAt: guessedAt.toISOString(),
@@ -250,7 +243,7 @@ export function createGuessResultWithRules(
   guessedAt = new Date(),
 ): GuessResult {
   return {
-    character: CharacterSummarySchema.parse(guess),
+    character: PlayableGameEntitySummarySchema.parse(guess),
     cells: compareCharactersWithRules(target, guess, rules),
     isCorrect: target.id === guess.id,
     guessedAt: guessedAt.toISOString(),
@@ -389,31 +382,19 @@ export function canMatchRatings(left: number, right: number, longestWaitingMs: n
   return Math.abs(left - right) <= getMatchmakingRange(longestWaitingMs);
 }
 
-const SHARE_LABELS: Record<
-  Locale,
-  { title: string; casual: string; standard: string; hard: string; attempts: string; lost: string }
-> = {
+const SHARE_LABELS: Record<Locale, { title: string; attempts: string; lost: string }> = {
   "zh-CN": {
     title: "萤一把",
-    casual: "休闲",
-    standard: "标准",
-    hard: "硬核",
     attempts: "次",
     lost: "未猜中",
   },
   en: {
     title: "Fireflydle",
-    casual: "Casual",
-    standard: "Standard",
-    hard: "Hard",
     attempts: "guesses",
     lost: "X",
   },
   ja: {
     title: "Fireflydle",
-    casual: "カジュアル",
-    standard: "スタンダード",
-    hard: "ハード",
     attempts: "回",
     lost: "失敗",
   },
@@ -495,14 +476,12 @@ export function compareFieldValues(
 export function createSpoilerFreeShareText(input: {
   locale: Locale;
   dateKey: string;
-  difficulty: Difficulty;
   guesses: readonly GuessResult[];
   won: boolean;
   elapsedMs: number;
   url: string;
 }): string {
   const labels = SHARE_LABELS[input.locale];
-  const difficultyLabel = labels[input.difficulty];
   const resultLabel = input.won ? `${input.guesses.length} ${labels.attempts}` : labels.lost;
   const seconds = Math.max(0, Math.floor(input.elapsedMs / 1000));
   const minutesPart = Math.floor(seconds / 60)
@@ -514,7 +493,7 @@ export function createSpoilerFreeShareText(input: {
     .join("\n");
 
   return [
-    `${labels.title} ${input.dateKey} · ${difficultyLabel}`,
+    `${labels.title} ${input.dateKey}`,
     `${resultLabel} · ${minutesPart}:${secondsPart}`,
     "",
     grid,

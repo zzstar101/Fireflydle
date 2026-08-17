@@ -20,10 +20,10 @@ export default function StatsPage() {
     retry: false,
   });
   const data = stats.data;
-  const modeLabel = (mode: string) => {
-    if (mode === "daily")
+  const activityLabel = (activityId: string) => {
+    if (activityId === "daily")
       return locale === "zh-CN" ? "每日一题" : locale === "ja" ? "デイリー" : "Daily";
-    if (mode === "random")
+    if (activityId === "practice")
       return locale === "zh-CN" ? "随机挑战" : locale === "ja" ? "ランダム" : "Random";
     return locale === "zh-CN" ? "对战" : locale === "ja" ? "対戦" : "Duel";
   };
@@ -56,7 +56,7 @@ export default function StatsPage() {
     {
       icon: Target,
       label: locale === "zh-CN" ? "随机挑战" : locale === "ja" ? "ランダム勝利" : "Random wins",
-      value: data ? `${data.randomWon}/${data.randomPlayed}` : "—",
+      value: data ? `${data.practiceWon}/${data.practicePlayed}` : "—",
     },
     {
       icon: Gauge,
@@ -121,16 +121,16 @@ export default function StatsPage() {
                 <Target size={17} />
                 <span>
                   <strong>
-                    {modeLabel(item.mode)} · {resultLabel(item.result)}
+                    {activityLabel(item.activityId)} · {resultLabel(item.result)}
                   </strong>
                   <small>
-                    {item.mode === "multiplayer" && item.opponentDisplayName
+                    {item.activityId === "ranked-match" && item.opponentDisplayName
                       ? `${item.ranked ? (locale === "zh-CN" ? "排位" : "RANKED") : locale === "zh-CN" ? "休闲" : "CASUAL"} · ${locale === "zh-CN" ? "对阵" : "VS"} ${item.opponentDisplayName}`
                       : new Date(item.playedAt).toLocaleString(locale)}
                   </small>
                 </span>
                 <i>
-                  {item.mode === "multiplayer" && item.scoreFor !== undefined
+                  {item.activityId === "ranked-match" && item.scoreFor !== undefined
                     ? `${item.scoreFor} : ${item.scoreAgainst}`
                     : `${item.guesses} · ${Math.round(item.elapsedMs / 1000)}${locale === "zh-CN" ? " 秒" : "s"}`}
                 </i>
@@ -165,7 +165,7 @@ export default function StatsPage() {
                   ? "完成今日谜题或随机对局后，结果会出现在这里。"
                   : locale === "ja"
                     ? "デイリーまたはランダムを完了すると、ここに記録されます。"
-                    : "Complete a daily or random game to see it here."}
+                    : "Complete a daily or practice game to see it here."}
             </p>
             <Link className="ticket-button" to="/">
               {t("hub.backToHub")}
