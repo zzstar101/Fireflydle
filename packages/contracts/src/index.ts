@@ -329,7 +329,7 @@ export type EndlessRoundResult = z.infer<typeof EndlessRoundResultSchema>;
 export const EndlessLastRoundSchema = z.object({
   roundNumber: z.number().int().positive(),
   result: EndlessRoundResultSchema,
-  answer: PlayableGameEntitySummarySchema,
+  answer: GameEntitySummarySchema,
   guessCount: z.number().int().nonnegative(),
   completedAt: z.string().datetime(),
 });
@@ -337,26 +337,33 @@ export type EndlessLastRound = z.infer<typeof EndlessLastRoundSchema>;
 
 export const PublicEndlessRunSchema = z.object({
   id: z.string().uuid(),
-  modeId: z.literal("playable"),
+  modeId: z.enum(["playable", "npc", "currency-wars", "aeon"]),
   activityId: z.literal("endless"),
+  poolRuleVersion: RuleVersionSchema.default("1.0.0"),
+  manifestVersion: ManifestVersionSchema.default("1.0.0"),
   lives: z.number().int().min(0).max(5),
   clears: z.number().int().nonnegative(),
   totalGuesses: z.number().int().nonnegative(),
   skipAvailable: z.boolean(),
   status: z.enum(["active", "finished"]),
   roundNumber: z.number().int().positive(),
-  maxAttempts: z.literal(6),
+  maxAttempts: z.number().int().positive(),
   guesses: z.array(GuessResultSchema).max(6),
   startedAt: z.string().datetime(),
   completedAt: z.string().datetime().nullable(),
   elapsedMs: z.number().int().nonnegative(),
-  answer: PlayableGameEntitySummarySchema.nullable(),
+  bestClears: z.number().int().nonnegative().default(0),
+  percentile: z.number().min(0).max(100).nullable().default(null),
+  answer: GameEntitySummarySchema.nullable(),
   lastRound: EndlessLastRoundSchema.nullable(),
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)),
+  aeonImagePath: z.string().min(1).optional(),
+  aeonImageFocus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]).optional(),
 });
 export type PublicEndlessRun = z.infer<typeof PublicEndlessRunSchema>;
 
 export const EndlessLeaderboardEntrySchema = z.object({
+  modeId: ContentModeIdSchema,
   rank: z.number().int().positive(),
   displayName: z.string().min(1),
   isGuest: z.boolean(),

@@ -10,16 +10,24 @@ import {
   Trophy,
 } from "lucide-react";
 import type {
-  Character,
+  ContentModeId,
   EndlessLeaderboardEntry,
+  GameEntitySummary,
   Locale,
   PublicEndlessRun,
 } from "@fireflydle/contracts";
-import { characters } from "@fireflydle/game-data";
+import {
+  aeonEntities,
+  characters,
+  currencyWarsUnitSummaries,
+  npcEntities,
+  npcSummary,
+} from "@fireflydle/game-data";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
+import { AeonGuessBoard } from "./AeonGuessBoard";
 import "./game.css";
 import "./endless.css";
 
@@ -102,20 +110,39 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
 
-export default function EndlessPage() {
+const defaultRosters: Record<ContentModeId, readonly GameEntitySummary[]> = {
+  playable: characters,
+  npc: npcEntities.map(npcSummary),
+  "currency-wars": currencyWarsUnitSummaries,
+  aeon: aeonEntities,
+};
+
+const rosterEndpoints: Partial<Record<ContentModeId, string>> = {
+  playable: "/characters",
+  npc: "/npcs",
+  "currency-wars": "/currency-wars/units",
+};
+
+export default function EndlessPage({
+  contentModeId = "playable",
+}: {
+  contentModeId?: ContentModeId;
+}) {
   const locale = usePreferences((state) => state.language);
   const labels = copy[locale];
   const [run, setRun] = useState<PublicEndlessRun | null>(null);
-  const [roster, setRoster] = useState<readonly Character[]>(characters);
+  const [roster, setRoster] = useState<readonly GameEntitySummary[]>(defaultRosters[contentModeId]);
   const [leaderboard, setLeaderboard] = useState<EndlessLeaderboardEntry[]>([]);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState(false);
   const [now, setNow] = useState(Date.now());
 
   const loadLeaderboard = useCallback(async () => {
-    const entries = await apiRequest<EndlessLeaderboardEntry[]>("/leaderboards/endless");
+    const entries = await apiRequest<EndlessLeaderboardEntry[]>(
+      `/leaderboards/endless?modeId=${contentModeId}`,
+    );
     setLeaderboard(entries);
-  }, []);
+  }, [contentModeId]);
 
   const start = useCallback(async () => {
     setBusy(true);
@@ -123,9 +150,15 @@ export default function EndlessPage() {
     try {
       await ensureSession();
       const [nextRun, nextRoster, entries] = await Promise.all([
-        apiRequest<PublicEndlessRun>("/endless", { method: "POST" }),
-        apiRequest<Character[]>("/characters").catch(() => characters),
-        apiRequest<EndlessLeaderboardEntry[]>("/leaderboards/endless").catch(() => []),
+        apiRequest<PublicEndlessRun>(`/endless?modeId=${contentModeId}`, { method: "POST" }),
+        rosterEndpoints[contentModeId]
+          ? apiRequest<GameEntitySummary[]>(rosterEndpoints[contentModeId]!).catch(
+              () => defaultRosters[contentModeId],
+            )
+          : Promise.resolve(defaultRosters[contentModeId]),
+        apiRequest<EndlessLeaderboardEntry[]>(
+          `/leaderboards/endless?modeId=${contentModeId}`,
+        ).catch(() => []),
       ]);
       setRun(nextRun);
       setRoster(nextRoster);
@@ -135,7 +168,7 @@ export default function EndlessPage() {
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [contentModeId]);
 
   useEffect(() => {
     void start();
@@ -214,7 +247,11 @@ export default function EndlessPage() {
     <main className="endless-page">
       <header className="endless-hero">
         <div>
-          <p>{labels.eyebrow}</p>
+          <p>
+            {contentModeId === "playable"
+              ? labels.eyebrow
+              : `${contentModeId.toUpperCase()} · ${labels.board}`}
+          </p>
           <h1>{labels.title}</h1>
           <span>{labels.intro}</span>
         </div>
@@ -241,6 +278,19 @@ export default function EndlessPage() {
         <div>
           <span>{labels.guesses}</span>
           <strong>{run.totalGuesses}</strong>
+        </div>
+        <div>
+          <span>
+            {locale === "zh-CN"
+              ? "历史最佳 / 百分位"
+              : locale === "ja"
+                ? "自己ベスト / パーセンタイル"
+                : "Best / Percentile"}
+          </span>
+          <strong>
+            {run.bestClears}
+            {run.percentile === null ? "" : ` · ${run.percentile}%`}
+          </strong>
         </div>
         <div>
           <span>
@@ -298,7 +348,19 @@ export default function EndlessPage() {
               {labels.retry}
             </p>
           ) : null}
-          <GuessBoard guesses={run.guesses} locale={locale} fields={run.fieldDefinitions} />
+          {contentModeId === "aeon" ? (
+            <AeonGuessBoard
+              gameId={`${run.id}:${run.roundNumber}`}
+              wrongGuesses={run.guesses.filter((guess) => !guess.isCorrect).length}
+              answer={(run.status === "finished" ? run.answer : null) as never}
+              imagePath={run.aeonImagePath}
+              imageFocus={run.aeonImageFocus}
+              locale={locale}
+              finished={run.status === "finished"}
+            />
+          ) : (
+            <GuessBoard guesses={run.guesses} locale={locale} fields={run.fieldDefinitions} />
+          )}
         </section>
 
         <aside className="endless-board">

@@ -1,34 +1,46 @@
 import {
-  CharacterSchema,
-  PlayableGameEntitySummarySchema,
+  GameEntitySummarySchema,
   EndlessLastRoundSchema,
   FieldDefinitionSchema,
   GuessResultSchema,
-  type Character,
+  type ContentModeId,
   type EndlessLeaderboardEntry,
   type EndlessLastRound,
   type FieldDefinition,
+  type GameEntitySummary,
   type GuessResult,
   type PublicEndlessRun,
 } from "@fireflydle/contracts";
 import {
   applyEndlessRoundOutcome,
+  createAeonGuessResult,
+  createCurrencyWarsGuessResult,
   createGuessResultWithRules,
+  createNpcGuessResult,
   ENDLESS_INITIAL_LIVES,
-  ENDLESS_MAX_ATTEMPTS,
   pickFromShuffleBag,
   selectSnapshotFieldDefinitions,
   snapshotRulesFromFieldDefinitions,
   type SnapshotFieldRule,
 } from "@fireflydle/game-engine";
-import { contentManifest } from "@fireflydle/game-data";
+import {
+  aeonEntities,
+  aeonManifest,
+  contentManifest,
+  currencyWarsManifest,
+  currencyWarsSummary,
+  currencyWarsUnits,
+  npcEntities,
+  npcManifest,
+  npcSummary,
+} from "@fireflydle/game-data";
 import { getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
 
 interface EndlessRunRow {
   id: string;
   user_id: string;
-  mode_id: "playable";
+  mode_id: ContentModeId;
   status: "active" | "finished";
   lives: number;
   clears: number;
@@ -50,13 +62,26 @@ interface EndlessRunRow {
   updated_at: number;
 }
 
-const playableMode =
-  contentManifest.modes.find((mode) => mode.id === "playable") ??
-  (() => {
-    throw new Error("普通角色模式未注册");
-  })();
-const fieldRules = snapshotRulesFromFieldDefinitions(playableMode.fields);
-const fieldDefinitions = selectSnapshotFieldDefinitions(playableMode.fields);
+type EndlessEntity = Record<string, unknown> & { id: string };
+
+const manifests = {
+  playable: contentManifest,
+  npc: npcManifest,
+  "currency-wars": currencyWarsManifest,
+  aeon: aeonManifest,
+} as const;
+
+function modeDefinition(modeId: ContentModeId) {
+  const mode = manifests[modeId].modes.find((entry) => entry.id === modeId);
+  if (!mode) throw new ApiProblem("NOT_FOUND", 404, { entity: "mode" });
+  return mode;
+}
+
+function summaryFor(modeId: ContentModeId, entity: EndlessEntity): GameEntitySummary {
+  if (modeId === "currency-wars") return currencyWarsSummary(entity as never);
+  if (modeId === "aeon") return GameEntitySummarySchema.parse(entity);
+  return GameEntitySummarySchema.parse(entity);
+}
 
 function secureRandomValue(): number {
   const value = new Uint32Array(1);
@@ -83,20 +108,14 @@ async function readRoundGuesses(
   return rows.results.map((row) => GuessResultSchema.parse(JSON.parse(row.result_json)));
 }
 
-function readCandidates(row: EndlessRunRow): Record<string, Character> {
-  return Object.fromEntries(
-    Object.entries(JSON.parse(row.candidate_pool_json) as Record<string, unknown>).flatMap(
-      ([id, payload]) => {
-        const parsed = CharacterSchema.safeParse(payload);
-        return parsed.success ? [[id, parsed.data] as const] : [];
-      },
-    ),
-  );
+function readCandidates(row: EndlessRunRow): Record<string, EndlessEntity> {
+  return JSON.parse(row.candidate_pool_json) as Record<string, EndlessEntity>;
 }
 
 function readRules(row: EndlessRunRow): SnapshotFieldRule[] {
   const parsed = JSON.parse(row.field_rules_json) as { rules?: unknown };
-  if (!Array.isArray(parsed.rules)) return fieldRules;
+  if (!Array.isArray(parsed.rules))
+    return snapshotRulesFromFieldDefinitions(modeDefinition(row.mode_id).fields);
   const rules = parsed.rules.filter((rule): rule is SnapshotFieldRule => {
     if (typeof rule !== "object" || rule === null) return false;
     const value = rule as { field?: unknown; comparison?: unknown };
@@ -107,13 +126,17 @@ function readRules(row: EndlessRunRow): SnapshotFieldRule[] {
         value.comparison === "version")
     );
   });
-  return rules.length > 0 ? rules : fieldRules;
+  return rules.length > 0
+    ? rules
+    : snapshotRulesFromFieldDefinitions(modeDefinition(row.mode_id).fields);
 }
 
 function readDefinitions(row: EndlessRunRow): FieldDefinition[] {
   const parsed = JSON.parse(row.field_rules_json) as { definitions?: unknown };
   const definitions = FieldDefinitionSchema.array().safeParse(parsed.definitions);
-  return definitions.success ? definitions.data : fieldDefinitions;
+  return definitions.success
+    ? definitions.data
+    : selectSnapshotFieldDefinitions(modeDefinition(row.mode_id).fields);
 }
 
 async function toPublicRun(
@@ -124,29 +147,62 @@ async function toPublicRun(
   const guesses = await readRoundGuesses(db, row.id, row.round_number);
   const candidates = readCandidates(row);
   const finished = row.status === "finished";
+  const history = await db
+    .prepare(
+      `SELECT COALESCE(MAX(clears), 0) AS best_clears
+       FROM endless_runs WHERE user_id = ? AND mode_id = ? AND status = 'finished'`,
+    )
+    .bind(row.user_id, row.mode_id)
+    .first<{ best_clears: number }>();
+  const distribution = finished
+    ? await db
+        .prepare(
+          `SELECT COUNT(*) AS total_runs,
+              SUM(CASE WHEN clears < ? OR (clears = ? AND total_guesses >= ?) THEN 1 ELSE 0 END) AS not_better
+           FROM endless_runs WHERE mode_id = ? AND status = 'finished'`,
+        )
+        .bind(row.clears, row.clears, row.total_guesses, row.mode_id)
+        .first<{ total_runs: number; not_better: number }>()
+    : null;
   return {
     id: row.id,
-    modeId: "playable",
+    modeId: row.mode_id,
     activityId: "endless",
+    poolRuleVersion: row.pool_rule_version,
+    manifestVersion: row.manifest_version,
     lives: row.lives,
     clears: row.clears,
     totalGuesses: row.total_guesses + (finished ? 0 : guesses.length),
     skipAvailable: row.skip_used === 0 && !finished,
     status: row.status,
     roundNumber: row.round_number,
-    maxAttempts: ENDLESS_MAX_ATTEMPTS,
+    maxAttempts: modeDefinition(row.mode_id).maxAttempts,
     guesses,
     startedAt: new Date(row.started_at).toISOString(),
     completedAt: row.completed_at === null ? null : new Date(row.completed_at).toISOString(),
     elapsedMs: Math.max(0, (row.completed_at ?? now) - row.started_at),
-    answer: finished
-      ? PlayableGameEntitySummarySchema.parse(candidates[row.current_target_id])
-      : null,
+    bestClears: Math.max(row.clears, history?.best_clears ?? 0),
+    percentile:
+      finished && (distribution?.total_runs ?? 0) > 0
+        ? Math.round(((distribution?.not_better ?? 0) / (distribution?.total_runs ?? 1)) * 1000) /
+          10
+        : null,
+    answer: finished ? summaryFor(row.mode_id, candidates[row.current_target_id]!) : null,
     lastRound:
       row.last_round_json === null
         ? null
         : EndlessLastRoundSchema.parse(JSON.parse(row.last_round_json)),
     fieldDefinitions: readDefinitions(row),
+    ...(row.mode_id === "aeon"
+      ? {
+          aeonImagePath: (
+            candidates[row.current_target_id] as unknown as { assets: { imagePath: string } }
+          ).assets.imagePath,
+          aeonImageFocus: (
+            candidates[row.current_target_id] as unknown as { assets: { focus: [number, number] } }
+          ).assets.focus,
+        }
+      : {}),
   };
 }
 
@@ -177,17 +233,51 @@ function drawTarget(
 export async function createOrResumeEndlessRun(
   db: D1Database,
   userId: string,
+  modeId: ContentModeId = "playable",
   now = Date.now(),
 ): Promise<PublicEndlessRun> {
   const active = await db
-    .prepare(
-      "SELECT * FROM endless_runs WHERE user_id = ? AND mode_id = 'playable' AND status = 'active'",
-    )
-    .bind(userId)
+    .prepare("SELECT * FROM endless_runs WHERE user_id = ? AND mode_id = ? AND status = 'active'")
+    .bind(userId, modeId)
     .first<EndlessRunRow>();
   if (active) return toPublicRun(db, active, now);
 
-  const [targets, candidates] = await Promise.all([getTargetPool(db), getEnabledCharacters(db)]);
+  const definition = modeDefinition(modeId);
+  let targets: EndlessEntity[];
+  let candidates: EndlessEntity[];
+  if (modeId === "playable") {
+    [targets, candidates] = await Promise.all([getTargetPool(db), getEnabledCharacters(db)]);
+  } else if (modeId === "npc") {
+    const all = npcEntities.map((entity) => npcSummary(entity) as EndlessEntity);
+    const pool = npcManifest.pools.find((entry) => entry.id === definition.targetPoolId)!;
+    const candidatePool = npcManifest.pools.find(
+      (entry) => entry.id === definition.candidatePoolId,
+    )!;
+    targets = pool.targetIds.map((id) => all.find((entry) => entry.id === id)!);
+    candidates = candidatePool.candidateIds.map((id) => all.find((entry) => entry.id === id)!);
+  } else if (modeId === "currency-wars") {
+    const pool = currencyWarsManifest.pools.find((entry) => entry.id === definition.targetPoolId)!;
+    const candidatePool = currencyWarsManifest.pools.find(
+      (entry) => entry.id === definition.candidatePoolId,
+    )!;
+    targets = pool.targetIds.map(
+      (id) => currencyWarsUnits.find((entry) => entry.id === id) as EndlessEntity,
+    );
+    candidates = candidatePool.candidateIds.map(
+      (id) => currencyWarsUnits.find((entry) => entry.id === id) as EndlessEntity,
+    );
+  } else {
+    const pool = aeonManifest.pools.find((entry) => entry.id === definition.targetPoolId)!;
+    const candidatePool = aeonManifest.pools.find(
+      (entry) => entry.id === definition.candidatePoolId,
+    )!;
+    targets = pool.targetIds.map(
+      (id) => aeonEntities.find((entry) => entry.id === id) as EndlessEntity,
+    );
+    candidates = candidatePool.candidateIds.map(
+      (id) => aeonEntities.find((entry) => entry.id === id) as EndlessEntity,
+    );
+  }
   const targetIds = targets.map((target) => target.id);
   if (targetIds.length === 0) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
   const candidateSnapshots = Object.fromEntries(
@@ -199,22 +289,26 @@ export async function createOrResumeEndlessRun(
     await db
       .prepare(
         `INSERT INTO endless_runs
-           (id, user_id, lives, current_target_id, consumed_target_ids_json, target_pool_json,
+           (id, user_id, mode_id, lives, current_target_id, consumed_target_ids_json, target_pool_json,
             candidate_pool_json, field_rules_json, pool_rule_version, manifest_version,
             started_at, round_started_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         runId,
         userId,
+        modeId,
         ENDLESS_INITIAL_LIVES,
         first.targetId,
         JSON.stringify(first.consumedIds),
         JSON.stringify(targetIds),
         JSON.stringify(candidateSnapshots),
-        JSON.stringify({ rules: fieldRules, definitions: fieldDefinitions }),
-        playableMode.rulesVersion,
-        contentManifest.manifestVersion,
+        JSON.stringify({
+          rules: snapshotRulesFromFieldDefinitions(definition.fields),
+          definitions: selectSnapshotFieldDefinitions(definition.fields),
+        }),
+        definition.rulesVersion,
+        manifests[modeId].manifestVersion,
         now,
         now,
         now,
@@ -222,10 +316,8 @@ export async function createOrResumeEndlessRun(
       .run();
   } catch (error) {
     const existing = await db
-      .prepare(
-        "SELECT * FROM endless_runs WHERE user_id = ? AND mode_id = 'playable' AND status = 'active'",
-      )
-      .bind(userId)
+      .prepare("SELECT * FROM endless_runs WHERE user_id = ? AND mode_id = ? AND status = 'active'")
+      .bind(userId, modeId)
       .first<EndlessRunRow>();
     if (existing) return toPublicRun(db, existing, now);
     throw error;
@@ -261,7 +353,7 @@ async function finishRound(
   const lastRound: EndlessLastRound = {
     roundNumber: row.round_number,
     result,
-    answer: PlayableGameEntitySummarySchema.parse(answer),
+    answer: summaryFor(row.mode_id, answer),
     guessCount,
     completedAt: new Date(now).toISOString(),
   };
@@ -321,7 +413,19 @@ export async function submitEndlessGuess(
   const target = candidates[row.current_target_id];
   const guess = candidates[characterId];
   if (!target || !guess) throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
-  const result = createGuessResultWithRules(target, guess, readRules(row), new Date(now));
+  const result =
+    row.mode_id === "npc"
+      ? createNpcGuessResult(target as never, guess as never, new Date(now))
+      : row.mode_id === "currency-wars"
+        ? createCurrencyWarsGuessResult(target as never, guess as never, new Date(now))
+        : row.mode_id === "aeon"
+          ? createAeonGuessResult(target as never, guess as never, new Date(now))
+          : createGuessResultWithRules(
+              target as never,
+              guess as never,
+              readRules(row),
+              new Date(now),
+            );
   const ordinal = guesses.length + 1;
   await db
     .prepare(
@@ -339,7 +443,7 @@ export async function submitEndlessGuess(
       now,
     )
     .run();
-  if (result.isCorrect || ordinal >= ENDLESS_MAX_ATTEMPTS) {
+  if (result.isCorrect || ordinal >= modeDefinition(row.mode_id).maxAttempts) {
     await finishRound(db, row, result.isCorrect ? "won" : "lost", ordinal, now);
   } else {
     await db.prepare("UPDATE endless_runs SET updated_at = ? WHERE id = ?").bind(now, row.id).run();
@@ -367,19 +471,23 @@ export async function skipEndlessRound(
   return getEndlessRun(db, row.id, userId, now);
 }
 
-export async function getEndlessLeaderboard(db: D1Database): Promise<EndlessLeaderboardEntry[]> {
+export async function getEndlessLeaderboard(
+  db: D1Database,
+  modeId: ContentModeId = "playable",
+): Promise<EndlessLeaderboardEntry[]> {
   const rows = await db
     .prepare(
       `SELECT u.display_name, u.is_guest, er.clears, er.total_guesses,
               er.started_at, er.completed_at
        FROM endless_runs er
        JOIN users u ON u.id = er.user_id
-       WHERE er.mode_id = 'playable' AND er.status = 'finished'
+       WHERE er.mode_id = ? AND er.status = 'finished'
          AND u.merged_into_user_id IS NULL
        ORDER BY er.clears DESC, er.total_guesses ASC,
                 (er.completed_at - er.started_at) ASC, er.completed_at ASC, er.id ASC
        LIMIT 100`,
     )
+    .bind(modeId)
     .all<{
       display_name: string;
       is_guest: number;
@@ -389,6 +497,7 @@ export async function getEndlessLeaderboard(db: D1Database): Promise<EndlessLead
       completed_at: number;
     }>();
   return rows.results.map((row, index) => ({
+    modeId,
     rank: index + 1,
     displayName: row.display_name,
     isGuest: row.is_guest === 1,

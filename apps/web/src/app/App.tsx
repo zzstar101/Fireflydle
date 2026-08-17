@@ -75,7 +75,7 @@ function DefaultModeLayout() {
 function activityPage(activity: ModeNavigationItem) {
   if (activity.id === "daily") return <GamePage key="daily" activityId="daily" />;
   if (activity.id === "practice") return <GamePage key="practice" activityId="practice" />;
-  if (activity.id === "endless") return <EndlessPage key="endless" />;
+  if (activity.id === "endless") return <EndlessPage key="endless" contentModeId="playable" />;
   return <DuelPage activityIds={activity.activityIds} />;
 }
 
@@ -105,6 +105,10 @@ function RouteContent() {
           element={<GamePage key="npc-practice" activityId="practice" contentModeId="npc" />}
         />
         <Route
+          path="/npc/endless"
+          element={<EndlessPage key="npc-endless" contentModeId="npc" />}
+        />
+        <Route
           path="/currency-wars/practice"
           element={
             <GamePage
@@ -115,8 +119,16 @@ function RouteContent() {
           }
         />
         <Route
+          path="/currency-wars/endless"
+          element={<EndlessPage key="currency-wars-endless" contentModeId="currency-wars" />}
+        />
+        <Route
           path="/aeon/practice"
           element={<GamePage key="aeon-practice" activityId="practice" contentModeId="aeon" />}
+        />
+        <Route
+          path="/aeon/endless"
+          element={<EndlessPage key="aeon-endless" contentModeId="aeon" />}
         />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="*" element={<NotFoundPage />} />

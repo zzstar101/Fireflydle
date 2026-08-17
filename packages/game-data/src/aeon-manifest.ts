@@ -286,7 +286,7 @@ const entities = DEFINITIONS.map((definition) => ({
 }));
 
 export const aeonManifest: ContentManifest = ContentManifestSchema.parse({
-  manifestVersion: "1.0.0",
+  manifestVersion: "1.0.1",
   generatedAt: "2026-08-17T00:00:00.000Z",
   modes: [
     {
@@ -305,13 +305,19 @@ export const aeonManifest: ContentManifest = ContentManifestSchema.parse({
       ],
       maxAttempts: 6,
       rulesVersion: "1.0.0",
-      activities: ["practice"],
+      activities: ["practice", "endless"],
     },
   ],
   activities: [
     {
       id: "practice",
       label: { "zh-CN": "练习", en: "Practice", ja: "練習" },
+      modeIds: ["aeon"],
+      enabled: true,
+    },
+    {
+      id: "endless",
+      label: { "zh-CN": "无尽", en: "Endless", ja: "エンドレス" },
       modeIds: ["aeon"],
       enabled: true,
     },

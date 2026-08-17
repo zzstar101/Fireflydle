@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Clock3,
   Coins,
+  Infinity,
   RadioTower,
   Shuffle,
   Swords,
@@ -257,6 +258,25 @@ export default function HubPage() {
           action={t("hub.startRandom")}
         />
       </section>
+
+      <nav
+        className="hub-endless-links"
+        aria-label={locale === "zh-CN" ? "无尽模式" : "Endless modes"}
+      >
+        <Infinity size={18} aria-hidden="true" />
+        {(
+          [
+            ["/playable/endless", locale === "zh-CN" ? "角色无尽" : "Characters"],
+            ["/npc/endless", "NPC"],
+            ["/currency-wars/endless", locale === "zh-CN" ? "币战" : "Currency Wars"],
+            ["/aeon/endless", locale === "zh-CN" ? "星神" : "Aeons"],
+          ] as const
+        ).map(([to, label]) => (
+          <Link key={to} to={to}>
+            {label}
+          </Link>
+        ))}
+      </nav>
 
       <section className="station-status" aria-label={t("hub.stationStatus")}>
         <div>

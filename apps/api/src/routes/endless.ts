@@ -1,4 +1,4 @@
-import { SubmitGuessRequestSchema } from "@fireflydle/contracts";
+import { ContentModeIdSchema, SubmitGuessRequestSchema } from "@fireflydle/contracts";
 import { Hono } from "hono";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import {
@@ -20,7 +20,9 @@ endlessRoutes.post("/endless", async (context) => {
     limit: 10,
     windowMs: 60 * 1_000,
   });
-  return ok(context, await createOrResumeEndlessRun(context.env.DB, auth.user.id), 201);
+  const mode = ContentModeIdSchema.safeParse(context.req.query("modeId") ?? "playable");
+  if (!mode.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  return ok(context, await createOrResumeEndlessRun(context.env.DB, auth.user.id, mode.data), 201);
 });
 
 endlessRoutes.get("/endless/:runId", async (context) => {
@@ -56,5 +58,7 @@ endlessRoutes.post("/endless/:runId/skip", async (context) => {
 });
 
 endlessRoutes.get("/leaderboards/endless", async (context) => {
-  return ok(context, await getEndlessLeaderboard(context.env.DB));
+  const mode = ContentModeIdSchema.safeParse(context.req.query("modeId") ?? "playable");
+  if (!mode.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  return ok(context, await getEndlessLeaderboard(context.env.DB, mode.data));
 });

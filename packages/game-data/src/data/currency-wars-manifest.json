@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.0.1",
+  "manifestVersion": "1.0.2",
   "generatedAt": "2026-08-17T00:00:00.000Z",
   "modes": [
     {
@@ -33,13 +33,19 @@
       ],
       "maxAttempts": 6,
       "rulesVersion": "1.0.0",
-      "activities": ["practice"]
+      "activities": ["practice", "endless"]
     }
   ],
   "activities": [
     {
       "id": "practice",
       "label": { "zh-CN": "练习", "en": "Practice", "ja": "練習" },
+      "modeIds": ["currency-wars"],
+      "enabled": true
+    },
+    {
+      "id": "endless",
+      "label": { "zh-CN": "无尽", "en": "Endless", "ja": "エンドレス" },
       "modeIds": ["currency-wars"],
       "enabled": true
     }
