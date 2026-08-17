@@ -73,6 +73,31 @@ async function purgeExpiredReplays(db: D1Database, now: number): Promise<void> {
   ]);
 }
 
+async function purgeExpiredFriendChallenges(db: D1Database, now: number): Promise<void> {
+  await db.batch([
+    db
+      .prepare(
+        `INSERT OR IGNORE INTO friend_challenge_tombstones (id, mode_id, expired_at)
+         SELECT id, mode_id, expires_at
+         FROM friend_challenges
+         WHERE expires_at <= ?`,
+      )
+      .bind(now),
+    db
+      .prepare(
+        `DELETE FROM games
+         WHERE id IN (
+           SELECT attempt.game_id
+           FROM friend_challenge_attempts attempt
+           JOIN friend_challenges challenge ON challenge.id = attempt.challenge_id
+           WHERE challenge.expires_at <= ?
+         )`,
+      )
+      .bind(now),
+    db.prepare("DELETE FROM friend_challenges WHERE expires_at <= ?").bind(now),
+  ]);
+}
+
 async function anonymizeDeletedAccount(db: D1Database, userId: string, now: number): Promise<void> {
   const anonymousName = `已删除玩家-${userId.slice(0, 8)}`;
   await db.batch([
@@ -145,6 +170,7 @@ async function processAccountDeletions(db: D1Database, now: number): Promise<voi
 export async function runScheduledMaintenance(env: Env, now = Date.now()): Promise<void> {
   await expireAbandonedGames(env.DB, now);
   await purgeExpiredReplays(env.DB, now);
+  await purgeExpiredFriendChallenges(env.DB, now);
   await processAccountDeletions(env.DB, now);
   await runScheduledOperations(env, now);
   await env.DB.batch([

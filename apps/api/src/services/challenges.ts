@@ -33,7 +33,10 @@ interface ChallengeRow {
   creator_status: "won" | "lost";
   creator_guess_count: number;
   creator_elapsed_ms: number;
+  expires_at: number;
 }
+
+const CHALLENGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1_000;
 
 interface AttemptRow {
   kind: "official" | "practice";
@@ -74,12 +77,28 @@ export function compareChallengeScores(
   return "draw";
 }
 
-async function readChallenge(db: D1Database, challengeId: string): Promise<ChallengeRow> {
+async function readChallenge(
+  db: D1Database,
+  challengeId: string,
+  now: number,
+): Promise<ChallengeRow> {
   const row = await db
     .prepare("SELECT * FROM friend_challenges WHERE id = ?")
     .bind(challengeId)
     .first<ChallengeRow>();
-  if (!row) throw new ApiProblem("NOT_FOUND", 404);
+  if (!row) {
+    const tombstone = await db
+      .prepare("SELECT mode_id FROM friend_challenge_tombstones WHERE id = ?")
+      .bind(challengeId)
+      .first<{ mode_id: string }>();
+    if (tombstone) {
+      throw new ApiProblem("CHALLENGE_EXPIRED", 410, { modeId: tombstone.mode_id });
+    }
+    throw new ApiProblem("NOT_FOUND", 404);
+  }
+  if (row.expires_at <= now) {
+    throw new ApiProblem("CHALLENGE_EXPIRED", 410, { modeId: row.mode_id });
+  }
   return row;
 }
 
@@ -173,8 +192,9 @@ export async function createFriendChallenge(
         `INSERT OR IGNORE INTO friend_challenges
            (id, source_game_id, creator_user_id, mode_id, pool_rule_version, manifest_version,
             target_character_id, target_payload_json, candidate_pool_json, field_rules_json,
-            max_attempts, creator_status, creator_guess_count, creator_elapsed_ms, created_at)
-         VALUES (?, ?, ?, 'playable', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            max_attempts, creator_status, creator_guess_count, creator_elapsed_ms, created_at,
+            expires_at)
+         VALUES (?, ?, ?, 'playable', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         challengeId,
@@ -191,6 +211,7 @@ export async function createFriendChallenge(
         source.guess_count,
         Math.max(0, source.completed_at - source.started_at),
         now,
+        now + CHALLENGE_RETENTION_MS,
       )
       .run();
     const stored = await db
@@ -209,7 +230,7 @@ export async function getFriendChallenge(
   userId: string,
   now = Date.now(),
 ): Promise<FriendChallenge> {
-  return toPublicChallenge(db, await readChallenge(db, challengeId), userId, now);
+  return toPublicChallenge(db, await readChallenge(db, challengeId, now), userId, now);
 }
 
 export async function startFriendChallenge(
@@ -218,7 +239,7 @@ export async function startFriendChallenge(
   userId: string,
   now = Date.now(),
 ): Promise<FriendChallenge> {
-  const challenge = await readChallenge(db, challengeId);
+  const challenge = await readChallenge(db, challengeId, now);
   let official = await readAttempt(db, challengeId, userId, "official");
   if (official?.status === "active") return toPublicChallenge(db, challenge, userId, now);
 

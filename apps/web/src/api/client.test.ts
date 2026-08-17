@@ -36,7 +36,7 @@ globalThis.fetch = vi.fn(async (_input: string | URL | Request, init?: RequestIn
   );
 }) as never;
 
-const { ensureSession } = await import("./client");
+const { apiRequest, ensureSession } = await import("./client");
 
 describe("本地访客身份", () => {
   it("新建会话时持续发送同一个本地 UUID", async () => {
@@ -50,5 +50,26 @@ describe("本地访客身份", () => {
     expect(guestIds[1]).toBe(guestIds[0]);
     expect(first.user.id).toBe(second.user.id);
     expect(values.get("fireflydle-local-guest-id")).toBe(first.user.id);
+  });
+
+  it("保留服务端过期详情供页面返回原内容模式", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          ok: false,
+          error: {
+            code: "CHALLENGE_EXPIRED",
+            requestId: crypto.randomUUID(),
+            details: { modeId: "playable" },
+          },
+        }),
+        { status: 410, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    await expect(apiRequest("/challenges/expired")).rejects.toMatchObject({
+      code: "CHALLENGE_EXPIRED",
+      details: { modeId: "playable" },
+    });
   });
 });

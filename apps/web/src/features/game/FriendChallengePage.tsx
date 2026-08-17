@@ -3,9 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock3, RotateCcw, Swords, Trophy } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import type { Character, FriendChallenge, PublicGame } from "@fireflydle/contracts";
-import { apiRequest, ensureSession } from "../../api/client";
+import { ApiClientError, apiRequest, ensureSession } from "../../api/client";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
+import { getDefaultMode, getRegisteredMode } from "../modes/mode-registry";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import "./game.css";
@@ -46,6 +47,7 @@ export default function FriendChallengePage() {
     queryKey: ["characters", "friend-challenge"],
     queryFn: () => apiRequest<Character[]>("/characters"),
     retry: false,
+    enabled: challengeQuery.isSuccess,
   });
   const challenge = challengeQuery.data;
   const game = challenge?.attempt?.game ?? null;
@@ -94,18 +96,49 @@ export default function FriendChallengePage() {
     return <main className="challenge-page challenge-page-centered">LOADING</main>;
   }
   if (!challenge || challengeQuery.isError) {
+    const queryError = challengeQuery.error;
+    const expired = queryError instanceof ApiClientError && queryError.code === "CHALLENGE_EXPIRED";
+    const modeId =
+      expired && typeof queryError.details?.modeId === "string"
+        ? queryError.details.modeId
+        : getDefaultMode().definition.id;
+    const modePath = getRegisteredMode(modeId)?.path ?? getDefaultMode().path;
     return (
       <main className="challenge-page challenge-page-centered">
         <Swords size={28} />
         <h1>
-          {locale === "zh-CN"
-            ? "挑战不存在"
-            : locale === "ja"
-              ? "挑戦がありません"
-              : "Challenge unavailable"}
+          {expired
+            ? locale === "zh-CN"
+              ? "挑战已过期"
+              : locale === "ja"
+                ? "挑戦の期限が切れました"
+                : "Challenge expired"
+            : locale === "zh-CN"
+              ? "挑战不存在"
+              : locale === "ja"
+                ? "挑戦がありません"
+                : "Challenge unavailable"}
         </h1>
-        <Link className="ticket-button" to="/">
-          <ArrowLeft size={17} /> {locale === "zh-CN" ? "返回首页" : "Back home"}
+        {expired && (
+          <p>
+            {locale === "zh-CN"
+              ? "答案与成绩已按保留规则清除。"
+              : locale === "ja"
+                ? "回答と記録は保存期限に従って削除されました。"
+                : "The answer and scores have been removed under the retention policy."}
+          </p>
+        )}
+        <Link className="ticket-button" to={expired ? modePath : "/"}>
+          <ArrowLeft size={17} />{" "}
+          {expired
+            ? locale === "zh-CN"
+              ? "返回原模式"
+              : locale === "ja"
+                ? "元のモードへ戻る"
+                : "Back to mode"
+            : locale === "zh-CN"
+              ? "返回首页"
+              : "Back home"}
         </Link>
       </main>
     );

@@ -51,6 +51,7 @@ export class ApiClientError extends Error {
   constructor(
     public readonly code: string,
     public readonly requestId?: string,
+    public readonly details?: Record<string, unknown>,
   ) {
     super(code);
     this.name = "ApiClientError";
@@ -79,7 +80,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   if (!response.ok || !payload.ok) {
     const error = payload.ok ? undefined : payload.error;
-    throw new ApiClientError(error?.code ?? "INTERNAL_ERROR", error?.requestId);
+    throw new ApiClientError(error?.code ?? "INTERNAL_ERROR", error?.requestId, error?.details);
   }
 
   return payload.data;

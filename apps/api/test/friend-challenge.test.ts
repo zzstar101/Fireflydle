@@ -3,6 +3,7 @@ import { env } from "cloudflare:workers";
 import { SELF } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
 import { compareChallengeScores } from "../src/services/challenges";
+import { runScheduledMaintenance } from "../src/services/maintenance";
 
 const characters: Character[] = ["march-test", "firefly-test", "blade-test"].map((id, index) => ({
   id,
@@ -36,8 +37,11 @@ async function dataOf<T>(response: Response): Promise<T> {
   return payload.data;
 }
 
-async function createSession(): Promise<string> {
-  const response = await SELF.fetch("https://fireflydle.games/api/session", { method: "POST" });
+async function createSession(stableGuestId?: string): Promise<string> {
+  const response = await SELF.fetch("https://fireflydle.games/api/session", {
+    method: "POST",
+    ...(stableGuestId ? { headers: { "x-guest-id": stableGuestId } } : {}),
+  });
   const cookie = response.headers.get("set-cookie");
   if (!cookie) throw new Error("缺少 session cookie");
   return cookie;
@@ -87,7 +91,8 @@ beforeAll(async () => {
 describe("普通角色好友挑战", () => {
   it("冻结源局、隐藏答案并把首次完成后的重玩标记为练习", async () => {
     const creatorCookie = await createSession();
-    const challengerCookie = await createSession();
+    const stableChallengerId = crypto.randomUUID();
+    const challengerCookie = await createSession(stableChallengerId);
     const sourceResponse = await post("/games", creatorCookie, {
       mode: "random",
       modeId: "playable",
@@ -106,6 +111,14 @@ describe("普通角色好友挑战", () => {
       characterId: sourceRow.target_character_id,
     });
     expect((await dataOf<PublicGame>(finishedSourceResponse)).status).toBe("won");
+    const replayRetention = await env.DB.prepare(
+      "SELECT completed_at, replay_expires_at FROM game_results WHERE game_id = ?",
+    )
+      .bind(source.id)
+      .first<{ completed_at: number; replay_expires_at: number }>();
+    expect(replayRetention?.replay_expires_at).toBe(
+      (replayRetention?.completed_at ?? 0) + 30 * 24 * 60 * 60 * 1_000,
+    );
 
     const createdResponse = await post(`/games/${source.id}/challenges`, creatorCookie);
     expect(createdResponse.status).toBe(201);
@@ -122,6 +135,14 @@ describe("普通角色好友挑战", () => {
       comparison: null,
       attempt: null,
     });
+    const challengeRetention = await env.DB.prepare(
+      "SELECT created_at, expires_at FROM friend_challenges WHERE id = ?",
+    )
+      .bind(created.id)
+      .first<{ created_at: number; expires_at: number }>();
+    expect(challengeRetention?.expires_at).toBe(
+      (challengeRetention?.created_at ?? 0) + 90 * 24 * 60 * 60 * 1_000,
+    );
 
     // 创建后修改源局，挑战仍必须使用之前冻结的内容和规则。
     const replacement = characters.find(
@@ -186,8 +207,10 @@ describe("普通角色好友挑战", () => {
     expect(result.officialScore).toMatchObject({ status: "won", guessCount: 1 });
     expect(result.comparison).toBe("challenger-won");
 
+    // 丢失 cookie 后，同一本地游客 ID 仍绑定已经锁定的首次成绩。
+    const resumedChallengerCookie = await createSession(stableChallengerId);
     const replay = await dataOf<FriendChallenge>(
-      await post(`/challenges/${created.id}/attempts`, challengerCookie),
+      await post(`/challenges/${created.id}/attempts`, resumedChallengerCookie),
     );
     expect(replay.attempt?.kind).toBe("practice");
     expect(replay.attempt?.game.id).not.toBe(started.attempt.game.id);
@@ -208,6 +231,47 @@ describe("普通角色好友挑战", () => {
     );
     expect(retried.attempt?.kind).toBe("official");
     expect(retried.attempt?.game.id).not.toBe(expiring.attempt.game.id);
+
+    const expiresAt = Date.now() - 1;
+    await env.DB.prepare("UPDATE friend_challenges SET expires_at = ? WHERE id = ?")
+      .bind(expiresAt, created.id)
+      .run();
+    const expiredResponse = await SELF.fetch(
+      `https://fireflydle.games/api/challenges/${created.id}`,
+      { headers: { cookie: challengerCookie } },
+    );
+    expect(expiredResponse.status).toBe(410);
+    const expiredText = await expiredResponse.text();
+    expect(expiredText).not.toContain(sourceRow.target_character_id);
+    expect(expiredText).not.toContain("creatorScore");
+    expect(JSON.parse(expiredText)).toMatchObject({
+      ok: false,
+      error: { code: "CHALLENGE_EXPIRED", details: { modeId: "playable" } },
+    });
+    expect((await post(`/challenges/${created.id}/attempts`, challengerCookie)).status).toBe(410);
+
+    await runScheduledMaintenance(env, Date.now());
+    expect(
+      await env.DB.prepare("SELECT id FROM friend_challenges WHERE id = ?")
+        .bind(created.id)
+        .first(),
+    ).toBeNull();
+    expect(
+      await env.DB.prepare("SELECT id FROM games WHERE id = ?")
+        .bind(started.attempt.game.id)
+        .first(),
+    ).toBeNull();
+    expect(
+      await env.DB.prepare("SELECT mode_id FROM friend_challenge_tombstones WHERE id = ?")
+        .bind(created.id)
+        .first(),
+    ).toEqual({ mode_id: "playable" });
+    const tombstoneResponse = await SELF.fetch(
+      `https://fireflydle.games/api/challenges/${created.id}`,
+      { headers: { cookie: challengerCookie } },
+    );
+    expect(tombstoneResponse.status).toBe(410);
+    expect(await tombstoneResponse.text()).not.toContain(sourceRow.target_character_id);
   });
 
   it("按命中、次数、用时的顺序比较双方成绩", () => {
