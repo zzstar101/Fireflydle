@@ -4,6 +4,7 @@ import { requireAuth } from "../services/auth";
 import {
   createFriendChallenge,
   getFriendChallenge,
+  getFriendChallengeCandidates,
   startFriendChallenge,
 } from "../services/challenges";
 import { enforceRateLimit } from "../services/rate-limit";
@@ -29,6 +30,14 @@ challengeRoutes.get("/challenges/:challengeId", async (context) => {
   return ok(
     context,
     await getFriendChallenge(context.env.DB, context.req.param("challengeId"), auth.user.id),
+  );
+});
+
+challengeRoutes.get("/challenges/:challengeId/candidates", async (context) => {
+  requireAuth(context);
+  return ok(
+    context,
+    await getFriendChallengeCandidates(context.env.DB, context.req.param("challengeId")),
   );
 });
 

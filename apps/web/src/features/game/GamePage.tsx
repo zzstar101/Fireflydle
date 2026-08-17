@@ -746,7 +746,7 @@ function ActiveGame({
 
           {contentModeId === "aeon" ? (
             <AeonGuessBoard
-              gameId={game.id}
+              gameId={game.aeonRevealSeed ?? game.id}
               wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
               answer={
                 game.answer && "imagePath" in game.answer.assets
@@ -814,7 +814,7 @@ function ActiveGame({
                   </small>
                 </div>
                 <div className="result-actions">
-                  {shareable && contentModeId === "playable" && source === "server" && (
+                  {shareable && source === "server" && (
                     <button
                       ref={shareButtonRef}
                       className="ticket-button"
@@ -849,7 +849,7 @@ function ActiveGame({
                       <ArrowLeft size={17} /> {t("hub.backToHub")}
                     </Link>
                   )}
-                  {shareable && !(contentModeId === "playable" && source === "server") && (
+                  {shareable && source !== "server" && (
                     <button
                       ref={shareButtonRef}
                       className="result-share-button"

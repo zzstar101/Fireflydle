@@ -2,13 +2,18 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Clock3, RotateCcw, Swords, Trophy } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import type { Character, FriendChallenge, PublicGame } from "@fireflydle/contracts";
+import type {
+  AeonSummary,
+  FriendChallenge,
+  GameEntitySummary,
+  PublicGame,
+} from "@fireflydle/contracts";
 import { ApiClientError, apiRequest, ensureSession } from "../../api/client";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
-import { getDefaultMode, getRegisteredMode } from "../modes/mode-registry";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
+import { AeonGuessBoard } from "./AeonGuessBoard";
 import "./game.css";
 
 function formatTime(milliseconds: number): string {
@@ -29,6 +34,18 @@ function comparisonLabel(
   return locale === "zh-CN" ? "平局" : locale === "ja" ? "引き分け" : "Draw";
 }
 
+function modePath(modeId: FriendChallenge["modeId"]): string {
+  return modeId === "playable" ? "/playable" : `/${modeId}/practice`;
+}
+
+function modeLabel(modeId: FriendChallenge["modeId"], locale: "zh-CN" | "en" | "ja"): string {
+  if (modeId === "npc") return "NPC";
+  if (modeId === "currency-wars")
+    return locale === "zh-CN" ? "货币战争" : locale === "ja" ? "コイン戦争" : "Currency Wars";
+  if (modeId === "aeon") return locale === "zh-CN" ? "星神" : locale === "ja" ? "星神" : "Aeon";
+  return locale === "zh-CN" ? "角色" : locale === "ja" ? "キャラクター" : "Character";
+}
+
 export default function FriendChallengePage() {
   const { challengeId = "" } = useParams();
   const queryClient = useQueryClient();
@@ -43,13 +60,14 @@ export default function FriendChallengePage() {
     },
     retry: false,
   });
-  const rosterQuery = useQuery({
-    queryKey: ["characters", "friend-challenge"],
-    queryFn: () => apiRequest<Character[]>("/characters"),
-    retry: false,
-    enabled: challengeQuery.isSuccess,
-  });
   const challenge = challengeQuery.data;
+  const rosterQuery = useQuery({
+    queryKey: ["friend-challenge-candidates", challengeId],
+    queryFn: () => apiRequest<GameEntitySummary[]>(`/challenges/${challengeId}/candidates`),
+    staleTime: Infinity,
+    retry: false,
+    enabled: Boolean(challenge),
+  });
   const game = challenge?.attempt?.game ?? null;
   const guessedIds = useMemo(
     () => new Set(game?.guesses.map((guess) => guess.character.id) ?? []),
@@ -98,11 +116,14 @@ export default function FriendChallengePage() {
   if (!challenge || challengeQuery.isError) {
     const queryError = challengeQuery.error;
     const expired = queryError instanceof ApiClientError && queryError.code === "CHALLENGE_EXPIRED";
-    const modeId =
+    const expiredModeId =
       expired && typeof queryError.details?.modeId === "string"
         ? queryError.details.modeId
-        : getDefaultMode().definition.id;
-    const modePath = getRegisteredMode(modeId)?.path ?? getDefaultMode().path;
+        : "playable";
+    const returnPath =
+      expiredModeId === "npc" || expiredModeId === "currency-wars" || expiredModeId === "aeon"
+        ? `/${expiredModeId}/practice`
+        : "/playable";
     return (
       <main className="challenge-page challenge-page-centered">
         <Swords size={28} />
@@ -128,7 +149,7 @@ export default function FriendChallengePage() {
                 : "The answer and scores have been removed under the retention policy."}
           </p>
         )}
-        <Link className="ticket-button" to={expired ? modePath : "/"}>
+        <Link className="ticket-button" to={expired ? returnPath : "/"}>
           <ArrowLeft size={17} />{" "}
           {expired
             ? locale === "zh-CN"
@@ -148,13 +169,13 @@ export default function FriendChallengePage() {
   return (
     <main className="challenge-page">
       <header className="challenge-header">
-        <Link className="game-hub-link" to="/">
-          <ArrowLeft size={15} /> {locale === "zh-CN" ? "返回首页" : "Back home"}
+        <Link className="game-hub-link" to={modePath(challenge.modeId)}>
+          <ArrowLeft size={15} /> {locale === "zh-CN" ? "返回原模式" : "Back to mode"}
         </Link>
-        <p className="eyebrow">FRIEND CHALLENGE · PLAYABLE</p>
+        <p className="eyebrow">FRIEND CHALLENGE · {challenge.modeId.toUpperCase()}</p>
         <h1>
           {locale === "zh-CN"
-            ? "好友同题挑战"
+            ? `${modeLabel(challenge.modeId, locale)}好友同题挑战`
             : locale === "ja"
               ? "フレンド挑戦"
               : "Friend challenge"}
@@ -239,9 +260,25 @@ export default function FriendChallengePage() {
               <CharacterCombobox
                 characters={rosterQuery.data ?? []}
                 locale={locale}
+                {...(challenge.modeId === "aeon" ? { entityLabel: modeLabel("aeon", locale) } : {})}
                 excludedIds={guessedIds}
                 disabled={busy || rosterQuery.isPending}
                 onSubmit={(id) => void submitGuess(id)}
+              />
+            )}
+            {challenge.modeId === "aeon" && (
+              <AeonGuessBoard
+                gameId={game.aeonRevealSeed ?? game.id}
+                wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
+                answer={
+                  game.answer && "imagePath" in game.answer.assets
+                    ? (game.answer as AeonSummary)
+                    : null
+                }
+                imagePath={game.aeonImagePath}
+                imageFocus={game.aeonImageFocus}
+                locale={locale}
+                finished={finished}
               />
             )}
             {finished && game.answer && (
@@ -279,7 +316,9 @@ export default function FriendChallengePage() {
                 </button>
               </section>
             )}
-            <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+            {challenge.modeId !== "aeon" && (
+              <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+            )}
           </>
         )}
         {error && (

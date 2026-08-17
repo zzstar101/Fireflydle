@@ -1,11 +1,18 @@
-import type { FriendChallenge, FriendChallengeScore, PublicGame } from "@fireflydle/contracts";
+import type {
+  ContentModeId,
+  FriendChallenge,
+  FriendChallengeScore,
+  GameEntitySummary,
+  PublicGame,
+} from "@fireflydle/contracts";
+import { GameEntitySummarySchema } from "@fireflydle/contracts";
 import { ApiProblem } from "../lib/http";
 import { getPublicGame } from "./games";
 
 interface SourceGameRow {
   id: string;
   user_id: string;
-  mode_id: string;
+  mode_id: ContentModeId;
   pool_rule_version: string;
   manifest_version: string;
   target_character_id: string;
@@ -22,7 +29,7 @@ interface SourceGameRow {
 interface ChallengeRow {
   id: string;
   creator_user_id: string;
-  mode_id: "playable";
+  mode_id: ContentModeId;
   pool_rule_version: string;
   manifest_version: string;
   target_character_id: string;
@@ -37,6 +44,15 @@ interface ChallengeRow {
 }
 
 const CHALLENGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1_000;
+const CHALLENGE_MODE_IDS = new Set<ContentModeId>(["playable", "npc", "currency-wars", "aeon"]);
+
+function challengeFieldRules(source: SourceGameRow): string {
+  if (source.mode_id !== "aeon") return source.field_rules_json;
+  const parsed = JSON.parse(source.field_rules_json) as unknown;
+  const snapshot =
+    typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) ? parsed : {};
+  return JSON.stringify({ ...snapshot, aeonRevealSeed: source.id });
+}
 
 interface AttemptRow {
   kind: "official" | "practice";
@@ -142,7 +158,7 @@ async function toPublicChallenge(
   const officialScore = official ? scoreOf(official) : null;
   return {
     id: row.id,
-    modeId: "playable",
+    modeId: row.mode_id,
     activityId: "friend-challenge",
     poolRuleVersion: row.pool_rule_version,
     manifestVersion: row.manifest_version,
@@ -174,11 +190,14 @@ export async function createFriendChallenge(
     .bind(sourceGameId)
     .first<SourceGameRow>();
   if (!source || source.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
-  if (source.mode_id !== "playable" || (source.status !== "won" && source.status !== "lost")) {
-    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "completed-playable-game-required" });
+  if (
+    !CHALLENGE_MODE_IDS.has(source.mode_id) ||
+    (source.status !== "won" && source.status !== "lost")
+  ) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "completed-game-required" });
   }
   if (source.completed_at === null || source.guess_count < 1) {
-    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "completed-playable-game-required" });
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "completed-game-required" });
   }
 
   const existing = await db
@@ -194,18 +213,19 @@ export async function createFriendChallenge(
             target_character_id, target_payload_json, candidate_pool_json, field_rules_json,
             max_attempts, creator_status, creator_guess_count, creator_elapsed_ms, created_at,
             expires_at)
-         VALUES (?, ?, ?, 'playable', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         challengeId,
         source.id,
         userId,
+        source.mode_id,
         source.pool_rule_version,
         source.manifest_version,
         source.target_character_id,
         source.target_payload_json,
         source.candidate_pool_json,
-        source.field_rules_json,
+        challengeFieldRules(source),
         source.max_attempts,
         source.status,
         source.guess_count,
@@ -231,6 +251,19 @@ export async function getFriendChallenge(
   now = Date.now(),
 ): Promise<FriendChallenge> {
   return toPublicChallenge(db, await readChallenge(db, challengeId, now), userId, now);
+}
+
+export async function getFriendChallengeCandidates(
+  db: D1Database,
+  challengeId: string,
+  now = Date.now(),
+): Promise<GameEntitySummary[]> {
+  const challenge = await readChallenge(db, challengeId, now);
+  const parsed = JSON.parse(challenge.candidate_pool_json) as unknown;
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new ApiProblem("INTERNAL_ERROR", 500, { reason: "invalid-challenge-candidate-pool" });
+  }
+  return GameEntitySummarySchema.array().parse(Object.values(parsed));
 }
 
 export async function startFriendChallenge(
@@ -269,12 +302,13 @@ export async function startFriendChallenge(
              (id, user_id, mode, mode_id, activity_id, pool_rule_version, manifest_version,
               difficulty, date_key, target_character_id, target_payload_json,
               candidate_pool_json, field_rules_json, max_attempts, status, started_at, updated_at)
-           VALUES (?, ?, 'random', 'playable', 'friend-challenge', ?, ?, 'standard', NULL,
+           VALUES (?, ?, 'random', ?, 'friend-challenge', ?, ?, 'standard', NULL,
                    ?, ?, ?, ?, ?, 'active', ?, ?)`,
         )
         .bind(
           gameId,
           userId,
+          challenge.mode_id,
           challenge.pool_rule_version,
           challenge.manifest_version,
           challenge.target_character_id,

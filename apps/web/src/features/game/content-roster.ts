@@ -2,14 +2,14 @@ import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import type { GameEntitySummary } from "@fireflydle/contracts";
 import { apiRequest } from "../../api/client";
 
-export type RosterContentMode = "playable" | "npc" | "currency-wars";
+export type RosterContentMode = "playable" | "npc" | "currency-wars" | "aeon";
 
 export function contentRosterQueryKey(contentModeId: RosterContentMode, manifestVersion: string) {
   return ["content-roster", contentModeId, manifestVersion] as const;
 }
 
 export function contentRosterRequestPath(
-  contentModeId: RosterContentMode,
+  contentModeId: Exclude<RosterContentMode, "aeon">,
   manifestVersion: string,
 ): string {
   const resource =
@@ -29,6 +29,7 @@ export function contentRosterQueryOptions(
   return queryOptions({
     queryKey: contentRosterQueryKey(contentModeId, manifestVersion),
     queryFn: async (): Promise<readonly GameEntitySummary[]> => {
+      if (contentModeId === "aeon") return bundledRoster;
       try {
         return await apiRequest<GameEntitySummary[]>(
           contentRosterRequestPath(contentModeId, manifestVersion),

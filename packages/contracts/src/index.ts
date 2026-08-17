@@ -286,6 +286,7 @@ export const PublicGameSchema = z.object({
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)).optional(),
   aeonImagePath: z.string().min(1).optional(),
   aeonImageFocus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]).optional(),
+  aeonRevealSeed: z.string().min(1).optional(),
   inferenceReview: InferenceReviewSchema.optional(),
 });
 export type PublicGame = z.infer<typeof PublicGameSchema>;
@@ -396,7 +397,7 @@ export type FriendChallengeAttempt = z.infer<typeof FriendChallengeAttemptSchema
 
 export const FriendChallengeSchema = z.object({
   id: z.string().uuid(),
-  modeId: z.literal("playable"),
+  modeId: ContentModeIdSchema,
   activityId: z.literal("friend-challenge"),
   poolRuleVersion: RuleVersionSchema,
   manifestVersion: ManifestVersionSchema,

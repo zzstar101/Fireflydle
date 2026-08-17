@@ -2,6 +2,7 @@ import {
   CharacterSchema,
   AeonSummarySchema,
   CurrencyWarsUnitSummarySchema,
+  CurrencyWarsUnitSchema,
   GameEntitySummarySchema,
   NpcSummarySchema,
   FieldDefinitionSchema,
@@ -169,6 +170,15 @@ function readFieldDefinitions(
   return fieldDefinitionsForRules(rules, row.mode_id);
 }
 
+function readAeonRevealSeed(row: GameRow): string {
+  const parsed = JSON.parse(row.field_rules_json) as unknown;
+  if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+    const seed = (parsed as { aeonRevealSeed?: unknown }).aeonRevealSeed;
+    if (typeof seed === "string" && seed.length > 0) return seed;
+  }
+  return row.id;
+}
+
 function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): PublicGame {
   const finished = row.status !== "active";
   const rules = readFieldRules(row);
@@ -189,7 +199,11 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
     elapsedMs: Math.max(0, (row.completed_at ?? now) - row.started_at),
     answer: finished ? target : null,
     ...(row.mode_id === "aeon" && "imagePath" in target.assets
-      ? { aeonImagePath: target.assets.imagePath, aeonImageFocus: target.assets.focus }
+      ? {
+          aeonImagePath: target.assets.imagePath,
+          aeonImageFocus: target.assets.focus,
+          aeonRevealSeed: readAeonRevealSeed(row),
+        }
       : {}),
     fieldDefinitions: readFieldDefinitions(row, rules),
     ...(inferenceReview ? { inferenceReview } : {}),
@@ -528,6 +542,17 @@ function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {
   return rules.length > 0 ? rules : fallbackRules;
 }
 
+function readCurrencyWarsUnit(row: GameRow, unitId: string) {
+  const parsed = JSON.parse(row.field_rules_json) as unknown;
+  if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+    const units = CurrencyWarsUnitSchema.array().safeParse(
+      (parsed as { currencyWarsUnits?: unknown }).currencyWarsUnits,
+    );
+    if (units.success) return units.data.find((unit) => unit.id === unitId) ?? null;
+  }
+  return currencyWarsRuleset.units.find((unit) => unit.id === unitId) ?? null;
+}
+
 export async function createGame(
   db: D1Database,
   userId: string,
@@ -594,6 +619,9 @@ export async function createGame(
                 : input.modeId === "currency-wars"
                   ? CURRENCY_WARS_FIELD_RULES
                   : snapshotFieldRules,
+          ...(input.modeId === "currency-wars"
+            ? { currencyWarsUnits: currencyWarsRuleset.units }
+            : {}),
           definitions:
             input.modeId === "npc"
               ? npcMode.fields
@@ -672,13 +700,11 @@ export async function submitGameGuess(
           )
         : row.mode_id === "currency-wars"
           ? createCurrencyWarsGuessResult(
-              currencyWarsRuleset.units.find(
-                (unit) => unit.id === JSON.parse(row.target_payload_json).id,
-              ) ??
+              readCurrencyWarsUnit(row, JSON.parse(row.target_payload_json).id) ??
                 (() => {
                   throw new ApiProblem("INTERNAL_ERROR", 500);
                 })(),
-              currencyWarsRuleset.units.find((unit) => unit.id === characterId) ??
+              readCurrencyWarsUnit(row, characterId) ??
                 (() => {
                   throw new ApiProblem("NOT_FOUND", 404);
                 })(),
@@ -899,7 +925,11 @@ export async function concedeGame(
   const row = await readGameRow(db, gameId);
   if (!row || row.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
   if (row.status !== "active") throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
-  if (row.activity_id === "daily" || row.activity_id === "weekly") {
+  if (
+    row.activity_id === "daily" ||
+    row.activity_id === "weekly" ||
+    row.activity_id === "friend-challenge"
+  ) {
     throw new ApiProblem("FORBIDDEN", 403, { reason: "challenge-cannot-concede" });
   }
   const [statusWrite] = await db.batch([

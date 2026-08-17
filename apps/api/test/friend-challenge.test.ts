@@ -1,4 +1,4 @@
-import type { Character, FriendChallenge, PublicGame } from "@fireflydle/contracts";
+import type { Character, ContentModeId, FriendChallenge, PublicGame } from "@fireflydle/contracts";
 import { env } from "cloudflare:workers";
 import { SELF } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -292,4 +292,124 @@ describe("普通角色好友挑战", () => {
       ),
     ).toBe("challenger-won");
   });
+});
+
+describe("特殊模式好友挑战", () => {
+  for (const modeId of [
+    "npc",
+    "currency-wars",
+    "aeon",
+  ] as const satisfies readonly ContentModeId[]) {
+    it(`${modeId} 锁定快照并完成首次成绩比较`, async () => {
+      const creatorCookie = await createSession();
+      const challengerCookie = await createSession();
+      const source = await dataOf<PublicGame>(
+        await post("/games", creatorCookie, { modeId, activityId: "practice" }),
+      );
+      const sourceRow = await env.DB.prepare(
+        `SELECT target_character_id, field_rules_json
+         FROM games WHERE id = ?`,
+      )
+        .bind(source.id)
+        .first<{ target_character_id: string; field_rules_json: string }>();
+      if (!sourceRow) throw new Error("缺少特殊模式源局");
+
+      const finishedSource = await dataOf<PublicGame>(
+        await post(`/games/${source.id}/guesses`, creatorCookie, {
+          characterId: sourceRow.target_character_id,
+        }),
+      );
+      expect(finishedSource.status).toBe("won");
+
+      const createdResponse = await post(`/games/${source.id}/challenges`, creatorCookie);
+      const createdText = await createdResponse.text();
+      expect(createdResponse.status).toBe(201);
+      expect(createdText).not.toContain(sourceRow.target_character_id);
+      const created = (JSON.parse(createdText) as { data: FriendChallenge }).data;
+      expect(created).toMatchObject({
+        modeId,
+        manifestVersion: source.manifestVersion,
+        poolRuleVersion: source.poolRuleVersion,
+        maxAttempts: source.maxAttempts,
+        creatorScore: { status: "won", guessCount: 1 },
+        officialScore: null,
+        comparison: null,
+      });
+
+      const startedResponse = await post(`/challenges/${created.id}/attempts`, challengerCookie);
+      const startedText = await startedResponse.text();
+      expect(startedText).not.toContain(sourceRow.target_character_id);
+      const started = (JSON.parse(startedText) as { data: FriendChallenge }).data;
+      expect(started.attempt).toMatchObject({
+        kind: "official",
+        game: {
+          modeId,
+          activityId: "friend-challenge",
+          manifestVersion: source.manifestVersion,
+          poolRuleVersion: source.poolRuleVersion,
+          maxAttempts: source.maxAttempts,
+          answer: null,
+        },
+      });
+      if (!started.attempt) throw new Error("缺少特殊模式挑战局");
+      expect(started.attempt.game).not.toHaveProperty("skipAvailable");
+
+      const candidatesResponse = await SELF.fetch(
+        `https://fireflydle.games/api/challenges/${created.id}/candidates`,
+        { headers: { cookie: challengerCookie } },
+      );
+      const candidatesText = await candidatesResponse.text();
+      const candidates = (JSON.parse(candidatesText) as { data: Array<{ id: string }> }).data;
+      expect(candidates.some((candidate) => candidate.id === sourceRow.target_character_id)).toBe(
+        true,
+      );
+
+      const concedeResponse = await post(
+        `/games/${started.attempt.game.id}/concede`,
+        challengerCookie,
+      );
+      expect(concedeResponse.status).toBe(403);
+
+      if (modeId === "aeon") {
+        expect(source.aeonRevealSeed).toBe(source.id);
+        expect(started.attempt.game.aeonRevealSeed).toBe(source.id);
+      }
+
+      const completedResponse = await post(
+        `/games/${started.attempt.game.id}/guesses`,
+        challengerCookie,
+        { characterId: sourceRow.target_character_id },
+      );
+      const completedText = await completedResponse.text();
+      const completed = (JSON.parse(completedText) as { data: PublicGame }).data;
+      expect(completed).toMatchObject({
+        modeId,
+        status: "won",
+        answer: { id: sourceRow.target_character_id },
+        manifestVersion: source.manifestVersion,
+        poolRuleVersion: source.poolRuleVersion,
+        maxAttempts: source.maxAttempts,
+      });
+
+      if (modeId === "currency-wars") {
+        const privateSnapshot = JSON.parse(sourceRow.field_rules_json) as {
+          currencyWarsUnits?: Array<{ synergies?: string[] }>;
+        };
+        expect(
+          Boolean(privateSnapshot.currencyWarsUnits?.some((unit) => unit.synergies?.length)),
+        ).toBe(true);
+        expect(completed.guesses[0]?.character).not.toHaveProperty("synergies");
+        expect(completed.answer).not.toHaveProperty("synergies");
+        expect(candidatesText).not.toMatch(/stellaron-hunters|astral-express|masked-fools/);
+      }
+
+      const result = await dataOf<FriendChallenge>(
+        await SELF.fetch(`https://fireflydle.games/api/challenges/${created.id}`, {
+          headers: { cookie: challengerCookie },
+        }),
+      );
+      expect(result.officialScore).toMatchObject({ status: "won", guessCount: 1 });
+      expect(result.comparison).not.toBeNull();
+    });
+  }
 });

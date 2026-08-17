@@ -8,6 +8,7 @@ import {
   CreateRoomRequestSchema,
   FeedbackStateSchema,
   FieldDefinitionSchema,
+  FriendChallengeSchema,
   GuessCellSchema,
   ManifestVersionSchema,
   SearchIndexEntrySchema,
@@ -173,6 +174,27 @@ describe("单人对局运行时契约", () => {
     expect(() =>
       CreateGameRequestSchema.parse({ mode: "random", difficulty: "standard" }),
     ).toThrow();
+  });
+});
+
+describe("好友挑战契约", () => {
+  test("四种内容模式共用首次成绩协议且不提供异步跳过", () => {
+    for (const modeId of ["playable", "npc", "currency-wars", "aeon"] as const) {
+      const challenge = FriendChallengeSchema.parse({
+        id: "f4f64434-e8b5-4ba1-9094-d11b9252de29",
+        modeId,
+        activityId: "friend-challenge",
+        poolRuleVersion: "1.0.0",
+        manifestVersion: "1.0.0",
+        maxAttempts: 6,
+        creatorScore: { status: "won", guessCount: 2, elapsedMs: 2_000 },
+        officialScore: null,
+        comparison: null,
+        attempt: null,
+      });
+      expect(challenge.modeId).toBe(modeId);
+      expect(challenge).not.toHaveProperty("skipAvailable");
+    }
   });
 });
 
