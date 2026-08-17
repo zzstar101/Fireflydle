@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  BookOpen,
   Clock3,
   Gauge,
   ImageDown,
@@ -25,6 +24,7 @@ import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import { ShareResultDialog } from "./ShareResultDialog";
+import { RulesPanel } from "./RulesPanel";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
 import "./game.css";
@@ -54,6 +54,24 @@ function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: "playable" |
   return fields ?? "";
 }
 
+function ruleLabels(t: (key: string) => string) {
+  return {
+    open: t("prep.viewRules"),
+    close: t("common.close"),
+    range: t("prep.ruleRange"),
+    guesses: t("prep.ruleGuesses"),
+    fields: t("prep.ruleFields"),
+    colors: t("prep.ruleColors"),
+    directions: t("prep.ruleDirections"),
+    example: t("prep.ruleExample"),
+    exact: t("game.exact"),
+    closeMatch: t("game.close"),
+    miss: t("game.miss"),
+    higher: t("game.higher"),
+    lower: t("game.lower"),
+  };
+}
+
 function GamePreparation({
   mode,
   contentModeId,
@@ -79,6 +97,11 @@ function GamePreparation({
     (entry) => entry.id === contentModeId,
   );
   const maxAttempts = modeDefinition?.maxAttempts ?? 6;
+  const fields = modeDefinition?.fields ?? [];
+  const poolSize =
+    (contentModeId === "npc" ? npcManifest : contentManifest).pools.find(
+      (pool) => pool.id === modeDefinition?.candidatePoolId,
+    )?.candidateIds.length ?? 0;
 
   return (
     <main className={`game-preparation prep-${mode}`}>
@@ -212,49 +235,15 @@ function GamePreparation({
           </section>
         )}
 
-        <details className="prep-rules">
-          <summary>
-            <BookOpen size={17} aria-hidden="true" /> {t("prep.viewRules")}
-          </summary>
-          <div>
-            <p>{t("prep.rulesIntro")}</p>
-            <ul>
-              <li>
-                <i className="key-exact">✓</i>
-                <span>
-                  <strong>{t("game.exact")}</strong>
-                  {t("prep.exactRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-close">•</i>
-                <span>
-                  <strong>{t("game.close")}</strong>
-                  {t("prep.closeRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-miss">×</i>
-                <span>
-                  <strong>{t("game.miss")}</strong>
-                  {t("prep.missRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-unavailable">?</i>
-                <span>
-                  <strong>{t("game.unavailable")}</strong>
-                  {locale === "zh-CN"
-                    ? "该字段缺少可比较值"
-                    : locale === "ja"
-                      ? "比較できる値がありません"
-                      : "No comparable value is available"}
-                </span>
-              </li>
-            </ul>
-            <small>{fieldSummary(locale, contentModeId)}</small>
-          </div>
-        </details>
+        <RulesPanel
+          locale={locale}
+          title={t("prep.rulesTitle")}
+          intro={t("prep.rulesIntro")}
+          poolSize={poolSize}
+          maxAttempts={maxAttempts}
+          fields={fields}
+          labels={ruleLabels(t)}
+        />
       </section>
     </main>
   );
@@ -283,6 +272,12 @@ function ActiveGame({
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
     session;
+  const modeManifest = contentModeId === "npc" ? npcManifest : contentManifest;
+  const modeDefinition = modeManifest.modes.find((entry) => entry.id === contentModeId);
+  const ruleFields = game.fieldDefinitions ?? modeDefinition?.fields ?? [];
+  const rulePoolSize =
+    modeManifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
+      .length ?? 0;
   const playerStats = useQuery({
     queryKey: ["stats", "game-rail"],
     queryFn: () => apiRequest<PersonalStats>("/stats/me"),
@@ -421,49 +416,15 @@ function ActiveGame({
           </div>
           <div className="rail-section compact">
             <span className="rail-number">02</span>
-            <h2>{t("game.rules")}</h2>
-            <ul className="rule-key">
-              <li>
-                <i className="key-exact">
-                  <span>✓</span>
-                </i>
-                <span>
-                  <strong>{t("game.exact")}</strong>
-                  {t("prep.exactRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-close">
-                  <span>•</span>
-                </i>
-                <span>
-                  <strong>{t("game.close")}</strong>
-                  {t("prep.closeRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-miss">
-                  <span>×</span>
-                </i>
-                <span>
-                  <strong>{t("game.miss")}</strong>
-                  {t("prep.missRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-unavailable">
-                  <span>?</span>
-                </i>
-                <span>
-                  <strong>{t("game.unavailable")}</strong>
-                  {locale === "zh-CN"
-                    ? "该字段缺少可比较值"
-                    : locale === "ja"
-                      ? "比較できる値がありません"
-                      : "No comparable value is available"}
-                </span>
-              </li>
-            </ul>
+            <RulesPanel
+              locale={locale}
+              title={t("prep.rulesTitle")}
+              intro={t("prep.rulesIntro")}
+              poolSize={rulePoolSize}
+              maxAttempts={game.maxAttempts}
+              fields={ruleFields}
+              labels={ruleLabels(t)}
+            />
           </div>
         </aside>
 
