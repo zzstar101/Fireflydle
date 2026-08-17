@@ -12,10 +12,11 @@ import {
   RotateCcw,
   Signal,
   Sparkles,
+  Swords,
   Trophy,
   WifiOff,
 } from "lucide-react";
-import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
+import type { FriendChallenge, PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
 import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
@@ -287,6 +288,9 @@ function ActiveGame({
   const [sharePreview, setSharePreview] = useState<SharePreview | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
   const [shareError, setShareError] = useState(false);
+  const [challengeBusy, setChallengeBusy] = useState(false);
+  const [challengeUrl, setChallengeUrl] = useState<string | null>(null);
+  const [challengeError, setChallengeError] = useState(false);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const gameHeadingRef = useRef<HTMLHeadingElement>(null);
   const resultRef = useRef<HTMLElement>(null);
@@ -377,6 +381,27 @@ function ActiveGame({
       setShareError(true);
     } finally {
       setShareBusy(false);
+    }
+  };
+
+  const copyFriendChallenge = async () => {
+    if (challengeBusy) return;
+    setChallengeBusy(true);
+    setChallengeError(false);
+    try {
+      let url = challengeUrl;
+      if (!url) {
+        const challenge = await apiRequest<FriendChallenge>(`/games/${game.id}/challenges`, {
+          method: "POST",
+        });
+        url = `${window.location.origin}/challenge/${challenge.id}`;
+        setChallengeUrl(url);
+      }
+      await navigator.clipboard.writeText(url);
+    } catch {
+      setChallengeError(true);
+    } finally {
+      setChallengeBusy(false);
     }
   };
 
@@ -607,10 +632,44 @@ function ActiveGame({
                     {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
                   </button>
                 )}
+                {shareable && contentModeId === "playable" && source === "server" && (
+                  <button
+                    className="ticket-button-secondary"
+                    type="button"
+                    disabled={challengeBusy}
+                    onClick={() => void copyFriendChallenge()}
+                  >
+                    {challengeBusy ? (
+                      <span className="button-spinner" aria-hidden="true" />
+                    ) : (
+                      <Swords size={17} />
+                    )}{" "}
+                    {challengeUrl
+                      ? locale === "zh-CN"
+                        ? "复制挑战链接"
+                        : locale === "ja"
+                          ? "リンクをコピー"
+                          : "Copy challenge link"
+                      : locale === "zh-CN"
+                        ? "好友同题挑战"
+                        : locale === "ja"
+                          ? "同じ問題で挑戦"
+                          : "Challenge a friend"}
+                  </button>
+                )}
               </div>
               {shareError && (
                 <p className="share-image-error" role="alert">
                   {t("game.shareImageError")}
+                </p>
+              )}
+              {challengeError && (
+                <p className="share-image-error" role="alert">
+                  {locale === "zh-CN"
+                    ? "暂时无法生成或复制挑战链接。"
+                    : locale === "ja"
+                      ? "チャレンジリンクを作成できません。"
+                      : "Could not create or copy the challenge link."}
                 </p>
               )}
             </section>

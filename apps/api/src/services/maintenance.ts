@@ -22,7 +22,8 @@ async function expireAbandonedGames(db: D1Database, now: number): Promise<void> 
            (SELECT COUNT(*) FROM game_guesses gg WHERE gg.game_id = g.id),
            MAX(0, ? - g.started_at), ?, ?
          FROM games g
-         WHERE g.status = 'active' AND g.started_at <= ?`,
+         WHERE g.status = 'active' AND g.started_at <= ?
+           AND g.activity_id != 'friend-challenge'`,
       )
       .bind(now, now, now + REPLAY_RETENTION_MS, cutoff),
     db

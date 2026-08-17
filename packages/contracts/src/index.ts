@@ -305,6 +305,33 @@ export type WeeklyLeaderboardEntry = z.infer<typeof WeeklyLeaderboardEntrySchema
 export const WeeklyShareSchema = WeeklyRunSchema.omit({ currentGame: true });
 export type WeeklyShare = z.infer<typeof WeeklyShareSchema>;
 
+export const FriendChallengeScoreSchema = z.object({
+  status: z.enum(["won", "lost"]),
+  guessCount: z.number().int().positive(),
+  elapsedMs: z.number().int().nonnegative(),
+});
+export type FriendChallengeScore = z.infer<typeof FriendChallengeScoreSchema>;
+
+export const FriendChallengeAttemptSchema = z.object({
+  kind: z.enum(["official", "practice"]),
+  game: PublicGameSchema,
+});
+export type FriendChallengeAttempt = z.infer<typeof FriendChallengeAttemptSchema>;
+
+export const FriendChallengeSchema = z.object({
+  id: z.string().uuid(),
+  modeId: z.literal("playable"),
+  activityId: z.literal("friend-challenge"),
+  poolRuleVersion: RuleVersionSchema,
+  manifestVersion: ManifestVersionSchema,
+  maxAttempts: z.number().int().positive(),
+  creatorScore: FriendChallengeScoreSchema,
+  officialScore: FriendChallengeScoreSchema.nullable(),
+  comparison: z.enum(["creator-won", "challenger-won", "draw"]).nullable(),
+  attempt: FriendChallengeAttemptSchema.nullable(),
+});
+export type FriendChallenge = z.infer<typeof FriendChallengeSchema>;
+
 export const CurrentGamesSchema = z.object({
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   serverNow: z.string().datetime(),

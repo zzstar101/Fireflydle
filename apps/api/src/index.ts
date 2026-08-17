@@ -6,6 +6,7 @@ import { analyticsRoutes } from "./routes/analytics";
 import { announcementRoutes } from "./routes/announcements";
 import { authRoutes } from "./routes/auth";
 import { characterRoutes } from "./routes/characters";
+import { challengeRoutes } from "./routes/challenges";
 import { gameRoutes } from "./routes/games";
 import { matchmakingRoutes } from "./routes/matchmaking";
 import { replayRoutes } from "./routes/replays";
@@ -110,6 +111,7 @@ api.get("/health", (context) =>
 api.route("/", authRoutes);
 api.route("/", accountRoutes);
 api.route("/", characterRoutes);
+api.route("/", challengeRoutes);
 api.route("/", gameRoutes);
 api.route("/", roomRoutes);
 api.route("/", matchmakingRoutes);

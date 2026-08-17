@@ -654,6 +654,7 @@ export async function submitGameGuess(
              MAX(0, ? - game.started_at), ?, ?
            FROM games game
            WHERE game.id = ? AND game.user_id = ? AND game.status IN ('won', 'lost')
+             AND game.activity_id != 'friend-challenge'
              AND EXISTS (SELECT 1 FROM game_guesses WHERE id = ?)`,
         )
         .bind(now, now, now + REPLAY_RETENTION_MS, gameId, userId, guessId),

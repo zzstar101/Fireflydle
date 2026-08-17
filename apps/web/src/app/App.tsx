@@ -19,6 +19,7 @@ const RecoveryPage = lazy(() => import("../features/account/RecoveryPage"));
 const EmailVerificationPage = lazy(() => import("../features/account/EmailVerificationPage"));
 const AdminPage = lazy(() => import("../features/admin/AdminPage"));
 const ReplayPage = lazy(() => import("../features/game/ReplayPage"));
+const FriendChallengePage = lazy(() => import("../features/game/FriendChallengePage"));
 const LegalPage = lazy(() => import("../features/account/LegalPage"));
 const NotFoundPage = lazy(() => import("./NotFoundPage"));
 
@@ -109,6 +110,7 @@ function RouteContent() {
         <Route path="/verify-email" element={<EmailVerificationPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/replay/:replayId" element={<ReplayPage />} />
+        <Route path="/challenge/:challengeId" element={<FriendChallengePage />} />
         <Route
           path="/npc/practice"
           element={<GamePage key="npc-practice" mode="random" contentModeId="npc" />}
