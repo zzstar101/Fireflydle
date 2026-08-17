@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 import {
   buildPlayableManifest,
@@ -13,6 +16,8 @@ import {
   currencyWarsManifest,
   currencyWarsRuleset,
   currencyWarsUnitSummaries,
+  aeonAssetAudit,
+  aeonManifest,
 } from "./index.ts";
 
 function matchingIds(query: string): string[] {
@@ -189,5 +194,83 @@ describe("普通角色内容兼容入口", () => {
     const mode = contentManifest.modes.find((entry) => entry.id === "playable");
     expect(mode?.maxAttempts).toBe(6);
     expect(contentManifest.entities).toHaveLength(characters.length);
+  });
+});
+
+describe("星神正式题池", () => {
+  const expected = [
+    ["aeon-aha", "阿哈", "Aha", "アッハ"],
+    ["aeon-akivili", "阿基维利", "Akivili", "アキヴィリ"],
+    ["aeon-ena", "太一", "Ena", "エナ"],
+    ["aeon-fuli", "浮黎", "Fuli", "浮黎"],
+    ["aeon-hooh", "互", "HooH", "互"],
+    ["aeon-idrila", "伊德莉拉", "Idrila", "イドリラ"],
+    ["aeon-ix", "Ⅸ", "IX", "IX"],
+    ["aeon-lan", "岚", "Lan", "嵐"],
+    ["aeon-long", "龙", "Long", "龍"],
+    ["aeon-mythus", "迷思", "Mythus", "ミュトゥス"],
+    ["aeon-nanook", "纳努克", "Nanook", "ナヌーク"],
+    ["aeon-nous", "博识尊", "Nous", "ヌース"],
+    ["aeon-oroboros", "奥博洛斯", "Oroboros", "ウロボロス"],
+    ["aeon-qlipoth", "克里珀", "Qlipoth", "クリフォト"],
+    ["aeon-tayzzyronth", "塔伊兹育罗斯", "Tayzzyronth", "タイズルス"],
+    ["aeon-terminus", "末王", "Terminus", "テルミヌス"],
+    ["aeon-xipe", "希佩", "Xipe", "シペ"],
+    ["aeon-yaoshi", "药师", "Yaoshi", "薬師"],
+  ];
+
+  test("答案是 18 位具名星神且三语名称固定", () => {
+    expect(
+      aeonManifest.entities.map((entity) => [
+        entity.id,
+        entity.names["zh-CN"],
+        entity.names.en,
+        entity.names.ja,
+      ]),
+    ).toEqual(expected);
+    expect(new Set(aeonManifest.entities.map(({ id }) => id)).size).toBe(18);
+    expect(aeonManifest.entities.some(({ names }) => names.en === "Herta")).toBeFalse();
+    expect(aeonManifest.entities.map(({ names }) => names["zh-CN"])).not.toContain("开拓");
+    expect(aeonManifest.entities.map(({ names }) => names["zh-CN"])).not.toContain("毁灭");
+    expect(aeonManifest.entities.map(({ names }) => names["zh-CN"])).not.toContain("智识");
+  });
+
+  test("图片审计与 manifest 一一对应且正好四个官方徽记例外", () => {
+    expect(aeonAssetAudit).toHaveLength(18);
+    expect(
+      aeonAssetAudit.filter(({ assetKind }) => assetKind === "official-main-art"),
+    ).toHaveLength(14);
+    expect(
+      aeonAssetAudit
+        .filter(({ assetKind }) => assetKind === "official-path-emblem-fallback")
+        .map(({ id }) => id),
+    ).toEqual(["aeon-akivili", "aeon-idrila", "aeon-long", "aeon-terminus"]);
+    expect(aeonAssetAudit.map(({ localPath }) => localPath)).toEqual(
+      aeonManifest.entities.map((entity) => {
+        if (entity.kind !== "aeon") throw new Error(`${entity.id} 不是星神实体`);
+        return entity.payload.assets.imagePath;
+      }),
+    );
+    for (const asset of aeonAssetAudit) {
+      expect(asset.officialPageUrl).toMatch(/^https:\/\/wiki\.hoyolab\.com\//);
+      expect(asset.sourceAssetUrl).toMatch(/^https:\/\//);
+      expect(asset.width).toBeGreaterThan(0);
+      expect(asset.height).toBeGreaterThan(0);
+      expect(asset.focus).toHaveLength(2);
+    }
+  });
+
+  test("18 张本地图片存在、不是 SVG 或占位，并且 SHA-256 全部唯一", async () => {
+    const actualHashes: string[] = [];
+    for (const asset of aeonAssetAudit) {
+      const absolutePath = join(import.meta.dir, "../../../apps/web/public", asset.localPath);
+      const bytes = await readFile(absolutePath);
+      const hash = createHash("sha256").update(bytes).digest("hex");
+      expect(asset.localPath.endsWith(".webp")).toBeTrue();
+      expect(bytes.byteLength).toBeGreaterThan(5_000);
+      expect(hash).toBe(asset.sha256);
+      actualHashes.push(hash);
+    }
+    expect(new Set(actualHashes).size).toBe(18);
   });
 });

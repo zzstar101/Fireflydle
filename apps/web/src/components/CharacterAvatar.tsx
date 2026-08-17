@@ -13,7 +13,8 @@ export function getCharacterImageSources(character: GameEntitySummary, pixels: n
     width: selected?.width ?? pixels,
     avifPath: selected?.avifPath,
     webpPath: selected?.webpPath,
-    fallbackPath: character.assets.avatarPath,
+    fallbackPath:
+      "avatarPath" in character.assets ? character.assets.avatarPath : character.assets.imagePath,
     avifSrcSet: responsive?.map((variant) => `${variant.avifPath} ${variant.width}w`).join(", "),
     webpSrcSet: responsive?.map((variant) => `${variant.webpPath} ${variant.width}w`).join(", "),
   };

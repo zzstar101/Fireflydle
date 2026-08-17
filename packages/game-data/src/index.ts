@@ -24,6 +24,7 @@ import versionData from "./generated/versions.json";
 import { buildPlayableManifest } from "./content-manifest";
 import npcManifestData from "./data/npc-manifest.json";
 import currencyWarsManifestData from "./data/currency-wars-manifest.json";
+import { aeonAssetAudit, aeonManifest } from "./aeon-manifest";
 
 /**
  * 发布数据由 scripts/sync-characters.ts 从已审核来源生成。
@@ -45,6 +46,17 @@ export const contentManifest = Object.freeze(publishedContentManifest);
 
 /** T13 已审核 NPC 小池；与普通角色 manifest 和运行时实体完全分离。 */
 export const npcManifest = Object.freeze(ContentManifestSchema.parse(npcManifestData));
+export { aeonAssetAudit, aeonManifest };
+export const aeonEntities = Object.freeze(
+  aeonManifest.entities
+    .filter((entity) => entity.kind === "aeon")
+    .map((entity) => ({
+      id: entity.id,
+      names: entity.names,
+      aliases: entity.aliases,
+      assets: entity.payload.assets,
+    })),
+);
 
 /** T14 独立币战规则快照；单位不进入普通内容实体联合。 */
 export const currencyWarsManifest = Object.freeze(

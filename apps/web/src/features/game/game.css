@@ -1676,6 +1676,32 @@
   min-height: 335px;
 }
 
+.aeon-guess-board {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.aeon-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  aspect-ratio: 1;
+  max-width: 560px;
+  margin: 0 auto;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--line-strong);
+}
+.aeon-image-grid span {
+  min-width: 0;
+  background: #111923;
+  transition: opacity 180ms ease;
+}
+.aeon-image-grid span.revealed {
+  opacity: 0;
+}
+.aeon-guess-board h2 {
+  margin: 1rem 0 0;
+}
+
 .guess-board-scroll {
   overflow-x: auto;
   padding-bottom: 10px;

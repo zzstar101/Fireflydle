@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import type {
   ActivityId,
+  AeonSummary,
   Character,
   CurrentGames,
   GameEntitySummary,
@@ -10,6 +11,8 @@ import type {
 } from "@fireflydle/contracts";
 import {
   characters,
+  aeonEntities,
+  aeonManifest,
   contentManifest,
   currencyWarsManifest,
   currencyWarsRuleset,
@@ -19,6 +22,7 @@ import {
   createGuessResultWithRules,
   createNpcGuessResult,
   createCurrencyWarsGuessResult,
+  createAeonGuessResult,
   getBeijingDateKey,
   hasDuplicateGuess,
   selectSnapshotFieldDefinitions,
@@ -29,7 +33,7 @@ import { bundledRosterFor, loadContentRoster } from "./content-roster";
 import { currentGamesQueryKey } from "./useCurrentGames";
 
 type SoloActivity = Extract<ActivityId, "daily" | "practice">;
-type SoloContentMode = "playable" | "npc" | "currency-wars";
+type SoloContentMode = "playable" | "npc" | "currency-wars" | "aeon";
 type SessionSource = "server" | "local" | null;
 const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
 const playableMode =
@@ -45,9 +49,10 @@ const npcMode =
     throw new Error("NPC 模式未注册");
   })();
 const currencyWarsMode = currencyWarsManifest.modes.find((item) => item.id === "currency-wars")!;
+const aeonMode = aeonManifest.modes.find((item) => item.id === "aeon")!;
 
 function rosterFor(contentModeId: SoloContentMode): readonly GameEntitySummary[] {
-  return bundledRosterFor(contentModeId);
+  return contentModeId === "aeon" ? aeonEntities : bundledRosterFor(contentModeId);
 }
 
 interface GameSession {
@@ -86,7 +91,10 @@ async function startServerGame(
     method: "POST",
     body: JSON.stringify({ modeId: contentModeId, activityId }),
   });
-  const roster = await loadContentRoster(queryClient, contentModeId, game.manifestVersion);
+  const roster =
+    contentModeId === "aeon"
+      ? aeonEntities
+      : await loadContentRoster(queryClient, contentModeId, game.manifestVersion);
   return { game, roster };
 }
 
@@ -113,11 +121,13 @@ function targetFor(
   salt = "",
 ): GameEntitySummary {
   const eligible =
-    contentModeId === "npc"
-      ? rosterFor("npc")
-      : contentModeId === "currency-wars"
-        ? rosterFor("currency-wars")
-        : characters.filter((character) => character.enabled && character.targetEligible);
+    contentModeId === "aeon"
+      ? rosterFor("aeon")
+      : contentModeId === "npc"
+        ? rosterFor("npc")
+        : contentModeId === "currency-wars"
+          ? rosterFor("currency-wars")
+          : characters.filter((character) => character.enabled && character.targetEligible);
   const seed =
     activityId === "daily"
       ? `${getBeijingDateKey()}-${localPlayerSeed()}`
@@ -127,7 +137,11 @@ function targetFor(
   return target;
 }
 
-function createLocalGame(activityId: SoloActivity, contentModeId: SoloContentMode): PublicGame {
+function createLocalGame(
+  activityId: SoloActivity,
+  contentModeId: SoloContentMode,
+  target: GameEntitySummary,
+): PublicGame {
   const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
@@ -136,34 +150,45 @@ function createLocalGame(activityId: SoloActivity, contentModeId: SoloContentMod
     poolRuleVersion:
       contentModeId === "npc"
         ? npcMode.rulesVersion
-        : contentModeId === "currency-wars"
-          ? currencyWarsMode.rulesVersion
-          : playableMode.rulesVersion,
+        : contentModeId === "aeon"
+          ? aeonMode.rulesVersion
+          : contentModeId === "currency-wars"
+            ? currencyWarsMode.rulesVersion
+            : playableMode.rulesVersion,
     manifestVersion:
       contentModeId === "npc"
         ? npcManifest.manifestVersion
-        : contentModeId === "currency-wars"
-          ? currencyWarsManifest.manifestVersion
-          : contentManifest.manifestVersion,
+        : contentModeId === "aeon"
+          ? aeonManifest.manifestVersion
+          : contentModeId === "currency-wars"
+            ? currencyWarsManifest.manifestVersion
+            : contentManifest.manifestVersion,
     dateKey: activityId === "daily" ? getBeijingDateKey() : null,
     maxAttempts:
       contentModeId === "npc"
         ? npcMode.maxAttempts
-        : contentModeId === "currency-wars"
-          ? currencyWarsMode.maxAttempts
-          : playableMode.maxAttempts,
+        : contentModeId === "aeon"
+          ? aeonMode.maxAttempts
+          : contentModeId === "currency-wars"
+            ? currencyWarsMode.maxAttempts
+            : playableMode.maxAttempts,
     guesses: [],
     status: "active",
     startedAt: now,
     completedAt: null,
     elapsedMs: 0,
     answer: null,
+    ...(contentModeId === "aeon" && "imagePath" in target.assets
+      ? { aeonImagePath: target.assets.imagePath, aeonImageFocus: target.assets.focus }
+      : {}),
     fieldDefinitions:
       contentModeId === "npc"
         ? npcMode.fields
-        : contentModeId === "currency-wars"
-          ? currencyWarsMode.fields
-          : selectSnapshotFieldDefinitions(playableFieldDefinitions),
+        : contentModeId === "aeon"
+          ? aeonMode.fields
+          : contentModeId === "currency-wars"
+            ? currencyWarsMode.fields
+            : selectSnapshotFieldDefinitions(playableFieldDefinitions),
   };
 }
 
@@ -190,7 +215,7 @@ export function useGameSession(
 
   const writeCurrentCache = useCallback(
     (next: PublicGame | null) => {
-      if (contentModeId === "npc") return;
+      if (contentModeId !== "playable") return;
       queryClient.setQueryData<CurrentGames>(currentGamesQueryKey, (current) => {
         if (!current) return current;
         return {
@@ -227,11 +252,13 @@ export function useGameSession(
   useEffect(() => {
     if (!initialGame || sourceState === "local") return;
     let cancelled = false;
-    void loadContentRoster(queryClient, contentModeId, initialGame.manifestVersion).then(
-      (snapshotRoster) => {
-        if (!cancelled) setRoster(snapshotRoster);
-      },
-    );
+    const rosterPromise =
+      contentModeId === "aeon"
+        ? Promise.resolve(aeonEntities)
+        : loadContentRoster(queryClient, contentModeId, initialGame.manifestVersion);
+    void rosterPromise.then((snapshotRoster) => {
+      if (!cancelled) setRoster(snapshotRoster);
+    });
     return () => {
       cancelled = true;
     };
@@ -270,7 +297,7 @@ export function useGameSession(
 
   const startOffline = useCallback(() => {
     const target = targetFor(activityId, contentModeId, String(Date.now()));
-    const localGame = createLocalGame(activityId, contentModeId);
+    const localGame = createLocalGame(activityId, contentModeId, target);
     ++startSequence.current;
     sessionEpoch.current += 1;
     localTargetId.current = target.id;
@@ -329,16 +356,18 @@ export function useGameSession(
       const result =
         contentModeId === "npc"
           ? createNpcGuessResult(target as NpcSummary, guess as NpcSummary)
-          : contentModeId === "currency-wars"
-            ? createCurrencyWarsGuessResult(
-                currencyWarsRuleset.units.find((unit) => unit.id === target.id)!,
-                currencyWarsRuleset.units.find((unit) => unit.id === guess.id)!,
-              )
-            : createGuessResultWithRules(
-                target as Character,
-                guess as Character,
-                snapshotFieldRules,
-              );
+          : contentModeId === "aeon"
+            ? createAeonGuessResult(target as AeonSummary, guess as AeonSummary)
+            : contentModeId === "currency-wars"
+              ? createCurrencyWarsGuessResult(
+                  currencyWarsRuleset.units.find((unit) => unit.id === target.id)!,
+                  currencyWarsRuleset.units.find((unit) => unit.id === guess.id)!,
+                )
+              : createGuessResultWithRules(
+                  target as Character,
+                  guess as Character,
+                  snapshotFieldRules,
+                );
       const guesses = [...game.guesses, result];
       const ended = result.isCorrect || guesses.length >= game.maxAttempts;
       const completedAt = ended ? new Date().toISOString() : null;

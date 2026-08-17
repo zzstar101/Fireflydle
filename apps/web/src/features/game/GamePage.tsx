@@ -17,6 +17,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import type {
+  AeonSummary,
   FriendChallenge,
   PersonalStats,
   PublicGame,
@@ -25,13 +26,19 @@ import type {
   SessionPayload,
 } from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
-import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
+import {
+  aeonManifest,
+  contentManifest,
+  currencyWarsManifest,
+  npcManifest,
+} from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
+import { AeonGuessBoard } from "./AeonGuessBoard";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
 import { PlayableTutorial } from "./PlayableTutorial";
@@ -64,14 +71,16 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-type SoloContentMode = "playable" | "npc" | "currency-wars";
+type SoloContentMode = "playable" | "npc" | "currency-wars" | "aeon";
 
 function manifestFor(contentModeId: SoloContentMode) {
   return contentModeId === "npc"
     ? npcManifest
-    : contentModeId === "currency-wars"
-      ? currencyWarsManifest
-      : contentManifest;
+    : contentModeId === "aeon"
+      ? aeonManifest
+      : contentModeId === "currency-wars"
+        ? currencyWarsManifest
+        : contentManifest;
 }
 
 function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: SoloContentMode): string {
@@ -136,9 +145,8 @@ function GamePreparation({
   const maxAttempts = modeDefinition?.maxAttempts ?? 6;
   const fields = modeDefinition?.fields ?? [];
   const poolSize =
-    (contentModeId === "npc" ? npcManifest : contentManifest).pools.find(
-      (pool) => pool.id === modeDefinition?.candidatePoolId,
-    )?.candidateIds.length ?? 0;
+    manifestFor(contentModeId).pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)
+      ?.candidateIds.length ?? 0;
 
   return (
     <main className={`game-preparation prep-${activityId}`}>
@@ -153,18 +161,26 @@ function GamePreparation({
           <h1>
             {contentModeId === "npc"
               ? "NPC"
-              : contentModeId === "currency-wars"
-                ? locale === "zh-CN"
-                  ? "货币战争"
+              : contentModeId === "aeon"
+                ? locale === "en"
+                  ? "Aeon image challenge"
                   : locale === "ja"
-                    ? "コイン戦争"
-                    : "Currency Wars"
-                : activityId === "daily"
-                  ? t("game.daily")
-                  : t("game.random")}
+                    ? "星神画像チャレンジ"
+                    : "星神图片挑战"
+                : contentModeId === "currency-wars"
+                  ? locale === "zh-CN"
+                    ? "货币战争"
+                    : locale === "ja"
+                      ? "コイン戦争"
+                      : "Currency Wars"
+                  : activityId === "daily"
+                    ? t("game.daily")
+                    : t("game.random")}
           </h1>
           <p>
-            {contentModeId === "npc" || contentModeId === "currency-wars"
+            {contentModeId === "npc" ||
+            contentModeId === "currency-wars" ||
+            contentModeId === "aeon"
               ? fieldSummary(locale, contentModeId)
               : activityId === "daily"
                 ? t("prep.dailyIntro")
@@ -336,7 +352,7 @@ function ActiveGame({
   const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
     session;
   const guessCount = game.guesses.length;
-  const modeManifest = contentModeId === "npc" ? npcManifest : contentManifest;
+  const modeManifest = manifestFor(contentModeId);
   const modeDefinition = modeManifest.modes.find((entry) => entry.id === contentModeId);
   const ruleFields = game.fieldDefinitions ?? modeDefinition?.fields ?? [];
   const rulePoolSize =
@@ -531,26 +547,42 @@ function ActiveGame({
           <p className="eyebrow">
             {contentModeId === "npc"
               ? "NPC · TRACER"
-              : contentModeId === "currency-wars"
-                ? "CURRENCY WARS · TRACER"
-                : activityId === "daily"
-                  ? t("prep.dailyEyebrow")
-                  : t("prep.randomEyebrow")}
+              : contentModeId === "aeon"
+                ? "AEON · IMAGE"
+                : contentModeId === "currency-wars"
+                  ? "CURRENCY WARS · TRACER"
+                  : activityId === "daily"
+                    ? t("prep.dailyEyebrow")
+                    : t("prep.randomEyebrow")}
           </p>
           <h1 ref={gameHeadingRef} tabIndex={-1}>
             {contentModeId === "npc"
               ? "NPC"
-              : contentModeId === "currency-wars"
-                ? locale === "zh-CN"
-                  ? "货币战争"
+              : contentModeId === "aeon"
+                ? locale === "en"
+                  ? "Aeon image challenge"
                   : locale === "ja"
-                    ? "コイン戦争"
-                    : "Currency Wars"
-                : activityId === "daily"
-                  ? t("game.daily")
-                  : t("game.random")}
+                    ? "星神画像チャレンジ"
+                    : "星神图片挑战"
+                : contentModeId === "currency-wars"
+                  ? locale === "zh-CN"
+                    ? "货币战争"
+                    : locale === "ja"
+                      ? "コイン戦争"
+                      : "Currency Wars"
+                  : activityId === "daily"
+                    ? t("game.daily")
+                    : t("game.random")}
           </h1>
-          <p>{t("prep.activeIntro")}</p>
+          <p>
+            {contentModeId === "aeon"
+              ? locale === "en"
+                ? "Identify the Aeon from the gradually revealed image."
+                : locale === "ja"
+                  ? "少しずつ開示される画像から星神を当てます。"
+                  : "只根据逐步揭示的图片猜测星神。"
+              : t("prep.activeIntro")}
+          </p>
         </div>
         <div className="hero-stamp">
           <span>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
@@ -669,12 +701,31 @@ function ActiveGame({
             </div>
           )}
 
+          {contentModeId === "aeon" ? (
+            <AeonGuessBoard
+              gameId={game.id}
+              wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
+              answer={
+                game.answer && "imagePath" in game.answer.assets
+                  ? (game.answer as AeonSummary)
+                  : null
+              }
+              imagePath={game.aeonImagePath}
+              imageFocus={game.aeonImageFocus}
+              locale={locale}
+              finished={finished}
+            />
+          ) : null}
+
           {!finished && (
             <CharacterCombobox
               characters={roster}
               locale={locale}
               {...(contentModeId === "playable"
                 ? { searchIndex: contentManifest.searchIndex }
+                : {})}
+              {...(contentModeId === "aeon"
+                ? { entityLabel: locale === "en" ? "Aeon" : "星神" }
                 : {})}
               excludedIds={guessedIds}
               disabled={busy}
@@ -786,12 +837,14 @@ function ActiveGame({
             </>
           )}
 
-          <GuessBoard
-            guesses={game.guesses}
-            locale={locale}
-            fields={game.fieldDefinitions}
-            animateLatest={contentModeId === "playable"}
-          />
+          {contentModeId !== "aeon" ? (
+            <GuessBoard
+              guesses={game.guesses}
+              locale={locale}
+              fields={game.fieldDefinitions}
+              animateLatest={contentModeId === "playable"}
+            />
+          ) : null}
         </div>
 
         <aside className="game-right-rail">

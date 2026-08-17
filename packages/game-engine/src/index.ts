@@ -2,6 +2,7 @@ import {
   PlayableGameEntitySummarySchema,
   CurrencyWarsUnitSummarySchema,
   NpcSummarySchema,
+  AeonSummarySchema,
 } from "@fireflydle/contracts";
 import type {
   Character,
@@ -14,6 +15,7 @@ import type {
   NpcSummary,
   CurrencyWarsUnit,
   CurrencyWarsUnitSummary,
+  AeonSummary,
 } from "@fireflydle/contracts";
 
 export const MULTIPLAYER_ATTEMPTS = 6;
@@ -141,6 +143,48 @@ export function createCurrencyWarsGuessResult(
     isCorrect: target.id === guess.id,
     guessedAt: guessedAt.toISOString(),
   };
+}
+
+export function createAeonGuessResult(
+  target: AeonSummary,
+  guess: AeonSummary,
+  guessedAt = new Date(),
+): GuessResult {
+  return {
+    character: AeonSummarySchema.parse(guess),
+    cells: [
+      { field: "image", state: target.id === guess.id ? "exact" : "miss", direction: "none" },
+    ],
+    isCorrect: target.id === guess.id,
+    guessedAt: guessedAt.toISOString(),
+  };
+}
+
+function aeonStringHash(value: string): number {
+  let hash = 2166136261;
+  for (const character of value) {
+    hash ^= character.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+export function aeonRevealOrder(gameId: string): number[] {
+  return Array.from({ length: 16 }, (_, index) => ({
+    index,
+    key: aeonStringHash(`${gameId}:${index}`),
+  }))
+    .toSorted((left, right) => left.key - right.key || left.index - right.index)
+    .map((value) => value.index);
+}
+
+export function aeonRevealedCells(
+  gameId: string,
+  wrongGuesses: number,
+  maxAttempts = 6,
+): ReadonlySet<number> {
+  const count = wrongGuesses >= maxAttempts ? 16 : Math.min(16, 4 + Math.max(0, wrongGuesses) * 2);
+  return new Set(aeonRevealOrder(gameId).slice(0, count));
 }
 
 /** 将当前 manifest 的普通角色字段映射为迁移期可用的快照比较规则。 */

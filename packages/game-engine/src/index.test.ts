@@ -19,6 +19,8 @@ import {
   applyEndlessRoundOutcome,
   compareEndlessLeaderboardEntries,
   ENDLESS_INITIAL_LIVES,
+  aeonRevealOrder,
+  aeonRevealedCells,
 } from "./index";
 
 const asset = {
@@ -381,5 +383,24 @@ describe("无剧透分享", () => {
     expect(text).toContain("🟩🟩🟩🟩🟩");
     expect(text).not.toContain("测试角色");
     expect(text).toContain("01:05");
+  });
+});
+
+describe("星神遮罩", () => {
+  test("同一 gameId 的顺序在恢复和回放时稳定", () => {
+    const order = aeonRevealOrder("game-aeon-stable");
+    expect(aeonRevealOrder("game-aeon-stable")).toEqual(order);
+    expect(new Set(order).size).toBe(16);
+    expect(aeonRevealOrder("game-aeon-other")).not.toEqual(order);
+  });
+
+  test("初始揭示四格，每次错误再揭示两格，结算后完整揭示", () => {
+    expect(aeonRevealedCells("game-aeon-stable", 0).size).toBe(4);
+    expect(aeonRevealedCells("game-aeon-stable", 1).size).toBe(6);
+    expect(aeonRevealedCells("game-aeon-stable", 5).size).toBe(14);
+    expect(aeonRevealedCells("game-aeon-stable", 6).size).toBe(16);
+    expect([...aeonRevealedCells("game-aeon-stable", 1)]).toEqual(
+      aeonRevealOrder("game-aeon-stable").slice(0, 6),
+    );
   });
 });

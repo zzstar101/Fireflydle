@@ -191,10 +191,22 @@ export const CurrencyWarsUnitSummarySchema = z.strictObject({
 });
 export type CurrencyWarsUnitSummary = z.infer<typeof CurrencyWarsUnitSummarySchema>;
 
+export const AeonSummarySchema = z.object({
+  id: z.string().regex(/^aeon-[a-z0-9-]+$/),
+  names: LocalizedTextSchema,
+  aliases: LocalizedAliasesSchema,
+  assets: z.object({
+    imagePath: z.string().min(1),
+    focus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]),
+  }),
+});
+export type AeonSummary = z.infer<typeof AeonSummarySchema>;
+
 export const GameEntitySummarySchema = z.union([
   PlayableGameEntitySummarySchema,
   NpcSummarySchema,
   CurrencyWarsUnitSummarySchema,
+  AeonSummarySchema,
 ]);
 export type GameEntitySummary = z.infer<typeof GameEntitySummarySchema>;
 
@@ -253,6 +265,8 @@ export const PublicGameSchema = z.object({
   answer: GameEntitySummarySchema.nullable(),
   /** 创建对局时绑定的字段定义，旧响应缺失时由客户端使用兼容 manifest。 */
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)).optional(),
+  aeonImagePath: z.string().min(1).optional(),
+  aeonImageFocus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]).optional(),
 });
 export type PublicGame = z.infer<typeof PublicGameSchema>;
 
@@ -373,7 +387,7 @@ export const CurrentGamesSchema = z.object({
 export type CurrentGames = z.infer<typeof CurrentGamesSchema>;
 
 export const CreateGameRequestSchema = z.strictObject({
-  modeId: z.enum(["playable", "npc", "currency-wars"]),
+  modeId: z.enum(["playable", "npc", "currency-wars", "aeon"]),
   activityId: z.enum(["daily", "practice"]),
 });
 export type CreateGameRequest = z.infer<typeof CreateGameRequestSchema>;
@@ -896,7 +910,10 @@ export const NpcEntityPayloadSchema = z.strictObject({
 export type NpcEntityPayload = z.infer<typeof NpcEntityPayloadSchema>;
 
 export const AeonEntityPayloadSchema = z.strictObject({
-  assets: z.strictObject({ imagePath: z.string().min(1), focus: z.array(z.number()).length(2) }),
+  assets: z.strictObject({
+    imagePath: z.string().min(1),
+    focus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]),
+  }),
 });
 export type AeonEntityPayload = z.infer<typeof AeonEntityPayloadSchema>;
 

@@ -114,6 +114,10 @@ function RouteContent() {
             />
           }
         />
+        <Route
+          path="/aeon/practice"
+          element={<GamePage key="aeon-practice" activityId="practice" contentModeId="aeon" />}
+        />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
