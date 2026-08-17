@@ -12,6 +12,7 @@ export function CharacterCombobox({
   excludedIds,
   disabled,
   onSubmit,
+  entityLabel,
 }: {
   characters: readonly GameEntitySummary[];
   locale: Locale;
@@ -19,6 +20,7 @@ export function CharacterCombobox({
   excludedIds: ReadonlySet<string>;
   disabled: boolean;
   onSubmit: (characterId: string) => void;
+  entityLabel?: string;
 }) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
@@ -73,7 +75,7 @@ export function CharacterCombobox({
   return (
     <div className="guess-composer">
       <label className="combobox-label" htmlFor="character-search">
-        {t("game.prompt")}
+        {entityLabel ?? t("game.prompt")}
       </label>
       <div className="combobox-row">
         <div className="character-combobox">
@@ -92,7 +94,7 @@ export function CharacterCombobox({
                 : undefined
             }
             autoComplete="off"
-            placeholder={t("game.placeholder")}
+            placeholder={entityLabel ? `${entityLabel}...` : t("game.placeholder")}
             value={query}
             disabled={disabled}
             onFocus={() => setOpen(Boolean(query.trim()))}

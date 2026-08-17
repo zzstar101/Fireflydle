@@ -562,6 +562,102 @@ describe("服务端游戏裁决", () => {
     expect(stats).not.toHaveProperty("randomPlayed");
   });
 
+  it("星神题池在恢复、结算、回放和分享中保持同一无剧透图片快照", async () => {
+    const { cookie } = await createSession();
+    const create = () =>
+      SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId: "aeon", activityId: "practice" }),
+      });
+    const game = await dataOf<PublicGame>(await create());
+    expect(game.modeId).toBe("aeon");
+    expect(game.activityId).toBe("practice");
+    expect(game.maxAttempts).toBe(6);
+    expect(game.answer).toBeNull();
+    expect(game.aeonImagePath).toMatch(/^\/assets\/aeons\/\d{2}\.webp$/);
+    expect(game.aeonImageFocus).toHaveLength(2);
+    expect(game.fieldDefinitions?.map((field) => field.id)).toEqual(["image"]);
+    expect((await dataOf<PublicGame>(await create())).id).toBe(game.id);
+
+    const stored = await env.DB.prepare(
+      "SELECT target_character_id, target_payload_json FROM games WHERE id = ?",
+    )
+      .bind(game.id)
+      .first<{ target_character_id: string; target_payload_json: string }>();
+    if (!stored) throw new Error("星神 fixture 缺少目标");
+    const targetPayload = JSON.parse(stored.target_payload_json) as {
+      names: Record<string, string>;
+    };
+    const activeJson = JSON.stringify(game);
+    expect(activeJson).not.toContain(targetPayload.names["zh-CN"]);
+    expect(activeJson).not.toContain(targetPayload.names.en);
+
+    const candidates = JSON.parse(
+      (
+        await env.DB.prepare("SELECT candidate_pool_json FROM games WHERE id = ?")
+          .bind(game.id)
+          .first<{ candidate_pool_json: string }>()
+      )?.candidate_pool_json ?? "{}",
+    ) as Record<string, unknown>;
+    const wrong = Object.keys(candidates).find((id) => id !== stored.target_character_id);
+    if (!wrong) throw new Error("星神 fixture 缺少错误候选");
+    const afterWrong = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: wrong }),
+      }),
+    );
+    expect(afterWrong.status).toBe("active");
+    expect(afterWrong.answer).toBeNull();
+    expect(afterWrong.aeonImagePath).toBe(game.aeonImagePath);
+    expect(afterWrong.aeonImageFocus).toEqual(game.aeonImageFocus);
+    expect(afterWrong.guesses[0]?.cells).toEqual([
+      { field: "image", state: "miss", direction: "none" },
+    ]);
+
+    const resumed = await dataOf<PublicGame>(await create());
+    expect(resumed.id).toBe(game.id);
+    expect(resumed.aeonImagePath).toBe(game.aeonImagePath);
+    expect(resumed.aeonImageFocus).toEqual(game.aeonImageFocus);
+    const finished = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: stored.target_character_id }),
+      }),
+    );
+    expect(finished.status).toBe("won");
+    expect(finished.answer?.id).toBe(stored.target_character_id);
+    expect(finished.aeonImagePath).toBe(game.aeonImagePath);
+
+    const replay = await dataOf<{ kind: string; game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, {
+        headers: { cookie },
+      }),
+    );
+    expect(replay.kind).toBe("solo");
+    expect(replay.game.id).toBe(game.id);
+    expect(replay.game.aeonImagePath).toBe(game.aeonImagePath);
+    expect(replay.game.aeonImageFocus).toEqual(game.aeonImageFocus);
+    expect(replay.game.guesses).toEqual(finished.guesses);
+
+    const shared = await dataOf<{ url: string }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}/share`, {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    const shareToken = new URL(shared.url).pathname.split("/").at(-1);
+    const sharedReplay = await dataOf<{ kind: string; game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/shared/${shareToken}`),
+    );
+    expect(sharedReplay.game.id).toBe(game.id);
+    expect(sharedReplay.game.aeonImagePath).toBe(game.aeonImagePath);
+    expect(sharedReplay.game.aeonImageFocus).toEqual(game.aeonImageFocus);
+  });
+
   it("旧 daily/random 请求只在创建边界映射且公开响应只返回新版契约", async () => {
     const { cookie } = await createSession();
     const create = (difficulty: "casual" | "hard") =>

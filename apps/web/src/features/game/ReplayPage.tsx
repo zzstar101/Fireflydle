@@ -14,6 +14,8 @@ import { PageHeader } from "../../components/PageHeader";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { GuessBoard } from "./GuessBoard";
+import { AeonGuessBoard } from "./AeonGuessBoard";
+import type { AeonSummary } from "@fireflydle/contracts";
 import "./game.css";
 
 function MultiplayerReplayView({ match, locale }: { match: MultiplayerReplay; locale: Locale }) {
@@ -275,7 +277,23 @@ export default function ReplayPage() {
           <strong>{game.answer?.names[locale] ?? "—"}</strong>
         </div>
       </div>
-      <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+      {game.modeId === "aeon" ? (
+        <AeonGuessBoard
+          gameId={game.id}
+          wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
+          answer={
+            game.answer && "assets" in game.answer && "imagePath" in game.answer.assets
+              ? (game.answer as AeonSummary)
+              : null
+          }
+          imagePath={game.aeonImagePath}
+          imageFocus={game.aeonImageFocus}
+          locale={locale}
+          finished={game.status !== "active"}
+        />
+      ) : (
+        <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+      )}
       <section className="replay-actions">
         <p>
           {locale === "zh-CN"
