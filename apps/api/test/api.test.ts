@@ -1,5 +1,6 @@
 import {
   PASSWORD_MIN_LENGTH,
+  ServerRoomMessageSchema,
   type Announcement,
   type Character,
   type ReplayResponse,
@@ -9,8 +10,13 @@ import {
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getBeijingDateKey, MULTIPLAYER_ROUND_MS } from "@fireflydle/game-engine";
+import {
+  getBeijingDateKey,
+  MULTIPLAYER_ROUND_MS,
+  RECONNECT_GRACE_MS,
+} from "@fireflydle/game-engine";
 import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
+import { createPlayableMultiplayerContentSnapshot } from "../src/services/multiplayer-content";
 
 const character: Character = {
   id: "firefly-test",
@@ -36,6 +42,16 @@ const character: Character = {
   enabled: true,
   targetEligible: true,
   sourceRevision: "test",
+};
+
+const snapshotCandidate: Character = {
+  ...character,
+  id: "snapshot-candidate",
+  officialId: "test-snapshot-candidate",
+  baseCharacterId: "snapshot-candidate",
+  names: { "zh-CN": "快照候选", en: "Snapshot Candidate", ja: "スナップ候補" },
+  element: "ice",
+  targetEligible: false,
 };
 
 interface SessionData {
@@ -124,6 +140,55 @@ async function seedCharacter(): Promise<void> {
       now,
     )
     .run();
+}
+
+async function seedSnapshotCandidate(): Promise<void> {
+  const now = Date.now();
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO characters
+       (id, official_id, base_character_id, element, path, rarity, faction_id,
+        faction_group_id, release_version_id, release_order, enabled, target_eligible,
+        source_revision, payload_json, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
+  )
+    .bind(
+      snapshotCandidate.id,
+      snapshotCandidate.officialId,
+      snapshotCandidate.baseCharacterId,
+      snapshotCandidate.element,
+      snapshotCandidate.path,
+      snapshotCandidate.rarity,
+      snapshotCandidate.factionId,
+      snapshotCandidate.factionGroupId,
+      snapshotCandidate.releaseVersionId,
+      snapshotCandidate.releaseOrder,
+      snapshotCandidate.sourceRevision,
+      JSON.stringify(snapshotCandidate),
+      now,
+      now,
+    )
+    .run();
+}
+
+function nextSocketMessage(socket: WebSocket): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    socket.addEventListener("message", (event) => resolve(JSON.parse(String(event.data))), {
+      once: true,
+    });
+    socket.addEventListener("error", () => reject(new Error("WebSocket 接收失败")), {
+      once: true,
+    });
+  });
+}
+
+async function nextSocketSnapshot(
+  socket: WebSocket,
+  predicate: (snapshot: RoomSnapshot) => boolean,
+): Promise<RoomSnapshot> {
+  for (;;) {
+    const message = ServerRoomMessageSchema.parse(await nextSocketMessage(socket));
+    if (message.type === "snapshot" && predicate(message.snapshot)) return message.snapshot;
+  }
 }
 
 beforeEach(async () => {
@@ -675,6 +740,183 @@ describe("排行榜准入", () => {
 });
 
 describe("匹配、SQLite Durable Object 与 WebSocket", () => {
+  it("私人房通过 WebSocket 始终使用创建时的候选与字段规则快照", async () => {
+    await seedSnapshotCandidate();
+    const owner = await createSession();
+    const opponent = await createSession();
+    const created = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ format: 1 }),
+    });
+    expect(created.status).toBe(201);
+    const room = await dataOf<{ roomId: string; code: string }>(created);
+
+    const publishedCandidate = { ...snapshotCandidate, element: character.element };
+    await env.DB.prepare(
+      `UPDATE characters
+       SET element = ?, payload_json = ?, enabled = 0, target_eligible = 0, updated_at = ?
+       WHERE id = ?`,
+    )
+      .bind(
+        publishedCandidate.element,
+        JSON.stringify(publishedCandidate),
+        Date.now(),
+        snapshotCandidate.id,
+      )
+      .run();
+
+    const joined = await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ code: room.code }),
+    });
+    expect(joined.status).toBe(200);
+
+    const socketResponse = await SELF.fetch(
+      `https://fireflydle.games/api/rooms/${room.roomId}/socket`,
+      { headers: { cookie: owner.cookie, upgrade: "websocket" } },
+    );
+    expect(socketResponse.status).toBe(101);
+    const socket = socketResponse.webSocket;
+    expect(socket).not.toBeNull();
+    if (!socket) return;
+    socket.accept();
+    await nextSocketSnapshot(socket, (snapshot) => snapshot.state === "playing");
+
+    socket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: snapshotCandidate.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const updated = await nextSocketSnapshot(
+      socket,
+      (snapshot) => snapshot.ownGuesses.length === 1,
+    );
+    expect(updated.ownGuesses[0]?.cells[0]).toMatchObject({
+      field: "element",
+      state: "miss",
+    });
+    socket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: character.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const finished = await nextSocketSnapshot(socket, (snapshot) => snapshot.state === "finished");
+    expect(finished.state).toBe("finished");
+
+    const replayResponse = await SELF.fetch(`https://fireflydle.games/api/replays/${room.roomId}`, {
+      headers: { cookie: owner.cookie },
+    });
+    expect(replayResponse.status).toBe(200);
+    const replay = await dataOf<ReplayResponse>(replayResponse);
+    expect(replay.kind).toBe("multiplayer");
+    if (replay.kind !== "multiplayer") return;
+    expect(replay.match.rounds[0]?.answer.element).toBe(character.element);
+
+    const archived = await env.DB.prepare(
+      `SELECT mode_id, pool_rule_version, manifest_version,
+              candidate_pool_json, field_rules_json
+       FROM matches WHERE id = ?`,
+    )
+      .bind(room.roomId)
+      .first<{
+        mode_id: string;
+        pool_rule_version: string;
+        manifest_version: string;
+        candidate_pool_json: string;
+        field_rules_json: string;
+      }>();
+    expect(archived).toMatchObject({
+      mode_id: "playable",
+      pool_rule_version: expect.stringMatching(/^\d+\.\d+\.\d+$/u),
+      manifest_version: expect.stringMatching(/^\d+\.\d+\.\d+$/u),
+    });
+    expect(JSON.parse(archived?.candidate_pool_json ?? "{}")).toHaveProperty(snapshotCandidate.id);
+    expect(JSON.parse(archived?.field_rules_json ?? "{}")).toMatchObject({
+      rules: expect.arrayContaining([{ field: "element", comparison: "exact" }]),
+    });
+    socket.close(1000, "test-complete");
+  });
+
+  it("房间序列化字段规则后不受规则来源对象变更影响", async () => {
+    const owner = await createSession();
+    const opponent = await createSession();
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'FLD42', ?, ?, 'active', 0, 1, ?, ?)`,
+    )
+      .bind(roomId, roomId, owner.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const contentSnapshot = createPlayableMultiplayerContentSnapshot(
+      [character, snapshotCandidate],
+      [character],
+    );
+    contentSnapshot.fieldRules = {
+      rules: [{ field: "element", comparison: "exact" }],
+      definitions: contentSnapshot.fieldRules.definitions.filter((field) => field.id === "element"),
+    };
+    await env.GAME_ROOM.getByName(roomId).initialize({
+      roomId,
+      code: "FLD42",
+      format: 1,
+      ranked: false,
+      owner: {
+        userId: owner.data.user.id,
+        displayName: owner.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponent.data.user.id,
+        displayName: opponent.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot,
+      now: startedAt,
+    });
+
+    contentSnapshot.fieldRules.rules = [{ field: "faction", comparison: "faction" }];
+    contentSnapshot.candidateSnapshots[snapshotCandidate.id] = {
+      ...snapshotCandidate,
+      element: character.element,
+    };
+    const socketResponse = await SELF.fetch(`https://fireflydle.games/api/rooms/${roomId}/socket`, {
+      headers: { cookie: owner.cookie, upgrade: "websocket" },
+    });
+    expect(socketResponse.status).toBe(101);
+    const socket = socketResponse.webSocket;
+    if (!socket) return;
+    socket.accept();
+    await nextSocketSnapshot(socket, (snapshot) => snapshot.state === "playing");
+    socket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: snapshotCandidate.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const updated = await nextSocketSnapshot(
+      socket,
+      (snapshot) => snapshot.ownGuesses.length === 1,
+    );
+    expect(updated.ownGuesses[0]?.cells).toEqual([
+      { field: "element", state: "miss", direction: "none" },
+    ]);
+    socket.close(1000, "test-complete");
+  });
+
   it("只在回合结束后公开答案，连续平局也会一直加赛", async () => {
     const roomId = crypto.randomUUID();
     const ownerId = crypto.randomUUID();
@@ -700,8 +942,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
     expect(playing.roundAnswer).toBeNull();
@@ -755,8 +996,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
     });
 
     const offered = await roomObject.offerDraw(ownerId);
@@ -801,8 +1041,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
     const won = await roomObject.guess(ownerId, character.id, crypto.randomUUID(), startedAt + 100);
@@ -816,6 +1055,132 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     expect(lost.ok).toBe(true);
     if (!lost.ok) return;
     expect(lost.snapshot.ratingChange).toEqual({ before: 1000, after: 976, delta: -24 });
+  });
+
+  it("并发猜中与并发归档只写入一个最终裁决", async () => {
+    const left = await createRegisteredSession("single_verdict_left");
+    const right = await createRegisteredSession("single_verdict_right");
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'ONE42', ?, ?, 'active', 1, 1, ?, ?)`,
+    )
+      .bind(roomId, roomId, left.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "ONE42",
+      format: 1,
+      ranked: true,
+      owner: {
+        userId: left.data.user.id,
+        displayName: left.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: right.data.user.id,
+        displayName: right.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+
+    const guesses = await Promise.all([
+      roomObject.guess(left.data.user.id, character.id, crypto.randomUUID(), startedAt + 1),
+      roomObject.guess(right.data.user.id, character.id, crypto.randomUUID(), startedAt + 1),
+    ]);
+    expect(guesses.filter((result) => result.ok)).toHaveLength(1);
+    expect(guesses.filter((result) => !result.ok)).toEqual([
+      expect.objectContaining({ code: "ROOM_NOT_PLAYING" }),
+    ]);
+    const final = await roomObject.snapshot(left.data.user.id, startedAt + 2);
+    expect(final.ok && final.snapshot.state).toBe("finished");
+    expect(final.ok && final.snapshot.winnerId).toBe(
+      guesses[0]?.ok ? left.data.user.id : right.data.user.id,
+    );
+
+    expect(
+      await Promise.all([
+        roomObject.archiveForPlayer(left.data.user.id, startedAt + 3),
+        roomObject.archiveForPlayer(right.data.user.id, startedAt + 3),
+      ]),
+    ).toEqual([true, true]);
+    const archived = await env.DB.prepare(
+      `SELECT
+         (SELECT COUNT(*) FROM matches WHERE id = ?) AS matches_count,
+         (SELECT COUNT(*) FROM rating_events WHERE match_id = ?) AS rating_events_count`,
+    )
+      .bind(roomId, roomId)
+      .first<{ matches_count: number; rating_events_count: number }>();
+    expect(archived).toEqual({ matches_count: 1, rating_events_count: 2 });
+  });
+
+  it("重连与超时竞争后仍只归档断线裁决一次", async () => {
+    const left = await createRegisteredSession("timeout_left");
+    const right = await createRegisteredSession("timeout_right");
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'RCE42', ?, ?, 'active', 0, 1, ?, ?)`,
+    )
+      .bind(roomId, roomId, left.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "RCE42",
+      format: 1,
+      ranked: false,
+      owner: {
+        userId: left.data.user.id,
+        displayName: left.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: right.data.user.id,
+        displayName: right.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+    await roomObject.disconnect(right.data.user.id, startedAt + 1);
+    const deadline = startedAt + 1 + RECONNECT_GRACE_MS;
+    await Promise.all([
+      roomObject.reconnect(right.data.user.id, deadline),
+      roomObject.snapshot(left.data.user.id, deadline),
+    ]);
+    const final = await roomObject.snapshot(left.data.user.id, deadline + 1);
+    expect(final.ok && final.snapshot).toMatchObject({
+      state: "finished",
+      finishReason: "disconnect",
+      winnerId: left.data.user.id,
+    });
+
+    await Promise.all([
+      roomObject.archiveForPlayer(left.data.user.id, deadline + 2),
+      roomObject.archiveForPlayer(right.data.user.id, deadline + 2),
+    ]);
+    const count = await env.DB.prepare("SELECT COUNT(*) AS count FROM matches WHERE id = ?")
+      .bind(roomId)
+      .first<{ count: number }>();
+    expect(count?.count).toBe(1);
   });
 
   it("归档并仅向参赛者返回完整多人复盘", async () => {
@@ -852,8 +1217,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
 
@@ -926,6 +1290,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
   });
 
   it("固定 BO3 排位并建立只对局内玩家可用的房间", async () => {
+    await seedSnapshotCandidate();
     const guest = await createSession();
     const guestRanked = await SELF.fetch("https://fireflydle.games/api/matchmaking", {
       method: "POST",
@@ -973,6 +1338,20 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     expect(roomData.snapshot.players).toHaveLength(2);
     expect((roomData.snapshot.roundEndsAt ?? 0) - Date.now()).toBeGreaterThan(85_000);
 
+    const publishedCandidate = { ...snapshotCandidate, element: character.element };
+    await env.DB.prepare(
+      `UPDATE characters
+       SET element = ?, payload_json = ?, enabled = 0, target_eligible = 0, updated_at = ?
+       WHERE id = ?`,
+    )
+      .bind(
+        publishedCandidate.element,
+        JSON.stringify(publishedCandidate),
+        Date.now(),
+        snapshotCandidate.id,
+      )
+      .run();
+
     const hiddenRoom = await SELF.fetch(`https://fireflydle.games/api/rooms/${matched.roomId}`, {
       headers: { cookie: outsider.cookie },
     });
@@ -989,7 +1368,17 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     expect(hiddenSocket.status).toBe(404);
 
     const roomObject = env.GAME_ROOM.getByName(matched.roomId);
-    const rateAt = Date.now();
+    const snapshotGuess = await roomObject.guess(
+      left.data.user.id,
+      snapshotCandidate.id,
+      crypto.randomUUID(),
+      Date.now(),
+    );
+    expect(snapshotGuess.ok && snapshotGuess.snapshot.ownGuesses[0]?.cells[0]).toMatchObject({
+      field: "element",
+      state: "miss",
+    });
+    const rateAt = Date.now() + 61_000;
     // BO7 理论峰值是 42 次；前 60 个唯一 action 都不应被速率上限误伤。
     for (let index = 0; index < 60; index += 1) {
       const invalidGuess = await roomObject.guess(

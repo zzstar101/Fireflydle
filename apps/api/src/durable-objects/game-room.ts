@@ -10,7 +10,8 @@ import type {
 import { ClientRoomMessageSchema } from "@fireflydle/contracts";
 import {
   calculateElo,
-  createGuessResult,
+  createGuessResultWithRules,
+  DEFAULT_SNAPSHOT_FIELD_RULES,
   MULTIPLAYER_ATTEMPTS,
   MULTIPLAYER_ROUND_MS,
   RECONNECT_GRACE_MS,
@@ -45,6 +46,10 @@ interface MetaRow extends Record<string, SqlStorageValue> {
   target_json: string | null;
   pool_json: string;
   target_ids_json: string;
+  mode_id: string;
+  pool_rule_version: string;
+  manifest_version: string;
+  field_rules_json: string;
   revision: number;
   created_at: number;
   started_at: number | null;
@@ -140,6 +145,10 @@ export class GameRoom extends DurableObject<Env> {
           target_json TEXT,
           pool_json TEXT NOT NULL,
           target_ids_json TEXT NOT NULL,
+          mode_id TEXT NOT NULL DEFAULT 'playable',
+          pool_rule_version TEXT NOT NULL DEFAULT '1.0.0',
+          manifest_version TEXT NOT NULL DEFAULT '1.0.0',
+          field_rules_json TEXT NOT NULL DEFAULT '{}',
           revision INTEGER NOT NULL,
           created_at INTEGER NOT NULL,
           started_at INTEGER,
@@ -210,6 +219,24 @@ export class GameRoom extends DurableObject<Env> {
       if (!metaColumns.some((column) => column.name === "draw_offer_by_id")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN draw_offer_by_id TEXT");
       }
+      if (!metaColumns.some((column) => column.name === "mode_id")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN mode_id TEXT NOT NULL DEFAULT 'playable'");
+      }
+      if (!metaColumns.some((column) => column.name === "pool_rule_version")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN pool_rule_version TEXT NOT NULL DEFAULT '1.0.0'",
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "manifest_version")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN manifest_version TEXT NOT NULL DEFAULT '1.0.0'",
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "field_rules_json")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN field_rules_json TEXT NOT NULL DEFAULT '{}'",
+        );
+      }
     });
   }
 
@@ -262,8 +289,24 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec("DELETE FROM clock_tasks WHERE task_key = ?", taskKey);
   }
 
+  private candidateSnapshots(meta: MetaRow): Record<string, Character> {
+    const encoded = JSON.parse(meta.pool_json) as Character[] | Record<string, Character>;
+    if (Array.isArray(encoded)) {
+      return Object.fromEntries(encoded.map((character) => [character.id, character]));
+    }
+    return encoded;
+  }
+
+  private fieldRules(meta: MetaRow) {
+    const encoded = JSON.parse(meta.field_rules_json) as { rules?: unknown };
+    if (!Array.isArray(encoded.rules) || encoded.rules.length === 0) {
+      return DEFAULT_SNAPSHOT_FIELD_RULES;
+    }
+    return encoded.rules as typeof DEFAULT_SNAPSHOT_FIELD_RULES;
+  }
+
   private selectTarget(meta: MetaRow): Character {
-    const pool = JSON.parse(meta.pool_json) as Character[];
+    const pool = this.candidateSnapshots(meta);
     const targetIds = JSON.parse(meta.target_ids_json) as string[];
     const used = new Set(
       this.sql
@@ -277,7 +320,8 @@ export class GameRoom extends DurableObject<Env> {
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
     const id = ids[(random[0] ?? 0) % ids.length];
-    const target = pool.find((character) => character.id === id);
+    if (!id) throw new Error("多人题库不能为空");
+    const target = pool[id];
     if (!target) throw new Error("多人目标不在角色池中");
     return target;
   }
@@ -521,7 +565,11 @@ export class GameRoom extends DurableObject<Env> {
 
   public async initialize(input: InitializeRoomInput): Promise<RoomSnapshot> {
     const now = input.now ?? Date.now();
-    if (input.characters.length === 0 || input.targetIds.length === 0) {
+    if (
+      Object.keys(input.contentSnapshot.candidateSnapshots).length === 0 ||
+      input.contentSnapshot.targetIds.length === 0 ||
+      input.contentSnapshot.fieldRules.rules.length === 0
+    ) {
       throw new Error("题库不能为空");
     }
     let started = false;
@@ -530,15 +578,20 @@ export class GameRoom extends DurableObject<Env> {
       this.sql.exec(
         `INSERT INTO room_meta
            (singleton, room_id, code, match_format, ranked, state, round_number,
-            consecutive_draws, pool_json, target_ids_json, revision, created_at,
-            archive_status, archive_attempts)
-         VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, 0, ?, 'none', 0)`,
+            consecutive_draws, pool_json, target_ids_json, mode_id, pool_rule_version,
+            manifest_version, field_rules_json, revision, created_at, archive_status,
+            archive_attempts)
+         VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, ?, ?, ?, ?, 0, ?, 'none', 0)`,
         input.roomId,
         input.code,
         input.format,
         input.ranked ? 1 : 0,
-        JSON.stringify(input.characters),
-        JSON.stringify(input.targetIds),
+        JSON.stringify(input.contentSnapshot.candidateSnapshots),
+        JSON.stringify(input.contentSnapshot.targetIds),
+        input.contentSnapshot.modeId,
+        input.contentSnapshot.poolRuleVersion,
+        input.contentSnapshot.manifestVersion,
+        JSON.stringify(input.contentSnapshot.fieldRules),
         now,
       );
       this.insertPlayer(0, input.owner);
@@ -721,14 +774,18 @@ export class GameRoom extends DurableObject<Env> {
         if (duplicate) {
           code = "GAME_DUPLICATE_GUESS";
         } else {
-          const pool = JSON.parse(meta.pool_json) as Character[];
-          const character = pool.find((entry) => entry.id === characterId);
+          const character = this.candidateSnapshots(meta)[characterId];
           const target = meta.target_json ? (JSON.parse(meta.target_json) as Character) : null;
           if (!character || !target) {
             code = "NOT_FOUND";
           } else {
             const ordinal = player.guesses_used + 1;
-            const result = createGuessResult(target, character, new Date(now));
+            const result = createGuessResultWithRules(
+              target,
+              character,
+              this.fieldRules(meta),
+              new Date(now),
+            );
             this.sql.exec(
               `INSERT INTO guesses
                  (round_number, seat, ordinal, character_id, result_json, guessed_at)
@@ -980,9 +1037,7 @@ export class GameRoom extends DurableObject<Env> {
       .exec<GuessRow>("SELECT * FROM guesses ORDER BY round_number, seat, ordinal")
       .toArray();
     const ratingAfter = ratingAfterByPlayer(meta, players);
-    const targetsById = new Map(
-      (JSON.parse(meta.pool_json) as Character[]).map((character) => [character.id, character]),
-    );
+    const candidateSnapshots = this.candidateSnapshots(meta);
     const completedAt = meta.completed_at ?? now;
     const legacyFinishReason =
       meta.finish_reason === "agreed-draw" ? "cancelled" : meta.finish_reason;
@@ -990,8 +1045,9 @@ export class GameRoom extends DurableObject<Env> {
       this.env.DB.prepare(
         `INSERT OR IGNORE INTO matches
            (id, room_code, match_format, ranked, winner_user_id, finish_reason,
-            resolution, created_at, started_at, completed_at, archived_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            resolution, mode_id, pool_rule_version, manifest_version, candidate_pool_json,
+            field_rules_json, created_at, started_at, completed_at, archived_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
         meta.room_id,
         meta.code,
@@ -1000,6 +1056,11 @@ export class GameRoom extends DurableObject<Env> {
         meta.winner_id,
         legacyFinishReason ?? "cancelled",
         meta.finish_reason ?? "cancelled",
+        meta.mode_id,
+        meta.pool_rule_version,
+        meta.manifest_version,
+        JSON.stringify(candidateSnapshots),
+        meta.field_rules_json,
         meta.created_at,
         meta.started_at ?? meta.created_at,
         completedAt,
@@ -1052,7 +1113,7 @@ export class GameRoom extends DurableObject<Env> {
           meta.room_id,
           round.round_number,
           round.target_character_id,
-          JSON.stringify(targetsById.get(round.target_character_id) ?? null),
+          JSON.stringify(candidateSnapshots[round.target_character_id] ?? null),
           round.winner_id,
           round.started_at,
           round.completed_at ?? completedAt,

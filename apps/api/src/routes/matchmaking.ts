@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem, ok } from "../lib/http";
 import { requireAuth } from "../services/auth";
+import { loadPlayableMultiplayerContentSnapshot } from "../services/multiplayer-content";
 import { enforceRateLimit } from "../services/rate-limit";
 import type { AppContext, AuthUser } from "../types";
 
@@ -37,19 +37,15 @@ matchmakingRoutes.post("/matchmaking", async (context) => {
     limit: 10,
     windowMs: 60 * 1_000,
   });
-  const [characters, targets] = await Promise.all([
-    getEnabledCharacters(context.env.DB),
-    getTargetPool(context.env.DB),
-  ]);
-  if (targets.length === 0) {
+  const contentSnapshot = await loadPlayableMultiplayerContentSnapshot(context.env.DB);
+  if (!contentSnapshot) {
     throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
   }
   const result = await context.env.MATCHMAKER.getByName(matchmakerName()).enqueue({
     participant: participant(auth.user),
     format: RANKED_FORMAT,
     ranked: true,
-    characters,
-    targetIds: targets.map((character) => character.id),
+    contentSnapshot,
   });
   return ok(context, result, result.status === "waiting" ? 202 : 200);
 });

@@ -184,25 +184,24 @@ export class Matchmaker extends DurableObject<Env> {
   }
 
   private async materializePair(pair: ReservedPair, now: number): Promise<void> {
-    const leftInput = JSON.parse(pair.left.payload_json) as MatchmakingInput;
-    const rightInput = JSON.parse(pair.right.payload_json) as MatchmakingInput;
+    const waitingInput = JSON.parse(pair.left.payload_json) as MatchmakingInput;
+    const creatingInput = JSON.parse(pair.right.payload_json) as MatchmakingInput;
     let roomCode: string | null = null;
     try {
       roomCode = await this.createRoomDirectory(
         pair.roomId,
-        leftInput.participant.userId,
-        leftInput,
+        waitingInput.participant.userId,
+        waitingInput,
         now,
       );
       const roomInput: InitializeRoomInput = {
         roomId: pair.roomId,
         code: roomCode,
-        format: leftInput.format,
-        ranked: leftInput.ranked,
-        owner: leftInput.participant,
-        opponent: rightInput.participant,
-        characters: leftInput.characters,
-        targetIds: leftInput.targetIds,
+        format: waitingInput.format,
+        ranked: waitingInput.ranked,
+        owner: waitingInput.participant,
+        opponent: creatingInput.participant,
+        contentSnapshot: creatingInput.contentSnapshot,
         now,
       };
       await this.env.GAME_ROOM.getByName(pair.roomId).initialize(roomInput);

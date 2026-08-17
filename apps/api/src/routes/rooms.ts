@@ -1,9 +1,9 @@
 import { JoinRoomRequestSchema, MatchFormatSchema } from "@fireflydle/contracts";
 import { Hono } from "hono";
 import { z } from "zod";
-import { getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem, ok, readJson, readOptionalJson } from "../lib/http";
 import { requireAuth } from "../services/auth";
+import { loadPlayableMultiplayerContentSnapshot } from "../services/multiplayer-content";
 import { enforceRateLimit } from "../services/rate-limit";
 import type { AppContext, AuthUser } from "../types";
 
@@ -113,11 +113,8 @@ roomRoutes.post("/rooms", async (context) => {
   });
   const parsed = CreatePrivateRoomSchema.safeParse(await readOptionalJson(context));
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
-  const [characters, targets] = await Promise.all([
-    getEnabledCharacters(context.env.DB),
-    getTargetPool(context.env.DB),
-  ]);
-  if (targets.length === 0) {
+  const contentSnapshot = await loadPlayableMultiplayerContentSnapshot(context.env.DB);
+  if (!contentSnapshot) {
     throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
   }
 
@@ -137,8 +134,7 @@ roomRoutes.post("/rooms", async (context) => {
       format: parsed.data.format,
       ranked: false,
       owner: participant(auth.user),
-      characters,
-      targetIds: targets.map((character) => character.id),
+      contentSnapshot,
       now,
     });
     return ok(context, { roomId, code, snapshot }, 201);
