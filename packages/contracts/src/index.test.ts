@@ -13,6 +13,7 @@ import {
   SearchIndexEntrySchema,
   PublicEndlessRunSchema,
   ClientRoomMessageSchema,
+  RoomSnapshotSchema,
   RoundSkipStateSchema,
   RoomConfigurationSchema,
 } from "./index";
@@ -256,5 +257,72 @@ describe("私人房配置契约", () => {
     expect(() => CreateRoomRequestSchema.parse({ roundTimeSeconds: 45 })).toThrow();
     expect(() => CreateRoomRequestSchema.parse({ maxAttempts: 5 })).toThrow();
     expect(() => CreateRoomRequestSchema.parse({ modeId: "npc" })).toThrow();
+  });
+});
+
+describe("永久 Elo 结算契约", () => {
+  test("房间快照保留模式与活动，并返回双方纯数字评分变化", () => {
+    const leftId = "f4f64434-e8b5-4ba1-9094-d11b9252de29";
+    const rightId = "460a4c7b-82d6-4fc7-bd32-96a86a6849af";
+    const snapshot = RoomSnapshotSchema.parse({
+      roomId: "19a7089d-5aef-474f-85e6-fcbb96a74eb7",
+      code: "ELR24",
+      modeId: "playable",
+      activityId: "ranked-match",
+      format: 3,
+      configuration: {
+        modeId: "playable",
+        activityId: "ranked-match",
+        format: 3,
+        roundTimeSeconds: 90,
+        maxAttempts: 6,
+      },
+      ranked: true,
+      state: "finished",
+      round: 2,
+      consecutiveDraws: 0,
+      roundEndsAt: null,
+      nextRoundAt: null,
+      reconnectDeadline: null,
+      players: [
+        {
+          playerId: leftId,
+          displayName: "Left",
+          score: 2,
+          guessesUsed: 2,
+          connected: true,
+          reconnectPauseUsed: false,
+        },
+        {
+          playerId: rightId,
+          displayName: "Right",
+          score: 0,
+          guessesUsed: 0,
+          connected: true,
+          reconnectPauseUsed: false,
+        },
+      ],
+      ownGuesses: [],
+      opponentFeedback: [],
+      roundAnswer: null,
+      roundWinnerId: leftId,
+      roundSkip: { status: "idle" },
+      drawOfferByPlayerId: null,
+      winnerId: leftId,
+      finishReason: "score",
+      ratingChanges: [
+        { playerId: leftId, before: 1000, after: 1024, delta: 24 },
+        { playerId: rightId, before: 1000, after: 976, delta: -24 },
+      ],
+    });
+
+    expect(snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "ranked-match",
+      ratingChanges: [
+        { playerId: leftId, before: 1000, after: 1024, delta: 24 },
+        { playerId: rightId, before: 1000, after: 976, delta: -24 },
+      ],
+    });
   });
 });

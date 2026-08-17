@@ -797,26 +797,46 @@
 .feedback-legend i.state-close {
   background: var(--close);
 }
+.rating-settlement {
+  display: grid;
+  min-width: min(100%, 300px);
+  border: 1px solid var(--border);
+}
 .rating-change {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto 42px;
   align-items: baseline;
-  margin-top: 8px;
-  gap: 10px;
+  gap: 12px;
+  padding: 8px 10px;
+}
+.rating-change + .rating-change {
+  border-top: 1px solid var(--border);
+}
+.rating-change span {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rating-change b,
+.rating-change strong {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-align: right;
+}
+.rating-change b {
+  color: var(--text-faint);
+  font-weight: 500;
 }
 .rating-change strong {
   color: var(--text-muted);
-  font-family: var(--font-mono);
 }
 .rating-change.positive strong {
   color: var(--exact);
 }
 .rating-change.negative strong {
   color: var(--danger);
-}
-.rating-change span {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
 }
 .match-finished {
   display: flex;
@@ -991,6 +1011,9 @@
   }
   .match-finished {
     flex-wrap: wrap;
+  }
+  .rating-settlement {
+    width: 100%;
   }
   .draw-controls {
     align-items: stretch;

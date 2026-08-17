@@ -1131,7 +1131,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       opponentSocket,
       (snapshot) => snapshot.state === "finished",
     );
-    expect(finished).toMatchObject({ ranked: false, ratingChange: null });
+    expect(finished).toMatchObject({ ranked: false, ratingChanges: [] });
     await SELF.fetch(`https://fireflydle.games/api/replays/${created.roomId}`, {
       headers: { cookie: owner.cookie },
     });
@@ -1223,23 +1223,33 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     const replay = await dataOf<ReplayResponse>(replayResponse);
     expect(replay.kind).toBe("multiplayer");
     if (replay.kind !== "multiplayer") return;
+    expect(replay.match).toMatchObject({
+      modeId: "playable",
+      activityId: "private-room",
+      ranked: false,
+    });
     expect(replay.match.rounds[0]?.answer.element).toBe(character.element);
 
     const archived = await env.DB.prepare(
-      `SELECT mode_id, pool_rule_version, manifest_version,
-              candidate_pool_json, field_rules_json
+      `SELECT mode_id, activity_id, pool_rule_version, manifest_version,
+              candidate_pool_json, field_rules_json,
+              (SELECT COUNT(*) FROM rating_events WHERE match_id = matches.id) AS rating_events_count
        FROM matches WHERE id = ?`,
     )
       .bind(room.roomId)
       .first<{
         mode_id: string;
+        activity_id: string;
         pool_rule_version: string;
         manifest_version: string;
         candidate_pool_json: string;
         field_rules_json: string;
+        rating_events_count: number;
       }>();
     expect(archived).toMatchObject({
       mode_id: "playable",
+      activity_id: "private-room",
+      rating_events_count: 0,
       pool_rule_version: expect.stringMatching(/^\d+\.\d+\.\d+$/u),
       manifest_version: expect.stringMatching(/^\d+\.\d+\.\d+$/u),
     });
@@ -1275,7 +1285,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "FLD42",
       format: 1,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: owner.data.user.id,
         displayName: owner.data.user.displayName,
@@ -1334,7 +1344,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "DRW22",
       format: 3,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: ownerId,
         displayName: "Draw Left",
@@ -1388,7 +1398,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "AGR42",
       format: 3,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: ownerId,
         displayName: "Offer Left",
@@ -1546,7 +1556,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "SKP42",
       format: 3,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: ownerId,
         displayName: "Skip Left",
@@ -1602,7 +1612,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     });
   });
 
-  it("排位结算向双方返回各自的 Elo 加减分", async () => {
+  it("固定 BO3 随机匹配在双方跳过后返回双方永久 Elo 变化", async () => {
     const roomId = crypto.randomUUID();
     const ownerId = crypto.randomUUID();
     const opponentId = crypto.randomUUID();
@@ -1611,8 +1621,8 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     await roomObject.initialize({
       roomId,
       code: "ELR24",
-      format: 1,
-      ranked: true,
+      activityId: "ranked-match",
+      format: 3,
       owner: {
         userId: ownerId,
         displayName: "Rated Left",
@@ -1630,20 +1640,46 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
-    const won = await roomObject.guess(ownerId, character.id, crypto.randomUUID(), startedAt + 100);
+    const firstWin = await roomObject.guess(
+      ownerId,
+      character.id,
+      crypto.randomUUID(),
+      startedAt + 100,
+    );
+    expect(firstWin.ok).toBe(true);
+    if (!firstWin.ok || firstWin.snapshot.nextRoundAt === null) return;
+    const roundTwoAt = firstWin.snapshot.nextRoundAt + 1;
+    await roomObject.snapshot(ownerId, roundTwoAt);
+    await roomObject.requestSkip(ownerId, roundTwoAt + 1);
+    const skipped = await roomObject.respondSkip(opponentId, true, roundTwoAt + 2);
+    expect(skipped.ok && skipped.snapshot).toMatchObject({
+      state: "playing",
+      round: 3,
+      roundSkip: { status: "executed", round: 2 },
+    });
+
+    const won = await roomObject.guess(ownerId, character.id, crypto.randomUUID(), roundTwoAt + 3);
     expect(won.ok).toBe(true);
     if (!won.ok) return;
     expect(won.snapshot.state).toBe("finished");
     expect(won.snapshot.roundAnswer?.id).toBe(character.id);
-    expect(won.snapshot.ratingChange).toEqual({ before: 1000, after: 1024, delta: 24 });
+    expect(won.snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "ranked-match",
+      ranked: true,
+      ratingChanges: [
+        { playerId: ownerId, before: 1000, after: 1024, delta: 24 },
+        { playerId: opponentId, before: 1000, after: 976, delta: -24 },
+      ],
+    });
 
-    const lost = await roomObject.snapshot(opponentId, startedAt + 101);
+    const lost = await roomObject.snapshot(opponentId, roundTwoAt + 4);
     expect(lost.ok).toBe(true);
     if (!lost.ok) return;
-    expect(lost.snapshot.ratingChange).toEqual({ before: 1000, after: 976, delta: -24 });
+    expect(lost.snapshot.ratingChanges).toEqual(won.snapshot.ratingChanges);
   });
 
-  it("并发猜中与并发归档只写入一个最终裁决", async () => {
+  it("并发归档只写入一场比赛和双方各一个评分事件", async () => {
     const left = await createRegisteredSession("single_verdict_left");
     const right = await createRegisteredSession("single_verdict_right");
     const roomId = crypto.randomUUID();
@@ -1652,7 +1688,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       `INSERT INTO room_directory
          (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
           match_format, created_at, expires_at)
-       VALUES (?, 'ONE42', ?, ?, 'active', 1, 1, ?, ?)`,
+       VALUES (?, 'ONE42', ?, ?, 'active', 1, 3, ?, ?)`,
     )
       .bind(roomId, roomId, left.data.user.id, startedAt, startedAt + 60_000)
       .run();
@@ -1660,8 +1696,8 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     await roomObject.initialize({
       roomId,
       code: "ONE42",
-      format: 1,
-      ranked: true,
+      activityId: "ranked-match",
+      format: 3,
       owner: {
         userId: left.data.user.id,
         displayName: left.data.user.displayName,
@@ -1680,24 +1716,25 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       now: startedAt,
     });
 
-    const guesses = await Promise.all([
-      roomObject.guess(left.data.user.id, character.id, crypto.randomUUID(), startedAt + 1),
-      roomObject.guess(right.data.user.id, character.id, crypto.randomUUID(), startedAt + 1),
-    ]);
-    expect(guesses.filter((result) => result.ok)).toHaveLength(1);
-    expect(guesses.filter((result) => !result.ok)).toEqual([
-      expect.objectContaining({ code: "ROOM_NOT_PLAYING" }),
-    ]);
-    const final = await roomObject.snapshot(left.data.user.id, startedAt + 2);
-    expect(final.ok && final.snapshot.state).toBe("finished");
-    expect(final.ok && final.snapshot.winnerId).toBe(
-      guesses[0]?.ok ? left.data.user.id : right.data.user.id,
+    const first = await roomObject.guess(
+      left.data.user.id,
+      character.id,
+      crypto.randomUUID(),
+      startedAt + 1,
     );
+    expect(first.ok && first.snapshot.nextRoundAt).not.toBeNull();
+    if (!first.ok || first.snapshot.nextRoundAt === null) return;
+    const secondRoundAt = first.snapshot.nextRoundAt + 1;
+    await roomObject.snapshot(left.data.user.id, secondRoundAt);
+    await roomObject.guess(left.data.user.id, character.id, crypto.randomUUID(), secondRoundAt + 1);
+    const final = await roomObject.snapshot(left.data.user.id, secondRoundAt + 2);
+    expect(final.ok && final.snapshot.state).toBe("finished");
+    expect(final.ok && final.snapshot.winnerId).toBe(left.data.user.id);
 
     expect(
       await Promise.all([
-        roomObject.archiveForPlayer(left.data.user.id, startedAt + 3),
-        roomObject.archiveForPlayer(right.data.user.id, startedAt + 3),
+        roomObject.archiveForPlayer(left.data.user.id, secondRoundAt + 3),
+        roomObject.archiveForPlayer(right.data.user.id, secondRoundAt + 3),
       ]),
     ).toEqual([true, true]);
     const archived = await env.DB.prepare(
@@ -1708,6 +1745,44 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       .bind(roomId, roomId)
       .first<{ matches_count: number; rating_events_count: number }>();
     expect(archived).toEqual({ matches_count: 1, rating_events_count: 2 });
+    const ratingEvents = await env.DB.prepare(
+      `SELECT user_id, rating_before, rating_after, delta
+       FROM rating_events WHERE match_id = ? ORDER BY user_id`,
+    )
+      .bind(roomId)
+      .all<{
+        user_id: string;
+        rating_before: number;
+        rating_after: number;
+        delta: number;
+      }>();
+    expect(ratingEvents.results).toEqual(
+      expect.arrayContaining([
+        {
+          user_id: left.data.user.id,
+          rating_before: 1000,
+          rating_after: 1024,
+          delta: 24,
+        },
+        {
+          user_id: right.data.user.id,
+          rating_before: 1000,
+          rating_after: 976,
+          delta: -24,
+        },
+      ]),
+    );
+    const ratings = await env.DB.prepare(
+      "SELECT id, elo, ranked_matches FROM users WHERE id IN (?, ?) ORDER BY id",
+    )
+      .bind(left.data.user.id, right.data.user.id)
+      .all<{ id: string; elo: number; ranked_matches: number }>();
+    expect(ratings.results).toEqual(
+      expect.arrayContaining([
+        { id: left.data.user.id, elo: 1024, ranked_matches: 1 },
+        { id: right.data.user.id, elo: 976, ranked_matches: 1 },
+      ]),
+    );
   });
 
   it("重连与超时竞争后仍只归档断线裁决一次", async () => {
@@ -1728,7 +1803,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "RCE42",
       format: 1,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: left.data.user.id,
         displayName: left.data.user.displayName,
@@ -1754,19 +1829,36 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     ]);
     const final = await roomObject.snapshot(left.data.user.id, deadline + 1);
     expect(final.ok && final.snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "private-room",
+      ranked: false,
       state: "finished",
       finishReason: "disconnect",
       winnerId: left.data.user.id,
+      ratingChanges: [],
     });
 
     await Promise.all([
       roomObject.archiveForPlayer(left.data.user.id, deadline + 2),
       roomObject.archiveForPlayer(right.data.user.id, deadline + 2),
     ]);
-    const count = await env.DB.prepare("SELECT COUNT(*) AS count FROM matches WHERE id = ?")
-      .bind(roomId)
-      .first<{ count: number }>();
-    expect(count?.count).toBe(1);
+    const count = await env.DB.prepare(
+      `SELECT COUNT(*) AS count,
+              (SELECT COUNT(*) FROM rating_events WHERE match_id = ?) AS rating_events_count
+       FROM matches WHERE id = ?`,
+    )
+      .bind(roomId, roomId)
+      .first<{ count: number; rating_events_count: number }>();
+    expect(count).toEqual({ count: 1, rating_events_count: 0 });
+    const unchanged = await env.DB.prepare(
+      "SELECT elo, ranked_matches FROM users WHERE id IN (?, ?) ORDER BY id",
+    )
+      .bind(left.data.user.id, right.data.user.id)
+      .all<{ elo: number; ranked_matches: number }>();
+    expect(unchanged.results).toEqual([
+      { elo: 1000, ranked_matches: 0 },
+      { elo: 1000, ranked_matches: 0 },
+    ]);
   });
 
   it("归档并仅向参赛者返回完整多人复盘", async () => {
@@ -1788,7 +1880,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "RPY42",
       format: 3,
-      ranked: true,
+      activityId: "ranked-match",
       owner: {
         userId: left.data.user.id,
         displayName: left.data.user.displayName,
@@ -1918,8 +2010,13 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       headers: { cookie: left.cookie },
     });
     const roomData = await dataOf<{ snapshot: RoomSnapshot }>(room);
-    expect(roomData.snapshot.format).toBe(3);
-    expect(roomData.snapshot.ranked).toBe(true);
+    expect(roomData.snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "ranked-match",
+      format: 3,
+      ranked: true,
+      ratingChanges: [],
+    });
     expect(roomData.snapshot.state).toBe("playing");
     expect(roomData.snapshot.players).toHaveLength(2);
     expect((roomData.snapshot.roundEndsAt ?? 0) - Date.now()).toBeGreaterThan(85_000);

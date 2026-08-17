@@ -1,4 +1,5 @@
 import type {
+  ActivityId,
   Character,
   ContentModeId,
   ErrorCode,
@@ -32,9 +33,9 @@ export interface RoomParticipant {
 export interface InitializeRoomInput {
   roomId: string;
   code: string;
+  activityId: ActivityId;
   format: MatchFormat;
   configuration?: RoomConfiguration;
-  ranked: boolean;
   owner: RoomParticipant;
   opponent?: RoomParticipant;
   contentSnapshot: MultiplayerContentSnapshot;
@@ -51,8 +52,6 @@ export type RoomCommandResult =
 
 export interface MatchmakingInput {
   participant: RoomParticipant;
-  format: MatchFormat;
-  ranked: boolean;
   contentSnapshot: MultiplayerContentSnapshot;
   now?: number;
 }

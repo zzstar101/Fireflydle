@@ -1,5 +1,7 @@
 import type {
+  ActivityId,
   Character,
+  ContentModeId,
   GuessResult,
   MatchFinishReason,
   MultiplayerReplay,
@@ -23,6 +25,8 @@ interface ReplayResultRow {
 
 interface MatchRow {
   id: string;
+  mode_id: ContentModeId;
+  activity_id: ActivityId;
   match_format: 1 | 3 | 5 | 7;
   ranked: number;
   winner_user_id: string | null;
@@ -81,7 +85,7 @@ async function multiplayerReplay(
 ): Promise<MultiplayerReplay | null> {
   const match = await db
     .prepare(
-      `SELECT m.id, m.match_format, m.ranked, m.winner_user_id,
+      `SELECT m.id, m.mode_id, m.activity_id, m.match_format, m.ranked, m.winner_user_id,
               COALESCE(m.resolution, m.finish_reason) AS finish_reason,
               m.started_at, m.completed_at
        FROM matches m
@@ -122,6 +126,8 @@ async function multiplayerReplay(
 
   return {
     id: match.id,
+    modeId: match.mode_id,
+    activityId: match.activity_id,
     format: match.match_format,
     ranked: match.ranked === 1,
     finishReason: match.finish_reason,

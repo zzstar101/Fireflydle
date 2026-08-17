@@ -111,7 +111,7 @@ interface SocketAttachment {
 
 function ratingAfterByPlayer(meta: MetaRow, players: PlayerRow[]): Map<string, number> {
   const result = new Map(players.map((player) => [player.player_id, player.rating]));
-  if (meta.ranked !== 1 || !meta.winner_id || players.length !== 2) return result;
+  if (!isPermanentEloMatch(meta, players) || !meta.winner_id) return result;
   const winner = players.find((player) => player.player_id === meta.winner_id);
   const loser = players.find((player) => player.player_id !== meta.winner_id);
   if (!winner || !loser) return result;
@@ -124,6 +124,17 @@ function ratingAfterByPlayer(meta: MetaRow, players: PlayerRow[]): Map<string, n
   result.set(winner.player_id, rating.winnerRating);
   result.set(loser.player_id, rating.loserRating);
   return result;
+}
+
+function isPermanentEloMatch(meta: MetaRow, players: PlayerRow[]): boolean {
+  return (
+    meta.ranked === 1 &&
+    meta.mode_id === "playable" &&
+    meta.activity_id === "ranked-match" &&
+    meta.match_format === 3 &&
+    players.length === 2 &&
+    players.every((player) => player.is_guest === 0)
+  );
 }
 
 export class GameRoom extends DurableObject<Env> {
@@ -243,6 +254,7 @@ export class GameRoom extends DurableObject<Env> {
         this.sql.exec(
           "ALTER TABLE room_meta ADD COLUMN activity_id TEXT NOT NULL DEFAULT 'private-room'",
         );
+        this.sql.exec("UPDATE room_meta SET activity_id = 'ranked-match' WHERE ranked = 1");
       }
       if (!metaColumns.some((column) => column.name === "round_time_seconds")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN round_time_seconds INTEGER");
@@ -581,16 +593,17 @@ export class GameRoom extends DurableObject<Env> {
         ? (JSON.parse(meta.target_json) as Character)
         : null;
     const ratingAfter =
-      meta.state === "finished" && meta.ranked === 1 && players.length === 2
+      meta.state === "finished" && isPermanentEloMatch(meta, players)
         ? ratingAfterByPlayer(meta, players)
         : null;
-    const ownRatingAfter = ratingAfter?.get(own.player_id);
     return {
       roomId: meta.room_id,
       code: meta.code,
+      modeId: meta.mode_id as RoomSnapshot["modeId"],
+      activityId: meta.activity_id as RoomSnapshot["activityId"],
       format: meta.match_format,
       configuration: this.configuration(meta),
-      ranked: meta.ranked === 1,
+      ranked: isPermanentEloMatch(meta, players),
       state: meta.state,
       round: Math.max(1, meta.round_number),
       consecutiveDraws: meta.consecutive_draws,
@@ -613,14 +626,17 @@ export class GameRoom extends DurableObject<Env> {
       drawOfferByPlayerId: meta.draw_offer_by_id,
       winnerId: meta.winner_id,
       finishReason: meta.finish_reason,
-      ratingChange:
-        ownRatingAfter === undefined
-          ? null
-          : {
-              before: own.rating,
-              after: ownRatingAfter,
-              delta: ownRatingAfter - own.rating,
-            },
+      ratingChanges: ratingAfter
+        ? players.map((player) => {
+            const after = ratingAfter.get(player.player_id) ?? player.rating;
+            return {
+              playerId: player.player_id,
+              before: player.rating,
+              after,
+              delta: after - player.rating,
+            };
+          })
+        : [],
     };
   }
 
@@ -649,16 +665,27 @@ export class GameRoom extends DurableObject<Env> {
     const now = input.now ?? Date.now();
     const configuration: RoomConfiguration = input.configuration ?? {
       modeId: input.contentSnapshot.modeId,
-      activityId: input.ranked ? "ranked-match" : "private-room",
+      activityId: input.activityId,
       format: input.format,
       roundTimeSeconds: (MULTIPLAYER_ROUND_MS / 1_000) as 90,
       maxAttempts: MULTIPLAYER_ATTEMPTS as 6,
     };
     if (
       configuration.format !== input.format ||
-      configuration.modeId !== input.contentSnapshot.modeId
+      configuration.modeId !== input.contentSnapshot.modeId ||
+      configuration.activityId !== input.activityId
     ) {
       throw new Error("房间配置与内容快照不一致");
+    }
+    const ranked =
+      input.contentSnapshot.modeId === "playable" &&
+      input.activityId === "ranked-match" &&
+      input.format === 3 &&
+      input.opponent !== undefined &&
+      !input.owner.isGuest &&
+      !input.opponent.isGuest;
+    if (input.activityId === "ranked-match" && !ranked) {
+      throw new Error("正式随机匹配必须使用普通角色固定 BO3，并且双方均为注册用户");
     }
     if (
       Object.keys(input.contentSnapshot.candidateSnapshots).length === 0 ||
@@ -681,7 +708,7 @@ export class GameRoom extends DurableObject<Env> {
         input.roomId,
         input.code,
         input.format,
-        input.ranked ? 1 : 0,
+        ranked ? 1 : 0,
         JSON.stringify(input.contentSnapshot.candidateSnapshots),
         JSON.stringify(input.contentSnapshot.targetIds),
         configuration.modeId,
@@ -1249,18 +1276,20 @@ export class GameRoom extends DurableObject<Env> {
       this.env.DB.prepare(
         `INSERT OR IGNORE INTO matches
            (id, room_code, match_format, ranked, winner_user_id, finish_reason,
-            resolution, mode_id, pool_rule_version, manifest_version, candidate_pool_json,
-            field_rules_json, created_at, started_at, completed_at, archived_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             resolution, mode_id, activity_id, pool_rule_version, manifest_version,
+             candidate_pool_json, field_rules_json, created_at, started_at, completed_at,
+             archived_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
         meta.room_id,
         meta.code,
         meta.match_format,
-        meta.ranked,
+        isPermanentEloMatch(meta, players) ? 1 : 0,
         meta.winner_id,
         legacyFinishReason ?? "cancelled",
         meta.finish_reason ?? "cancelled",
         meta.mode_id,
+        meta.activity_id,
         meta.pool_rule_version,
         meta.manifest_version,
         JSON.stringify(candidateSnapshots),
@@ -1288,7 +1317,7 @@ export class GameRoom extends DurableObject<Env> {
           after,
         ),
       );
-      if (meta.ranked === 1 && players.length === 2) {
+      if (isPermanentEloMatch(meta, players)) {
         statements.push(
           this.env.DB.prepare(
             `INSERT OR IGNORE INTO rating_events

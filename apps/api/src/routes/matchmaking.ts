@@ -7,7 +7,6 @@ import { enforceRateLimit } from "../services/rate-limit";
 import type { AppContext, AuthUser } from "../types";
 
 const TicketSchema = z.string().uuid();
-const RANKED_FORMAT = 3 as const;
 
 function participant(user: AuthUser) {
   return {
@@ -43,8 +42,6 @@ matchmakingRoutes.post("/matchmaking", async (context) => {
   }
   const result = await context.env.MATCHMAKER.getByName(matchmakerName()).enqueue({
     participant: participant(auth.user),
-    format: RANKED_FORMAT,
-    ranked: true,
     contentSnapshot,
   });
   return ok(context, result, result.status === "waiting" ? 202 : 200);

@@ -128,9 +128,9 @@ roomRoutes.post("/rooms", async (context) => {
     const snapshot = await context.env.GAME_ROOM.getByName(roomId).initialize({
       roomId,
       code,
+      activityId: "private-room",
       format: parsed.data.format,
       configuration: parsed.data,
-      ranked: false,
       owner: participant(auth.user),
       contentSnapshot,
       now,

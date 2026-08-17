@@ -689,26 +689,38 @@ export default function RoomPage() {
                           ? "Draw by agreement"
                           : "No winner"}
                 </h2>
-                {snapshot.ranked && snapshot.ratingChange ? (
-                  <div
-                    className={`rating-change ${
-                      snapshot.ratingChange.delta > 0
-                        ? "positive"
-                        : snapshot.ratingChange.delta < 0
-                          ? "negative"
-                          : "neutral"
-                    }`}
-                  >
-                    <strong>
-                      {snapshot.ratingChange.delta > 0 ? "+" : ""}
-                      {snapshot.ratingChange.delta} Elo
-                    </strong>
-                    <span>
-                      {snapshot.ratingChange.before} → {snapshot.ratingChange.after}
-                    </span>
-                  </div>
-                ) : null}
               </div>
+              {snapshot.ranked && snapshot.ratingChanges.length === 2 ? (
+                <div
+                  className="rating-settlement"
+                  aria-label={tr(
+                    "双方永久评分变化",
+                    "両者の常設レート変動",
+                    "Permanent rating changes",
+                  )}
+                >
+                  {snapshot.players.map((player) => {
+                    const change = snapshot.ratingChanges.find(
+                      (entry) => entry.playerId === player.playerId,
+                    );
+                    if (!change) return null;
+                    const tone =
+                      change.delta > 0 ? "positive" : change.delta < 0 ? "negative" : "neutral";
+                    return (
+                      <div className={`rating-change ${tone}`} key={player.playerId}>
+                        <span>{player.displayName}</span>
+                        <b>
+                          {change.before} → {change.after}
+                        </b>
+                        <strong>
+                          {change.delta > 0 ? "+" : ""}
+                          {change.delta}
+                        </strong>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
               <div className="match-finished-actions">
                 <button
                   className="ticket-button-secondary"

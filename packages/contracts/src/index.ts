@@ -521,11 +521,16 @@ export const RoomPlayerSchema = z.object({
 });
 export type RoomPlayer = z.infer<typeof RoomPlayerSchema>;
 
-export const RatingChangeSchema = z.object({
-  before: z.number().int(),
-  after: z.number().int(),
-  delta: z.number().int(),
-});
+export const RatingChangeSchema = z
+  .object({
+    playerId: z.string().uuid(),
+    before: z.number().int(),
+    after: z.number().int(),
+    delta: z.number().int(),
+  })
+  .refine((change) => change.after - change.before === change.delta, {
+    message: "评分变化必须等于结算后评分减去结算前评分",
+  });
 export type RatingChange = z.infer<typeof RatingChangeSchema>;
 
 export const MatchFinishReasonSchema = z.enum([
@@ -560,29 +565,61 @@ export const RoundSkipStateSchema = z.discriminatedUnion("status", [
 ]);
 export type RoundSkipState = z.infer<typeof RoundSkipStateSchema>;
 
-export const RoomSnapshotSchema = z.object({
-  roomId: z.string().uuid(),
-  code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
-  format: MatchFormatSchema,
-  configuration: RoomConfigurationSchema,
-  ranked: z.boolean(),
-  state: z.enum(["waiting", "countdown", "playing", "paused", "round-ended", "finished"]),
-  round: z.number().int().positive(),
-  consecutiveDraws: z.number().int().nonnegative(),
-  roundEndsAt: z.number().int().nullable(),
-  nextRoundAt: z.number().int().nullable(),
-  reconnectDeadline: z.number().int().nullable(),
-  players: z.array(RoomPlayerSchema).max(2),
-  ownGuesses: z.array(GuessResultSchema),
-  opponentFeedback: z.array(z.array(GuessCellSchema)),
-  roundAnswer: CharacterSchema.nullable(),
-  roundWinnerId: z.string().uuid().nullable(),
-  roundSkip: RoundSkipStateSchema,
-  drawOfferByPlayerId: z.string().uuid().nullable(),
-  winnerId: z.string().uuid().nullable(),
-  finishReason: MatchFinishReasonSchema.nullable(),
-  ratingChange: RatingChangeSchema.nullable(),
-});
+export const RoomSnapshotSchema = z
+  .object({
+    roomId: z.string().uuid(),
+    code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
+    modeId: ContentModeIdSchema,
+    activityId: ActivityIdSchema,
+    format: MatchFormatSchema,
+    configuration: RoomConfigurationSchema,
+    ranked: z.boolean(),
+    state: z.enum(["waiting", "countdown", "playing", "paused", "round-ended", "finished"]),
+    round: z.number().int().positive(),
+    consecutiveDraws: z.number().int().nonnegative(),
+    roundEndsAt: z.number().int().nullable(),
+    nextRoundAt: z.number().int().nullable(),
+    reconnectDeadline: z.number().int().nullable(),
+    players: z.array(RoomPlayerSchema).max(2),
+    ownGuesses: z.array(GuessResultSchema),
+    opponentFeedback: z.array(z.array(GuessCellSchema)),
+    roundAnswer: CharacterSchema.nullable(),
+    roundWinnerId: z.string().uuid().nullable(),
+    roundSkip: RoundSkipStateSchema,
+    drawOfferByPlayerId: z.string().uuid().nullable(),
+    winnerId: z.string().uuid().nullable(),
+    finishReason: MatchFinishReasonSchema.nullable(),
+    ratingChanges: z.array(RatingChangeSchema).max(2),
+  })
+  .superRefine((snapshot, context) => {
+    const playerIds = new Set(snapshot.players.map((player) => player.playerId));
+    const ratingPlayerIds = new Set(snapshot.ratingChanges.map((change) => change.playerId));
+    if (ratingPlayerIds.size !== snapshot.ratingChanges.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ratingChanges"],
+        message: "同一玩家只能出现一次评分变化",
+      });
+    }
+    if (snapshot.ratingChanges.some((change) => !playerIds.has(change.playerId))) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ratingChanges"],
+        message: "评分变化只能引用房间内玩家",
+      });
+    }
+    const shouldExposeSettlement = snapshot.ranked && snapshot.state === "finished";
+    if (
+      (shouldExposeSettlement && snapshot.ratingChanges.length !== snapshot.players.length) ||
+      (!shouldExposeSettlement && snapshot.ratingChanges.length !== 0)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ratingChanges"],
+        message: "只有已结束的正式随机匹配才能返回双方评分变化",
+      });
+    }
+  });
 export type RoomSnapshot = z.infer<typeof RoomSnapshotSchema>;
 
 export const ClientRoomMessageSchema = z.discriminatedUnion("type", [
@@ -739,6 +776,8 @@ export const MultiplayerReplayRoundSchema = z.object({
 
 export const MultiplayerReplaySchema = z.object({
   id: z.string().uuid(),
+  modeId: ContentModeIdSchema,
+  activityId: ActivityIdSchema,
   format: MatchFormatSchema,
   ranked: z.boolean(),
   finishReason: MatchFinishReasonSchema,

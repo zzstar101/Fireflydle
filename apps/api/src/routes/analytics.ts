@@ -42,6 +42,8 @@ interface CountRow {
 
 interface MultiplayerRecentRow {
   match_id: string;
+  mode_id: string;
+  activity_id: string;
   winner_user_id: string | null;
   opponent_display_name: string;
   score_for: number;
@@ -106,6 +108,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
        FROM matches m
        JOIN match_players mp ON mp.match_id = m.id
        WHERE mp.user_id = ? AND m.ranked = 1
+         AND m.mode_id = 'playable' AND m.activity_id = 'ranked-match'
+         AND m.match_format = 3
          AND COALESCE(m.resolution, m.finish_reason) <> 'cancelled'`,
     )
       .bind(auth.user.id, auth.user.id)
@@ -119,7 +123,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
       .bind(auth.user.id)
       .all<RecentRow>(),
     context.env.DB.prepare(
-      `SELECT m.id AS match_id, m.winner_user_id,
+      `SELECT m.id AS match_id, m.mode_id, m.activity_id, m.winner_user_id,
               opponent.display_name AS opponent_display_name,
               own.score AS score_for, opponent.score AS score_against,
               COUNT(mg.ordinal) AS guess_count, m.ranked, m.started_at, m.completed_at
@@ -128,8 +132,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
        JOIN match_players opponent ON opponent.match_id = m.id AND opponent.user_id <> own.user_id
        LEFT JOIN match_guesses mg ON mg.match_id = m.id AND mg.user_id = own.user_id
        WHERE COALESCE(m.resolution, m.finish_reason) <> 'cancelled'
-       GROUP BY m.id, m.winner_user_id, opponent.display_name, own.score, opponent.score,
-                m.ranked, m.started_at, m.completed_at
+        GROUP BY m.id, m.mode_id, m.activity_id, m.winner_user_id, opponent.display_name,
+                 own.score, opponent.score, m.ranked, m.started_at, m.completed_at
        ORDER BY m.completed_at DESC LIMIT 20`,
     )
       .bind(auth.user.id)
@@ -218,8 +222,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
       ...soloRecent,
       ...multiplayerRows.results.map((row) => ({
         id: row.match_id,
-        modeId: "playable",
-        activityId: "ranked-match",
+        modeId: row.mode_id,
+        activityId: row.activity_id,
         result:
           row.winner_user_id === null
             ? "draw"
