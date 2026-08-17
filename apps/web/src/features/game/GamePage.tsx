@@ -26,6 +26,7 @@ import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
+import { triggerGameHaptic } from "./haptics";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
 import { markInstallEligible } from "../../pwa";
@@ -297,8 +298,10 @@ function ActiveGame({
   const abandonButtonRef = useRef<HTMLButtonElement>(null);
   const confirmAbandonButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const observedGuessCountRef = useRef(session.game.guesses.length);
   const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
     session;
+  const guessCount = game.guesses.length;
   const modeManifest = contentModeId === "npc" ? npcManifest : contentManifest;
   const modeDefinition = modeManifest.modes.find((entry) => entry.id === contentModeId);
   const ruleFields = game.fieldDefinitions ?? modeDefinition?.fields ?? [];
@@ -314,8 +317,18 @@ function ActiveGame({
 
   useEffect(() => {
     setConfirmAbandon(false);
+    observedGuessCountRef.current = game.guesses.length;
     gameHeadingRef.current?.focus();
   }, [game.id]);
+
+  useEffect(() => {
+    const previousCount = observedGuessCountRef.current;
+    observedGuessCountRef.current = guessCount;
+    if (contentModeId !== "playable" || guessCount <= previousCount) return;
+
+    const latestGuess = game.guesses.at(-1);
+    triggerGameHaptic(latestGuess?.isCorrect ? "win" : "life-lost");
+  }, [contentModeId, guessCount]);
 
   useEffect(() => {
     if (game.status !== "active") resultRef.current?.focus();
@@ -566,7 +579,10 @@ function ActiveGame({
                 : {})}
               excludedIds={guessedIds}
               disabled={busy}
-              onSubmit={(id) => void submitGuess(id)}
+              onSubmit={(id) => {
+                if (contentModeId === "playable") triggerGameHaptic("submit");
+                void submitGuess(id);
+              }}
             />
           )}
 
@@ -577,105 +593,119 @@ function ActiveGame({
           )}
 
           {finished && game.answer && (
-            <section
-              ref={resultRef}
-              className={`game-result result-${game.status}`}
-              role="status"
-              aria-live="polite"
-              tabIndex={-1}
-            >
-              <div className="result-icon">
-                <Sparkles size={25} />
-              </div>
-              <CharacterAvatar character={game.answer} size="large" priority />
-              <div className="result-copy">
-                <p>{game.status === "won" ? t("game.wonTitle") : t("game.lostTitle")}</p>
-                <h2>{game.answer.names[locale]}</h2>
-                <small>
-                  {t("game.answer")} · {game.guesses.length}/{game.maxAttempts} ·{" "}
-                  {formatTime(game.elapsedMs)}
-                </small>
-              </div>
-              <div className="result-actions">
-                {mode === "daily" ? (
-                  <Link className="ticket-button" to="/">
-                    <ArrowLeft size={17} /> {t("hub.backToHub")}
-                  </Link>
-                ) : (
-                  <button
-                    className="ticket-button"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void restart()}
-                  >
-                    <RotateCcw size={17} /> {t("game.playAgain")}
-                  </button>
+            <>
+              {contentModeId === "playable" && game.status === "won" ? (
+                <div className="settlement-energy" aria-hidden="true">
+                  <i />
+                  <span />
+                  <i />
+                </div>
+              ) : null}
+              <section
+                ref={resultRef}
+                className={`game-result result-${game.status}${contentModeId === "playable" ? " result-animated" : ""}`}
+                role="status"
+                aria-live="polite"
+                tabIndex={-1}
+              >
+                <div className="result-icon">
+                  <Sparkles size={25} />
+                </div>
+                <CharacterAvatar character={game.answer} size="large" priority />
+                <div className="result-copy">
+                  <p>{game.status === "won" ? t("game.wonTitle") : t("game.lostTitle")}</p>
+                  <h2>{game.answer.names[locale]}</h2>
+                  <small>
+                    {t("game.answer")} · {game.guesses.length}/{game.maxAttempts} ·{" "}
+                    {formatTime(game.elapsedMs)}
+                  </small>
+                </div>
+                <div className="result-actions">
+                  {mode === "daily" ? (
+                    <Link className="ticket-button" to="/">
+                      <ArrowLeft size={17} /> {t("hub.backToHub")}
+                    </Link>
+                  ) : (
+                    <button
+                      className="ticket-button"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void restart()}
+                    >
+                      <RotateCcw size={17} /> {t("game.playAgain")}
+                    </button>
+                  )}
+                  {mode === "random" && (
+                    <Link className="ticket-button-secondary" to="/">
+                      <ArrowLeft size={17} /> {t("hub.backToHub")}
+                    </Link>
+                  )}
+                  {shareable && (
+                    <button
+                      ref={shareButtonRef}
+                      className="result-share-button"
+                      type="button"
+                      disabled={shareBusy}
+                      onClick={() => void createShareImage()}
+                    >
+                      {shareBusy ? (
+                        <span className="button-spinner" aria-hidden="true" />
+                      ) : (
+                        <ImageDown size={17} />
+                      )}{" "}
+                      {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
+                    </button>
+                  )}
+                  {shareable && contentModeId === "playable" && source === "server" && (
+                    <button
+                      className="ticket-button-secondary"
+                      type="button"
+                      disabled={challengeBusy}
+                      onClick={() => void copyFriendChallenge()}
+                    >
+                      {challengeBusy ? (
+                        <span className="button-spinner" aria-hidden="true" />
+                      ) : (
+                        <Swords size={17} />
+                      )}{" "}
+                      {challengeUrl
+                        ? locale === "zh-CN"
+                          ? "复制挑战链接"
+                          : locale === "ja"
+                            ? "リンクをコピー"
+                            : "Copy challenge link"
+                        : locale === "zh-CN"
+                          ? "好友同题挑战"
+                          : locale === "ja"
+                            ? "同じ問題で挑戦"
+                            : "Challenge a friend"}
+                    </button>
+                  )}
+                </div>
+                {shareError && (
+                  <p className="share-image-error" role="alert">
+                    {t("game.shareImageError")}
+                  </p>
                 )}
-                {mode === "random" && (
-                  <Link className="ticket-button-secondary" to="/">
-                    <ArrowLeft size={17} /> {t("hub.backToHub")}
-                  </Link>
+                {challengeError && (
+                  <p className="share-image-error" role="alert">
+                    {locale === "zh-CN"
+                      ? "暂时无法生成或复制挑战链接。"
+                      : locale === "ja"
+                        ? "チャレンジリンクを作成できません。"
+                        : "Could not create or copy the challenge link."}
+                  </p>
                 )}
-                {shareable && (
-                  <button
-                    ref={shareButtonRef}
-                    className="result-share-button"
-                    type="button"
-                    disabled={shareBusy}
-                    onClick={() => void createShareImage()}
-                  >
-                    {shareBusy ? (
-                      <span className="button-spinner" aria-hidden="true" />
-                    ) : (
-                      <ImageDown size={17} />
-                    )}{" "}
-                    {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
-                  </button>
-                )}
-                {shareable && contentModeId === "playable" && source === "server" && (
-                  <button
-                    className="ticket-button-secondary"
-                    type="button"
-                    disabled={challengeBusy}
-                    onClick={() => void copyFriendChallenge()}
-                  >
-                    {challengeBusy ? (
-                      <span className="button-spinner" aria-hidden="true" />
-                    ) : (
-                      <Swords size={17} />
-                    )}{" "}
-                    {challengeUrl
-                      ? locale === "zh-CN"
-                        ? "复制挑战链接"
-                        : locale === "ja"
-                          ? "リンクをコピー"
-                          : "Copy challenge link"
-                      : locale === "zh-CN"
-                        ? "好友同题挑战"
-                        : locale === "ja"
-                          ? "同じ問題で挑戦"
-                          : "Challenge a friend"}
-                  </button>
-                )}
-              </div>
-              {shareError && (
-                <p className="share-image-error" role="alert">
-                  {t("game.shareImageError")}
-                </p>
-              )}
-              {challengeError && (
-                <p className="share-image-error" role="alert">
-                  {locale === "zh-CN"
-                    ? "暂时无法生成或复制挑战链接。"
-                    : locale === "ja"
-                      ? "チャレンジリンクを作成できません。"
-                      : "Could not create or copy the challenge link."}
-                </p>
-              )}
-            </section>
+              </section>
+            </>
           )}
 
-          <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+          <GuessBoard
+            guesses={game.guesses}
+            locale={locale}
+            fields={game.fieldDefinitions}
+            animateLatest={contentModeId === "playable"}
+          />
         </div>
 
         <aside className="game-right-rail">

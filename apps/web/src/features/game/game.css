@@ -1518,9 +1518,8 @@
   background: var(--surface);
   text-align: left;
 }
-.guess-board tbody tr {
-  animation: reveal-row 380ms ease-out both;
-  animation-delay: var(--row-delay);
+.guess-board tbody .guess-row.is-latest > th {
+  animation: reveal-guess 280ms var(--motion-ease) both;
 }
 .guess-board tbody th {
   position: sticky;
@@ -1563,6 +1562,39 @@
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 3px;
   text-align: center;
+}
+.guess-row.is-latest .feedback-cell {
+  animation: reveal-cell 360ms var(--motion-ease) both;
+  animation-delay: var(--cell-delay);
+}
+.guess-row.is-latest .feedback-cell.state-exact {
+  animation-name: reveal-cell, exact-confirm;
+  animation-duration: 360ms, 420ms;
+  animation-delay: var(--cell-delay), calc(var(--cell-delay) + 220ms);
+}
+.guess-row.is-latest .feedback-cell.state-close {
+  animation-name: reveal-cell, close-confirm;
+  animation-duration: 360ms, 360ms;
+  animation-delay: var(--cell-delay), calc(var(--cell-delay) + 220ms);
+}
+.guess-row.is-latest .feedback-cell.state-miss {
+  animation-name: reveal-cell, miss-confirm;
+  animation-duration: 360ms, 300ms;
+  animation-delay: var(--cell-delay), calc(var(--cell-delay) + 220ms);
+}
+.feedback-cell::before {
+  position: absolute;
+  inset: 0 auto 0 -38%;
+  width: 34%;
+  content: "";
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 38%), transparent);
+  transform: skewX(-14deg);
+  pointer-events: none;
+}
+.guess-row.is-latest .feedback-cell::before {
+  animation: cell-scan 430ms var(--motion-ease) both;
+  animation-delay: calc(var(--cell-delay) + 80ms);
 }
 .feedback-cell::after {
   position: absolute;
@@ -1621,6 +1653,11 @@
   display: grid;
   height: 25px;
   place-items: center;
+}
+.guess-row.is-latest .feedback-cell.direction-higher .feedback-icon,
+.guess-row.is-latest .feedback-cell.direction-lower .feedback-icon {
+  animation: direction-cue 320ms var(--motion-ease) both;
+  animation-delay: calc(var(--cell-delay) + 250ms);
 }
 
 .board-empty {
@@ -1712,6 +1749,55 @@
     var(--surface) 55%
   );
 }
+.settlement-energy {
+  position: relative;
+  display: grid;
+  grid-template-columns: 8px 1fr 8px;
+  align-items: center;
+  height: 18px;
+  margin: -5px 0 8px;
+  gap: 8px;
+  overflow: hidden;
+}
+.settlement-energy::before,
+.settlement-energy::after {
+  position: absolute;
+  inset: 8px 50% auto 50%;
+  height: 2px;
+  content: "";
+  background: var(--cyan);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cyan) 80%, transparent);
+  animation: energy-track-left 520ms var(--motion-ease) both;
+}
+.settlement-energy::after {
+  background: var(--gold-bright);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--gold-bright) 80%, transparent);
+  animation-name: energy-track-right;
+}
+.settlement-energy i,
+.settlement-energy span {
+  position: relative;
+  z-index: 1;
+  height: 4px;
+  opacity: 0;
+  background: var(--gold-bright);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--gold-bright) 75%, transparent);
+  animation: energy-node 240ms ease-out 340ms both;
+}
+.settlement-energy span {
+  justify-self: center;
+  width: 56px;
+  background: linear-gradient(90deg, var(--cyan), var(--gold-bright));
+}
+.settlement-energy i:last-child {
+  background: var(--cyan);
+}
+.game-result.result-animated.result-won {
+  animation: result-unfold 520ms var(--motion-ease) 420ms both;
+}
+.game-result.result-animated.result-lost {
+  animation: result-edge 300ms ease-out both;
+}
 .result-icon {
   display: grid;
   width: 42px;
@@ -1787,11 +1873,109 @@
   color: var(--text);
 }
 
-@keyframes reveal-row {
+@keyframes reveal-guess {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
+}
+
+@keyframes reveal-cell {
+  from {
+    opacity: 0;
+    transform: translateY(-7px) scale(0.97);
+  }
+}
+
+@keyframes exact-confirm {
+  50% {
+    border-color: color-mix(in srgb, var(--exact) 70%, white);
+    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 26%);
+  }
+}
+
+@keyframes close-confirm {
+  50% {
+    border-color: var(--gold-bright);
+    filter: brightness(1.13);
+  }
+}
+
+@keyframes miss-confirm {
+  50% {
+    border-color: rgb(255 255 255 / 28%);
+    box-shadow:
+      inset 3px 0 rgb(255 255 255 / 18%),
+      inset -3px 0 rgb(255 255 255 / 18%);
+  }
+}
+
+@keyframes cell-scan {
+  20% {
+    opacity: 0.65;
+  }
+  to {
+    left: 104%;
+    opacity: 0;
+  }
+}
+
+@keyframes direction-cue {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.75);
+  }
+}
+
+@keyframes energy-track-left {
+  to {
+    inset-inline-start: 0;
+  }
+}
+
+@keyframes energy-track-right {
+  to {
+    inset-inline-end: 0;
+  }
+}
+
+@keyframes energy-node {
+  from {
+    transform: scaleX(0.2);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes result-unfold {
+  from {
+    opacity: 0;
+    clip-path: polygon(50% 0, 50% 0, 50% 100%, 50% 100%, 50% 100%, 50% 0);
+  }
+}
+
+@keyframes result-edge {
+  from {
+    opacity: 0.72;
+    box-shadow: inset 4px 0 color-mix(in srgb, var(--close) 55%, transparent);
+  }
+}
+
+:root[data-motion="reduced"] .guess-row.is-latest > th,
+:root[data-motion="reduced"] .guess-row.is-latest .feedback-cell,
+:root[data-motion="reduced"] .guess-row.is-latest .feedback-cell::before,
+:root[data-motion="reduced"] .guess-row.is-latest .feedback-icon,
+:root[data-motion="reduced"] .settlement-energy *,
+:root[data-motion="reduced"] .settlement-energy::before,
+:root[data-motion="reduced"] .settlement-energy::after,
+:root[data-motion="reduced"] .game-result.result-animated {
+  animation: none;
+}
+
+:root[data-motion="reduced"] .settlement-energy i,
+:root[data-motion="reduced"] .settlement-energy span {
+  opacity: 1;
 }
 
 @media (max-width: 1120px) {

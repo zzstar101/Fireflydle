@@ -70,10 +70,12 @@ export function GuessBoard({
   guesses,
   locale,
   fields,
+  animateLatest = false,
 }: {
   guesses: readonly GuessResult[];
   locale: Locale;
   fields?: readonly FieldDefinition[] | undefined;
+  animateLatest?: boolean;
 }) {
   const { t } = useTranslation();
   const definitions = fields ?? legacyFields;
@@ -98,45 +100,55 @@ export function GuessBoard({
             </tr>
           </thead>
           <tbody>
-            {guesses.map((guess, rowIndex) => (
-              <tr
-                key={`${guess.character.id}-${guess.guessedAt}`}
-                style={{ "--row-delay": `${Math.min(rowIndex, 5) * 35}ms` } as React.CSSProperties}
-              >
-                <th scope="row">
-                  <CharacterAvatar character={guess.character} size="medium" />
-                  <span>
-                    {guess.character.names[locale]}
-                    <small>{guess.character.names.en}</small>
-                  </span>
-                </th>
-                {visibleFields.map((field) => {
-                  const status =
-                    guess.cells.find((cell) => cell.field === field.id) ??
-                    ({
-                      field: field.id,
-                      state: "unavailable",
-                      direction: "none",
-                    } satisfies GuessCell);
-                  const direction = directionLabel(status, t);
-                  const value = cellValue(guess, field.id, locale);
-                  return (
-                    <td
-                      key={field.id}
-                      className={`feedback-cell state-${status.state}`}
-                      aria-label={`${field.label[locale]}: ${value}; ${t(`game.${status.state}`)}${direction ? `; ${direction}` : ""}`}
-                    >
-                      <span className="feedback-icon">
-                        <StatusIcon cell={status} />
-                      </span>
-                      <strong>{value}</strong>
-                      <small>{t(`game.${status.state}`)}</small>
-                      {direction ? <small className="feedback-direction">{direction}</small> : null}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+            {guesses.map((guess, rowIndex) => {
+              const isLatest = animateLatest && rowIndex === guesses.length - 1;
+              return (
+                <tr
+                  key={`${guess.character.id}-${guess.guessedAt}`}
+                  className={`guess-row${isLatest ? " is-latest" : ""}${guess.isCorrect ? " is-correct" : " is-incorrect"}`}
+                >
+                  <th scope="row">
+                    <CharacterAvatar character={guess.character} size="medium" />
+                    <span>
+                      {guess.character.names[locale]}
+                      <small>{guess.character.names.en}</small>
+                    </span>
+                  </th>
+                  {visibleFields.map((field, fieldIndex) => {
+                    const status =
+                      guess.cells.find((cell) => cell.field === field.id) ??
+                      ({
+                        field: field.id,
+                        state: "unavailable",
+                        direction: "none",
+                      } satisfies GuessCell);
+                    const direction = directionLabel(status, t);
+                    const value = cellValue(guess, field.id, locale);
+                    return (
+                      <td
+                        key={field.id}
+                        className={`feedback-cell state-${status.state} direction-${status.direction}`}
+                        style={
+                          {
+                            "--cell-delay": `${90 + fieldIndex * 105}ms`,
+                          } as React.CSSProperties
+                        }
+                        aria-label={`${field.label[locale]}: ${value}; ${t(`game.${status.state}`)}${direction ? `; ${direction}` : ""}`}
+                      >
+                        <span className="feedback-icon">
+                          <StatusIcon cell={status} />
+                        </span>
+                        <strong>{value}</strong>
+                        <small>{t(`game.${status.state}`)}</small>
+                        {direction ? (
+                          <small className="feedback-direction">{direction}</small>
+                        ) : null}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
