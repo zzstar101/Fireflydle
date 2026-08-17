@@ -17,7 +17,7 @@ const guesses = [
 ] as unknown as GuessResult[];
 
 describe("结果分享图片", () => {
-  it("把每次猜测的本地化角色名称、头像与判定状态写入卡片模型", () => {
+  it("分享卡只包含猜测序号和判定状态，不包含答案身份", () => {
     const model = buildShareCardModel({
       locale: "zh-CN",
       mode: "daily",
@@ -42,13 +42,14 @@ describe("结果分享图片", () => {
       qrUrl: "https://fireflydle.games/",
       guesses: [
         {
-          name: "不应出现的答案",
-          avatarPath: undefined,
+          name: "#01",
           cells: ["exact", "close", "miss", "miss", "exact", "close"],
         },
       ],
     });
     expect(model.fields).toEqual(["属性", "命途", "稀有度", "派系", "地区", "版本"]);
+    expect(JSON.stringify(model)).not.toContain("不应出现的答案");
+    expect(JSON.stringify(model)).not.toContain("Hidden");
   });
 
   it("按对局字段快照排列标题和反馈格", () => {

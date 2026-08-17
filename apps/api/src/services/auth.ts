@@ -26,6 +26,12 @@ interface LoginUserRow extends SessionUserRow {
   password_iterations: number | null;
 }
 
+interface GuestUserRow {
+  id: string;
+  display_name: string;
+  created_at: number;
+}
+
 async function mergeGuestProgress(
   db: D1Database,
   guestUserId: string,
@@ -383,22 +389,35 @@ export function requireRole(
 export async function createGuest(
   env: Env,
   userAgent: string | null,
+  stableGuestId?: string,
   now = Date.now(),
 ): Promise<AuthContext> {
-  const userId = crypto.randomUUID();
-  const suffix = randomToken(5)
-    .replace(/[^a-zA-Z0-9]/gu, "")
-    .slice(0, 6)
-    .toUpperCase();
-  const displayName = `开拓者-${suffix}`;
-  await env.DB.prepare(
-    `INSERT INTO users
-       (id, display_name, display_name_normalized, role, is_guest, email_verified,
-        elo, ranked_matches, leaderboard_eligible, created_at, updated_at)
-     VALUES (?, ?, ?, 'player', 1, 0, 1000, 0, 0, ?, ?)`,
-  )
-    .bind(userId, displayName, normalizeIdentity(displayName), now, now)
-    .run();
+  let guest: GuestUserRow | null = null;
+  for (let attempt = 0; attempt < 3 && !guest; attempt += 1) {
+    const userId = attempt === 0 && stableGuestId ? stableGuestId : crypto.randomUUID();
+    const suffix = randomToken(5)
+      .replace(/[^a-zA-Z0-9]/gu, "")
+      .slice(0, 6)
+      .toUpperCase();
+    const displayName = `开拓者-${suffix}`;
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO users
+         (id, display_name, display_name_normalized, role, is_guest, email_verified,
+          elo, ranked_matches, leaderboard_eligible, created_at, updated_at)
+       VALUES (?, ?, ?, 'player', 1, 0, 1000, 0, 0, ?, ?)`,
+    )
+      .bind(userId, displayName, normalizeIdentity(displayName), now, now)
+      .run();
+    guest = await env.DB.prepare(
+      `SELECT id, display_name, created_at FROM users
+       WHERE id = ? AND is_guest = 1 AND merged_into_user_id IS NULL`,
+    )
+      .bind(userId)
+      .first<GuestUserRow>();
+  }
+  if (!guest) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "guest-identity" });
+
+  const userId = guest.id;
   const session = await insertSession(env.DB, userId, userAgent, now);
   return {
     sessionId: session.id,
@@ -406,7 +425,7 @@ export async function createGuest(
     expiresAt: session.expiresAt,
     user: {
       id: userId,
-      displayName,
+      displayName: guest.display_name,
       role: "player",
       isGuest: true,
       hasEmail: false,
@@ -414,7 +433,7 @@ export async function createGuest(
       elo: 1000,
       rankedMatches: 0,
       leaderboardEligible: false,
-      createdAt: now,
+      createdAt: guest.created_at,
     },
   };
 }

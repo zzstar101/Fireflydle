@@ -3,7 +3,32 @@ import type { ApiResponse, SessionPayload } from "@fireflydle/contracts";
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
 let pendingSessionRequest: Promise<SessionPayload> | null = null;
 const VISIT_SESSION_KEY = "fireflydle-visit-session";
+const GUEST_ID_KEY = "fireflydle-local-guest-id";
 const VISIT_INACTIVITY_MS = 30 * 60_000;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+let memoryGuestId: string | null = null;
+
+export function getStableGuestId(): string {
+  if (memoryGuestId) return memoryGuestId;
+  try {
+    const stored = localStorage.getItem(GUEST_ID_KEY);
+    if (stored && UUID_PATTERN.test(stored)) return (memoryGuestId = stored);
+    const id = crypto.randomUUID();
+    localStorage.setItem(GUEST_ID_KEY, id);
+    return (memoryGuestId = id);
+  } catch {
+    return (memoryGuestId = crypto.randomUUID());
+  }
+}
+
+function rememberGuestId(id: string): void {
+  memoryGuestId = id;
+  try {
+    localStorage.setItem(GUEST_ID_KEY, id);
+  } catch {
+    // 禁用本地存储时仍在当前页面生命周期内保持身份稳定。
+  }
+}
 
 function currentVisitSessionId(): string {
   const now = Date.now();
@@ -62,11 +87,17 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
 export function ensureSession(): Promise<SessionPayload> {
   if (!pendingSessionRequest) {
-    pendingSessionRequest = apiRequest<SessionPayload>("/session", { method: "POST" }).finally(
-      () => {
+    pendingSessionRequest = apiRequest<SessionPayload>("/session", {
+      method: "POST",
+      headers: { "x-guest-id": getStableGuestId() },
+    })
+      .then((session) => {
+        if (session.user.isGuest) rememberGuestId(session.user.id);
+        return session;
+      })
+      .finally(() => {
         pendingSessionRequest = null;
-      },
-    );
+      });
   }
   return pendingSessionRequest;
 }

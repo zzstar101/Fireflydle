@@ -495,15 +495,6 @@ export const MatchmakingResultSchema = z.discriminatedUnion("status", [
 ]);
 export type MatchmakingResult = z.infer<typeof MatchmakingResultSchema>;
 
-export const DailyLeaderboardEntrySchema = z.object({
-  rank: z.number().int().positive(),
-  displayName: z.string().min(1),
-  isGuest: z.boolean(),
-  guesses: z.number().int().positive(),
-  completedAt: z.string().datetime(),
-});
-export type DailyLeaderboardEntry = z.infer<typeof DailyLeaderboardEntrySchema>;
-
 export const EloLeaderboardEntrySchema = z.object({
   rank: z.number().int().positive(),
   displayName: z.string().min(1),

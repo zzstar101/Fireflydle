@@ -110,7 +110,7 @@ const resources = {
         abandonTitle: "要放弃这一局吗？",
         abandonBody: "本局会记为放弃，然后开始一道新题。",
         abandonConfirm: "确认放弃",
-        viewLeaderboard: "查看今日排行",
+        viewLeaderboard: "查看对战 Elo",
       },
       game: {
         daily: "每日一题",
@@ -149,8 +149,7 @@ const resources = {
         generatingImage: "正在生成…",
         sharePreviewTitle: "结果图片已生成",
         sharePreviewAlt: "本局无剧透结果分享图",
-        shareImageHint:
-          "图片会显示本局猜过的角色；每位玩家的每日答案不同，保存后可从相册自行分享。",
+        shareImageHint: "图片只显示判定格，不会包含答案或猜过的角色。保存后可从相册自行分享。",
         saveImage: "保存 PNG 图片",
         shareImageError: "图片生成失败，请稍后重试。",
         playAgain: "再来一局",
@@ -178,15 +177,15 @@ const resources = {
         ruleReconnect: "断线可暂停 30 秒一次",
       },
       leaderboard: {
-        eyebrow: "每日排行榜",
-        title: "今日排行",
-        intro: "每日榜按当天猜中时间排序并包含访客；Elo 榜展示已注册用户。",
+        eyebrow: "对战排行榜",
+        title: "永久 Elo",
+        intro: "个性化每日题不进行全球排名；这里只展示注册用户的实时对战 Elo。",
         rank: "名次",
         player: "玩家",
         guesses: "猜测",
         time: "用时",
         streak: "连续",
-        empty: "今天还没有玩家猜中。",
+        empty: "暂无可公开的 Elo 成绩。",
       },
       account: {
         signIn: "登录",
@@ -344,7 +343,7 @@ const resources = {
         abandonTitle: "Give up this game?",
         abandonBody: "This game will count as a loss, then a new puzzle will start.",
         abandonConfirm: "Confirm abandon",
-        viewLeaderboard: "View today's ranking",
+        viewLeaderboard: "View duel Elo",
       },
       game: {
         daily: "Daily puzzle",
@@ -384,7 +383,7 @@ const resources = {
         sharePreviewTitle: "Your result image",
         sharePreviewAlt: "Spoiler-free result card for this game",
         shareImageHint:
-          "The image shows your guesses. Daily answers are personalized, so save it and share it from your gallery.",
+          "The image contains feedback tiles only, never the answer or your guesses. Save it to share from your gallery.",
         saveImage: "Save PNG image",
         shareImageError: "The image could not be created. Try again shortly.",
         playAgain: "Play again",
@@ -413,16 +412,16 @@ const resources = {
         ruleReconnect: "One 30-second reconnect pause",
       },
       leaderboard: {
-        eyebrow: "DAILY LEADERBOARD",
-        title: "Today's results",
+        eyebrow: "DUEL LEADERBOARD",
+        title: "Permanent Elo",
         intro:
-          "Daily results are ordered by solve time and include guests; the Elo board lists registered users.",
+          "Personalized daily puzzles are not globally ranked. This board lists registered players' live duel Elo.",
         rank: "Rank",
         player: "Player",
         guesses: "Guesses",
         time: "Time",
         streak: "Streak",
-        empty: "No one has solved today's puzzle yet.",
+        empty: "No public Elo results yet.",
       },
       account: {
         signIn: "Sign in",
@@ -582,7 +581,7 @@ const resources = {
         abandonTitle: "このゲームをあきらめますか？",
         abandonBody: "このゲームは敗北として記録され、新しい問題が始まります。",
         abandonConfirm: "放棄する",
-        viewLeaderboard: "今日のランキングを見る",
+        viewLeaderboard: "対戦 Elo を見る",
       },
       game: {
         daily: "デイリー",
@@ -622,7 +621,7 @@ const resources = {
         sharePreviewTitle: "結果画像を作成しました",
         sharePreviewAlt: "ネタバレなしの結果共有画像",
         shareImageHint:
-          "推測したキャラクターが表示されます。デイリーの答えはプレイヤーごとに異なるため、保存後そのまま共有できます。",
+          "画像には判定マスだけが表示され、答えや推測したキャラクターは含まれません。保存後そのまま共有できます。",
         saveImage: "PNG画像を保存",
         shareImageError: "画像を作成できませんでした。しばらくしてから再試行してください。",
         playAgain: "もう一度",
@@ -650,15 +649,16 @@ const resources = {
         ruleReconnect: "切断時30秒停止（1回）",
       },
       leaderboard: {
-        eyebrow: "デイリーランキング",
-        title: "今日の記録",
-        intro: "デイリーは当日の正解時刻順でゲストも対象。Eloは登録ユーザーを表示します。",
+        eyebrow: "対戦ランキング",
+        title: "永久 Elo",
+        intro:
+          "個別デイリー問題は世界ランキングの対象外です。登録ユーザーの対戦 Elo のみ表示します。",
         rank: "順位",
         player: "プレイヤー",
         guesses: "回答",
         time: "時間",
         streak: "連続",
-        empty: "今日はまだ正解者がいません。",
+        empty: "公開中の Elo 成績はまだありません。",
       },
       account: {
         signIn: "ログイン",

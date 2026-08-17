@@ -636,10 +636,12 @@ function ActiveGame({
             <strong>{mode === "daily" ? "00:00" : "∞"}</strong>
             <small>{mode === "daily" ? "UTC+8" : t("game.unlimited")}</small>
           </div>
-          <Link className="leaderboard-callout" to="/leaderboard">
-            <Trophy size={18} />
-            <span>{t("prep.viewLeaderboard")}</span>
-          </Link>
+          {mode === "random" ? (
+            <Link className="leaderboard-callout" to="/leaderboard">
+              <Trophy size={18} />
+              <span>{t("prep.viewLeaderboard")}</span>
+            </Link>
+          ) : null}
         </aside>
       </section>
       {sharePreview ? (

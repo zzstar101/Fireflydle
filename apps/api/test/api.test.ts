@@ -10,11 +10,7 @@ import {
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  getBeijingDateKey,
-  MULTIPLAYER_ROUND_MS,
-  RECONNECT_GRACE_MS,
-} from "@fireflydle/game-engine";
+import { MULTIPLAYER_ROUND_MS, RECONNECT_GRACE_MS } from "@fireflydle/game-engine";
 import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
 import { createPlayableMultiplayerContentSnapshot } from "../src/services/multiplayer-content";
 import { contentManifest, npcManifest } from "@fireflydle/game-data";
@@ -675,65 +671,12 @@ describe("服务端游戏裁决", () => {
 });
 
 describe("排行榜准入", () => {
-  it("每日榜按猜中先后展示访客，Elo 榜展示全部未隐藏的注册用户", async () => {
+  it("不再公开每日榜，Elo 榜只展示未隐藏的注册用户", async () => {
     const registered = await createRegisteredSession("public_boards");
     const guest = await createSession();
     expect(registered.data.user.leaderboardEligible).toBe(true);
 
-    const playDaily = async (cookie: string, difficulty: "casual" | "hard") => {
-      const game = await dataOf<PublicGame>(
-        await SELF.fetch("https://fireflydle.games/api/games", {
-          method: "POST",
-          headers: { cookie, "content-type": "application/json" },
-          body: JSON.stringify({ mode: "daily", difficulty }),
-        }),
-      );
-      expect(game.difficulty).toBe("standard");
-      expect(game.maxAttempts).toBe(6);
-      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
-        method: "POST",
-        headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ characterId: character.id }),
-      });
-      return game.id;
-    };
-
-    const registeredGameId = await playDaily(registered.cookie, "hard");
-    const guestGameId = await playDaily(guest.cookie, "casual");
-    const baseTime = Date.now();
-    await env.DB.batch([
-      env.DB.prepare(
-        "UPDATE game_results SET guess_count = 1, completed_at = ? WHERE game_id = ?",
-      ).bind(baseTime + 2_000, registeredGameId),
-      env.DB.prepare(
-        "UPDATE game_results SET guess_count = 6, completed_at = ? WHERE game_id = ?",
-      ).bind(baseTime + 1_000, guestGameId),
-    ]);
-
-    const daily = await dataOf<
-      Array<{ displayName: string; isGuest: boolean; guesses: number; completedAt: string }>
-    >(
-      await SELF.fetch(
-        `https://fireflydle.games/api/leaderboards/daily?date=${getBeijingDateKey()}`,
-      ),
-    );
-    const relevantDaily = daily.filter(
-      (entry) =>
-        entry.displayName === guest.data.user.displayName ||
-        entry.displayName === registered.data.user.displayName,
-    );
-    expect(relevantDaily).toEqual([
-      expect.objectContaining({
-        displayName: guest.data.user.displayName,
-        isGuest: true,
-        guesses: 6,
-      }),
-      expect.objectContaining({
-        displayName: registered.data.user.displayName,
-        isGuest: false,
-        guesses: 1,
-      }),
-    ]);
+    expect((await SELF.fetch("https://fireflydle.games/api/leaderboards/daily")).status).toBe(404);
 
     const elo = await dataOf<Array<{ displayName: string; elo: number; rankedMatches: number }>>(
       await SELF.fetch("https://fireflydle.games/api/leaderboards/elo"),

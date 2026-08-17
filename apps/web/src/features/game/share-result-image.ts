@@ -56,7 +56,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     casual: "休闲",
     standard: "标准",
     hard: "硬核",
-    character: "猜测角色",
+    character: "猜测",
     legend: "一致  ·  接近  ·  不一致  ·  不可用",
     footer: "每位玩家  ·  每日不同谜题",
   },
@@ -73,7 +73,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     casual: "CASUAL",
     standard: "STANDARD",
     hard: "HARD",
-    character: "YOUR GUESS",
+    character: "GUESS",
     legend: "EXACT  ·  CLOSE  ·  MISS  ·  UNAVAILABLE",
     footer: "ONE DAY  ·  A PUZZLE OF YOUR OWN",
   },
@@ -90,7 +90,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     casual: "カジュアル",
     standard: "スタンダード",
     hard: "ハード",
-    character: "推測キャラ",
+    character: "推測",
     legend: "一致  ·  近い  ·  不一致  ·  利用不可",
     footer: "プレイヤーごとに異なるデイリー問題",
   },
@@ -98,7 +98,6 @@ const LABELS: Record<Locale, ShareLabels> = {
 
 export interface ShareCardGuess {
   name: string;
-  avatarPath?: string;
   cells: readonly FeedbackState[];
 }
 
@@ -148,9 +147,8 @@ export function buildShareCardModel(input: ShareResultImageInput): ShareCardMode
     fields: definitions.map((field) => field.label[input.locale]),
     legend: labels.legend,
     footer: labels.footer,
-    guesses: input.guesses.map((guess) => ({
-      name: guess.character.names[input.locale],
-      avatarPath: guess.character.assets?.avatarPath,
+    guesses: input.guesses.map((guess, index) => ({
+      name: `#${String(index + 1).padStart(2, "0")}`,
       cells: definitions.map(
         (field) => guess.cells.find((cell) => cell.field === field.id)?.state ?? "unavailable",
       ),
@@ -196,31 +194,11 @@ function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
-function fittedText(
-  context: CanvasRenderingContext2D,
-  value: string,
-  maximumWidth: number,
-): string {
-  if (context.measureText(value).width <= maximumWidth) return value;
-  let fitted = value;
-  while (fitted.length > 1 && context.measureText(`${fitted}…`).width > maximumWidth) {
-    fitted = fitted.slice(0, -1);
-  }
-  return `${fitted}…`;
-}
-
 export async function generateShareResultImage(input: ShareResultImageInput): Promise<Blob> {
   await document.fonts.ready;
   const model = buildShareCardModel(input);
-  const [logo, avatarImages, qrCode] = await Promise.all([
+  const [logo, qrCode] = await Promise.all([
     loadImage(new URL("/favicon.png", window.location.href).href).catch(() => null),
-    Promise.all(
-      model.guesses.map((guess) =>
-        guess.avatarPath
-          ? loadImage(new URL(guess.avatarPath, window.location.href).href).catch(() => null)
-          : Promise.resolve(null),
-      ),
-    ),
     QRCode.toDataURL(model.qrUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
@@ -328,7 +306,7 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     context.fillText(model.metricLabels[index] ?? "", x, 418);
   }
 
-  const identityWidth = 210;
+  const identityWidth = 110;
   const cellGap = 10;
   const fieldCount = Math.max(1, model.fields.length);
   const gridWidth = SHARE_IMAGE_WIDTH - 144;
@@ -379,33 +357,9 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     context.lineWidth = 1;
     context.stroke();
 
-    const avatarSize = Math.min(64, rowHeight - 14);
-    const avatarX = gridX + 9;
-    const avatarY = y + (rowHeight - avatarSize) / 2;
-    const avatar = avatarImages[rowIndex];
-    context.save();
-    roundedRect(context, avatarX, avatarY, avatarSize, avatarSize, avatarSize / 2);
-    context.clip();
-    if (avatar) {
-      context.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-    } else {
-      context.fillStyle = "#24425c";
-      context.fillRect(avatarX, avatarY, avatarSize, avatarSize);
-    }
-    context.restore();
-    context.strokeStyle = "rgba(121, 215, 232, 0.38)";
-    roundedRect(context, avatarX, avatarY, avatarSize, avatarSize, avatarSize / 2);
-    context.stroke();
-
-    context.textAlign = "left";
     context.fillStyle = "#f6f0df";
-    context.font = `700 ${rowHeight < 70 ? 16 : 19}px Inter, "Noto Sans SC", "Segoe UI", sans-serif`;
-    const nameX = avatarX + avatarSize + 12;
-    context.fillText(
-      fittedText(context, guess.name, gridX + identityWidth - cellGap - nameX - 10),
-      nameX,
-      y + rowHeight / 2 + 7,
-    );
+    context.font = '700 22px "Roboto Mono", Consolas, monospace';
+    context.fillText(guess.name, gridX + (identityWidth - cellGap) / 2, y + rowHeight / 2 + 8);
     context.textAlign = "center";
 
     for (let cellIndex = 0; cellIndex < guess.cells.length; cellIndex += 1) {

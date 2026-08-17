@@ -1,6 +1,6 @@
 import { getBeijingDateKey } from "@fireflydle/game-engine";
 import { Hono } from "hono";
-import { ApiProblem, ok } from "../lib/http";
+import { ok } from "../lib/http";
 import { requireAuth } from "../services/auth";
 import type { AppContext } from "../types";
 
@@ -35,13 +35,6 @@ interface MultiplayerRecentRow {
   guess_count: number;
   ranked: number;
   started_at: number;
-  completed_at: number;
-}
-
-interface DailyBoardRow {
-  display_name: string;
-  is_guest: number;
-  guess_count: number;
   completed_at: number;
 }
 
@@ -177,35 +170,6 @@ analyticsRoutes.get("/stats/me", async (context) => {
       .sort((left, right) => Date.parse(right.playedAt) - Date.parse(left.playedAt))
       .slice(0, 20),
   });
-});
-
-analyticsRoutes.get("/leaderboards/daily", async (context) => {
-  const dateKey = context.req.query("date") ?? getBeijingDateKey();
-  if (!/^\d{4}-\d{2}-\d{2}$/u.test(dateKey)) {
-    throw new ApiProblem("VALIDATION_FAILED", 400, { field: "date" });
-  }
-  const entries = await context.env.DB.prepare(
-    `SELECT u.display_name, u.is_guest, gr.guess_count, gr.completed_at
-     FROM game_results gr
-     JOIN users u ON u.id = gr.user_id
-     WHERE gr.mode = 'daily' AND gr.result = 'won' AND gr.date_key = ?
-       AND u.merged_into_user_id IS NULL
-       AND gr.leaderboard_hidden_at IS NULL AND gr.activity_id = 'daily'
-     ORDER BY gr.completed_at ASC, gr.game_id ASC
-     LIMIT 100`,
-  )
-    .bind(dateKey)
-    .all<DailyBoardRow>();
-  return ok(
-    context,
-    entries.results.map((entry, index) => ({
-      rank: index + 1,
-      displayName: entry.display_name,
-      isGuest: entry.is_guest === 1,
-      guesses: entry.guess_count,
-      completedAt: new Date(entry.completed_at).toISOString(),
-    })),
-  );
 });
 
 analyticsRoutes.get("/leaderboards/elo", async (context) => {

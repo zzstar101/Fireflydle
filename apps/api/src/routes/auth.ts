@@ -6,6 +6,7 @@ import {
   ResetPasswordSchema,
 } from "@fireflydle/contracts";
 import { Hono, type Context } from "hono";
+import { z } from "zod";
 import { clearSessionCookie, sessionCookie } from "../lib/crypto";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import {
@@ -99,8 +100,14 @@ authRoutes.post("/session", async (context) => {
       windowMs: 60 * 60 * 1_000,
     });
   }
+  const guestIdHeader = context.req.header("x-guest-id");
+  const guestId = guestIdHeader ? z.string().uuid().safeParse(guestIdHeader) : null;
+  if (guestId && !guestId.success) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { field: "x-guest-id" });
+  }
   const auth =
-    existing ?? (await createGuest(context.env, context.req.header("user-agent") ?? null));
+    existing ??
+    (await createGuest(context.env, context.req.header("user-agent") ?? null, guestId?.data));
   context.set("auth", auth);
   context.header("Set-Cookie", sessionCookie(auth.token, auth.expiresAt, context.req.url));
   return ok(context, sessionPayload(auth), existing ? 200 : 201);

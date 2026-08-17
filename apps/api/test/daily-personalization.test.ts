@@ -40,12 +40,20 @@ async function dataOf<T>(response: Response): Promise<T> {
   return payload.data;
 }
 
-async function createSession(): Promise<string> {
-  const response = await SELF.fetch("https://fireflydle.games/api/session", { method: "POST" });
+async function createSession(stableGuestId = crypto.randomUUID()): Promise<{
+  cookie: string;
+  userId: string;
+  displayName: string;
+}> {
+  const response = await SELF.fetch("https://fireflydle.games/api/session", {
+    method: "POST",
+    headers: { "x-guest-id": stableGuestId },
+  });
   expect(response.status).toBe(201);
   const cookie = response.headers.get("set-cookie");
   if (!cookie) throw new Error("缺少 session cookie");
-  return cookie;
+  const session = await dataOf<{ user: { id: string; displayName: string } }>(response);
+  return { cookie, userId: session.user.id, displayName: session.user.displayName };
 }
 
 async function seedCandidates(): Promise<void> {
@@ -108,9 +116,19 @@ async function answerFor(cookie: string): Promise<string> {
 describe("个性化每日题", () => {
   it("同一玩家当天稳定续局，不同玩家不再共享唯一答案", async () => {
     await seedCandidates();
+    const stableGuestId = crypto.randomUUID();
+    const firstSession = await createSession(stableGuestId);
+    const firstAnswer = await answerFor(firstSession.cookie);
+    const resumedSession = await createSession(stableGuestId);
+    expect(resumedSession).toMatchObject({
+      userId: firstSession.userId,
+      displayName: firstSession.displayName,
+    });
+    expect(await answerFor(resumedSession.cookie)).toBe(firstAnswer);
+
     const answers = new Set<string>();
     for (let index = 0; index < 12; index += 1) {
-      answers.add(await answerFor(await createSession()));
+      answers.add(await answerFor((await createSession()).cookie));
     }
     expect(answers.size).toBeGreaterThan(1);
   });

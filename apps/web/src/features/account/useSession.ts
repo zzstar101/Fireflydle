@@ -1,16 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PublicUser, SessionPayload } from "@fireflydle/contracts";
-import { ensureSession } from "../../api/client";
+import { ensureSession, getStableGuestId } from "../../api/client";
 
 function localGuest(): PublicUser {
-  const key = "fireflydle-local-guest-id";
-  let id = localStorage.getItem(key);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(key, id);
-  }
   return {
-    id,
+    id: getStableGuestId(),
     displayName: "Guest",
     role: "player",
     isGuest: true,

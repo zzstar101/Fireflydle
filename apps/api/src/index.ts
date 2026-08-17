@@ -46,7 +46,10 @@ function setCorsHeaders(
   context.header("Access-Control-Allow-Origin", origin);
   context.header("Access-Control-Allow-Credentials", "true");
   context.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  context.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Visit-Session-Id");
+  context.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type,Authorization,X-Visit-Session-Id,X-Guest-Id",
+  );
   context.header("Access-Control-Max-Age", "86400");
   context.header("Vary", "Origin", { append: true });
 }
