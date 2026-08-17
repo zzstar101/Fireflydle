@@ -1,7 +1,13 @@
 import { ArrowDown, ArrowUp, Check, CircleDot, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { FieldDefinition, GuessCell, GuessResult, Locale } from "@fireflydle/contracts";
-import { contentManifest, elementLabels, getFactionName, pathLabels } from "@fireflydle/game-data";
+import {
+  contentManifest,
+  elementLabels,
+  getFactionName,
+  getRegionName,
+  pathLabels,
+} from "@fireflydle/game-data";
 import { selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 
@@ -27,6 +33,8 @@ function cellValue(guess: GuessResult, field: string, locale: Locale): string {
       return `${guess.character.rarity} ★`;
     case "faction":
       return getFactionName(guess.character.factionId, locale);
+    case "region":
+      return getRegionName(guess.character.regionId, locale);
     case "version":
       return `V${guess.character.releaseVersionId}`;
     default: {

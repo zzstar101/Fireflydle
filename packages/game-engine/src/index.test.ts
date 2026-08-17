@@ -46,10 +46,10 @@ function character(overrides: Partial<Character> = {}): Character {
 }
 
 describe("角色反馈", () => {
-  test("完全相同的角色得到五个绿色格", () => {
+  test("完全相同的角色得到六个绿色格", () => {
     const target = character();
     const cells = compareCharacters(target, target);
-    expect(cells).toHaveLength(5);
+    expect(cells).toHaveLength(6);
     expect(cells.every((item) => item.state === "exact")).toBe(true);
   });
 
@@ -65,15 +65,73 @@ describe("角色反馈", () => {
 
     const cells = compareCharacters(target, guess);
     expect(cells[3]).toEqual({ field: "faction", state: "close", direction: "none" });
-    expect(cells[4]).toEqual({ field: "version", state: "close", direction: "higher" });
+    expect(cells[4]).toEqual({ field: "region", state: "exact", direction: "none" });
+    expect(cells[5]).toEqual({ field: "version", state: "close", direction: "higher" });
   });
 
-  test("猜中严格按角色 ID 而非属性组合", () => {
+  test("同一 baseCharacterId 的不同形态仍严格按永久 ID 判定", () => {
     const target = character({ id: "one" });
     const guess = character({ id: "two" });
     const result = createGuessResult(target, guess);
     expect(result.cells.every((item) => item.state === "exact")).toBe(true);
     expect(result.isCorrect).toBe(false);
+  });
+
+  test("派系仅同主派系 exact、同大组 close、其余 miss", () => {
+    const target = character({ factionId: "cloud-knights", factionGroupId: "xianzhou" });
+    const exact = character({ factionId: "cloud-knights", factionGroupId: "xianzhou" });
+    const close = character({ factionId: "divination-commission", factionGroupId: "xianzhou" });
+    const miss = character({ factionId: "ipc", factionGroupId: "cosmic" });
+
+    expect(compareCharacters(target, exact)[3]?.state).toBe("exact");
+    expect(compareCharacters(target, close)[3]?.state).toBe("close");
+    expect(compareCharacters(target, miss)[3]?.state).toBe("miss");
+  });
+
+  test("地区只产生 exact 或 miss", () => {
+    const target = character({ regionId: "xianzhou" });
+    const exact = character({ regionId: "xianzhou" });
+    const miss = character({ regionId: "cosmic" });
+
+    expect(compareCharacters(target, exact)[4]).toEqual({
+      field: "region",
+      state: "exact",
+      direction: "none",
+    });
+    expect(compareCharacters(target, miss)[4]).toEqual({
+      field: "region",
+      state: "miss",
+      direction: "none",
+    });
+  });
+
+  test("版本按发布序位给出 exact、两格内 close、更远 miss 及方向", () => {
+    const target = character({ releaseOrder: 10 });
+    const exact = character({ releaseOrder: 10 });
+    const earlierClose = character({ releaseOrder: 8 });
+    const laterClose = character({ releaseOrder: 12 });
+    const earlierMiss = character({ releaseOrder: 7 });
+
+    expect(compareCharacters(target, exact)[5]).toEqual({
+      field: "version",
+      state: "exact",
+      direction: "none",
+    });
+    expect(compareCharacters(target, earlierClose)[5]).toEqual({
+      field: "version",
+      state: "close",
+      direction: "higher",
+    });
+    expect(compareCharacters(target, laterClose)[5]).toEqual({
+      field: "version",
+      state: "close",
+      direction: "lower",
+    });
+    expect(compareCharacters(target, earlierMiss)[5]).toEqual({
+      field: "version",
+      state: "miss",
+      direction: "higher",
+    });
   });
 
   test("字段规则快照实际决定输出字段", () => {
@@ -114,6 +172,7 @@ describe("角色反馈", () => {
       ]),
     ).toEqual([
       { field: "path", comparison: "exact" },
+      { field: "region", comparison: "exact" },
       { field: "version", comparison: "version" },
       { field: "faction", comparison: "faction" },
     ]);
@@ -152,8 +211,8 @@ describe("通用字段反馈", () => {
 });
 
 describe("游戏规则", () => {
-  test("三档难度分别为 8、6、4 次", () => {
-    expect(ATTEMPTS_BY_DIFFICULTY).toEqual({ casual: 8, standard: 6, hard: 4 });
+  test("所有普通角色活动都固定六次猜测", () => {
+    expect(ATTEMPTS_BY_DIFFICULTY).toEqual({ casual: 6, standard: 6, hard: 6 });
   });
 
   test("重复角色会被识别", () => {

@@ -592,7 +592,7 @@
 }
 .opponent-feedback-head {
   display: grid;
-  grid-template-columns: 28px repeat(5, minmax(0, 1fr));
+  grid-template-columns: 28px repeat(6, minmax(0, 1fr));
   gap: 5px;
   padding-top: 14px;
 }
@@ -607,7 +607,7 @@
 }
 .masked-feedback-grid > div {
   display: grid;
-  grid-template-columns: 28px repeat(5, 1fr);
+  grid-template-columns: 28px repeat(6, 1fr);
   gap: 5px;
 }
 .masked-feedback-grid span {

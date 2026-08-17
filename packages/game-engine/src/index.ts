@@ -11,9 +11,9 @@ import type {
 } from "@fireflydle/contracts";
 
 export const ATTEMPTS_BY_DIFFICULTY: Readonly<Record<Difficulty, number>> = {
-  casual: 8,
+  casual: 6,
   standard: 6,
-  hard: 4,
+  hard: 6,
 };
 
 export const MULTIPLAYER_ATTEMPTS = 6;
@@ -35,6 +35,7 @@ export const DEFAULT_SNAPSHOT_FIELD_RULES: readonly SnapshotFieldRule[] = [
   { field: "path", comparison: "exact" },
   { field: "rarity", comparison: "exact" },
   { field: "faction", comparison: "faction" },
+  { field: "region", comparison: "exact" },
   { field: "version", comparison: "version" },
 ];
 
@@ -45,7 +46,12 @@ export function snapshotRulesFromFieldDefinitions(
   return fields.flatMap((field): SnapshotFieldRule[] => {
     if (field.id === "faction") return [{ field: field.id, comparison: "faction" as const }];
     if (field.id === "version") return [{ field: field.id, comparison: "version" as const }];
-    if (field.id === "element" || field.id === "path" || field.id === "rarity") {
+    if (
+      field.id === "element" ||
+      field.id === "path" ||
+      field.id === "rarity" ||
+      field.id === "region"
+    ) {
       return [{ field: field.id, comparison: "exact" as const }];
     }
     return [];
@@ -100,6 +106,8 @@ function characterFieldValue(character: Character, field: string): unknown {
       return character.rarity;
     case "faction":
       return character.factionId;
+    case "region":
+      return character.regionId ?? character.factionGroupId;
     case "version":
       return character.releaseVersionId;
     default:

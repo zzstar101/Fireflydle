@@ -1,4 +1,11 @@
-import type { Difficulty, FeedbackState, GuessResult, Locale } from "@fireflydle/contracts";
+import type {
+  Difficulty,
+  FeedbackState,
+  FieldDefinition,
+  GuessResult,
+  Locale,
+} from "@fireflydle/contracts";
+import { contentManifest } from "@fireflydle/game-data";
 import QRCode from "qrcode";
 
 export const SHARE_IMAGE_WIDTH = 1080;
@@ -10,6 +17,7 @@ export interface ShareResultImageInput {
   dateKey: string;
   difficulty: Difficulty;
   guesses: readonly GuessResult[];
+  fieldDefinitions?: readonly FieldDefinition[];
   maxAttempts: number;
   won: boolean;
   elapsedMs: number;
@@ -30,7 +38,6 @@ interface ShareLabels {
   standard: string;
   hard: string;
   character: string;
-  fields: readonly string[];
   legend: string;
   footer: string;
 }
@@ -50,7 +57,6 @@ const LABELS: Record<Locale, ShareLabels> = {
     standard: "标准",
     hard: "硬核",
     character: "猜测角色",
-    fields: ["属性", "命途", "稀有度", "阵营", "版本"],
     legend: "一致  ·  接近  ·  不一致  ·  不可用",
     footer: "每位玩家  ·  每日不同谜题",
   },
@@ -68,7 +74,6 @@ const LABELS: Record<Locale, ShareLabels> = {
     standard: "STANDARD",
     hard: "HARD",
     character: "YOUR GUESS",
-    fields: ["ELEMENT", "PATH", "RARITY", "FACTION", "VERSION"],
     legend: "EXACT  ·  CLOSE  ·  MISS  ·  UNAVAILABLE",
     footer: "ONE DAY  ·  A PUZZLE OF YOUR OWN",
   },
@@ -86,7 +91,6 @@ const LABELS: Record<Locale, ShareLabels> = {
     standard: "スタンダード",
     hard: "ハード",
     character: "推測キャラ",
-    fields: ["属性", "運命", "レア度", "陣営", "バージョン"],
     legend: "一致  ·  近い  ·  不一致  ·  利用不可",
     footer: "プレイヤーごとに異なるデイリー問題",
   },
@@ -126,6 +130,10 @@ function formatElapsed(milliseconds: number): string {
 
 export function buildShareCardModel(input: ShareResultImageInput): ShareCardModel {
   const labels = LABELS[input.locale];
+  const definitions =
+    input.fieldDefinitions ??
+    contentManifest.modes.find((mode) => mode.id === "playable")?.fields ??
+    [];
   return {
     brand: labels.brand,
     subtitle: labels.subtitle,
@@ -137,13 +145,15 @@ export function buildShareCardModel(input: ShareResultImageInput): ShareCardMode
     difficulty: labels[input.difficulty],
     metricLabels: [labels.guesses, labels.time, labels.difficulty],
     characterLabel: labels.character,
-    fields: labels.fields,
+    fields: definitions.map((field) => field.label[input.locale]),
     legend: labels.legend,
     footer: labels.footer,
     guesses: input.guesses.map((guess) => ({
       name: guess.character.names[input.locale],
       avatarPath: guess.character.assets?.avatarPath,
-      cells: guess.cells.map((cell) => cell.state),
+      cells: definitions.map(
+        (field) => guess.cells.find((cell) => cell.field === field.id)?.state ?? "unavailable",
+      ),
     })),
     site: input.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, ""),
     qrUrl: input.siteUrl,
@@ -318,10 +328,11 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     context.fillText(model.metricLabels[index] ?? "", x, 418);
   }
 
-  const identityWidth = 230;
-  const cellWidth = 127;
-  const cellGap = 14;
-  const gridWidth = identityWidth + cellWidth * 5 + cellGap * 4;
+  const identityWidth = 210;
+  const cellGap = 10;
+  const fieldCount = Math.max(1, model.fields.length);
+  const gridWidth = SHARE_IMAGE_WIDTH - 144;
+  const cellWidth = (gridWidth - identityWidth - cellGap * (fieldCount - 1)) / fieldCount;
   const gridX = (SHARE_IMAGE_WIDTH - gridWidth) / 2;
   context.textAlign = "center";
   context.fillStyle = "#6f7e91";

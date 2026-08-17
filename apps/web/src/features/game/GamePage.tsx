@@ -1,18 +1,10 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   BookOpen,
-  Check,
   Clock3,
   Gauge,
   ImageDown,
@@ -24,12 +16,8 @@ import {
   Trophy,
   WifiOff,
 } from "lucide-react";
-import type { Difficulty, PersonalStats, PublicGame } from "@fireflydle/contracts";
-import {
-  ATTEMPTS_BY_DIFFICULTY,
-  getBeijingDateKey,
-  selectSnapshotFieldDefinitions,
-} from "@fireflydle/game-engine";
+import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
+import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
 import { contentManifest } from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
@@ -40,8 +28,6 @@ import { ShareResultDialog } from "./ShareResultDialog";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
 import "./game.css";
-
-const difficulties: Difficulty[] = ["casual", "standard", "hard"];
 
 interface SharePreview {
   imageUrl: string;
@@ -55,11 +41,6 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-function storedDifficulty(mode: "daily" | "random"): Difficulty {
-  const value = window.localStorage.getItem(`fireflydle-${mode}-difficulty`);
-  return value === "casual" || value === "hard" ? value : "standard";
-}
-
 function playableFieldSummary(locale: "zh-CN" | "en" | "ja"): string {
   const fields = selectSnapshotFieldDefinitions(
     contentManifest.modes.find((mode) => mode.id === "playable")?.fields ?? [],
@@ -71,8 +52,6 @@ function playableFieldSummary(locale: "zh-CN" | "en" | "ja"): string {
 
 function GamePreparation({
   mode,
-  difficulty,
-  setDifficulty,
   checking,
   busy,
   connectionFailed,
@@ -81,8 +60,6 @@ function GamePreparation({
   onOffline,
 }: {
   mode: "daily" | "random";
-  difficulty: Difficulty;
-  setDifficulty: (value: Difficulty) => void;
   checking: boolean;
   busy: boolean;
   connectionFailed: boolean;
@@ -92,31 +69,6 @@ function GamePreparation({
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
-
-  const moveDifficultyFocus = (
-    event: ReactKeyboardEvent<HTMLButtonElement>,
-    current: Difficulty,
-  ) => {
-    const index = difficulties.indexOf(current);
-    let nextIndex: number | null = null;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-      nextIndex = (index + 1) % difficulties.length;
-    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-      nextIndex = (index - 1 + difficulties.length) % difficulties.length;
-    } else if (event.key === "Home") {
-      nextIndex = 0;
-    } else if (event.key === "End") {
-      nextIndex = difficulties.length - 1;
-    }
-    if (nextIndex === null) return;
-    event.preventDefault();
-    const next = difficulties[nextIndex];
-    if (!next) return;
-    setDifficulty(next);
-    event.currentTarget.parentElement
-      ?.querySelector<HTMLButtonElement>(`button[data-difficulty="${next}"]`)
-      ?.focus();
-  };
 
   return (
     <main className={`game-preparation prep-${mode}`}>
@@ -137,78 +89,53 @@ function GamePreparation({
         </div>
       </header>
 
-      <section className="prep-console" aria-labelledby="difficulty-heading">
+      <section className="prep-console" aria-labelledby="rules-heading">
         <div className="prep-section-label">
           <span>01</span>
           <div>
-            <h2 id="difficulty-heading">
+            <h2 id="rules-heading">
               {mode === "daily"
                 ? locale === "zh-CN"
                   ? "今日规则"
                   : locale === "ja"
                     ? "今日のルール"
                     : "TODAY'S RULE"
-                : t("prep.chooseDifficulty")}
+                : locale === "zh-CN"
+                  ? "练习规则"
+                  : locale === "ja"
+                    ? "練習ルール"
+                    : "PRACTICE RULE"}
             </h2>
             <p>
-              {mode === "daily"
-                ? locale === "zh-CN"
-                  ? "每日一题固定 6 次猜测，每位玩家每天只有一局。"
-                  : locale === "ja"
-                    ? "デイリーは6回固定で、1日1回だけ挑戦できます。"
-                    : "Daily puzzles always allow 6 guesses and one run per player."
-                : t("prep.difficultyHint")}
+              {locale === "zh-CN"
+                ? `${mode === "daily" ? "每日一题" : "练习"}固定 6 次猜测${mode === "daily" ? "，每位玩家每天只有一局。" : "。"}`
+                : locale === "ja"
+                  ? `${mode === "daily" ? "デイリー" : "練習"}は6回固定です${mode === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
+                  : `${mode === "daily" ? "Daily puzzles" : "Practice"} always allow 6 guesses${mode === "daily" ? " and one run per player." : "."}`}
             </p>
           </div>
         </div>
-        {mode === "daily" ? (
-          <div className="prep-daily-rule">
-            <Gauge size={22} aria-hidden="true" />
-            <span>
-              <strong>
-                {locale === "zh-CN"
-                  ? "标准猜测次数"
-                  : locale === "ja"
-                    ? "固定推測回数"
-                    : "FIXED ATTEMPTS"}
-              </strong>
-              <small>
-                {locale === "zh-CN"
-                  ? "所有玩家使用相同次数规则"
-                  : locale === "ja"
-                    ? "すべてのプレイヤーに同じルール"
-                    : "The same attempt limit for every player"}
-              </small>
-            </span>
-            <b>6</b>
-            <em>{t("prep.attemptUnit")}</em>
-          </div>
-        ) : (
-          <div className="prep-difficulties" role="radiogroup" aria-label={t("game.difficulty")}>
-            {difficulties.map((value) => (
-              <button
-                key={value}
-                data-difficulty={value}
-                type="button"
-                role="radio"
-                aria-checked={difficulty === value}
-                tabIndex={difficulty === value ? 0 : -1}
-                className={difficulty === value ? "active" : undefined}
-                disabled={busy}
-                onClick={() => setDifficulty(value)}
-                onKeyDown={(event) => moveDifficultyFocus(event, value)}
-              >
-                <span>
-                  <strong>{t(`game.${value}`)}</strong>
-                  <small>{t(`prep.${value}Hint`)}</small>
-                </span>
-                <b>{ATTEMPTS_BY_DIFFICULTY[value]}</b>
-                <em>{t("prep.attemptUnit")}</em>
-                {difficulty === value ? <Check size={17} aria-hidden="true" /> : null}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="prep-daily-rule">
+          <Gauge size={22} aria-hidden="true" />
+          <span>
+            <strong>
+              {locale === "zh-CN"
+                ? "固定猜测次数"
+                : locale === "ja"
+                  ? "固定推測回数"
+                  : "FIXED ATTEMPTS"}
+            </strong>
+            <small>
+              {locale === "zh-CN"
+                ? "所有普通角色活动使用相同次数规则"
+                : locale === "ja"
+                  ? "通常キャラクターの全アクティビティで同じルール"
+                  : "The same limit for every playable-character activity"}
+            </small>
+          </span>
+          <b>6</b>
+          <em>{t("prep.attemptUnit")}</em>
+        </div>
 
         <div className="prep-start-zone">
           <div className="timer-notice">
@@ -387,6 +314,7 @@ function ActiveGame({
         dateKey,
         difficulty: game.difficulty,
         guesses: game.guesses,
+        ...(game.fieldDefinitions ? { fieldDefinitions: game.fieldDefinitions } : {}),
         maxAttempts: game.maxAttempts,
         won: game.status === "won",
         elapsedMs: game.elapsedMs,
@@ -440,34 +368,16 @@ function ActiveGame({
         <aside className="game-left-rail">
           <div className="rail-section">
             <span className="rail-number">01</span>
-            <h2>
-              {mode === "daily"
-                ? locale === "zh-CN"
-                  ? "猜测次数"
-                  : locale === "ja"
-                    ? "推測回数"
-                    : "ATTEMPTS"
-                : t("game.difficulty")}
-            </h2>
+            <h2>{locale === "zh-CN" ? "猜测次数" : locale === "ja" ? "推測回数" : "ATTEMPTS"}</h2>
             <div className="locked-difficulty">
-              <span>
-                {mode === "daily"
-                  ? locale === "zh-CN"
-                    ? "固定"
-                    : locale === "ja"
-                      ? "固定"
-                      : "FIXED"
-                  : t(`game.${game.difficulty}`)}
-              </span>
+              <span>{locale === "zh-CN" ? "固定" : locale === "ja" ? "固定" : "FIXED"}</span>
               <strong>{game.maxAttempts}</strong>
               <small>
-                {mode === "daily"
-                  ? locale === "zh-CN"
-                    ? "每日统一"
-                    : locale === "ja"
-                      ? "全員共通"
-                      : "SAME FOR EVERYONE"
-                  : t("prep.locked")}
+                {locale === "zh-CN"
+                  ? "所有活动统一"
+                  : locale === "ja"
+                    ? "全アクティビティ共通"
+                    : "SAME FOR EVERY ACTIVITY"}
               </small>
             </div>
           </div>
@@ -712,9 +622,6 @@ function ActiveGame({
 export default function GamePage({ mode }: { mode: "daily" | "random" }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedGameId = searchParams.get("game");
-  const [difficulty, setDifficultyState] = useState<Difficulty>(() =>
-    mode === "daily" ? "standard" : storedDifficulty(mode),
-  );
   const currentGames = useCurrentGames();
   const requestedGame = useQuery({
     queryKey: ["games", "detail", requestedGameId],
@@ -728,7 +635,7 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
     retry: false,
   });
   const initialGame = requestedGameId ? requestedGame.data : currentGames.data?.[mode];
-  const session = useGameSession(mode, difficulty, initialGame);
+  const session = useGameSession(mode, "standard", initialGame);
   const navigationGameId = session.navigationGameId;
   const navigationGame =
     navigationGameId && session.game?.id === navigationGameId ? session.game : null;
@@ -739,12 +646,6 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
         ? session.game
         : (requestedGame.data ?? null)
       : session.game);
-
-  const setDifficulty = (value: Difficulty) => {
-    if (mode === "daily") return;
-    setDifficultyState(value);
-    window.localStorage.setItem(`fireflydle-${mode}-difficulty`, value);
-  };
 
   useEffect(() => {
     if (!navigationGameId) return;
@@ -778,8 +679,6 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
     return (
       <GamePreparation
         mode={mode}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
         checking={checking}
         busy={session.busy}
         connectionFailed={connectionFailed}

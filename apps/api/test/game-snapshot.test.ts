@@ -15,6 +15,7 @@ const characters: Character[] = [
     rarity: 5,
     factionId: "snapshot-faction-a",
     factionGroupId: "snapshot-group",
+    regionId: "snapshot-region-a",
     releaseVersionId: "1.0",
     releaseOrder: 10,
     assets: {
@@ -40,6 +41,7 @@ const characters: Character[] = [
     rarity: 4,
     factionId: "snapshot-faction-b",
     factionGroupId: "snapshot-group",
+    regionId: "snapshot-region-b",
     releaseVersionId: "1.1",
     releaseOrder: 11,
     assets: {
@@ -55,6 +57,31 @@ const characters: Character[] = [
     sourceRevision: "snapshot-v1",
   },
 ];
+
+characters.push(
+  ...Array.from({ length: 5 }, (_, index): Character => {
+    const id = `snapshot-extra-${index + 1}`;
+    return {
+      ...characters[0]!,
+      id,
+      officialId: id,
+      baseCharacterId: id,
+      names: {
+        "zh-CN": `快照额外${index + 1}`,
+        en: `Snapshot Extra ${index + 1}`,
+        ja: `追加${index + 1}`,
+      },
+      regionId: index % 2 === 0 ? "snapshot-region-a" : "snapshot-region-b",
+      assets: {
+        ...characters[0]!.assets,
+        avatarPath: `/assets/characters/${id}.webp`,
+        portraitPath: `/assets/characters/${id}.webp`,
+        sourceUrl: `https://example.com/${id}`,
+        sha256: String(index + 3).repeat(64),
+      },
+    };
+  }),
+);
 
 async function dataOf<T>(response: Response): Promise<T> {
   const payload = (await response.json()) as { ok: boolean; data?: T };
@@ -112,7 +139,7 @@ describe("单人模式快照迁移", () => {
       SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ mode: "random", difficulty: "hard" }),
       });
 
     const created = await dataOf<PublicGame>(await request());
@@ -131,9 +158,12 @@ describe("单人模式快照迁移", () => {
         expect.objectContaining({ id: "path" }),
         expect.objectContaining({ id: "rarity" }),
         expect.objectContaining({ id: "faction" }),
+        expect.objectContaining({ id: "region" }),
         expect.objectContaining({ id: "version" }),
       ],
     });
+    expect(created.difficulty).toBe("standard");
+    expect(created.maxAttempts).toBe(6);
     expect(resumed).toMatchObject({
       id: created.id,
       modeId: created.modeId,
@@ -313,5 +343,64 @@ describe("单人模式快照迁移", () => {
       }),
     );
     expect(result.guesses[0]?.cells.every((cell) => cell.field === "path")).toBe(true);
+  });
+
+  it("练习无论请求旧难度值都在第六次错误猜测后结算", async () => {
+    await seedCharacters();
+    const cookie = await createSession();
+    const created = await dataOf<PublicGame>(
+      await SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ mode: "random", difficulty: "casual" }),
+      }),
+    );
+    const row = await env.DB.prepare("SELECT target_character_id FROM games WHERE id = ?")
+      .bind(created.id)
+      .first<{ target_character_id: string }>();
+    if (!row) throw new Error("缺少对局行");
+    const wrongIds = characters
+      .filter((character) => character.id !== row.target_character_id)
+      .map((character) => character.id);
+    expect(wrongIds).toHaveLength(6);
+
+    let current = created;
+    for (const [index, characterId] of wrongIds.entries()) {
+      current = await dataOf<PublicGame>(
+        await SELF.fetch(`https://fireflydle.games/api/games/${created.id}/guesses`, {
+          method: "POST",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify({ characterId }),
+        }),
+      );
+      expect(current.guesses[index]?.cells.map((cell) => cell.field)).toEqual([
+        "element",
+        "path",
+        "rarity",
+        "faction",
+        "region",
+        "version",
+      ]);
+      expect(current.status).toBe(index === 5 ? "lost" : "active");
+    }
+    expect(current).toMatchObject({ difficulty: "standard", maxAttempts: 6 });
+    expect(current.answer?.id).toBe(row.target_character_id);
+
+    const replay = await dataOf<{ kind: "solo"; game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${created.id}`, {
+        headers: { cookie },
+      }),
+    );
+    expect(replay.kind).toBe("solo");
+    expect(replay.game.fieldDefinitions?.map((field) => field.id)).toEqual([
+      "element",
+      "path",
+      "rarity",
+      "faction",
+      "region",
+      "version",
+    ]);
+    expect(replay.game.guesses).toHaveLength(6);
+    expect(replay.game.guesses.every((guess) => guess.cells.length === 6)).toBe(true);
   });
 });

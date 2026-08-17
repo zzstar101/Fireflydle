@@ -84,11 +84,11 @@ describe("动态 GuessBoard", () => {
     expect(markup).toContain("state-unavailable");
   });
 
-  test("旧多人结果缺少字段定义时仍保持现有五列", () => {
+  test("旧多人结果缺少字段定义时使用普通角色六列兼容规则", () => {
     const markup = renderToStaticMarkup(<GuessBoard guesses={[]} locale="zh-CN" />);
 
     expect(markup).toContain(">属性<");
     expect(markup).toContain(">版本<");
-    expect(markup).not.toContain(">地区<");
+    expect(markup).toContain(">地区<");
   });
 });

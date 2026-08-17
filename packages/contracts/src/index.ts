@@ -72,7 +72,7 @@ export type ManifestVersion = z.infer<typeof ManifestVersionSchema>;
 export const RuleVersionSchema = ManifestVersionSchema;
 export type RuleVersion = z.infer<typeof RuleVersionSchema>;
 
-export const GUESS_FIELDS = ["element", "path", "rarity", "faction", "version"] as const;
+export const GUESS_FIELDS = ["element", "path", "rarity", "faction", "region", "version"] as const;
 /** 字段 ID 来自当前内容模式；GUESS_FIELDS 仅保留给旧多人协议的兼容常量。 */
 export const GuessFieldSchema = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
 export type GuessField = z.infer<typeof GuessFieldSchema>;
@@ -136,6 +136,10 @@ export const CharacterSchema = z.object({
   rarity: z.union([z.literal(4), z.literal(5)]),
   factionId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
   factionGroupId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  regionId: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9-]*$/)
+    .optional(),
   releaseVersionId: z.string().regex(/^\d+\.\d+$/),
   releaseOrder: z.number().int().nonnegative(),
   assets: CharacterAssetSchema,
@@ -154,6 +158,7 @@ export const CharacterSummarySchema = CharacterSchema.pick({
   rarity: true,
   factionId: true,
   factionGroupId: true,
+  regionId: true,
   releaseVersionId: true,
   releaseOrder: true,
   assets: true,

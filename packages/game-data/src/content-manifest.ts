@@ -114,6 +114,7 @@ function compareCharacters(left: Character, right: Character): number {
 }
 
 function regionFor(character: Character): string {
+  if (character.regionId) return character.regionId;
   const regionId = REGION_BY_GROUP[character.factionGroupId];
   if (!regionId) throw new Error(`角色 ${character.id} 缺少地区映射：${character.factionGroupId}`);
   return regionId;

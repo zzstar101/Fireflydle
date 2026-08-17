@@ -11,7 +11,6 @@ import {
   type PublicGame,
 } from "@fireflydle/contracts";
 import {
-  ATTEMPTS_BY_DIFFICULTY,
   createGuessResultWithRules,
   getBeijingDateKey,
   selectSnapshotFieldDefinitions,
@@ -282,7 +281,6 @@ async function selectTarget(
 const playableMode = contentManifest.modes.find((mode) => mode.id === "playable");
 if (!playableMode) throw new Error("普通角色模式未注册");
 
-// T07 之前仍保留现有五项快照，但字段顺序由 manifest 声明决定。
 const snapshotFieldRules: readonly SnapshotFieldRule[] = snapshotRulesFromFieldDefinitions(
   playableMode.fields,
 );
@@ -327,8 +325,7 @@ export async function createGame(
   input: CreateGameRequest,
   now = Date.now(),
 ): Promise<PublicGame> {
-  const normalizedInput: CreateGameRequest =
-    input.mode === "daily" ? { mode: "daily", difficulty: "standard" } : input;
+  const normalizedInput: CreateGameRequest = { mode: input.mode, difficulty: "standard" };
   const dateKey = normalizedInput.mode === "daily" ? getBeijingDateKey(now) : undefined;
   const currentId = await readCurrentGameId(db, userId, normalizedInput.mode, dateKey);
   if (currentId) return getPublicGame(db, currentId, userId, now);
@@ -366,7 +363,7 @@ export async function createGame(
           rules: snapshotFieldRules,
           definitions: selectSnapshotFieldDefinitions(playableMode!.fields),
         }),
-        ATTEMPTS_BY_DIFFICULTY[normalizedInput.difficulty],
+        playableMode!.maxAttempts,
         now,
         now,
       )
