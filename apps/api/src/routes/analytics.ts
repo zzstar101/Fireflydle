@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { ok } from "../lib/http";
 import { requireAuth } from "../services/auth";
 import { getReplayGame } from "../services/games";
+import { getAchievementProgress } from "../services/achievements";
 import type { AppContext } from "../types";
 
 interface AggregateRow {
@@ -241,6 +242,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
     ]
       .sort((left, right) => Date.parse(right.playedAt) - Date.parse(left.playedAt))
       .slice(0, 20),
+    achievements: await getAchievementProgress(context.env.DB, auth.user.id),
   });
 });
 

@@ -187,6 +187,42 @@
   border-top: 1px solid var(--border);
   border-left: 1px solid var(--border);
 }
+
+.achievements-section {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+}
+.achievements-section > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.achievements-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.achievements-list > div {
+  border: 1px solid var(--line);
+  padding: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.achievements-list > div span {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.achievements-list > .is-unlocked {
+  border-color: var(--accent);
+}
+@media (max-width: 680px) {
+  .achievements-list {
+    grid-template-columns: 1fr;
+  }
+}
 .account-metrics > div,
 .stats-metrics > div {
   display: grid;

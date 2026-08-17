@@ -747,8 +747,24 @@ export const PersonalStatsSchema = z.object({
   failedDaily: z.number().int().nonnegative(),
   todayCompletions: z.number().int().nonnegative(),
   recent: z.array(RecentGameSummarySchema),
+  achievements: z.array(
+    z.object({
+      id: z.enum([
+        "one-shot",
+        "daily-seven",
+        "win-streak-10",
+        "last-guess",
+        "first-npc",
+        "games-100",
+      ]),
+      unlockedAt: z.string().datetime().nullable(),
+      progress: z.number().int().nonnegative(),
+      target: z.number().int().positive(),
+    }),
+  ),
 });
 export type PersonalStats = z.infer<typeof PersonalStatsSchema>;
+export type AchievementProgress = PersonalStats["achievements"][number];
 
 export const ReplayVisibilitySchema = z.enum(["private", "shared"]);
 export const SoloReplayResponseSchema = z.object({

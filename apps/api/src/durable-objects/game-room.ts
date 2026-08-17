@@ -20,6 +20,7 @@ import {
 } from "@fireflydle/game-engine";
 import { DurableObject } from "cloudflare:workers";
 import { recordDailyPlayers } from "../services/operations";
+import { evaluateMatch } from "../services/achievements";
 import type { InitializeRoomInput, JoinRoomInput, RoomCommandResult } from "../domain/multiplayer";
 
 const INTERMISSION_MS = 3_000;
@@ -1412,6 +1413,7 @@ export class GameRoom extends DurableObject<Env> {
     );
     try {
       await this.env.DB.batch(statements);
+      await evaluateMatch(this.env.DB, meta.room_id, now);
       this.sql.exec(
         `UPDATE room_meta SET
            archive_status = 'purge-pending', archive_next_at = ?

@@ -45,6 +45,7 @@ import {
 } from "@fireflydle/game-data";
 import { getCharacterSnapshot, getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
+import { evaluateGameResult } from "./achievements";
 
 interface GameRow {
   id: string;
@@ -773,6 +774,8 @@ export async function submitGameGuess(
     throw error;
   }
   const completed = await readGameRow(db, gameId);
+  if (completed?.status === "won" || completed?.status === "lost")
+    await evaluateGameResult(db, gameId, now);
   if (completed?.activity_id === "weekly" && completed.status !== "active") {
     await settleWeeklyRun(db, gameId, now);
   }

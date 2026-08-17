@@ -30,6 +30,14 @@ export default function StatsPage() {
     retry: false,
   });
   const data = stats.data;
+  const achievementLabels: Record<string, { zh: string; en: string; ja: string }> = {
+    "one-shot": { zh: "一发入魂", en: "One-shot", ja: "一発入魂" },
+    "daily-seven": { zh: "连续七日每日题", en: "Seven daily days", ja: "7日連続デイリー" },
+    "win-streak-10": { zh: "十连胜", en: "Ten-win streak", ja: "10連勝" },
+    "last-guess": { zh: "最后一猜命中", en: "Last guess hit", ja: "最後の一猜で正解" },
+    "first-npc": { zh: "首次 NPC 完成", en: "First NPC finish", ja: "初NPCクリア" },
+    "games-100": { zh: "累计一百局", en: "One hundred games", ja: "累計100局" },
+  };
   const distribution = data
     ? [...data.guessDistribution, { guesses: 0, count: data.failedDaily }]
     : [];
@@ -113,6 +121,40 @@ export default function StatsPage() {
             <strong>{value}</strong>
           </div>
         ))}
+      </section>
+      <section className="achievements-section" aria-labelledby="achievements-title">
+        <header>
+          <span id="achievements-title">
+            {locale === "zh-CN" ? "成就" : locale === "ja" ? "実績" : "ACHIEVEMENTS"}
+          </span>
+          <small>
+            {locale === "zh-CN"
+              ? "仅统计正式在线成绩"
+              : locale === "ja"
+                ? "正式オンライン成績のみ"
+                : "Official online results only"}
+          </small>
+        </header>
+        <div className="achievements-list">
+          {data?.achievements.map((achievement) => {
+            const label = achievementLabels[achievement.id] ?? achievementLabels["one-shot"]!;
+            const title = locale === "zh-CN" ? label.zh : locale === "ja" ? label.ja : label.en;
+            return (
+              <div key={achievement.id} className={achievement.unlockedAt ? "is-unlocked" : ""}>
+                <strong>{title}</strong>
+                <span>
+                  {achievement.unlockedAt
+                    ? locale === "zh-CN"
+                      ? "已解锁"
+                      : locale === "ja"
+                        ? "解放済み"
+                        : "Unlocked"
+                    : `${achievement.progress}/${achievement.target}`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </section>
       <section className="daily-stats-section">
         <header>
