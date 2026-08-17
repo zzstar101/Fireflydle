@@ -1838,7 +1838,14 @@ describe("邮箱验证", () => {
     const registered = await dataOf<SessionData>(withEmail);
     expect(registered.user).toMatchObject({ hasEmail: true, emailVerified: false });
     await vi.waitFor(() => expect(outbound).toHaveBeenCalledOnce());
-    await vi.waitFor(() => expect(consoleError).toHaveBeenCalledOnce());
+    await vi.waitFor(() => {
+      const deliveryFailures = consoleError.mock.calls.filter(
+        ([message]) =>
+          typeof message === "string" &&
+          message.includes('"event":"email-verification-send-failed"'),
+      );
+      expect(deliveryFailures).toHaveLength(1);
+    });
 
     const stored = await env.DB.prepare(
       `SELECT users.email_verified,
