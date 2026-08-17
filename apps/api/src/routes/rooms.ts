@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { ApiProblem, ok, readJson, readOptionalJson } from "../lib/http";
 import { requireAuth } from "../services/auth";
-import { loadPlayableMultiplayerContentSnapshot } from "../services/multiplayer-content";
+import { loadMultiplayerContentSnapshot } from "../services/multiplayer-content";
 import { enforceRateLimit } from "../services/rate-limit";
 import type { AppContext, AuthUser } from "../types";
 
@@ -108,12 +108,18 @@ roomRoutes.post("/rooms", async (context) => {
     limit: 10,
     windowMs: 60 * 1_000,
   });
-  const parsed = CreateRoomRequestSchema.safeParse(await readOptionalJson(context));
+  const raw = await readOptionalJson(context);
+  const body = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const modeId = body.modeId ?? "playable";
+  const parsed = CreateRoomRequestSchema.safeParse({
+    ...body,
+    maxAttempts: body.maxAttempts ?? (modeId === "npc" ? 4 : modeId === "aeon" ? 8 : 6),
+  });
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
   if (parsed.data.modifier === "speed" && parsed.data.roundTimeSeconds === null) {
     throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "speed-requires-timed-round" });
   }
-  const contentSnapshot = await loadPlayableMultiplayerContentSnapshot(context.env.DB);
+  const contentSnapshot = await loadMultiplayerContentSnapshot(context.env.DB, parsed.data.modeId);
   if (!contentSnapshot) {
     throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
   }
@@ -131,7 +137,7 @@ roomRoutes.post("/rooms", async (context) => {
     const snapshot = await context.env.GAME_ROOM.getByName(roomId).initialize({
       roomId,
       code,
-      activityId: "private-room",
+      activityId: parsed.data.activityId,
       format: parsed.data.format,
       configuration: parsed.data,
       owner: participant(auth.user),

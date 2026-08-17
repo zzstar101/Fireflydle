@@ -14,6 +14,7 @@ import {
 import {
   MatchmakingResultSchema,
   type ActivityId,
+  type ContentModeId,
   type MatchFormat,
   type MatchmakingResult,
   type RoomApiResponse,
@@ -35,6 +36,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
   const session = useSession();
   const navigate = useNavigate();
   const [format, setFormat] = useState<MatchFormat>(3);
+  const [modeId, setModeId] = useState<ContentModeId>("playable");
   const [roundTimeSeconds, setRoundTimeSeconds] = useState<RoomRoundTimeSeconds>(90);
   const [maxAttempts, setMaxAttempts] = useState<RoomMaxAttempts>(6);
   const [modifier, setModifier] = useState<RoomModifier>(null);
@@ -83,7 +85,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
           ? await apiRequest<RoomApiResponse>("/rooms", {
               method: "POST",
               body: JSON.stringify({
-                modeId: "playable",
+                modeId,
                 activityId: "private-room",
                 format,
                 roundTimeSeconds,
@@ -334,6 +336,28 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
             <div className="room-config-fields">
               <label>
                 <span>
+                  {locale === "zh-CN" ? "内容模式" : locale === "ja" ? "モード" : "Content mode"}
+                </span>
+                <select
+                  value={modeId}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) => {
+                    const next = event.target.value as ContentModeId;
+                    setModeId(next);
+                    setMaxAttempts(next === "npc" ? 4 : next === "aeon" ? 8 : 6);
+                    if (next === "aeon" && modifier === "fog") setModifier(null);
+                  }}
+                >
+                  <option value="playable">{locale === "zh-CN" ? "普通角色" : "Playable"}</option>
+                  <option value="npc">NPC</option>
+                  <option value="currency-wars">
+                    {locale === "zh-CN" ? "货币战争" : "Currency Wars"}
+                  </option>
+                  <option value="aeon">{locale === "zh-CN" ? "星神" : "Aeons"}</option>
+                </select>
+              </label>
+              <label>
+                <span>
                   {locale === "zh-CN" ? "每题计时" : locale === "ja" ? "制限時間" : "Round time"}
                 </span>
                 <select
@@ -373,7 +397,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                   <option value="none">
                     {locale === "zh-CN" ? "无" : locale === "ja" ? "なし" : "None"}
                   </option>
-                  <option value="fog">
+                  <option value="fog" disabled={modeId === "aeon"}>
                     {locale === "zh-CN" ? "迷雾" : locale === "ja" ? "霧" : "Fog"}
                   </option>
                   <option value="speed">
@@ -392,7 +416,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                     setMaxAttempts(Number(event.target.value) as RoomMaxAttempts)
                   }
                 >
-                  {[4, 6, 8].map((attempts) => (
+                  {[modeId === "npc" ? 4 : modeId === "aeon" ? 8 : 6].map((attempts) => (
                     <option key={attempts} value={attempts}>
                       {attempts} {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
                     </option>

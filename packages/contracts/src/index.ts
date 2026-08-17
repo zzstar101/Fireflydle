@@ -595,7 +595,7 @@ export const RoomSnapshotSchema = z
     ownGuesses: z.array(GuessResultSchema),
     opponentFeedback: z.array(z.array(GuessCellSchema)),
     fogField: GuessFieldSchema.nullable().default(null),
-    roundAnswer: CharacterSchema.nullable(),
+    roundAnswer: GameEntitySummarySchema.nullable(),
     roundWinnerId: z.string().uuid().nullable(),
     roundSkip: RoundSkipStateSchema,
     drawOfferByPlayerId: z.string().uuid().nullable(),
@@ -657,14 +657,38 @@ export const ServerRoomMessageSchema = z.discriminatedUnion("type", [
 ]);
 export type ServerRoomMessage = z.infer<typeof ServerRoomMessageSchema>;
 
-export const CreateRoomRequestSchema = z.strictObject({
-  modeId: z.literal("playable").optional().default("playable"),
-  activityId: z.literal("private-room").optional().default("private-room"),
-  format: MatchFormatSchema.optional().default(3),
-  roundTimeSeconds: RoomRoundTimeSecondsSchema.optional().default(90),
-  maxAttempts: RoomMaxAttemptsSchema.optional().default(6),
-  modifier: RoomModifierSchema.optional().default(null),
-});
+export const CreateRoomRequestSchema = z
+  .preprocess(
+    (input) => {
+      if (
+        typeof input === "object" &&
+        input !== null &&
+        "modeId" in input &&
+        (input as { modeId?: unknown }).modeId === "npc" &&
+        !("maxAttempts" in input)
+      ) {
+        throw new Error("NPC 私人房必须明确猜测次数");
+      }
+      return input;
+    },
+    z.strictObject({
+      modeId: ContentModeIdSchema.optional().default("playable"),
+      activityId: z.literal("private-room").optional().default("private-room"),
+      format: MatchFormatSchema.optional().default(3),
+      roundTimeSeconds: RoomRoundTimeSecondsSchema.optional().default(90),
+      maxAttempts: RoomMaxAttemptsSchema.optional().default(6),
+      modifier: RoomModifierSchema.optional().default(null),
+    }),
+  )
+  .superRefine((value, context) => {
+    if (value.modeId === "aeon" && value.modifier === "fog") {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["modifier"],
+        message: "星神模式不支持迷雾",
+      });
+    }
+  });
 
 export const JoinRoomRequestSchema = z.object({
   code: z

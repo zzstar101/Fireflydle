@@ -1,5 +1,6 @@
 import type {
   Character,
+  GameEntitySummary,
   ClientRoomMessage,
   ErrorCode,
   GuessResult,
@@ -13,6 +14,9 @@ import { ClientRoomMessageSchema } from "@fireflydle/contracts";
 import {
   calculateElo,
   createGuessResultWithRules,
+  createNpcGuessResult,
+  createCurrencyWarsGuessResult,
+  createAeonGuessResult,
   DEFAULT_SNAPSHOT_FIELD_RULES,
   MULTIPLAYER_ATTEMPTS,
   MULTIPLAYER_ROUND_MS,
@@ -357,8 +361,12 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec("DELETE FROM clock_tasks WHERE task_key = ?", taskKey);
   }
 
-  private candidateSnapshots(meta: MetaRow): Record<string, Character> {
-    const encoded = JSON.parse(meta.pool_json) as Character[] | Record<string, Character>;
+  private candidateSnapshots(
+    meta: MetaRow,
+  ): Record<string, GameEntitySummary & Record<string, unknown>> {
+    const encoded = JSON.parse(meta.pool_json) as
+      | (GameEntitySummary & Record<string, unknown>)[]
+      | Record<string, GameEntitySummary & Record<string, unknown>>;
     if (Array.isArray(encoded)) {
       return Object.fromEntries(encoded.map((character) => [character.id, character]));
     }
@@ -397,7 +405,7 @@ export class GameRoom extends DurableObject<Env> {
     return fields[(random[0] ?? 0) % fields.length] ?? null;
   }
 
-  private selectTarget(meta: MetaRow): Character {
+  private selectTarget(meta: MetaRow): GameEntitySummary & Record<string, unknown> {
     const pool = this.candidateSnapshots(meta);
     const targetIds = JSON.parse(meta.target_ids_json) as string[];
     const used = new Set(
@@ -955,17 +963,30 @@ export class GameRoom extends DurableObject<Env> {
           code = "GAME_DUPLICATE_GUESS";
         } else {
           const character = this.candidateSnapshots(meta)[characterId];
-          const target = meta.target_json ? (JSON.parse(meta.target_json) as Character) : null;
+          const target = meta.target_json
+            ? (JSON.parse(meta.target_json) as GameEntitySummary & Record<string, unknown>)
+            : null;
           if (!character || !target) {
             code = "NOT_FOUND";
           } else {
             const ordinal = player.guesses_used + 1;
-            const result = createGuessResultWithRules(
-              target,
-              character,
-              this.fieldRules(meta),
-              new Date(now),
-            );
+            const result =
+              meta.mode_id === "npc"
+                ? createNpcGuessResult(target as never, character as never, new Date(now))
+                : meta.mode_id === "currency-wars"
+                  ? createCurrencyWarsGuessResult(
+                      target as never,
+                      character as never,
+                      new Date(now),
+                    )
+                  : meta.mode_id === "aeon"
+                    ? createAeonGuessResult(target as never, character as never, new Date(now))
+                    : createGuessResultWithRules(
+                        target as Character,
+                        character as Character,
+                        this.fieldRules(meta),
+                        new Date(now),
+                      );
             this.sql.exec(
               `INSERT INTO guesses
                  (round_number, seat, ordinal, character_id, result_json, guessed_at)

@@ -1,6 +1,6 @@
 import type {
   ActivityId,
-  Character,
+  GameEntitySummary,
   ContentModeId,
   ErrorCode,
   FieldDefinition,
@@ -14,7 +14,7 @@ export interface MultiplayerContentSnapshot {
   modeId: ContentModeId;
   poolRuleVersion: string;
   manifestVersion: string;
-  candidateSnapshots: Record<string, Character>;
+  candidateSnapshots: Record<string, GameEntitySummary & Record<string, unknown>>;
   targetIds: string[];
   fieldRules: {
     rules: SnapshotFieldRule[];

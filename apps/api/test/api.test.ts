@@ -1000,6 +1000,56 @@ describe("排行榜准入", () => {
 });
 
 describe("匹配、SQLite Durable Object 与 WebSocket", () => {
+  it("四种私人房模式通过真实 HTTP/WebSocket 保留配置与专用字段矩阵", async () => {
+    for (const [modeId, maxAttempts, modifier] of [
+      ["npc", 4, "fog"],
+      ["currency-wars", 6, "fog"],
+      ["aeon", 8, "speed"],
+    ] as const) {
+      const owner = await createSession(`test:${modeId}-owner`);
+      const opponent = await createSession(`test:${modeId}-opponent`);
+      const createdResponse = await SELF.fetch("https://fireflydle.games/api/rooms", {
+        method: "POST",
+        headers: { cookie: owner.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId, format: 1, roundTimeSeconds: 90, maxAttempts, modifier }),
+      });
+      expect(createdResponse.status).toBe(201);
+      const created = await dataOf<{ roomId: string; code: string; snapshot: RoomSnapshot }>(
+        createdResponse,
+      );
+      expect(created.snapshot.configuration).toMatchObject({ modeId, maxAttempts, modifier });
+      await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+        method: "POST",
+        headers: { cookie: opponent.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ code: created.code }),
+      });
+      const [ownerResponse, opponentResponse] = await Promise.all([
+        SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+          headers: { cookie: owner.cookie, upgrade: "websocket" },
+        }),
+        SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+          headers: { cookie: opponent.cookie, upgrade: "websocket" },
+        }),
+      ]);
+      const ownerSocket = ownerResponse.webSocket;
+      const opponentSocket = opponentResponse.webSocket;
+      expect(ownerSocket).not.toBeNull();
+      expect(opponentSocket).not.toBeNull();
+      if (!ownerSocket || !opponentSocket) continue;
+      ownerSocket.accept();
+      opponentSocket.accept();
+      const [ownerStart, opponentStart] = await Promise.all([
+        nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+        nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+      ]);
+      expect(ownerStart.configuration).toEqual(opponentStart.configuration);
+      expect(ownerStart.modeId).toBe(modeId);
+      expect(ownerStart.ownGuesses).toEqual([]);
+      ownerSocket.close(1000, "test-complete");
+      opponentSocket.close(1000, "test-complete");
+    }
+  });
+
   it("迷雾私人房通过真实 HTTP 与双玩家 WebSocket 隐藏同一字段并在结算和回放恢复", async () => {
     const wrongCandidates = [
       {
