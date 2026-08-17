@@ -1,19 +1,21 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Search, Send } from "lucide-react";
-import type { GameEntitySummary, Locale } from "@fireflydle/contracts";
-import { getEntitySearchText } from "@fireflydle/game-data";
+import type { GameEntitySummary, Locale, SearchIndexEntry } from "@fireflydle/contracts";
+import { buildSearchIndexEntry, searchEntities } from "@fireflydle/game-data";
 import { useTranslation } from "react-i18next";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 
 export function CharacterCombobox({
   characters,
   locale,
+  searchIndex,
   excludedIds,
   disabled,
   onSubmit,
 }: {
   characters: readonly GameEntitySummary[];
   locale: Locale;
+  searchIndex?: readonly SearchIndexEntry[];
   excludedIds: ReadonlySet<string>;
   disabled: boolean;
   onSubmit: (characterId: string) => void;
@@ -28,13 +30,9 @@ export function CharacterCombobox({
   const results = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
     if (!normalized) return [];
-    return characters
-      .filter((character) => !excludedIds.has(character.id))
-      .filter((character) => {
-        return getEntitySearchText(character).includes(normalized);
-      })
-      .slice(0, 9);
-  }, [characters, excludedIds, query]);
+    const index = searchIndex ?? characters.map(buildSearchIndexEntry);
+    return searchEntities(normalized, locale, characters, index, excludedIds).slice(0, 9);
+  }, [characters, excludedIds, locale, query, searchIndex]);
 
   const select = (character: GameEntitySummary) => {
     setSelectedId(character.id);
@@ -44,7 +42,7 @@ export function CharacterCombobox({
 
   const submit = () => {
     if (!selectedId && !query.trim()) return;
-    const fallback = results[highlighted];
+    const fallback = results[highlighted]?.entity;
     const id = selectedId ?? fallback?.id;
     if (!id || disabled) return;
     onSubmit(id);
@@ -65,7 +63,7 @@ export function CharacterCombobox({
       setHighlighted((current) => Math.max(current - 1, 0));
     } else if (event.key === "Enter") {
       event.preventDefault();
-      if (open && query.trim() && results[highlighted]) select(results[highlighted]);
+      if (open && query.trim() && results[highlighted]) select(results[highlighted].entity);
       else submit();
     } else if (event.key === "Escape") {
       setOpen(false);
@@ -90,7 +88,7 @@ export function CharacterCombobox({
             aria-controls="character-results"
             aria-activedescendant={
               open && results[highlighted]
-                ? `character-option-${results[highlighted].id}`
+                ? `character-option-${results[highlighted].entity.id}`
                 : undefined
             }
             autoComplete="off"
@@ -112,20 +110,25 @@ export function CharacterCombobox({
               {results.length === 0 ? (
                 <p className="no-results">{t("game.noResult")}</p>
               ) : (
-                results.map((character, index) => (
+                results.map((result, index) => (
                   <button
-                    id={`character-option-${character.id}`}
-                    key={character.id}
+                    id={`character-option-${result.entity.id}`}
+                    key={result.entity.id}
                     type="button"
                     role="option"
                     aria-selected={index === highlighted}
                     className={index === highlighted ? "highlighted" : undefined}
                     onMouseEnter={() => setHighlighted(index)}
                     onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => select(character)}
+                    onClick={() => select(result.entity)}
                   >
-                    <CharacterAvatar character={character} size="small" />
-                    <strong>{character.names[locale]}</strong>
+                    <CharacterAvatar character={result.entity} size="small" />
+                    <span className="combobox-result-copy">
+                      <strong>{result.entity.names[locale]}</strong>
+                      {result.matchedText !== result.entity.names[locale] && (
+                        <small>{t("game.matchedTerm", { term: result.matchedText })}</small>
+                      )}
+                    </span>
                   </button>
                 ))
               )}

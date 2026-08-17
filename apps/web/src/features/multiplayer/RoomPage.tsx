@@ -22,7 +22,7 @@ import {
   type RoomSnapshot,
 } from "@fireflydle/contracts";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { characters } from "@fireflydle/game-data";
+import { characters, contentManifest } from "@fireflydle/game-data";
 import { apiRequest, getWebSocketUrl } from "../../api/client";
 import { CharacterCombobox } from "../game/CharacterCombobox";
 import { GuessBoard } from "../game/GuessBoard";
@@ -430,6 +430,7 @@ export default function RoomPage() {
             <CharacterCombobox
               characters={roster}
               locale={locale}
+              searchIndex={contentManifest.searchIndex}
               excludedIds={ownGuessedIds}
               disabled={!canGuess || snapshot.ownGuesses.length >= 6}
               onSubmit={submit}

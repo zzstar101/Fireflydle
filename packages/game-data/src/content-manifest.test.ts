@@ -41,6 +41,12 @@ describe("普通角色内容 manifest 迁移", () => {
     expect(manifest.manifestVersion).toMatch(/^1\.0\.\d+$/);
     expect(manifest.entities.map((entity) => entity.id)).toEqual(["firefly", "zeta"]);
     expect(manifest.entities.every((entity) => entity.kind === "playable")).toBeTrue();
+    expect(manifest.searchIndex.map((entry) => entry.entityId)).toEqual(["firefly", "zeta"]);
+    expect(manifest.searchIndex[0]?.names.map((term) => term.value)).toEqual([
+      "流萤",
+      "Firefly",
+      "ホタル",
+    ]);
     const firefly = manifest.entities.find((entity) => entity.id === "firefly");
     expect(firefly?.source).toEqual({
       url: "https://example.com/firefly.png",

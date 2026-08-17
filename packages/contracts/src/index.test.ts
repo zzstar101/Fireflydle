@@ -8,6 +8,7 @@ import {
   FieldDefinitionSchema,
   GuessCellSchema,
   ManifestVersionSchema,
+  SearchIndexEntrySchema,
 } from "./index";
 
 const labels = { "zh-CN": "普通角色", en: "Characters", ja: "キャラクター" };
@@ -130,6 +131,22 @@ describe("内容契约", () => {
 
     expect(entity.kind).toBe("playable");
     expect(() => ContentEntitySchema.parse({ ...entity, payload: {} })).toThrow();
+  });
+
+  test("搜索索引要求三语名称、唯一搜索词和已知实体", () => {
+    const searchEntry = {
+      entityId: "firefly",
+      names: [
+        { value: "流萤", normalized: "流萤", locale: "zh-CN" },
+        { value: "Firefly", normalized: "firefly", locale: "en" },
+        { value: "ホタル", normalized: "ホタル", locale: "ja" },
+      ],
+      terms: [{ value: "liu ying", normalized: "liu ying", locale: "zh-CN" }],
+    };
+    expect(() => SearchIndexEntrySchema.parse(searchEntry)).not.toThrow();
+    expect(() =>
+      SearchIndexEntrySchema.parse({ ...searchEntry, names: searchEntry.names.slice(0, 2) }),
+    ).toThrow(/三语/);
   });
 });
 

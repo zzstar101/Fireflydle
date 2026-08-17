@@ -767,6 +767,32 @@ export const ContentEntitySchema = z.discriminatedUnion("kind", [
 ]);
 export type ContentEntity = z.infer<typeof ContentEntitySchema>;
 
+export const SearchIndexTermSchema = z.strictObject({
+  value: z.string().min(1),
+  normalized: z.string().min(1),
+  locale: LocaleSchema,
+});
+export type SearchIndexTerm = z.infer<typeof SearchIndexTermSchema>;
+
+export const SearchIndexEntrySchema = z
+  .strictObject({
+    entityId: ContentIdSchema,
+    names: z.array(SearchIndexTermSchema).length(LOCALES.length),
+    terms: z.array(SearchIndexTermSchema),
+  })
+  .superRefine((entry, context) => {
+    if (new Set(entry.names.map((name) => name.locale)).size !== LOCALES.length) {
+      context.addIssue({ code: "custom", path: ["names"], message: "搜索索引必须包含三语名称" });
+    }
+    const keys = [...entry.names, ...entry.terms].map(
+      (term) => `${term.locale}:${term.normalized}`,
+    );
+    if (new Set(keys).size !== keys.length) {
+      context.addIssue({ code: "custom", path: ["terms"], message: "搜索词不能重复" });
+    }
+  });
+export type SearchIndexEntry = z.infer<typeof SearchIndexEntrySchema>;
+
 export const CurrencyWarsUnitSchema = z
   .strictObject({
     id: ContentIdSchema,
@@ -831,6 +857,7 @@ export const ContentManifestSchema = z
     activities: z.array(ActivityDefinitionSchema).min(1),
     pools: z.array(QuestionPoolDefinitionSchema).min(1),
     entities: z.array(ContentEntitySchema).default([]),
+    searchIndex: z.array(SearchIndexEntrySchema).default([]),
     currencyWars: CurrencyWarsRulesetSchema.optional(),
   })
   .superRefine((manifest, context) => {
@@ -919,6 +946,25 @@ export const ContentManifestSchema = z
       }
       entityIds.add(entity.id);
       entitiesById.set(entity.id, entity);
+    }
+
+    const indexedEntityIds = new Set<string>();
+    for (const [index, entry] of manifest.searchIndex.entries()) {
+      if (indexedEntityIds.has(entry.entityId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["searchIndex", index, "entityId"],
+          message: "搜索索引实体 ID 不能重复",
+        });
+      }
+      indexedEntityIds.add(entry.entityId);
+      if (!entityIds.has(entry.entityId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["searchIndex", index, "entityId"],
+          message: `搜索索引引用未知实体 ${entry.entityId}`,
+        });
+      }
     }
 
     for (const [index, mode] of manifest.modes.entries()) {

@@ -92,6 +92,8 @@ export const characters: readonly Character[] = Object.freeze(
 );
 
 export { buildPlayableManifest } from "./content-manifest";
+export { buildSearchIndexEntry, normalizeSearchText, searchEntities } from "./search";
+export type { EntitySearchResult, SearchMatchKind } from "./search";
 
 export const elementLabels: Record<Element, LocalizedText> = {
   physical: { "zh-CN": "物理", en: "Physical", ja: "物理" },

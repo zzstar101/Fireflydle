@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.0.167650926",
+  "manifestVersion": "1.0.904127142",
   "generatedAt": "2026-07-18T17:08:44.000Z",
   "modes": [
     {
@@ -3870,6 +3870,5168 @@
           "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project."
         }
       }
+    }
+  ],
+  "searchIndex": [
+    {
+      "entityId": "arlan",
+      "names": [
+        {
+          "value": "阿兰",
+          "normalized": "阿兰",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Arlan",
+          "normalized": "arlan",
+          "locale": "en"
+        },
+        {
+          "value": "アーラン",
+          "normalized": "アーラン",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "a lan",
+          "normalized": "a lan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "al",
+          "normalized": "al",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "alan",
+          "normalized": "alan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "aaran",
+          "normalized": "aaran",
+          "locale": "ja"
+        },
+        {
+          "value": "aran",
+          "normalized": "aran",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "asta",
+      "names": [
+        {
+          "value": "艾丝妲",
+          "normalized": "艾丝妲",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Asta",
+          "normalized": "asta",
+          "locale": "en"
+        },
+        {
+          "value": "アスター",
+          "normalized": "アスター",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ai si da",
+          "normalized": "ai si da",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "asd",
+          "normalized": "asd",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "aisida",
+          "normalized": "aisida",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "asutaa",
+          "normalized": "asutaa",
+          "locale": "ja"
+        },
+        {
+          "value": "asuta",
+          "normalized": "asuta",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "bailu",
+      "names": [
+        {
+          "value": "白露",
+          "normalized": "白露",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Bailu",
+          "normalized": "bailu",
+          "locale": "en"
+        },
+        {
+          "value": "白露",
+          "normalized": "白露",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "bai lu",
+          "normalized": "bai lu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "bl",
+          "normalized": "bl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "bailu",
+          "normalized": "bailu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "byakuro",
+          "normalized": "byakuro",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "bronya",
+      "names": [
+        {
+          "value": "布洛妮娅",
+          "normalized": "布洛妮娅",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Bronya",
+          "normalized": "bronya",
+          "locale": "en"
+        },
+        {
+          "value": "ブローニャ",
+          "normalized": "ブローニャ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "bu luo ni ya",
+          "normalized": "bu luo ni ya",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "blny",
+          "normalized": "blny",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "buluoniya",
+          "normalized": "buluoniya",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "buroonya",
+          "normalized": "buroonya",
+          "locale": "ja"
+        },
+        {
+          "value": "buronya",
+          "normalized": "buronya",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "clara",
+      "names": [
+        {
+          "value": "克拉拉",
+          "normalized": "克拉拉",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Clara",
+          "normalized": "clara",
+          "locale": "en"
+        },
+        {
+          "value": "クラーラ",
+          "normalized": "クラーラ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ke la la",
+          "normalized": "ke la la",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kll",
+          "normalized": "kll",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kelala",
+          "normalized": "kelala",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kuraara",
+          "normalized": "kuraara",
+          "locale": "ja"
+        },
+        {
+          "value": "kurara",
+          "normalized": "kurara",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "dan-heng",
+      "names": [
+        {
+          "value": "丹恒",
+          "normalized": "丹恒",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Dan Heng",
+          "normalized": "dan heng",
+          "locale": "en"
+        },
+        {
+          "value": "丹恒",
+          "normalized": "丹恒",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "dan heng",
+          "normalized": "dan heng",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dh",
+          "normalized": "dh",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "danheng",
+          "normalized": "danheng",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dh",
+          "normalized": "dh",
+          "locale": "en"
+        },
+        {
+          "value": "danheng",
+          "normalized": "danheng",
+          "locale": "en"
+        },
+        {
+          "value": "tankou",
+          "normalized": "tankou",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "gepard",
+      "names": [
+        {
+          "value": "杰帕德",
+          "normalized": "杰帕德",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Gepard",
+          "normalized": "gepard",
+          "locale": "en"
+        },
+        {
+          "value": "ジェパード",
+          "normalized": "ジェパード",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "jie pa de",
+          "normalized": "jie pa de",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jpd",
+          "normalized": "jpd",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jiepade",
+          "normalized": "jiepade",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jepaado",
+          "normalized": "jepaado",
+          "locale": "ja"
+        },
+        {
+          "value": "jepado",
+          "normalized": "jepado",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "herta",
+      "names": [
+        {
+          "value": "黑塔",
+          "normalized": "黑塔",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Herta",
+          "normalized": "herta",
+          "locale": "en"
+        },
+        {
+          "value": "ヘルタ",
+          "normalized": "ヘルタ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "hei ta",
+          "normalized": "hei ta",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ht",
+          "normalized": "ht",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "heita",
+          "normalized": "heita",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "heruta",
+          "normalized": "heruta",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "himeko",
+      "names": [
+        {
+          "value": "姬子",
+          "normalized": "姬子",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Himeko",
+          "normalized": "himeko",
+          "locale": "en"
+        },
+        {
+          "value": "姫子",
+          "normalized": "姫子",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ji zi",
+          "normalized": "ji zi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jz",
+          "normalized": "jz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jizi",
+          "normalized": "jizi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "himeko",
+          "normalized": "himeko",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "hook",
+      "names": [
+        {
+          "value": "虎克",
+          "normalized": "虎克",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Hook",
+          "normalized": "hook",
+          "locale": "en"
+        },
+        {
+          "value": "フック",
+          "normalized": "フック",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "hu ke",
+          "normalized": "hu ke",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hk",
+          "normalized": "hk",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huke",
+          "normalized": "huke",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fukku",
+          "normalized": "fukku",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "jing-yuan",
+      "names": [
+        {
+          "value": "景元",
+          "normalized": "景元",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Jing Yuan",
+          "normalized": "jing yuan",
+          "locale": "en"
+        },
+        {
+          "value": "景元",
+          "normalized": "景元",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "jing yuan",
+          "normalized": "jing yuan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jy",
+          "normalized": "jy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jingyuan",
+          "normalized": "jingyuan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jy",
+          "normalized": "jy",
+          "locale": "en"
+        },
+        {
+          "value": "jingyuan",
+          "normalized": "jingyuan",
+          "locale": "en"
+        },
+        {
+          "value": "keigen",
+          "normalized": "keigen",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "march-7th",
+      "names": [
+        {
+          "value": "三月七",
+          "normalized": "三月七",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "March 7th",
+          "normalized": "march 7th",
+          "locale": "en"
+        },
+        {
+          "value": "三月なのか",
+          "normalized": "三月なのか",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "三月",
+          "normalized": "三月",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "san yue qi",
+          "normalized": "san yue qi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "syq",
+          "normalized": "syq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sanyueqi",
+          "normalized": "sanyueqi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "san yue",
+          "normalized": "san yue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sy",
+          "normalized": "sy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sanyue",
+          "normalized": "sanyue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "March",
+          "normalized": "march",
+          "locale": "en"
+        },
+        {
+          "value": "M7",
+          "normalized": "m7",
+          "locale": "en"
+        },
+        {
+          "value": "march7th",
+          "normalized": "march7th",
+          "locale": "en"
+        },
+        {
+          "value": "なのか",
+          "normalized": "なのか",
+          "locale": "ja"
+        },
+        {
+          "value": "mitsukinanoka",
+          "normalized": "mitsukinanoka",
+          "locale": "ja"
+        },
+        {
+          "value": "nanoka",
+          "normalized": "nanoka",
+          "locale": "ja"
+        },
+        {
+          "value": "mitsuki nanoka",
+          "normalized": "mitsuki nanoka",
+          "locale": "ja"
+        },
+        {
+          "value": "mn",
+          "normalized": "mn",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "natasha",
+      "names": [
+        {
+          "value": "娜塔莎",
+          "normalized": "娜塔莎",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Natasha",
+          "normalized": "natasha",
+          "locale": "en"
+        },
+        {
+          "value": "ナターシャ",
+          "normalized": "ナターシャ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "na ta sha",
+          "normalized": "na ta sha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "nts",
+          "normalized": "nts",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "natasha",
+          "normalized": "natasha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "nataasha",
+          "normalized": "nataasha",
+          "locale": "ja"
+        },
+        {
+          "value": "natasha",
+          "normalized": "natasha",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "pela",
+      "names": [
+        {
+          "value": "佩拉",
+          "normalized": "佩拉",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Pela",
+          "normalized": "pela",
+          "locale": "en"
+        },
+        {
+          "value": "ペラ",
+          "normalized": "ペラ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "pei la",
+          "normalized": "pei la",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "pl",
+          "normalized": "pl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "peila",
+          "normalized": "peila",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "pera",
+          "normalized": "pera",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "qingque",
+      "names": [
+        {
+          "value": "青雀",
+          "normalized": "青雀",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Qingque",
+          "normalized": "qingque",
+          "locale": "en"
+        },
+        {
+          "value": "青雀",
+          "normalized": "青雀",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "qing que",
+          "normalized": "qing que",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "qq",
+          "normalized": "qq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "qingque",
+          "normalized": "qingque",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "seijaku",
+          "normalized": "seijaku",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "sampo",
+      "names": [
+        {
+          "value": "桑博",
+          "normalized": "桑博",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Sampo",
+          "normalized": "sampo",
+          "locale": "en"
+        },
+        {
+          "value": "サンポ",
+          "normalized": "サンポ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "sang bo",
+          "normalized": "sang bo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sb",
+          "normalized": "sb",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sangbo",
+          "normalized": "sangbo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sanpo",
+          "normalized": "sanpo",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "seele",
+      "names": [
+        {
+          "value": "希儿",
+          "normalized": "希儿",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Seele",
+          "normalized": "seele",
+          "locale": "en"
+        },
+        {
+          "value": "ゼーレ",
+          "normalized": "ゼーレ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "xi er",
+          "normalized": "xi er",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xe",
+          "normalized": "xe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xier",
+          "normalized": "xier",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zeere",
+          "normalized": "zeere",
+          "locale": "ja"
+        },
+        {
+          "value": "zere",
+          "normalized": "zere",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "serval",
+      "names": [
+        {
+          "value": "希露瓦",
+          "normalized": "希露瓦",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Serval",
+          "normalized": "serval",
+          "locale": "en"
+        },
+        {
+          "value": "セーバル",
+          "normalized": "セーバル",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "xi lu wa",
+          "normalized": "xi lu wa",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xlw",
+          "normalized": "xlw",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xiluwa",
+          "normalized": "xiluwa",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "seebaru",
+          "normalized": "seebaru",
+          "locale": "ja"
+        },
+        {
+          "value": "sebaru",
+          "normalized": "sebaru",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "sushang",
+      "names": [
+        {
+          "value": "素裳",
+          "normalized": "素裳",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Sushang",
+          "normalized": "sushang",
+          "locale": "en"
+        },
+        {
+          "value": "素裳",
+          "normalized": "素裳",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "su shang",
+          "normalized": "su shang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ss",
+          "normalized": "ss",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sushang",
+          "normalized": "sushang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sushou",
+          "normalized": "sushou",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "tingyun",
+      "names": [
+        {
+          "value": "停云",
+          "normalized": "停云",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Tingyun",
+          "normalized": "tingyun",
+          "locale": "en"
+        },
+        {
+          "value": "停雲",
+          "normalized": "停雲",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ting yun",
+          "normalized": "ting yun",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ty",
+          "normalized": "ty",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tingyun",
+          "normalized": "tingyun",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "teiun",
+          "normalized": "teiun",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "trailblazer-destruction",
+      "names": [
+        {
+          "value": "开拓者·毁灭",
+          "normalized": "开拓者 毁灭",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer · Destruction",
+          "normalized": "trailblazer destruction",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者・壊滅",
+          "normalized": "開拓者 壊滅",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "开拓者",
+          "normalized": "开拓者",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "物理主角",
+          "normalized": "物理主角",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe hui mie",
+          "normalized": "kai tuo zhe hui mie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktzhm",
+          "normalized": "ktzhm",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhehuimie",
+          "normalized": "kaituozhehuimie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe",
+          "normalized": "kai tuo zhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktz",
+          "normalized": "ktz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhe",
+          "normalized": "kaituozhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wu li zhu jue",
+          "normalized": "wu li zhu jue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wlzj",
+          "normalized": "wlzj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wulizhujue",
+          "normalized": "wulizhujue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer",
+          "normalized": "trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "Physical Trailblazer",
+          "normalized": "physical trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "pt",
+          "normalized": "pt",
+          "locale": "en"
+        },
+        {
+          "value": "td",
+          "normalized": "td",
+          "locale": "en"
+        },
+        {
+          "value": "trailblazerdestruction",
+          "normalized": "trailblazerdestruction",
+          "locale": "en"
+        },
+        {
+          "value": "physicaltrailblazer",
+          "normalized": "physicaltrailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者",
+          "normalized": "開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "物理開拓者",
+          "normalized": "物理開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazer destruction",
+          "normalized": "trailblazer destruction",
+          "locale": "ja"
+        },
+        {
+          "value": "td",
+          "normalized": "td",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazerdestruction",
+          "normalized": "trailblazerdestruction",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakusha kaimetsu",
+          "normalized": "kaitakusha kaimetsu",
+          "locale": "ja"
+        },
+        {
+          "value": "kk",
+          "normalized": "kk",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakushakaimetsu",
+          "normalized": "kaitakushakaimetsu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "trailblazer-preservation",
+      "names": [
+        {
+          "value": "开拓者·存护",
+          "normalized": "开拓者 存护",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer · Preservation",
+          "normalized": "trailblazer preservation",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者・存護",
+          "normalized": "開拓者 存護",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "开拓者",
+          "normalized": "开拓者",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "火主",
+          "normalized": "火主",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "存护主角",
+          "normalized": "存护主角",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe cun hu",
+          "normalized": "kai tuo zhe cun hu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktzch",
+          "normalized": "ktzch",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhecunhu",
+          "normalized": "kaituozhecunhu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe",
+          "normalized": "kai tuo zhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktz",
+          "normalized": "ktz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhe",
+          "normalized": "kaituozhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huo zhu",
+          "normalized": "huo zhu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hz",
+          "normalized": "hz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huozhu",
+          "normalized": "huozhu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "cun hu zhu jue",
+          "normalized": "cun hu zhu jue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "chzj",
+          "normalized": "chzj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "cunhuzhujue",
+          "normalized": "cunhuzhujue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer",
+          "normalized": "trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "Fire Trailblazer",
+          "normalized": "fire trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "ft",
+          "normalized": "ft",
+          "locale": "en"
+        },
+        {
+          "value": "tp",
+          "normalized": "tp",
+          "locale": "en"
+        },
+        {
+          "value": "trailblazerpreservation",
+          "normalized": "trailblazerpreservation",
+          "locale": "en"
+        },
+        {
+          "value": "firetrailblazer",
+          "normalized": "firetrailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者",
+          "normalized": "開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "炎開拓者",
+          "normalized": "炎開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazer preservation",
+          "normalized": "trailblazer preservation",
+          "locale": "ja"
+        },
+        {
+          "value": "tp",
+          "normalized": "tp",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazerpreservation",
+          "normalized": "trailblazerpreservation",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakusha songo",
+          "normalized": "kaitakusha songo",
+          "locale": "ja"
+        },
+        {
+          "value": "ks",
+          "normalized": "ks",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakushasongo",
+          "normalized": "kaitakushasongo",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "welt",
+      "names": [
+        {
+          "value": "瓦尔特",
+          "normalized": "瓦尔特",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Welt",
+          "normalized": "welt",
+          "locale": "en"
+        },
+        {
+          "value": "ヴェルト",
+          "normalized": "ヴェルト",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "wa er te",
+          "normalized": "wa er te",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wet",
+          "normalized": "wet",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "waerte",
+          "normalized": "waerte",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "vyeruto",
+          "normalized": "vyeruto",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "yanqing",
+      "names": [
+        {
+          "value": "彦卿",
+          "normalized": "彦卿",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Yanqing",
+          "normalized": "yanqing",
+          "locale": "en"
+        },
+        {
+          "value": "彦卿",
+          "normalized": "彦卿",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yan qing",
+          "normalized": "yan qing",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yq",
+          "normalized": "yq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yanqing",
+          "normalized": "yanqing",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "genkyou",
+          "normalized": "genkyou",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "luocha",
+      "names": [
+        {
+          "value": "罗刹",
+          "normalized": "罗刹",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Luocha",
+          "normalized": "luocha",
+          "locale": "en"
+        },
+        {
+          "value": "羅刹",
+          "normalized": "羅刹",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "luo cha",
+          "normalized": "luo cha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "lc",
+          "normalized": "lc",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "luocha",
+          "normalized": "luocha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "rasetsu",
+          "normalized": "rasetsu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "silver-wolf",
+      "names": [
+        {
+          "value": "银狼",
+          "normalized": "银狼",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Silver Wolf",
+          "normalized": "silver wolf",
+          "locale": "en"
+        },
+        {
+          "value": "銀狼",
+          "normalized": "銀狼",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yin lang",
+          "normalized": "yin lang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yl",
+          "normalized": "yl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yinlang",
+          "normalized": "yinlang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "SW",
+          "normalized": "sw",
+          "locale": "en"
+        },
+        {
+          "value": "silverwolf",
+          "normalized": "silverwolf",
+          "locale": "en"
+        },
+        {
+          "value": "ginrou",
+          "normalized": "ginrou",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "yukong",
+      "names": [
+        {
+          "value": "驭空",
+          "normalized": "驭空",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Yukong",
+          "normalized": "yukong",
+          "locale": "en"
+        },
+        {
+          "value": "御空",
+          "normalized": "御空",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yu kong",
+          "normalized": "yu kong",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yk",
+          "normalized": "yk",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yukong",
+          "normalized": "yukong",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "gyokuu",
+          "normalized": "gyokuu",
+          "locale": "ja"
+        },
+        {
+          "value": "gyoku",
+          "normalized": "gyoku",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "blade",
+      "names": [
+        {
+          "value": "刃",
+          "normalized": "刃",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Blade",
+          "normalized": "blade",
+          "locale": "en"
+        },
+        {
+          "value": "刃",
+          "normalized": "刃",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ren",
+          "normalized": "ren",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jin",
+          "normalized": "jin",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "kafka",
+      "names": [
+        {
+          "value": "卡芙卡",
+          "normalized": "卡芙卡",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Kafka",
+          "normalized": "kafka",
+          "locale": "en"
+        },
+        {
+          "value": "カフカ",
+          "normalized": "カフカ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ka fu ka",
+          "normalized": "ka fu ka",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kfk",
+          "normalized": "kfk",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kafuka",
+          "normalized": "kafuka",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kafuka",
+          "normalized": "kafuka",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "luka",
+      "names": [
+        {
+          "value": "卢卡",
+          "normalized": "卢卡",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Luka",
+          "normalized": "luka",
+          "locale": "en"
+        },
+        {
+          "value": "ルカ",
+          "normalized": "ルカ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "lu ka",
+          "normalized": "lu ka",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "lk",
+          "normalized": "lk",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "luka",
+          "normalized": "luka",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ruka",
+          "normalized": "ruka",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "dan-heng-il",
+      "names": [
+        {
+          "value": "丹恒•饮月",
+          "normalized": "丹恒 饮月",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Dan Heng • Imbibitor Lunae",
+          "normalized": "dan heng imbibitor lunae",
+          "locale": "en"
+        },
+        {
+          "value": "丹恒・飲月",
+          "normalized": "丹恒 飲月",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "饮月",
+          "normalized": "饮月",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "龙丹",
+          "normalized": "龙丹",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dan heng yin yue",
+          "normalized": "dan heng yin yue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dhyy",
+          "normalized": "dhyy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "danhengyinyue",
+          "normalized": "danhengyinyue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yin yue",
+          "normalized": "yin yue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yy",
+          "normalized": "yy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yinyue",
+          "normalized": "yinyue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "long dan",
+          "normalized": "long dan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ld",
+          "normalized": "ld",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "longdan",
+          "normalized": "longdan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "DHIL",
+          "normalized": "dhil",
+          "locale": "en"
+        },
+        {
+          "value": "Imbibitor Lunae",
+          "normalized": "imbibitor lunae",
+          "locale": "en"
+        },
+        {
+          "value": "il",
+          "normalized": "il",
+          "locale": "en"
+        },
+        {
+          "value": "danhengimbibitorlunae",
+          "normalized": "danhengimbibitorlunae",
+          "locale": "en"
+        },
+        {
+          "value": "imbibitorlunae",
+          "normalized": "imbibitorlunae",
+          "locale": "en"
+        },
+        {
+          "value": "飲月",
+          "normalized": "飲月",
+          "locale": "ja"
+        },
+        {
+          "value": "tankou ingetsu",
+          "normalized": "tankou ingetsu",
+          "locale": "ja"
+        },
+        {
+          "value": "ti",
+          "normalized": "ti",
+          "locale": "ja"
+        },
+        {
+          "value": "tankouingetsu",
+          "normalized": "tankouingetsu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "fu-xuan",
+      "names": [
+        {
+          "value": "符玄",
+          "normalized": "符玄",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Fu Xuan",
+          "normalized": "fu xuan",
+          "locale": "en"
+        },
+        {
+          "value": "符玄",
+          "normalized": "符玄",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "fu xuan",
+          "normalized": "fu xuan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fx",
+          "normalized": "fx",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fuxuan",
+          "normalized": "fuxuan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fx",
+          "normalized": "fx",
+          "locale": "en"
+        },
+        {
+          "value": "fuxuan",
+          "normalized": "fuxuan",
+          "locale": "en"
+        },
+        {
+          "value": "fugen",
+          "normalized": "fugen",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "lynx",
+      "names": [
+        {
+          "value": "玲可",
+          "normalized": "玲可",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Lynx",
+          "normalized": "lynx",
+          "locale": "en"
+        },
+        {
+          "value": "リンクス",
+          "normalized": "リンクス",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ling ke",
+          "normalized": "ling ke",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "lk",
+          "normalized": "lk",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "lingke",
+          "normalized": "lingke",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "rinkusu",
+          "normalized": "rinkusu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "guinaifen",
+      "names": [
+        {
+          "value": "桂乃芬",
+          "normalized": "桂乃芬",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Guinaifen",
+          "normalized": "guinaifen",
+          "locale": "en"
+        },
+        {
+          "value": "桂乃芬",
+          "normalized": "桂乃芬",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "gui nai fen",
+          "normalized": "gui nai fen",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "gnf",
+          "normalized": "gnf",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "guinaifen",
+          "normalized": "guinaifen",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "keinaifun",
+          "normalized": "keinaifun",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "jingliu",
+      "names": [
+        {
+          "value": "镜流",
+          "normalized": "镜流",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Jingliu",
+          "normalized": "jingliu",
+          "locale": "en"
+        },
+        {
+          "value": "鏡流",
+          "normalized": "鏡流",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "jing liu",
+          "normalized": "jing liu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jl",
+          "normalized": "jl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jingliu",
+          "normalized": "jingliu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "keiryuu",
+          "normalized": "keiryuu",
+          "locale": "ja"
+        },
+        {
+          "value": "keiryu",
+          "normalized": "keiryu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "topaz-and-numby",
+      "names": [
+        {
+          "value": "托帕&账账",
+          "normalized": "托帕 账账",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Topaz & Numby",
+          "normalized": "topaz numby",
+          "locale": "en"
+        },
+        {
+          "value": "トパーズ&カブ",
+          "normalized": "トパーズ カブ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "托帕",
+          "normalized": "托帕",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "账账",
+          "normalized": "账账",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tuo pa zhang zhang",
+          "normalized": "tuo pa zhang zhang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tpzz",
+          "normalized": "tpzz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tuopazhangzhang",
+          "normalized": "tuopazhangzhang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tuo pa",
+          "normalized": "tuo pa",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tp",
+          "normalized": "tp",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tuopa",
+          "normalized": "tuopa",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhang zhang",
+          "normalized": "zhang zhang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zz",
+          "normalized": "zz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhangzhang",
+          "normalized": "zhangzhang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Topaz",
+          "normalized": "topaz",
+          "locale": "en"
+        },
+        {
+          "value": "Numby",
+          "normalized": "numby",
+          "locale": "en"
+        },
+        {
+          "value": "tn",
+          "normalized": "tn",
+          "locale": "en"
+        },
+        {
+          "value": "topaznumby",
+          "normalized": "topaznumby",
+          "locale": "en"
+        },
+        {
+          "value": "トパーズ",
+          "normalized": "トパーズ",
+          "locale": "ja"
+        },
+        {
+          "value": "カブ",
+          "normalized": "カブ",
+          "locale": "ja"
+        },
+        {
+          "value": "topaazu kabu",
+          "normalized": "topaazu kabu",
+          "locale": "ja"
+        },
+        {
+          "value": "tk",
+          "normalized": "tk",
+          "locale": "ja"
+        },
+        {
+          "value": "topaazukabu",
+          "normalized": "topaazukabu",
+          "locale": "ja"
+        },
+        {
+          "value": "topazu kabu",
+          "normalized": "topazu kabu",
+          "locale": "ja"
+        },
+        {
+          "value": "topazukabu",
+          "normalized": "topazukabu",
+          "locale": "ja"
+        },
+        {
+          "value": "topaazu",
+          "normalized": "topaazu",
+          "locale": "ja"
+        },
+        {
+          "value": "topazu",
+          "normalized": "topazu",
+          "locale": "ja"
+        },
+        {
+          "value": "kabu",
+          "normalized": "kabu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "argenti",
+      "names": [
+        {
+          "value": "银枝",
+          "normalized": "银枝",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Argenti",
+          "normalized": "argenti",
+          "locale": "en"
+        },
+        {
+          "value": "アルジェンティ",
+          "normalized": "アルジェンティ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yin zhi",
+          "normalized": "yin zhi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yz",
+          "normalized": "yz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yinzhi",
+          "normalized": "yinzhi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "arujentei",
+          "normalized": "arujentei",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "hanya",
+      "names": [
+        {
+          "value": "寒鸦",
+          "normalized": "寒鸦",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Hanya",
+          "normalized": "hanya",
+          "locale": "en"
+        },
+        {
+          "value": "寒鴉",
+          "normalized": "寒鴉",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "han ya",
+          "normalized": "han ya",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hy",
+          "normalized": "hy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hanya",
+          "normalized": "hanya",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kan a",
+          "normalized": "kan a",
+          "locale": "ja"
+        },
+        {
+          "value": "ka",
+          "normalized": "ka",
+          "locale": "ja"
+        },
+        {
+          "value": "kana",
+          "normalized": "kana",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "huohuo",
+      "names": [
+        {
+          "value": "藿藿",
+          "normalized": "藿藿",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Huohuo",
+          "normalized": "huohuo",
+          "locale": "en"
+        },
+        {
+          "value": "フォフォ",
+          "normalized": "フォフォ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "huo huo",
+          "normalized": "huo huo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hh",
+          "normalized": "hh",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huohuo",
+          "normalized": "huohuo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fuofuo",
+          "normalized": "fuofuo",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "dr-ratio",
+      "names": [
+        {
+          "value": "真理医生",
+          "normalized": "真理医生",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Dr. Ratio",
+          "normalized": "dr ratio",
+          "locale": "en"
+        },
+        {
+          "value": "Dr.レイシオ",
+          "normalized": "dr レイシオ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "真理",
+          "normalized": "真理",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhen li yi sheng",
+          "normalized": "zhen li yi sheng",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zlys",
+          "normalized": "zlys",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhenliyisheng",
+          "normalized": "zhenliyisheng",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhen li",
+          "normalized": "zhen li",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zl",
+          "normalized": "zl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhenli",
+          "normalized": "zhenli",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Ratio",
+          "normalized": "ratio",
+          "locale": "en"
+        },
+        {
+          "value": "dr",
+          "normalized": "dr",
+          "locale": "en"
+        },
+        {
+          "value": "drratio",
+          "normalized": "drratio",
+          "locale": "en"
+        },
+        {
+          "value": "レイシオ",
+          "normalized": "レイシオ",
+          "locale": "ja"
+        },
+        {
+          "value": "reishio",
+          "normalized": "reishio",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "ruan-mei",
+      "names": [
+        {
+          "value": "阮•梅",
+          "normalized": "阮 梅",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Ruan Mei",
+          "normalized": "ruan mei",
+          "locale": "en"
+        },
+        {
+          "value": "ルアン・メェイ",
+          "normalized": "ルアン メェイ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ruan mei",
+          "normalized": "ruan mei",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "rm",
+          "normalized": "rm",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ruanmei",
+          "normalized": "ruanmei",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "rm",
+          "normalized": "rm",
+          "locale": "en"
+        },
+        {
+          "value": "ruanmei",
+          "normalized": "ruanmei",
+          "locale": "en"
+        },
+        {
+          "value": "ruan meei",
+          "normalized": "ruan meei",
+          "locale": "ja"
+        },
+        {
+          "value": "rm",
+          "normalized": "rm",
+          "locale": "ja"
+        },
+        {
+          "value": "ruanmeei",
+          "normalized": "ruanmeei",
+          "locale": "ja"
+        },
+        {
+          "value": "ruan mei",
+          "normalized": "ruan mei",
+          "locale": "ja"
+        },
+        {
+          "value": "ruanmei",
+          "normalized": "ruanmei",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "xueyi",
+      "names": [
+        {
+          "value": "雪衣",
+          "normalized": "雪衣",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Xueyi",
+          "normalized": "xueyi",
+          "locale": "en"
+        },
+        {
+          "value": "雪衣",
+          "normalized": "雪衣",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "xue yi",
+          "normalized": "xue yi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xy",
+          "normalized": "xy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xueyi",
+          "normalized": "xueyi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "setsui",
+          "normalized": "setsui",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "black-swan",
+      "names": [
+        {
+          "value": "黑天鹅",
+          "normalized": "黑天鹅",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Black Swan",
+          "normalized": "black swan",
+          "locale": "en"
+        },
+        {
+          "value": "ブラックスワン",
+          "normalized": "ブラックスワン",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "hei tian e",
+          "normalized": "hei tian e",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hte",
+          "normalized": "hte",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "heitiane",
+          "normalized": "heitiane",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "bs",
+          "normalized": "bs",
+          "locale": "en"
+        },
+        {
+          "value": "blackswan",
+          "normalized": "blackswan",
+          "locale": "en"
+        },
+        {
+          "value": "burakkusuwan",
+          "normalized": "burakkusuwan",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "misha",
+      "names": [
+        {
+          "value": "米沙",
+          "normalized": "米沙",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Misha",
+          "normalized": "misha",
+          "locale": "en"
+        },
+        {
+          "value": "ミーシャ",
+          "normalized": "ミーシャ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "mi sha",
+          "normalized": "mi sha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ms",
+          "normalized": "ms",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "misha",
+          "normalized": "misha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "miisha",
+          "normalized": "miisha",
+          "locale": "ja"
+        },
+        {
+          "value": "misha",
+          "normalized": "misha",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "sparkle",
+      "names": [
+        {
+          "value": "花火",
+          "normalized": "花火",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Sparkle",
+          "normalized": "sparkle",
+          "locale": "en"
+        },
+        {
+          "value": "花火",
+          "normalized": "花火",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "hua huo",
+          "normalized": "hua huo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hh",
+          "normalized": "hh",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huahuo",
+          "normalized": "huahuo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hanabi",
+          "normalized": "hanabi",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "acheron",
+      "names": [
+        {
+          "value": "黄泉",
+          "normalized": "黄泉",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Acheron",
+          "normalized": "acheron",
+          "locale": "en"
+        },
+        {
+          "value": "黄泉",
+          "normalized": "黄泉",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "huang quan",
+          "normalized": "huang quan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hq",
+          "normalized": "hq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huangquan",
+          "normalized": "huangquan",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yomi",
+          "normalized": "yomi",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "aventurine",
+      "names": [
+        {
+          "value": "砂金",
+          "normalized": "砂金",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Aventurine",
+          "normalized": "aventurine",
+          "locale": "en"
+        },
+        {
+          "value": "アベンチュリン",
+          "normalized": "アベンチュリン",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "sha jin",
+          "normalized": "sha jin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sj",
+          "normalized": "sj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "shajin",
+          "normalized": "shajin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "abenchurin",
+          "normalized": "abenchurin",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "gallagher",
+      "names": [
+        {
+          "value": "加拉赫",
+          "normalized": "加拉赫",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Gallagher",
+          "normalized": "gallagher",
+          "locale": "en"
+        },
+        {
+          "value": "ギャラガー",
+          "normalized": "ギャラガー",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "jia la he",
+          "normalized": "jia la he",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jlh",
+          "normalized": "jlh",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jialahe",
+          "normalized": "jialahe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "gyaragaa",
+          "normalized": "gyaragaa",
+          "locale": "ja"
+        },
+        {
+          "value": "gyaraga",
+          "normalized": "gyaraga",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "boothill",
+      "names": [
+        {
+          "value": "波提欧",
+          "normalized": "波提欧",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Boothill",
+          "normalized": "boothill",
+          "locale": "en"
+        },
+        {
+          "value": "ブートヒル",
+          "normalized": "ブートヒル",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "bo ti ou",
+          "normalized": "bo ti ou",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "bto",
+          "normalized": "bto",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "botiou",
+          "normalized": "botiou",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "buutohiru",
+          "normalized": "buutohiru",
+          "locale": "ja"
+        },
+        {
+          "value": "butohiru",
+          "normalized": "butohiru",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "robin",
+      "names": [
+        {
+          "value": "知更鸟",
+          "normalized": "知更鸟",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Robin",
+          "normalized": "robin",
+          "locale": "en"
+        },
+        {
+          "value": "ロビン",
+          "normalized": "ロビン",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "zhi geng niao",
+          "normalized": "zhi geng niao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zgn",
+          "normalized": "zgn",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "zhigengniao",
+          "normalized": "zhigengniao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "robin",
+          "normalized": "robin",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "trailblazer-harmony",
+      "names": [
+        {
+          "value": "开拓者·同谐",
+          "normalized": "开拓者 同谐",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer · Harmony",
+          "normalized": "trailblazer harmony",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者・調和",
+          "normalized": "開拓者 調和",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "开拓者",
+          "normalized": "开拓者",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "同谐主角",
+          "normalized": "同谐主角",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe tong xie",
+          "normalized": "kai tuo zhe tong xie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktztx",
+          "normalized": "ktztx",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhetongxie",
+          "normalized": "kaituozhetongxie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe",
+          "normalized": "kai tuo zhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktz",
+          "normalized": "ktz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhe",
+          "normalized": "kaituozhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tong xie zhu jue",
+          "normalized": "tong xie zhu jue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "txzj",
+          "normalized": "txzj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tongxiezhujue",
+          "normalized": "tongxiezhujue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer",
+          "normalized": "trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "Harmony Trailblazer",
+          "normalized": "harmony trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "ht",
+          "normalized": "ht",
+          "locale": "en"
+        },
+        {
+          "value": "th",
+          "normalized": "th",
+          "locale": "en"
+        },
+        {
+          "value": "trailblazerharmony",
+          "normalized": "trailblazerharmony",
+          "locale": "en"
+        },
+        {
+          "value": "harmonytrailblazer",
+          "normalized": "harmonytrailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者",
+          "normalized": "開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "調和開拓者",
+          "normalized": "調和開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazer harmony",
+          "normalized": "trailblazer harmony",
+          "locale": "ja"
+        },
+        {
+          "value": "th",
+          "normalized": "th",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazerharmony",
+          "normalized": "trailblazerharmony",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakusha chowa",
+          "normalized": "kaitakusha chowa",
+          "locale": "ja"
+        },
+        {
+          "value": "kc",
+          "normalized": "kc",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakushachowa",
+          "normalized": "kaitakushachowa",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "firefly",
+      "names": [
+        {
+          "value": "流萤",
+          "normalized": "流萤",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Firefly",
+          "normalized": "firefly",
+          "locale": "en"
+        },
+        {
+          "value": "ホタル",
+          "normalized": "ホタル",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "萤宝",
+          "normalized": "萤宝",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "萨姆",
+          "normalized": "萨姆",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "liu ying",
+          "normalized": "liu ying",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ly",
+          "normalized": "ly",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "liuying",
+          "normalized": "liuying",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ying bao",
+          "normalized": "ying bao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yb",
+          "normalized": "yb",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yingbao",
+          "normalized": "yingbao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sa mu",
+          "normalized": "sa mu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sm",
+          "normalized": "sm",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "samu",
+          "normalized": "samu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "SAM",
+          "normalized": "sam",
+          "locale": "en"
+        },
+        {
+          "value": "サム",
+          "normalized": "サム",
+          "locale": "ja"
+        },
+        {
+          "value": "hotaru",
+          "normalized": "hotaru",
+          "locale": "ja"
+        },
+        {
+          "value": "samu",
+          "normalized": "samu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "jade",
+      "names": [
+        {
+          "value": "翡翠",
+          "normalized": "翡翠",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Jade",
+          "normalized": "jade",
+          "locale": "en"
+        },
+        {
+          "value": "ジェイド",
+          "normalized": "ジェイド",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "fei cui",
+          "normalized": "fei cui",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fc",
+          "normalized": "fc",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "feicui",
+          "normalized": "feicui",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jeido",
+          "normalized": "jeido",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "jiaoqiu",
+      "names": [
+        {
+          "value": "椒丘",
+          "normalized": "椒丘",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Jiaoqiu",
+          "normalized": "jiaoqiu",
+          "locale": "en"
+        },
+        {
+          "value": "椒丘",
+          "normalized": "椒丘",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "jiao qiu",
+          "normalized": "jiao qiu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jq",
+          "normalized": "jq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jiaoqiu",
+          "normalized": "jiaoqiu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "shoukyuu",
+          "normalized": "shoukyuu",
+          "locale": "ja"
+        },
+        {
+          "value": "shoukyu",
+          "normalized": "shoukyu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "march-7th-hunt",
+      "names": [
+        {
+          "value": "三月七·巡猎",
+          "normalized": "三月七 巡猎",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "March 7th · The Hunt",
+          "normalized": "march 7th the hunt",
+          "locale": "en"
+        },
+        {
+          "value": "三月なのか・巡狩",
+          "normalized": "三月なのか 巡狩",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "三月七",
+          "normalized": "三月七",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "巡猎三月七",
+          "normalized": "巡猎三月七",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "剑三月",
+          "normalized": "剑三月",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "san yue qi xun lie",
+          "normalized": "san yue qi xun lie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "syqxl",
+          "normalized": "syqxl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sanyueqixunlie",
+          "normalized": "sanyueqixunlie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "san yue qi",
+          "normalized": "san yue qi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "syq",
+          "normalized": "syq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sanyueqi",
+          "normalized": "sanyueqi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xun lie san yue qi",
+          "normalized": "xun lie san yue qi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xlsyq",
+          "normalized": "xlsyq",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xunliesanyueqi",
+          "normalized": "xunliesanyueqi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jian san yue",
+          "normalized": "jian san yue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jsy",
+          "normalized": "jsy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jiansanyue",
+          "normalized": "jiansanyue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "March 7th",
+          "normalized": "march 7th",
+          "locale": "en"
+        },
+        {
+          "value": "m7",
+          "normalized": "m7",
+          "locale": "en"
+        },
+        {
+          "value": "Hunt March",
+          "normalized": "hunt march",
+          "locale": "en"
+        },
+        {
+          "value": "hm",
+          "normalized": "hm",
+          "locale": "en"
+        },
+        {
+          "value": "M7 Hunt",
+          "normalized": "m7 hunt",
+          "locale": "en"
+        },
+        {
+          "value": "mh",
+          "normalized": "mh",
+          "locale": "en"
+        },
+        {
+          "value": "m7th",
+          "normalized": "m7th",
+          "locale": "en"
+        },
+        {
+          "value": "march7ththehunt",
+          "normalized": "march7ththehunt",
+          "locale": "en"
+        },
+        {
+          "value": "march7th",
+          "normalized": "march7th",
+          "locale": "en"
+        },
+        {
+          "value": "huntmarch",
+          "normalized": "huntmarch",
+          "locale": "en"
+        },
+        {
+          "value": "m7hunt",
+          "normalized": "m7hunt",
+          "locale": "en"
+        },
+        {
+          "value": "三月なのか",
+          "normalized": "三月なのか",
+          "locale": "ja"
+        },
+        {
+          "value": "巡狩の三月なのか",
+          "normalized": "巡狩の三月なのか",
+          "locale": "ja"
+        },
+        {
+          "value": "巡狩なのか",
+          "normalized": "巡狩なのか",
+          "locale": "ja"
+        },
+        {
+          "value": "nanoka",
+          "normalized": "nanoka",
+          "locale": "ja"
+        },
+        {
+          "value": "no nanoka",
+          "normalized": "no nanoka",
+          "locale": "ja"
+        },
+        {
+          "value": "nn",
+          "normalized": "nn",
+          "locale": "ja"
+        },
+        {
+          "value": "nonanoka",
+          "normalized": "nonanoka",
+          "locale": "ja"
+        },
+        {
+          "value": "mitsuki nanoka junshu",
+          "normalized": "mitsuki nanoka junshu",
+          "locale": "ja"
+        },
+        {
+          "value": "mnj",
+          "normalized": "mnj",
+          "locale": "ja"
+        },
+        {
+          "value": "mitsukinanokajunshu",
+          "normalized": "mitsukinanokajunshu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "yunli",
+      "names": [
+        {
+          "value": "云璃",
+          "normalized": "云璃",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Yunli",
+          "normalized": "yunli",
+          "locale": "en"
+        },
+        {
+          "value": "雲璃",
+          "normalized": "雲璃",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yun li",
+          "normalized": "yun li",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yl",
+          "normalized": "yl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yunli",
+          "normalized": "yunli",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "unri",
+          "normalized": "unri",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "feixiao",
+      "names": [
+        {
+          "value": "飞霄",
+          "normalized": "飞霄",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Feixiao",
+          "normalized": "feixiao",
+          "locale": "en"
+        },
+        {
+          "value": "飛霄",
+          "normalized": "飛霄",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "fei xiao",
+          "normalized": "fei xiao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fx",
+          "normalized": "fx",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "feixiao",
+          "normalized": "feixiao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hishou",
+          "normalized": "hishou",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "lingsha",
+      "names": [
+        {
+          "value": "灵砂",
+          "normalized": "灵砂",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Lingsha",
+          "normalized": "lingsha",
+          "locale": "en"
+        },
+        {
+          "value": "霊砂",
+          "normalized": "霊砂",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ling sha",
+          "normalized": "ling sha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ls",
+          "normalized": "ls",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "lingsha",
+          "normalized": "lingsha",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "reisa",
+          "normalized": "reisa",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "moze",
+      "names": [
+        {
+          "value": "貊泽",
+          "normalized": "貊泽",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Moze",
+          "normalized": "moze",
+          "locale": "en"
+        },
+        {
+          "value": "モゼ",
+          "normalized": "モゼ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "mo ze",
+          "normalized": "mo ze",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "mz",
+          "normalized": "mz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "moze",
+          "normalized": "moze",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "moze",
+          "normalized": "moze",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "rappa",
+      "names": [
+        {
+          "value": "乱破",
+          "normalized": "乱破",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Rappa",
+          "normalized": "rappa",
+          "locale": "en"
+        },
+        {
+          "value": "乱破",
+          "normalized": "乱破",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "luan po",
+          "normalized": "luan po",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "lp",
+          "normalized": "lp",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "luanpo",
+          "normalized": "luanpo",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ranha",
+          "normalized": "ranha",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "fugue",
+      "names": [
+        {
+          "value": "忘归人",
+          "normalized": "忘归人",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Fugue",
+          "normalized": "fugue",
+          "locale": "en"
+        },
+        {
+          "value": "帰忘の流離人",
+          "normalized": "帰忘の流離人",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "wang gui ren",
+          "normalized": "wang gui ren",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wgr",
+          "normalized": "wgr",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wangguiren",
+          "normalized": "wangguiren",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kibounosasuraibito",
+          "normalized": "kibounosasuraibito",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "sunday",
+      "names": [
+        {
+          "value": "星期日",
+          "normalized": "星期日",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Sunday",
+          "normalized": "sunday",
+          "locale": "en"
+        },
+        {
+          "value": "サンデー",
+          "normalized": "サンデー",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "xing qi ri",
+          "normalized": "xing qi ri",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xqr",
+          "normalized": "xqr",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xingqiri",
+          "normalized": "xingqiri",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sandee",
+          "normalized": "sandee",
+          "locale": "ja"
+        },
+        {
+          "value": "sande",
+          "normalized": "sande",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "aglaea",
+      "names": [
+        {
+          "value": "阿格莱雅",
+          "normalized": "阿格莱雅",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Aglaea",
+          "normalized": "aglaea",
+          "locale": "en"
+        },
+        {
+          "value": "アグライア",
+          "normalized": "アグライア",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "a ge lai ya",
+          "normalized": "a ge lai ya",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "agly",
+          "normalized": "agly",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "agelaiya",
+          "normalized": "agelaiya",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "aguraia",
+          "normalized": "aguraia",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "the-herta",
+      "names": [
+        {
+          "value": "大黑塔",
+          "normalized": "大黑塔",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "The Herta",
+          "normalized": "the herta",
+          "locale": "en"
+        },
+        {
+          "value": "マダム・ヘルタ",
+          "normalized": "マダム ヘルタ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "黑塔",
+          "normalized": "黑塔",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "da hei ta",
+          "normalized": "da hei ta",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dht",
+          "normalized": "dht",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "daheita",
+          "normalized": "daheita",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hei ta",
+          "normalized": "hei ta",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ht",
+          "normalized": "ht",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "heita",
+          "normalized": "heita",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Herta",
+          "normalized": "herta",
+          "locale": "en"
+        },
+        {
+          "value": "Madam Herta",
+          "normalized": "madam herta",
+          "locale": "en"
+        },
+        {
+          "value": "mh",
+          "normalized": "mh",
+          "locale": "en"
+        },
+        {
+          "value": "th",
+          "normalized": "th",
+          "locale": "en"
+        },
+        {
+          "value": "theherta",
+          "normalized": "theherta",
+          "locale": "en"
+        },
+        {
+          "value": "madamherta",
+          "normalized": "madamherta",
+          "locale": "en"
+        },
+        {
+          "value": "ヘルタ",
+          "normalized": "ヘルタ",
+          "locale": "ja"
+        },
+        {
+          "value": "madamu heruta",
+          "normalized": "madamu heruta",
+          "locale": "ja"
+        },
+        {
+          "value": "mh",
+          "normalized": "mh",
+          "locale": "ja"
+        },
+        {
+          "value": "madamuheruta",
+          "normalized": "madamuheruta",
+          "locale": "ja"
+        },
+        {
+          "value": "heruta",
+          "normalized": "heruta",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "trailblazer-remembrance",
+      "names": [
+        {
+          "value": "开拓者·记忆",
+          "normalized": "开拓者 记忆",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer · Remembrance",
+          "normalized": "trailblazer remembrance",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者・記憶",
+          "normalized": "開拓者 記憶",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "开拓者",
+          "normalized": "开拓者",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "记忆主角",
+          "normalized": "记忆主角",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe ji yi",
+          "normalized": "kai tuo zhe ji yi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktzjy",
+          "normalized": "ktzjy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhejiyi",
+          "normalized": "kaituozhejiyi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe",
+          "normalized": "kai tuo zhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktz",
+          "normalized": "ktz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhe",
+          "normalized": "kaituozhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ji yi zhu jue",
+          "normalized": "ji yi zhu jue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jyzj",
+          "normalized": "jyzj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jiyizhujue",
+          "normalized": "jiyizhujue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer",
+          "normalized": "trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "Remembrance Trailblazer",
+          "normalized": "remembrance trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "rt",
+          "normalized": "rt",
+          "locale": "en"
+        },
+        {
+          "value": "tr",
+          "normalized": "tr",
+          "locale": "en"
+        },
+        {
+          "value": "trailblazerremembrance",
+          "normalized": "trailblazerremembrance",
+          "locale": "en"
+        },
+        {
+          "value": "remembrancetrailblazer",
+          "normalized": "remembrancetrailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者",
+          "normalized": "開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "記憶開拓者",
+          "normalized": "記憶開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazer remembrance",
+          "normalized": "trailblazer remembrance",
+          "locale": "ja"
+        },
+        {
+          "value": "tr",
+          "normalized": "tr",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazerremembrance",
+          "normalized": "trailblazerremembrance",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakusha kioku",
+          "normalized": "kaitakusha kioku",
+          "locale": "ja"
+        },
+        {
+          "value": "kk",
+          "normalized": "kk",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakushakioku",
+          "normalized": "kaitakushakioku",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "mydei",
+      "names": [
+        {
+          "value": "万敌",
+          "normalized": "万敌",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Mydei",
+          "normalized": "mydei",
+          "locale": "en"
+        },
+        {
+          "value": "モーディス",
+          "normalized": "モーディス",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "wan di",
+          "normalized": "wan di",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wd",
+          "normalized": "wd",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "wandi",
+          "normalized": "wandi",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "moodeisu",
+          "normalized": "moodeisu",
+          "locale": "ja"
+        },
+        {
+          "value": "modeisu",
+          "normalized": "modeisu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "tribbie",
+      "names": [
+        {
+          "value": "缇宝",
+          "normalized": "缇宝",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Tribbie",
+          "normalized": "tribbie",
+          "locale": "en"
+        },
+        {
+          "value": "トリビー",
+          "normalized": "トリビー",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ti bao",
+          "normalized": "ti bao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tb",
+          "normalized": "tb",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "tibao",
+          "normalized": "tibao",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "toribii",
+          "normalized": "toribii",
+          "locale": "ja"
+        },
+        {
+          "value": "toribi",
+          "normalized": "toribi",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "anaxa",
+      "names": [
+        {
+          "value": "那刻夏",
+          "normalized": "那刻夏",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Anaxa",
+          "normalized": "anaxa",
+          "locale": "en"
+        },
+        {
+          "value": "アナイクス",
+          "normalized": "アナイクス",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "na ke xia",
+          "normalized": "na ke xia",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "nkx",
+          "normalized": "nkx",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "nakexia",
+          "normalized": "nakexia",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "anaikusu",
+          "normalized": "anaikusu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "castorice",
+      "names": [
+        {
+          "value": "遐蝶",
+          "normalized": "遐蝶",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Castorice",
+          "normalized": "castorice",
+          "locale": "en"
+        },
+        {
+          "value": "キャストリス",
+          "normalized": "キャストリス",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "xia die",
+          "normalized": "xia die",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xd",
+          "normalized": "xd",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xiadie",
+          "normalized": "xiadie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kyasutorisu",
+          "normalized": "kyasutorisu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "cipher",
+      "names": [
+        {
+          "value": "赛飞儿",
+          "normalized": "赛飞儿",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Cipher",
+          "normalized": "cipher",
+          "locale": "en"
+        },
+        {
+          "value": "サフェル",
+          "normalized": "サフェル",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "sai fei er",
+          "normalized": "sai fei er",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sfe",
+          "normalized": "sfe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "saifeier",
+          "normalized": "saifeier",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "safyeru",
+          "normalized": "safyeru",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "hyacine",
+      "names": [
+        {
+          "value": "风堇",
+          "normalized": "风堇",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Hyacine",
+          "normalized": "hyacine",
+          "locale": "en"
+        },
+        {
+          "value": "ヒアンシー",
+          "normalized": "ヒアンシー",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "feng jin",
+          "normalized": "feng jin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fj",
+          "normalized": "fj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fengjin",
+          "normalized": "fengjin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hianshii",
+          "normalized": "hianshii",
+          "locale": "ja"
+        },
+        {
+          "value": "hianshi",
+          "normalized": "hianshi",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "archer",
+      "names": [
+        {
+          "value": "Archer",
+          "normalized": "archer",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Archer",
+          "normalized": "archer",
+          "locale": "en"
+        },
+        {
+          "value": "アーチャー",
+          "normalized": "アーチャー",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "aachaa",
+          "normalized": "aachaa",
+          "locale": "ja"
+        },
+        {
+          "value": "acha",
+          "normalized": "acha",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "phainon",
+      "names": [
+        {
+          "value": "白厄",
+          "normalized": "白厄",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Phainon",
+          "normalized": "phainon",
+          "locale": "en"
+        },
+        {
+          "value": "ファイノン",
+          "normalized": "ファイノン",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "bai e",
+          "normalized": "bai e",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "be",
+          "normalized": "be",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "baie",
+          "normalized": "baie",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fuainon",
+          "normalized": "fuainon",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "saber",
+      "names": [
+        {
+          "value": "Saber",
+          "normalized": "saber",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Saber",
+          "normalized": "saber",
+          "locale": "en"
+        },
+        {
+          "value": "セイバー",
+          "normalized": "セイバー",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "seibaa",
+          "normalized": "seibaa",
+          "locale": "ja"
+        },
+        {
+          "value": "seiba",
+          "normalized": "seiba",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "cerydra",
+      "names": [
+        {
+          "value": "刻律德菈",
+          "normalized": "刻律德菈",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Cerydra",
+          "normalized": "cerydra",
+          "locale": "en"
+        },
+        {
+          "value": "ケリュドラ",
+          "normalized": "ケリュドラ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ke lu de la",
+          "normalized": "ke lu de la",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kldl",
+          "normalized": "kldl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "keludela",
+          "normalized": "keludela",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "keryudora",
+          "normalized": "keryudora",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "hysilens",
+      "names": [
+        {
+          "value": "海瑟音",
+          "normalized": "海瑟音",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Hysilens",
+          "normalized": "hysilens",
+          "locale": "en"
+        },
+        {
+          "value": "セイレンス",
+          "normalized": "セイレンス",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "hai se yin",
+          "normalized": "hai se yin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hsy",
+          "normalized": "hsy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "haiseyin",
+          "normalized": "haiseyin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "seirensu",
+          "normalized": "seirensu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "dan-heng-permansor-terrae",
+      "names": [
+        {
+          "value": "丹恒•腾荒",
+          "normalized": "丹恒 腾荒",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Dan Heng • Permansor Terrae",
+          "normalized": "dan heng permansor terrae",
+          "locale": "en"
+        },
+        {
+          "value": "丹恒・騰荒",
+          "normalized": "丹恒 騰荒",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "dan heng teng huang",
+          "normalized": "dan heng teng huang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dhth",
+          "normalized": "dhth",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "danhengtenghuang",
+          "normalized": "danhengtenghuang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dhpt",
+          "normalized": "dhpt",
+          "locale": "en"
+        },
+        {
+          "value": "danhengpermansorterrae",
+          "normalized": "danhengpermansorterrae",
+          "locale": "en"
+        },
+        {
+          "value": "tankou toukou",
+          "normalized": "tankou toukou",
+          "locale": "ja"
+        },
+        {
+          "value": "tt",
+          "normalized": "tt",
+          "locale": "ja"
+        },
+        {
+          "value": "tankoutoukou",
+          "normalized": "tankoutoukou",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "evernight",
+      "names": [
+        {
+          "value": "长夜月",
+          "normalized": "长夜月",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Evernight",
+          "normalized": "evernight",
+          "locale": "en"
+        },
+        {
+          "value": "長夜月",
+          "normalized": "長夜月",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "chang ye yue",
+          "normalized": "chang ye yue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "cyy",
+          "normalized": "cyy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "changyeyue",
+          "normalized": "changyeyue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "nagayozuki",
+          "normalized": "nagayozuki",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "cyrene",
+      "names": [
+        {
+          "value": "昔涟",
+          "normalized": "昔涟",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Cyrene",
+          "normalized": "cyrene",
+          "locale": "en"
+        },
+        {
+          "value": "キュレネ",
+          "normalized": "キュレネ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "xi lian",
+          "normalized": "xi lian",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xl",
+          "normalized": "xl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "xilian",
+          "normalized": "xilian",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kyurene",
+          "normalized": "kyurene",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "the-dahlia",
+      "names": [
+        {
+          "value": "大丽花",
+          "normalized": "大丽花",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "The Dahlia",
+          "normalized": "the dahlia",
+          "locale": "en"
+        },
+        {
+          "value": "ダリア",
+          "normalized": "ダリア",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "da li hua",
+          "normalized": "da li hua",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dlh",
+          "normalized": "dlh",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "dalihua",
+          "normalized": "dalihua",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "td",
+          "normalized": "td",
+          "locale": "en"
+        },
+        {
+          "value": "thedahlia",
+          "normalized": "thedahlia",
+          "locale": "en"
+        },
+        {
+          "value": "daria",
+          "normalized": "daria",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "sparxie",
+      "names": [
+        {
+          "value": "火花",
+          "normalized": "火花",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Sparxie",
+          "normalized": "sparxie",
+          "locale": "en"
+        },
+        {
+          "value": "火花",
+          "normalized": "火花",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "huo hua",
+          "normalized": "huo hua",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hh",
+          "normalized": "hh",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huohua",
+          "normalized": "huohua",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "sparxie",
+          "normalized": "sparxie",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "yao-guang",
+      "names": [
+        {
+          "value": "爻光",
+          "normalized": "爻光",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Yao Guang",
+          "normalized": "yao guang",
+          "locale": "en"
+        },
+        {
+          "value": "爻光",
+          "normalized": "爻光",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yao guang",
+          "normalized": "yao guang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yg",
+          "normalized": "yg",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yaoguang",
+          "normalized": "yaoguang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yg",
+          "normalized": "yg",
+          "locale": "en"
+        },
+        {
+          "value": "yaoguang",
+          "normalized": "yaoguang",
+          "locale": "en"
+        },
+        {
+          "value": "yao guang",
+          "normalized": "yao guang",
+          "locale": "ja"
+        },
+        {
+          "value": "yg",
+          "normalized": "yg",
+          "locale": "ja"
+        },
+        {
+          "value": "yaoguang",
+          "normalized": "yaoguang",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "ashveil",
+      "names": [
+        {
+          "value": "不死途",
+          "normalized": "不死途",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Ashveil",
+          "normalized": "ashveil",
+          "locale": "en"
+        },
+        {
+          "value": "不死途",
+          "normalized": "不死途",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "bu si tu",
+          "normalized": "bu si tu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "bst",
+          "normalized": "bst",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "busitu",
+          "normalized": "busitu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ashveil",
+          "normalized": "ashveil",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "evanescia",
+      "names": [
+        {
+          "value": "绯英",
+          "normalized": "绯英",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Evanescia",
+          "normalized": "evanescia",
+          "locale": "en"
+        },
+        {
+          "value": "緋英",
+          "normalized": "緋英",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "fei ying",
+          "normalized": "fei ying",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "fy",
+          "normalized": "fy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "feiying",
+          "normalized": "feiying",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "evanescia",
+          "normalized": "evanescia",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "silver-wolf-lv-999",
+      "names": [
+        {
+          "value": "银狼LV.999",
+          "normalized": "银狼lv 999",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Silver Wolf LV.999",
+          "normalized": "silver wolf lv 999",
+          "locale": "en"
+        },
+        {
+          "value": "銀狼LV.999",
+          "normalized": "銀狼lv 999",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yin lang",
+          "normalized": "yin lang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yl",
+          "normalized": "yl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yinlang",
+          "normalized": "yinlang",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "swl9",
+          "normalized": "swl9",
+          "locale": "en"
+        },
+        {
+          "value": "silverwolflv999",
+          "normalized": "silverwolflv999",
+          "locale": "en"
+        },
+        {
+          "value": "silver wolf lv 999",
+          "normalized": "silver wolf lv 999",
+          "locale": "ja"
+        },
+        {
+          "value": "swl9",
+          "normalized": "swl9",
+          "locale": "ja"
+        },
+        {
+          "value": "silverwolflv999",
+          "normalized": "silverwolflv999",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "trailblazer-elation",
+      "names": [
+        {
+          "value": "开拓者·欢愉",
+          "normalized": "开拓者 欢愉",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer · Elation",
+          "normalized": "trailblazer elation",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者・愉悦",
+          "normalized": "開拓者 愉悦",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "开拓者",
+          "normalized": "开拓者",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "欢愉主角",
+          "normalized": "欢愉主角",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe huan yu",
+          "normalized": "kai tuo zhe huan yu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktzhy",
+          "normalized": "ktzhy",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhehuanyu",
+          "normalized": "kaituozhehuanyu",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kai tuo zhe",
+          "normalized": "kai tuo zhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ktz",
+          "normalized": "ktz",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "kaituozhe",
+          "normalized": "kaituozhe",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huan yu zhu jue",
+          "normalized": "huan yu zhu jue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hyzj",
+          "normalized": "hyzj",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "huanyuzhujue",
+          "normalized": "huanyuzhujue",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Trailblazer",
+          "normalized": "trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "Elation Trailblazer",
+          "normalized": "elation trailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "et",
+          "normalized": "et",
+          "locale": "en"
+        },
+        {
+          "value": "te",
+          "normalized": "te",
+          "locale": "en"
+        },
+        {
+          "value": "trailblazerelation",
+          "normalized": "trailblazerelation",
+          "locale": "en"
+        },
+        {
+          "value": "elationtrailblazer",
+          "normalized": "elationtrailblazer",
+          "locale": "en"
+        },
+        {
+          "value": "開拓者",
+          "normalized": "開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "愉悦開拓者",
+          "normalized": "愉悦開拓者",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazer elation",
+          "normalized": "trailblazer elation",
+          "locale": "ja"
+        },
+        {
+          "value": "te",
+          "normalized": "te",
+          "locale": "ja"
+        },
+        {
+          "value": "trailblazerelation",
+          "normalized": "trailblazerelation",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakusha yuetsu",
+          "normalized": "kaitakusha yuetsu",
+          "locale": "ja"
+        },
+        {
+          "value": "ky",
+          "normalized": "ky",
+          "locale": "ja"
+        },
+        {
+          "value": "kaitakushayuetsu",
+          "normalized": "kaitakushayuetsu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "mortenax-blade",
+      "names": [
+        {
+          "value": "千冶•刃",
+          "normalized": "千冶 刃",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Mortenax Blade",
+          "normalized": "mortenax blade",
+          "locale": "en"
+        },
+        {
+          "value": "千冶・刃",
+          "normalized": "千冶 刃",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "qian ye ren",
+          "normalized": "qian ye ren",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "qyr",
+          "normalized": "qyr",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "qianyeren",
+          "normalized": "qianyeren",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "mb",
+          "normalized": "mb",
+          "locale": "en"
+        },
+        {
+          "value": "mortenaxblade",
+          "normalized": "mortenaxblade",
+          "locale": "en"
+        },
+        {
+          "value": "mortenax blade",
+          "normalized": "mortenax blade",
+          "locale": "ja"
+        },
+        {
+          "value": "mb",
+          "normalized": "mb",
+          "locale": "ja"
+        },
+        {
+          "value": "mortenaxblade",
+          "normalized": "mortenaxblade",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "gilgamesh",
+      "names": [
+        {
+          "value": "吉尔伽美什",
+          "normalized": "吉尔伽美什",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Gilgamesh",
+          "normalized": "gilgamesh",
+          "locale": "en"
+        },
+        {
+          "value": "ギルガメッシュ",
+          "normalized": "ギルガメッシュ",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ji er jia mei shen",
+          "normalized": "ji er jia mei shen",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jejms",
+          "normalized": "jejms",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jierjiameishen",
+          "normalized": "jierjiameishen",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "girugamesshu",
+          "normalized": "girugamesshu",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "himeko-nova",
+      "names": [
+        {
+          "value": "姬子•启行",
+          "normalized": "姬子 启行",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Himeko • Nova",
+          "normalized": "himeko nova",
+          "locale": "en"
+        },
+        {
+          "value": "姫子・旅立ち",
+          "normalized": "姫子 旅立ち",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "ji zi qi xing",
+          "normalized": "ji zi qi xing",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jzqx",
+          "normalized": "jzqx",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "jiziqixing",
+          "normalized": "jiziqixing",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "hn",
+          "normalized": "hn",
+          "locale": "en"
+        },
+        {
+          "value": "himekonova",
+          "normalized": "himekonova",
+          "locale": "en"
+        },
+        {
+          "value": "chi",
+          "normalized": "chi",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "entityId": "rin-tohsaka",
+      "names": [
+        {
+          "value": "远坂凛",
+          "normalized": "远坂凛",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "Rin Tohsaka",
+          "normalized": "rin tohsaka",
+          "locale": "en"
+        },
+        {
+          "value": "遠坂凛",
+          "normalized": "遠坂凛",
+          "locale": "ja"
+        }
+      ],
+      "terms": [
+        {
+          "value": "yuan ban lin",
+          "normalized": "yuan ban lin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "ybl",
+          "normalized": "ybl",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "yuanbanlin",
+          "normalized": "yuanbanlin",
+          "locale": "zh-CN"
+        },
+        {
+          "value": "rt",
+          "normalized": "rt",
+          "locale": "en"
+        },
+        {
+          "value": "rintohsaka",
+          "normalized": "rintohsaka",
+          "locale": "en"
+        },
+        {
+          "value": "rin tohsaka",
+          "normalized": "rin tohsaka",
+          "locale": "ja"
+        },
+        {
+          "value": "rt",
+          "normalized": "rt",
+          "locale": "ja"
+        },
+        {
+          "value": "rintohsaka",
+          "normalized": "rintohsaka",
+          "locale": "ja"
+        }
+      ]
     }
   ]
 }

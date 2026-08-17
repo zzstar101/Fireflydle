@@ -6,6 +6,7 @@ import {
   type ContentManifest,
   type FieldDefinition,
 } from "@fireflydle/contracts";
+import { buildSearchIndexEntry } from "./search";
 
 const LABELS = { "zh-CN": "普通角色", en: "Characters", ja: "キャラクター" } as const;
 
@@ -202,6 +203,7 @@ export function buildPlayableManifest(input: readonly Character[]): ContentManif
       { id: "playable-candidates", modeId: "playable" as const, targetIds, candidateIds },
     ],
     entities,
+    searchIndex: entities.map(buildSearchIndexEntry),
   };
 
   return ContentManifestSchema.parse({

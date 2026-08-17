@@ -5,18 +5,17 @@ import {
   characters,
   contentManifest,
   factions,
-  getSearchText,
   getNpcSearchText,
   npcEntities,
   npcManifest,
+  searchEntities,
   versions,
 } from "./index.ts";
 
 function matchingIds(query: string): string[] {
-  const normalized = query.toLocaleLowerCase();
-  return characters
-    .filter((character) => getSearchText(character).includes(normalized))
-    .map((character) => character.id);
+  return searchEntities(query, "zh-CN", characters, contentManifest.searchIndex).map(
+    (result) => result.entity.id,
+  );
 }
 
 describe("角色输入搜索", () => {

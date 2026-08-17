@@ -504,6 +504,9 @@ function ActiveGame({
             <CharacterCombobox
               characters={roster}
               locale={locale}
+              {...(contentModeId === "playable"
+                ? { searchIndex: contentManifest.searchIndex }
+                : {})}
               excludedIds={guessedIds}
               disabled={busy}
               onSubmit={(id) => void submitGuess(id)}
