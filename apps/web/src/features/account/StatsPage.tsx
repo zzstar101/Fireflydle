@@ -1,5 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { Activity, CalendarDays, ChevronRight, Gauge, History, Swords, Target } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  CalendarDays,
+  ChevronRight,
+  Gauge,
+  History,
+  Swords,
+  Target,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { PersonalStats } from "@fireflydle/contracts";
@@ -20,6 +29,10 @@ export default function StatsPage() {
     retry: false,
   });
   const data = stats.data;
+  const distribution = data
+    ? [...data.guessDistribution, { guesses: 0, count: data.failedDaily }]
+    : [];
+  const distributionMax = Math.max(1, ...distribution.map((bucket) => bucket.count));
   const activityLabel = (activityId: string) => {
     if (activityId === "daily")
       return locale === "zh-CN" ? "每日一题" : locale === "ja" ? "デイリー" : "Daily";
@@ -99,6 +112,97 @@ export default function StatsPage() {
             <strong>{value}</strong>
           </div>
         ))}
+      </section>
+      <section className="daily-stats-section">
+        <header>
+          <span>
+            <BarChart3 size={18} />{" "}
+            {locale === "zh-CN" ? "每日题统计" : locale === "ja" ? "デイリー統計" : "DAILY STATS"}
+          </span>
+          <small>
+            {locale === "zh-CN"
+              ? `北京时间今天已有 ${data?.todayCompletions ?? 0} 人完成`
+              : locale === "ja"
+                ? `北京時間の本日は ${data?.todayCompletions ?? 0} 人が達成`
+                : `${data?.todayCompletions ?? 0} completed today (Beijing time)`}
+          </small>
+        </header>
+        <div className="daily-stats-grid">
+          <div className="guess-distribution">
+            <h2>
+              {locale === "zh-CN"
+                ? "猜测分布"
+                : locale === "ja"
+                  ? "推測分布"
+                  : "Guess distribution"}
+            </h2>
+            <div
+              className="distribution-chart"
+              aria-label={locale === "zh-CN" ? "猜测分布" : "Guess distribution"}
+            >
+              {distribution.map((bucket) => (
+                <div key={bucket.guesses || "failed"}>
+                  <strong>{bucket.count}</strong>
+                  <i
+                    style={{
+                      height: `${Math.max(4, Math.round((bucket.count / distributionMax) * 100))}%`,
+                    }}
+                  />
+                  <span>
+                    {bucket.guesses ||
+                      (locale === "zh-CN" ? "未中" : locale === "ja" ? "失敗" : "X")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="daily-history">
+            <h2>
+              {locale === "zh-CN"
+                ? "完成历史"
+                : locale === "ja"
+                  ? "達成履歴"
+                  : "Completion history"}
+            </h2>
+            {data?.dailyHistory.length ? (
+              <div className="daily-history-list">
+                {data.dailyHistory.map((item) => (
+                  <div key={item.dateKey}>
+                    <CalendarDays size={16} />
+                    <span>
+                      <strong>{item.dateKey}</strong>
+                      <small>
+                        {item.result === "won"
+                          ? locale === "zh-CN"
+                            ? "已猜中"
+                            : locale === "ja"
+                              ? "正解"
+                              : "Solved"
+                          : locale === "zh-CN"
+                            ? "已完成"
+                            : locale === "ja"
+                              ? "完了"
+                              : "Completed"}
+                      </small>
+                    </span>
+                    <i>
+                      {item.guesses}
+                      {locale === "zh-CN" ? " 次" : locale === "ja" ? " 回" : " guesses"}
+                    </i>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="daily-history-empty">
+                {locale === "zh-CN"
+                  ? "完成每日题后，记录会显示在这里。"
+                  : locale === "ja"
+                    ? "デイリーを完了すると、ここに記録されます。"
+                    : "Daily completions will appear here."}
+              </p>
+            )}
+          </div>
+        </div>
       </section>
       <section className="history-section">
         <header>

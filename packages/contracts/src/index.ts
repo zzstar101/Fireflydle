@@ -602,6 +602,21 @@ export const RecentGameSummarySchema = z.object({
   ranked: z.boolean().optional(),
 });
 
+export const DailyCompletionSchema = z.object({
+  id: z.string().uuid(),
+  dateKey: z.iso.date(),
+  result: z.enum(["won", "lost"]),
+  guesses: z.number().int().positive(),
+  completedAt: z.string().datetime(),
+});
+export type DailyCompletion = z.infer<typeof DailyCompletionSchema>;
+
+export const GuessDistributionBucketSchema = z.object({
+  guesses: z.number().int().positive(),
+  count: z.number().int().nonnegative(),
+});
+export type GuessDistributionBucket = z.infer<typeof GuessDistributionBucketSchema>;
+
 export const PersonalStatsSchema = z.object({
   dailyPlayed: z.number().int().nonnegative(),
   dailyWon: z.number().int().nonnegative(),
@@ -612,6 +627,10 @@ export const PersonalStatsSchema = z.object({
   rankedPlayed: z.number().int().nonnegative(),
   rankedWon: z.number().int().nonnegative(),
   averageGuesses: z.number().nonnegative(),
+  dailyHistory: z.array(DailyCompletionSchema),
+  guessDistribution: z.array(GuessDistributionBucketSchema),
+  failedDaily: z.number().int().nonnegative(),
+  todayCompletions: z.number().int().nonnegative(),
   recent: z.array(RecentGameSummarySchema),
 });
 export type PersonalStats = z.infer<typeof PersonalStatsSchema>;
