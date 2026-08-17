@@ -32,4 +32,4 @@
 - NPC 运行时未完成独立题池/搜索隔离、4 次猜测和三语核心流程；
 - Worker 与真实浏览器验收未证明提交不泄露未提交实体属性，或桌面/移动视口不可玩。
 
-当前状态：**数据 gate passed；v1.0 release blocked**。本 ticket 不伪造运行时可玩验收，也不关闭父 Issue #1。
+当前状态：**数据 gate passed；运行时与 RC gate passed；允许进入 v1.0 发布**。T46 RC 记录 [`docs/RC_ACCEPTANCE_ISSUE_47_5f5fdb1.md`](./RC_ACCEPTANCE_ISSUE_47_5f5fdb1.md) 提供了 NPC 独立题池、四猜、三语、Worker HTTP/WebSocket 与浏览器入口证据。后续更新 target、素材或判题事实时仍必须重新运行本门禁并重新验收。
