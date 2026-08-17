@@ -14,7 +14,7 @@ import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MULTIPLAYER_ROUND_MS, RECONNECT_GRACE_MS } from "@fireflydle/game-engine";
-import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
+import { PASSWORD_ITERATIONS, sha256 } from "../src/lib/crypto";
 import { createPlayableMultiplayerContentSnapshot } from "../src/services/multiplayer-content";
 import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
 
@@ -2554,8 +2554,10 @@ describe("持久化限流", () => {
     expect(payload.error.details.retryAfter).toBeGreaterThan(0);
     expect(Date.parse(payload.error.details.retryAt)).not.toBeNaN();
     const persisted = await env.DB.prepare(
-      "SELECT request_count, blocked_until FROM rate_limits WHERE scope = 'auth:login:identity'",
-    ).first<{ request_count: number; blocked_until: number }>();
+      "SELECT request_count, blocked_until FROM rate_limits WHERE scope = 'auth:login:identity' AND key_hash = ?",
+    )
+      .bind(await sha256("rate_limited_identity"))
+      .first<{ request_count: number; blocked_until: number }>();
     expect(persisted?.request_count).toBe(11);
     expect(persisted?.blocked_until ?? 0).toBeGreaterThan(Date.now());
   });
