@@ -18,6 +18,7 @@ import {
   type MatchmakingResult,
   type RoomApiResponse,
   type RoomMaxAttempts,
+  type RoomModifier,
   type RoomPreviewResponse,
   type RoomRoundTimeSeconds,
 } from "@fireflydle/contracts";
@@ -36,7 +37,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
   const [format, setFormat] = useState<MatchFormat>(3);
   const [roundTimeSeconds, setRoundTimeSeconds] = useState<RoomRoundTimeSeconds>(90);
   const [maxAttempts, setMaxAttempts] = useState<RoomMaxAttempts>(6);
-  const [speedModifier, setSpeedModifier] = useState(false);
+  const [modifier, setModifier] = useState<RoomModifier>(null);
   const [roomCode, setRoomCode] = useState("");
   const [roomPreview, setRoomPreview] = useState<RoomPreviewResponse | null>(null);
   const [busy, setBusy] = useState<"match" | "create" | "join" | null>(null);
@@ -87,7 +88,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                 format,
                 roundTimeSeconds,
                 maxAttempts,
-                modifiers: speedModifier ? ["speed"] : [],
+                modifier,
               }),
             })
           : roomPreview
@@ -346,7 +347,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                     )
                   }
                 >
-                  <option value="unlimited" disabled={speedModifier}>
+                  <option value="unlimited" disabled={modifier === "speed"}>
                     {locale === "zh-CN" ? "不限时" : locale === "ja" ? "無制限" : "Unlimited"}
                   </option>
                   {[30, 60, 90].map((seconds) => (
@@ -357,19 +358,26 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                 </select>
               </label>
               <label>
-                <span>{locale === "zh-CN" ? "极速" : locale === "ja" ? "スピード" : "Speed"}</span>
+                <span>
+                  {locale === "zh-CN" ? "特殊规则" : locale === "ja" ? "特殊ルール" : "Modifier"}
+                </span>
                 <select
-                  value={speedModifier ? "speed" : "none"}
+                  value={modifier ?? "none"}
                   disabled={Boolean(matchTicket)}
                   onChange={(event) => {
-                    const enabled = event.target.value === "speed";
-                    setSpeedModifier(enabled);
-                    if (enabled && roundTimeSeconds === null) setRoundTimeSeconds(90);
+                    const value = event.target.value;
+                    setModifier(value === "speed" || value === "fog" ? value : null);
+                    if (value === "speed" && roundTimeSeconds === null) setRoundTimeSeconds(90);
                   }}
                 >
-                  <option value="none">{locale === "zh-CN" ? "关闭" : "Off"}</option>
+                  <option value="none">
+                    {locale === "zh-CN" ? "无" : locale === "ja" ? "なし" : "None"}
+                  </option>
+                  <option value="fog">
+                    {locale === "zh-CN" ? "迷雾" : locale === "ja" ? "霧" : "Fog"}
+                  </option>
                   <option value="speed">
-                    {locale === "zh-CN" ? "每错一次 -5 秒" : "-5s per miss"}
+                    {locale === "zh-CN" ? "极速：每错一次 -5 秒" : "Speed: -5s per miss"}
                   </option>
                 </select>
               </label>
@@ -451,6 +459,19 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                 <span>
                   {roomPreview.configuration.maxAttempts}{" "}
                   {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
+                </span>
+                <span>
+                  {roomPreview.configuration.modifier === "fog"
+                    ? locale === "zh-CN"
+                      ? "迷雾"
+                      : locale === "ja"
+                        ? "霧"
+                        : "Fog"
+                    : locale === "zh-CN"
+                      ? "无特殊规则"
+                      : locale === "ja"
+                        ? "特殊ルールなし"
+                        : "No modifier"}
                 </span>
               </div>
             ) : null}

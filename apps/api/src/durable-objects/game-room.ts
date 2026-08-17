@@ -56,7 +56,7 @@ interface MetaRow extends Record<string, SqlStorageValue> {
   activity_id: string;
   round_time_seconds: 30 | 60 | 90 | null;
   max_attempts: 4 | 6 | 8;
-  modifiers_json: string;
+  modifier: "speed" | "fog" | null;
   pool_rule_version: string;
   manifest_version: string;
   field_rules_json: string;
@@ -97,6 +97,7 @@ interface RoundRow extends Record<string, SqlStorageValue> {
   winner_id: string | null;
   started_at: number;
   completed_at: number | null;
+  hidden_field: string | null;
 }
 
 interface TaskRow extends Record<string, SqlStorageValue> {
@@ -139,6 +140,16 @@ function isPermanentEloMatch(meta: MetaRow, players: PlayerRow[]): boolean {
   );
 }
 
+function maskFogCell(result: GuessResult, hiddenField: string | null): GuessResult {
+  if (!hiddenField) return result;
+  return {
+    ...result,
+    cells: result.cells.map((cell) =>
+      cell.field === hiddenField ? { ...cell, state: "fog", direction: "none" } : cell,
+    ),
+  };
+}
+
 export class GameRoom extends DurableObject<Env> {
   private readonly sql: SqlStorage;
 
@@ -171,7 +182,7 @@ export class GameRoom extends DurableObject<Env> {
           activity_id TEXT NOT NULL DEFAULT 'private-room',
           round_time_seconds INTEGER,
           max_attempts INTEGER NOT NULL DEFAULT 6,
-          modifiers_json TEXT NOT NULL DEFAULT '[]',
+          modifier TEXT,
           pool_rule_version TEXT NOT NULL DEFAULT '1.0.0',
           manifest_version TEXT NOT NULL DEFAULT '1.0.0',
           field_rules_json TEXT NOT NULL DEFAULT '{}',
@@ -200,7 +211,8 @@ export class GameRoom extends DurableObject<Env> {
           target_character_id TEXT NOT NULL,
           winner_id TEXT,
           started_at INTEGER NOT NULL,
-          completed_at INTEGER
+          completed_at INTEGER,
+          hidden_field TEXT
         ) STRICT;
         CREATE TABLE IF NOT EXISTS guesses (
           round_number INTEGER NOT NULL,
@@ -266,9 +278,6 @@ export class GameRoom extends DurableObject<Env> {
       if (!metaColumns.some((column) => column.name === "max_attempts")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN max_attempts INTEGER NOT NULL DEFAULT 6");
       }
-      if (!metaColumns.some((column) => column.name === "modifiers_json")) {
-        this.sql.exec("ALTER TABLE room_meta ADD COLUMN modifiers_json TEXT NOT NULL DEFAULT '[]'");
-      }
       if (!metaColumns.some((column) => column.name === "pool_rule_version")) {
         this.sql.exec(
           "ALTER TABLE room_meta ADD COLUMN pool_rule_version TEXT NOT NULL DEFAULT '1.0.0'",
@@ -283,6 +292,18 @@ export class GameRoom extends DurableObject<Env> {
         this.sql.exec(
           "ALTER TABLE room_meta ADD COLUMN field_rules_json TEXT NOT NULL DEFAULT '{}'",
         );
+      }
+      if (!metaColumns.some((column) => column.name === "modifier")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN modifier TEXT");
+        if (metaColumns.some((column) => column.name === "modifiers_json")) {
+          this.sql.exec(
+            `UPDATE room_meta SET modifier = 'speed' WHERE modifiers_json LIKE '%"speed"%'`,
+          );
+        }
+      }
+      const roundColumns = this.sql.exec<{ name: string }>("PRAGMA table_info(rounds)").toArray();
+      if (!roundColumns.some((column) => column.name === "hidden_field")) {
+        this.sql.exec("ALTER TABLE rounds ADD COLUMN hidden_field TEXT");
       }
     });
   }
@@ -357,15 +378,23 @@ export class GameRoom extends DurableObject<Env> {
   }
 
   private configuration(meta = this.meta()): RoomConfiguration {
-    const modifiers = JSON.parse(meta.modifiers_json) as RoomConfiguration["modifiers"];
     return {
       modeId: meta.mode_id as RoomConfiguration["modeId"],
       activityId: meta.activity_id as RoomConfiguration["activityId"],
       format: meta.match_format,
       roundTimeSeconds: meta.round_time_seconds,
       maxAttempts: meta.max_attempts,
-      ...(modifiers && modifiers.length > 0 ? { modifiers } : {}),
+      modifier: meta.modifier,
     };
+  }
+
+  private selectFogField(meta: MetaRow): string | null {
+    if (meta.modifier !== "fog") return null;
+    const fields = this.fieldRules(meta).map((rule) => rule.field);
+    if (fields.length === 0) throw new Error("迷雾字段不能为空");
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    return fields[(random[0] ?? 0) % fields.length] ?? null;
   }
 
   private selectTarget(meta: MetaRow): Character {
@@ -400,6 +429,7 @@ export class GameRoom extends DurableObject<Env> {
     }
 
     const target = this.selectTarget(meta);
+    const hiddenField = this.selectFogField(meta);
     const roundNumber = meta.round_number + 1;
     const revision = meta.revision + 1;
     const endsAt = meta.round_time_seconds === null ? null : now + meta.round_time_seconds * 1_000;
@@ -418,10 +448,11 @@ export class GameRoom extends DurableObject<Env> {
     );
     this.sql.exec("UPDATE players SET guesses_used = 0");
     this.sql.exec(
-      "INSERT INTO rounds (round_number, target_character_id, started_at) VALUES (?, ?, ?)",
+      "INSERT INTO rounds (round_number, target_character_id, started_at, hidden_field) VALUES (?, ?, ?, ?)",
       roundNumber,
       target.id,
       now,
+      hiddenField,
     );
     if (endsAt === null) {
       this.deleteTask("round");
@@ -583,15 +614,19 @@ export class GameRoom extends DurableObject<Env> {
         meta.round_number,
       )
       .toArray();
-    const ownGuesses = currentGuesses
-      .filter((guess) => guess.seat === own.seat)
-      .map((guess) => JSON.parse(guess.result_json) as GuessResult);
-    const opponentFeedback = currentGuesses
-      .filter((guess) => guess.seat !== own.seat)
-      .map((guess) => (JSON.parse(guess.result_json) as GuessResult).cells);
     const currentRound = this.sql
       .exec<RoundRow>("SELECT * FROM rounds WHERE round_number = ?", meta.round_number)
       .toArray()[0];
+    const hiddenField =
+      meta.modifier === "fog" && (meta.state === "playing" || meta.state === "paused")
+        ? (currentRound?.hidden_field ?? null)
+        : null;
+    const ownGuesses = currentGuesses
+      .filter((guess) => guess.seat === own.seat)
+      .map((guess) => maskFogCell(JSON.parse(guess.result_json) as GuessResult, hiddenField));
+    const opponentFeedback = currentGuesses
+      .filter((guess) => guess.seat !== own.seat)
+      .map((guess) => maskFogCell(JSON.parse(guess.result_json) as GuessResult, hiddenField).cells);
     const nextRoundAt =
       this.sql
         .exec<{ due_at: number }>("SELECT due_at FROM clock_tasks WHERE task_key = 'next-round'")
@@ -628,6 +663,7 @@ export class GameRoom extends DurableObject<Env> {
       })),
       ownGuesses,
       opponentFeedback,
+      fogField: hiddenField,
       roundAnswer,
       roundWinnerId: currentRound?.winner_id ?? null,
       roundSkip: this.roundSkip(meta),
@@ -677,7 +713,7 @@ export class GameRoom extends DurableObject<Env> {
       format: input.format,
       roundTimeSeconds: (MULTIPLAYER_ROUND_MS / 1_000) as 90,
       maxAttempts: MULTIPLAYER_ATTEMPTS as 6,
-      modifiers: [],
+      modifier: null,
     };
     if (
       configuration.format !== input.format ||
@@ -703,8 +739,7 @@ export class GameRoom extends DurableObject<Env> {
     ) {
       throw new Error("题库不能为空");
     }
-    const modifiers = configuration.modifiers ?? [];
-    if (modifiers.includes("speed") && configuration.roundTimeSeconds === null) {
+    if (configuration.modifier === "speed" && configuration.roundTimeSeconds === null) {
       throw new Error("极速模式必须使用 30/60/90 秒计时");
     }
     let started = false;
@@ -714,8 +749,8 @@ export class GameRoom extends DurableObject<Env> {
         `INSERT INTO room_meta
            (singleton, room_id, code, match_format, ranked, state, round_number,
             consecutive_draws, pool_json, target_ids_json, mode_id, activity_id,
-            round_time_seconds, max_attempts, pool_rule_version,
-            modifiers_json, manifest_version, field_rules_json, revision, created_at, archive_status,
+            round_time_seconds, max_attempts, modifier, pool_rule_version,
+            manifest_version, field_rules_json, revision, created_at, archive_status,
             archive_attempts)
          VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 'none', 0)`,
         input.roomId,
@@ -728,8 +763,8 @@ export class GameRoom extends DurableObject<Env> {
         configuration.activityId,
         configuration.roundTimeSeconds,
         configuration.maxAttempts,
+        configuration.modifier,
         input.contentSnapshot.poolRuleVersion,
-        JSON.stringify(modifiers),
         input.contentSnapshot.manifestVersion,
         JSON.stringify(input.contentSnapshot.fieldRules),
         now,
@@ -951,7 +986,7 @@ export class GameRoom extends DurableObject<Env> {
               this.settleRound(player.seat, now);
             } else {
               const opponent = this.players().find((entry) => entry.seat !== player.seat);
-              if (meta.modifiers_json.includes('"speed"') && meta.round_ends_at !== null) {
+              if (meta.modifier === "speed" && meta.round_ends_at !== null) {
                 const endsAt = Math.max(now, meta.round_ends_at - 5_000);
                 const revision = meta.revision + 1;
                 this.sql.exec(

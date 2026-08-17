@@ -110,7 +110,7 @@ roomRoutes.post("/rooms", async (context) => {
   });
   const parsed = CreateRoomRequestSchema.safeParse(await readOptionalJson(context));
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
-  if (parsed.data.modifiers?.includes("speed") && parsed.data.roundTimeSeconds === null) {
+  if (parsed.data.modifier === "speed" && parsed.data.roundTimeSeconds === null) {
     throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "speed-requires-timed-round" });
   }
   const contentSnapshot = await loadPlayableMultiplayerContentSnapshot(context.env.DB);

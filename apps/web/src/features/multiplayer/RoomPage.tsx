@@ -5,6 +5,7 @@ import {
   Check,
   Clock3,
   CircleDot,
+  CloudFog,
   Copy,
   LogOut,
   Radio,
@@ -350,10 +351,12 @@ export default function RoomPage() {
             <span>
               {snapshot.configuration.maxAttempts} {tr("猜", "回", "guesses")}
             </span>
-            {snapshot.configuration.modifiers?.includes("speed") ? (
+            {snapshot.configuration.modifier === "speed" ? (
               <span>
                 {tr("极速：错误 -5 秒", "スピード：ミスごとに -5 秒", "Speed: -5s per miss")}
               </span>
+            ) : snapshot.configuration.modifier === "fog" ? (
+              <span>{tr("迷雾", "霧", "Fog")}</span>
             ) : null}
             <small>
               {snapshot.state === "waiting"
@@ -624,7 +627,9 @@ export default function RoomPage() {
                           `Guess ${rowIndex + 1}, ${t(`game.${cell.field}`)}: ${t(`game.${cell.state}`)}`,
                         )}
                         title={t(`game.${cell.state}`)}
-                      />
+                      >
+                        {cell.state === "fog" ? <CloudFog size={14} /> : null}
+                      </i>
                     ))}
                   </div>
                 ))}
@@ -633,6 +638,12 @@ export default function RoomPage() {
                 className="feedback-legend"
                 aria-label={tr("反馈颜色说明", "色の説明", "Feedback legend")}
               >
+                <span>
+                  <i className="state-fog">
+                    <CloudFog size={12} />
+                  </i>
+                  {t("game.fog")}
+                </span>
                 <span>
                   <i className="state-exact">
                     <Check size={12} />

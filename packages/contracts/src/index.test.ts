@@ -230,6 +230,7 @@ describe("私人房配置契约", () => {
       format: 3,
       roundTimeSeconds: 90,
       maxAttempts: 6,
+      modifier: null,
     });
     expect(
       RoomConfigurationSchema.parse({
@@ -238,8 +239,9 @@ describe("私人房配置契约", () => {
         format: 7,
         roundTimeSeconds: null,
         maxAttempts: 8,
+        modifier: "fog",
       }),
-    ).toMatchObject({ format: 7, roundTimeSeconds: null, maxAttempts: 8 });
+    ).toMatchObject({ format: 7, roundTimeSeconds: null, maxAttempts: 8, modifier: "fog" });
   });
 
   test("拒绝私人房范围外的计时和猜测次数", () => {
@@ -257,6 +259,8 @@ describe("私人房配置契约", () => {
     expect(() => CreateRoomRequestSchema.parse({ roundTimeSeconds: 45 })).toThrow();
     expect(() => CreateRoomRequestSchema.parse({ maxAttempts: 5 })).toThrow();
     expect(() => CreateRoomRequestSchema.parse({ modeId: "npc" })).toThrow();
+    expect(CreateRoomRequestSchema.parse({ modifier: "speed" }).modifier).toBe("speed");
+    expect(() => CreateRoomRequestSchema.parse({ modifiers: ["fog", "speed"] })).toThrow();
   });
 });
 

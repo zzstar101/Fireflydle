@@ -1000,6 +1000,234 @@ describe("排行榜准入", () => {
 });
 
 describe("匹配、SQLite Durable Object 与 WebSocket", () => {
+  it("迷雾私人房通过真实 HTTP 与双玩家 WebSocket 隐藏同一字段并在结算和回放恢复", async () => {
+    const wrongCandidates = [
+      {
+        ...snapshotCandidate,
+        id: "fog-wrong-left",
+        officialId: "fog-wrong-left",
+        baseCharacterId: "fog-wrong-left",
+        names: { "zh-CN": "迷雾候选甲", en: "Fog wrong left", ja: "霧候補甲" },
+      },
+      {
+        ...snapshotCandidate,
+        id: "fog-wrong-right",
+        officialId: "fog-wrong-right",
+        baseCharacterId: "fog-wrong-right",
+        names: { "zh-CN": "迷雾候选乙", en: "Fog wrong right", ja: "霧候補乙" },
+        path: "harmony" as const,
+      },
+    ];
+    for (const candidate of wrongCandidates) await seedSnapshotCandidate(candidate);
+    const owner = await createSession("test:fog-owner");
+    const opponent = await createSession("test:fog-opponent");
+
+    const createdResponse = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ format: 1, roundTimeSeconds: null, modifier: "fog" }),
+    });
+    expect(createdResponse.status).toBe(201);
+    const created = await dataOf<{ roomId: string; code: string; snapshot: RoomSnapshot }>(
+      createdResponse,
+    );
+    expect(created.snapshot).toMatchObject({
+      configuration: { modifier: "fog" },
+      fogField: null,
+    });
+
+    const preview = await dataOf<RoomPreviewResponse>(
+      await SELF.fetch(`https://fireflydle.games/api/rooms/preview?code=${created.code}`, {
+        headers: { cookie: opponent.cookie },
+      }),
+    );
+    expect(preview.configuration.modifier).toBe("fog");
+    await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ code: created.code }),
+    });
+
+    const [ownerResponse, opponentResponse] = await Promise.all([
+      SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+        headers: { cookie: owner.cookie, upgrade: "websocket" },
+      }),
+      SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+        headers: { cookie: opponent.cookie, upgrade: "websocket" },
+      }),
+    ]);
+    const ownerSocket = ownerResponse.webSocket;
+    const opponentSocket = opponentResponse.webSocket;
+    expect(ownerSocket).not.toBeNull();
+    expect(opponentSocket).not.toBeNull();
+    if (!ownerSocket || !opponentSocket) return;
+    ownerSocket.accept();
+    opponentSocket.accept();
+    const [ownerStart, opponentStart] = await Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+    ]);
+    expect(ownerStart.fogField).toBeTruthy();
+    expect(opponentStart.fogField).toBe(ownerStart.fogField);
+    expect(ownerStart.roundAnswer).toBeNull();
+    expect(JSON.stringify(ownerStart)).not.toContain(`\"id\":\"${character.id}\"`);
+    expect(JSON.stringify(ownerStart)).not.toContain(character.names["zh-CN"]);
+
+    const afterOwnerGuess = Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.ownGuesses.length === 1),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.opponentFeedback.length === 1),
+    ]);
+    ownerSocket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: wrongCandidates[0]?.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const [ownerAfterOwnGuess, opponentAfterOwnerGuess] = await afterOwnerGuess;
+
+    const afterOpponentGuess = Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.opponentFeedback.length === 1),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.ownGuesses.length === 1),
+    ]);
+    opponentSocket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: wrongCandidates[1]?.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const [ownerPlaying, opponentPlaying] = await afterOpponentGuess;
+    const fogField = ownerStart.fogField;
+    for (const snapshot of [
+      ownerAfterOwnGuess,
+      opponentAfterOwnerGuess,
+      ownerPlaying,
+      opponentPlaying,
+    ]) {
+      expect(snapshot.fogField).toBe(fogField);
+      const cells = [
+        ...snapshot.ownGuesses.flatMap((guess) => guess.cells),
+        ...snapshot.opponentFeedback.flat(),
+      ];
+      expect(cells.filter((cell) => cell.field === fogField)).toEqual(
+        expect.arrayContaining([expect.objectContaining({ state: "fog", direction: "none" })]),
+      );
+      expect(
+        cells.filter((cell) => cell.field === fogField).every((cell) => cell.state === "fog"),
+      ).toBe(true);
+      expect(snapshot.roundAnswer).toBeNull();
+      expect(JSON.stringify(snapshot)).not.toContain(`\"id\":\"${character.id}\"`);
+      expect(JSON.stringify(snapshot)).not.toContain(character.names["zh-CN"]);
+    }
+
+    const finishedSnapshots = Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "finished"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "finished"),
+    ]);
+    ownerSocket.send(
+      JSON.stringify({ type: "guess", characterId: character.id, actionId: crypto.randomUUID() }),
+    );
+    const [ownerFinished, opponentFinished] = await finishedSnapshots;
+    for (const snapshot of [ownerFinished, opponentFinished]) {
+      expect(snapshot.fogField).toBeNull();
+      expect(snapshot.roundAnswer?.id).toBe(character.id);
+      expect(
+        [
+          ...snapshot.ownGuesses.flatMap((guess) => guess.cells),
+          ...snapshot.opponentFeedback.flat(),
+        ].some((cell) => cell.state === "fog"),
+      ).toBe(false);
+    }
+
+    const replay = await dataOf<ReplayResponse>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${created.roomId}`, {
+        headers: { cookie: owner.cookie },
+      }),
+    );
+    expect(replay.kind).toBe("multiplayer");
+    if (replay.kind === "multiplayer") {
+      expect(replay.match.rounds[0]?.answer.id).toBe(character.id);
+      expect(
+        replay.match.rounds.flatMap((round) =>
+          round.guesses.flatMap((guess) => guess.result.cells),
+        ),
+      ).not.toContainEqual(expect.objectContaining({ state: "fog" }));
+    }
+    ownerSocket.close(1000, "test-complete");
+    opponentSocket.close(1000, "test-complete");
+  });
+
+  it("迷雾字段随下一题重新抽取并由房间快照持久恢复", async () => {
+    const owner = await createSession("test:fog-reroll-owner");
+    const opponent = await createSession("test:fog-reroll-opponent");
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const randomValues = [0, 0, 0, 1];
+    vi.spyOn(crypto, "getRandomValues").mockImplementation((array) => {
+      if (array instanceof Uint32Array) array[0] = randomValues.shift() ?? 0;
+      return array;
+    });
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    const first = await roomObject.initialize({
+      roomId,
+      code: "FOG42",
+      activityId: "private-room",
+      format: 3,
+      configuration: {
+        modeId: "playable",
+        activityId: "private-room",
+        format: 3,
+        roundTimeSeconds: null,
+        maxAttempts: 6,
+        modifier: "fog",
+      },
+      owner: {
+        userId: owner.data.user.id,
+        displayName: owner.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponent.data.user.id,
+        displayName: opponent.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+    expect(first).toMatchObject({ state: "playing", round: 1, fogField: "element" });
+
+    const settled = await roomObject.guess(
+      owner.data.user.id,
+      character.id,
+      "00000000-0000-4000-8000-000000000341",
+      startedAt + 1,
+    );
+    expect(settled.ok && settled.snapshot).toMatchObject({
+      state: "round-ended",
+      fogField: null,
+      roundAnswer: { id: character.id },
+    });
+    if (!settled.ok || settled.snapshot.nextRoundAt === null) return;
+
+    const restored = await roomObject.snapshot(
+      opponent.data.user.id,
+      settled.snapshot.nextRoundAt + 1,
+    );
+    expect(restored.ok && restored.snapshot).toMatchObject({
+      state: "playing",
+      round: 2,
+      fogField: "path",
+      roundAnswer: null,
+      ranked: false,
+      configuration: { modifier: "fog" },
+    });
+  });
+
   it("普通角色私人房在加入前共享配置、开局后锁定并且不计 Elo", async () => {
     const wrongCandidates = Array.from({ length: 4 }, (_, index) => ({
       ...snapshotCandidate,
@@ -1039,6 +1267,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       format: 1,
       roundTimeSeconds: null,
       maxAttempts: 4,
+      modifier: null,
     } as const;
     expect(created.snapshot).toMatchObject({
       state: "waiting",

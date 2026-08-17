@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, CircleDot, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, CircleDot, CloudFog, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { FieldDefinition, GuessCell, GuessResult, Locale } from "@fireflydle/contracts";
 import {
@@ -16,6 +16,7 @@ const legacyFields = selectSnapshotFieldDefinitions(
 );
 
 function StatusIcon({ cell }: { cell: GuessCell }) {
+  if (cell.state === "fog") return <CloudFog size={17} aria-hidden="true" />;
   if (cell.direction === "higher") return <ArrowUp size={17} aria-hidden="true" />;
   if (cell.direction === "lower") return <ArrowDown size={17} aria-hidden="true" />;
   if (cell.state === "exact") return <Check size={17} aria-hidden="true" />;
@@ -123,7 +124,7 @@ export function GuessBoard({
                         direction: "none",
                       } satisfies GuessCell);
                     const direction = directionLabel(status, t);
-                    const value = cellValue(guess, field.id, locale);
+                    const value = status.state === "fog" ? "?" : cellValue(guess, field.id, locale);
                     return (
                       <td
                         key={field.id}

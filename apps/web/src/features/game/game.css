@@ -1877,6 +1877,11 @@
     color-mix(in srgb, var(--surface) 92%, var(--miss)) 16px
   );
 }
+.feedback-cell.state-fog {
+  color: var(--text);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--surface) 72%, var(--text-faint));
+}
 .feedback-cell > * {
   position: relative;
   z-index: 1;

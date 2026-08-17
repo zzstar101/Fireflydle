@@ -191,6 +191,7 @@ export class Matchmaker extends DurableObject<Env> {
           format: RANKED_FORMAT,
           roundTimeSeconds: 90,
           maxAttempts: 6,
+          modifier: null,
         },
         owner: waitingInput.participant,
         opponent: creatingInput.participant,

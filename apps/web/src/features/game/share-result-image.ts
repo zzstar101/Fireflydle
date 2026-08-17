@@ -323,12 +323,14 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     close: "#d59a35",
     miss: "#3b4658",
     unavailable: "#667085",
+    fog: "#737d8c",
   };
   const symbols: Record<FeedbackState, string> = {
     exact: "✓",
     close: "•",
     miss: "×",
     unavailable: "–",
+    fog: "?",
   };
 
   for (let rowIndex = 0; rowIndex < model.guesses.length; rowIndex += 1) {

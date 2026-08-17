@@ -194,7 +194,7 @@
 .room-preview {
   z-index: 1;
   display: grid;
-  grid-template-columns: 1fr repeat(3, auto);
+  grid-template-columns: 1fr repeat(4, auto);
   align-items: center;
   width: 100%;
   padding: 11px 12px;
@@ -759,9 +759,17 @@
   font-size: 0.58rem;
 }
 .masked-feedback-grid i {
+  display: grid;
   height: 37px;
+  place-items: center;
   border-radius: 3px;
   background: var(--miss);
+}
+.masked-feedback-grid i.state-fog,
+.feedback-legend i.state-fog {
+  color: var(--text);
+  border: 1px dashed var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 72%, var(--text-faint));
 }
 .masked-feedback-grid i.state-exact {
   background: var(--exact);

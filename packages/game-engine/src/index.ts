@@ -528,6 +528,7 @@ const CELL_EMOJI: Record<FeedbackState, string> = {
   close: "🟨",
   miss: "⬛",
   unavailable: "⬜",
+  fog: "🌫️",
 };
 
 export type FieldComparisonKind = "exact" | "version" | "direction" | "set";

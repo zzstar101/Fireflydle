@@ -112,6 +112,23 @@ describe("动态 GuessBoard", () => {
     expect(markup.match(/is-incorrect/g)).toHaveLength(2);
   });
 
+  test("迷雾保留字段名称但隐藏字段值与完整反馈", () => {
+    const fogGuess: GuessResult = {
+      ...guess,
+      cells: guess.cells.map((cell) =>
+        cell.field === "element" ? { ...cell, state: "fog", direction: "none" } : cell,
+      ),
+    };
+    const markup = renderToStaticMarkup(
+      <GuessBoard guesses={[fogGuess]} locale="zh-CN" fields={fields} />,
+    );
+
+    expect(markup).toContain(">属性<");
+    expect(markup).toContain("state-fog direction-none");
+    expect(markup).toContain('aria-label="属性: ?; 迷雾"');
+    expect(markup).not.toContain('aria-label="属性: 火');
+  });
+
   test("旧多人结果缺少字段定义时使用普通角色六列兼容规则", () => {
     const markup = renderToStaticMarkup(<GuessBoard guesses={[]} locale="zh-CN" />);
 

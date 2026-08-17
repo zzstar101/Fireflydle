@@ -32,7 +32,7 @@ export const PATHS = [
 export const PathSchema = z.enum(PATHS);
 export type Path = z.infer<typeof PathSchema>;
 
-export const FEEDBACK_STATES = ["exact", "close", "miss", "unavailable"] as const;
+export const FEEDBACK_STATES = ["exact", "close", "miss", "unavailable", "fog"] as const;
 export const FeedbackStateSchema = z.enum(FEEDBACK_STATES);
 export type FeedbackState = z.infer<typeof FeedbackStateSchema>;
 
@@ -232,8 +232,12 @@ export const GuessCellSchema = z
     direction: DirectionSchema,
   })
   .superRefine((cell, context) => {
-    if (cell.state === "unavailable" && cell.direction !== "none") {
-      context.addIssue({ code: "custom", path: ["direction"], message: "不可比较字段不能有方向" });
+    if ((cell.state === "unavailable" || cell.state === "fog") && cell.direction !== "none") {
+      context.addIssue({
+        code: "custom",
+        path: ["direction"],
+        message: "隐藏或不可比较字段不能有方向",
+      });
     }
   });
 export type GuessCell = z.infer<typeof GuessCellSchema>;
@@ -505,16 +509,16 @@ export type RoomRoundTimeSeconds = z.infer<typeof RoomRoundTimeSecondsSchema>;
 export const RoomMaxAttemptsSchema = z.union([z.literal(4), z.literal(6), z.literal(8)]);
 export type RoomMaxAttempts = z.infer<typeof RoomMaxAttemptsSchema>;
 
-export const RoomModifierSchema = z.literal("speed");
+export const RoomModifierSchema = z.enum(["speed", "fog"]).nullable();
 export type RoomModifier = z.infer<typeof RoomModifierSchema>;
 
-export const RoomConfigurationSchema = z.object({
+export const RoomConfigurationSchema = z.strictObject({
   modeId: ContentModeIdSchema,
   activityId: ActivityIdSchema,
   format: MatchFormatSchema,
   roundTimeSeconds: RoomRoundTimeSecondsSchema,
   maxAttempts: RoomMaxAttemptsSchema,
-  modifiers: z.array(RoomModifierSchema).max(1).optional(),
+  modifier: RoomModifierSchema.default(null),
 });
 export type RoomConfiguration = z.infer<typeof RoomConfigurationSchema>;
 
@@ -590,6 +594,7 @@ export const RoomSnapshotSchema = z
     players: z.array(RoomPlayerSchema).max(2),
     ownGuesses: z.array(GuessResultSchema),
     opponentFeedback: z.array(z.array(GuessCellSchema)),
+    fogField: GuessFieldSchema.nullable().default(null),
     roundAnswer: CharacterSchema.nullable(),
     roundWinnerId: z.string().uuid().nullable(),
     roundSkip: RoundSkipStateSchema,
@@ -652,13 +657,13 @@ export const ServerRoomMessageSchema = z.discriminatedUnion("type", [
 ]);
 export type ServerRoomMessage = z.infer<typeof ServerRoomMessageSchema>;
 
-export const CreateRoomRequestSchema = z.object({
+export const CreateRoomRequestSchema = z.strictObject({
   modeId: z.literal("playable").optional().default("playable"),
   activityId: z.literal("private-room").optional().default("private-room"),
   format: MatchFormatSchema.optional().default(3),
   roundTimeSeconds: RoomRoundTimeSecondsSchema.optional().default(90),
   maxAttempts: RoomMaxAttemptsSchema.optional().default(6),
-  modifiers: z.array(RoomModifierSchema).max(1).optional(),
+  modifier: RoomModifierSchema.optional().default(null),
 });
 
 export const JoinRoomRequestSchema = z.object({
