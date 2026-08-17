@@ -26,17 +26,19 @@ function StatusIcon({ cell }: { cell: GuessCell }) {
 function cellValue(guess: GuessResult, field: string, locale: Locale): string {
   switch (field) {
     case "element":
-      return elementLabels[guess.character.element][locale];
+      return "element" in guess.character ? elementLabels[guess.character.element][locale] : "—";
     case "path":
-      return pathLabels[guess.character.path][locale];
+      return "path" in guess.character ? pathLabels[guess.character.path][locale] : "—";
     case "rarity":
-      return `${guess.character.rarity} ★`;
+      return "rarity" in guess.character ? `${guess.character.rarity} ★` : "—";
     case "faction":
       return getFactionName(guess.character.factionId, locale);
     case "region":
       return getRegionName(guess.character.regionId, locale);
     case "version":
-      return `V${guess.character.releaseVersionId}`;
+      return "releaseVersionId" in guess.character ? `V${guess.character.releaseVersionId}` : "—";
+    case "debut-version":
+      return "debutVersionId" in guess.character ? `V${guess.character.debutVersionId}` : "—";
     default: {
       const value = (guess.character as unknown as Record<string, unknown>)[field];
       return value === undefined || value === null ? "—" : String(value);

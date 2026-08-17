@@ -57,11 +57,11 @@ async function mergeGuestProgress(
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at,
             leaderboard_hidden_at, leaderboard_hidden_reason)
          SELECT
-           source.id, source.user_id, source.mode, source.difficulty, source.date_key,
+           source.id, source.user_id, source.mode, source.mode_id, source.difficulty, source.date_key,
            'expired',
            (SELECT COUNT(*) FROM game_guesses gg WHERE gg.game_id = source.id),
            MAX(0, ? - source.started_at), ?, ?,

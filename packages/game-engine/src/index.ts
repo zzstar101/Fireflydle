@@ -1,4 +1,4 @@
-import { CharacterSummarySchema } from "@fireflydle/contracts";
+import { CharacterSummarySchema, NpcSummarySchema } from "@fireflydle/contracts";
 import type {
   Character,
   Difficulty,
@@ -8,6 +8,7 @@ import type {
   GuessField,
   GuessResult,
   Locale,
+  NpcSummary,
 } from "@fireflydle/contracts";
 
 export const ATTEMPTS_BY_DIFFICULTY: Readonly<Record<Difficulty, number>> = {
@@ -38,6 +39,64 @@ export const DEFAULT_SNAPSHOT_FIELD_RULES: readonly SnapshotFieldRule[] = [
   { field: "region", comparison: "exact" },
   { field: "version", comparison: "version" },
 ];
+
+export interface NpcEntitySnapshot {
+  id: string;
+  names: Record<string, string>;
+  aliases?: Record<string, readonly string[]>;
+  regionId: string;
+  factionId: string;
+  factionGroupId: string;
+  debutVersionId: string;
+  debutVersionOrder: number;
+}
+
+export const NPC_SNAPSHOT_FIELD_RULES: readonly SnapshotFieldRule[] = [
+  { field: "region", comparison: "exact" },
+  { field: "faction", comparison: "faction" },
+  { field: "debut-version", comparison: "version" },
+];
+
+/** NPC 专用三列判题；不会读取或映射普通角色的元素、命途、稀有度字段。 */
+export function compareNpcEntities(
+  target: NpcEntitySnapshot,
+  guess: NpcEntitySnapshot,
+): GuessCell[] {
+  const versionDistance = Math.abs(target.debutVersionOrder - guess.debutVersionOrder);
+  return [
+    cell("region", target.regionId === guess.regionId ? "exact" : "miss"),
+    cell(
+      "faction",
+      target.factionId === guess.factionId
+        ? "exact"
+        : target.factionGroupId === guess.factionGroupId
+          ? "close"
+          : "miss",
+    ),
+    cell(
+      "debut-version",
+      versionDistance === 0 ? "exact" : versionDistance <= 2 ? "close" : "miss",
+      versionDistance === 0
+        ? "none"
+        : target.debutVersionOrder > guess.debutVersionOrder
+          ? "higher"
+          : "lower",
+    ),
+  ];
+}
+
+export function createNpcGuessResult(
+  target: NpcSummary,
+  guess: NpcSummary,
+  guessedAt = new Date(),
+): GuessResult {
+  return {
+    character: NpcSummarySchema.parse(guess),
+    cells: compareNpcEntities(target, guess),
+    isCorrect: target.id === guess.id,
+    guessedAt: guessedAt.toISOString(),
+  };
+}
 
 /** 将当前 manifest 的普通角色字段映射为迁移期可用的快照比较规则。 */
 export function snapshotRulesFromFieldDefinitions(

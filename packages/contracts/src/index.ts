@@ -165,6 +165,26 @@ export const CharacterSummarySchema = CharacterSchema.pick({
 });
 export type CharacterSummary = z.infer<typeof CharacterSummarySchema>;
 
+export const NpcSummarySchema = z.object({
+  id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  names: LocalizedTextSchema,
+  aliases: LocalizedAliasesSchema,
+  regionId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  factionId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  factionGroupId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  debutVersionId: z.string().regex(/^\d+\.\d+$/),
+  debutVersionOrder: z.number().int().nonnegative(),
+  assets: z.object({
+    avatarPath: z.string().min(1),
+    portraitPath: z.string().min(1),
+    sha256: z.string().regex(/^[a-f0-9]{64}$/),
+    rightsNotice: z.string().min(1),
+  }),
+});
+export type NpcSummary = z.infer<typeof NpcSummarySchema>;
+export const GameEntitySummarySchema = z.union([CharacterSummarySchema, NpcSummarySchema]);
+export type GameEntitySummary = z.infer<typeof GameEntitySummarySchema>;
+
 export const FactionSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
   groupId: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -194,7 +214,7 @@ export const GuessCellSchema = z
 export type GuessCell = z.infer<typeof GuessCellSchema>;
 
 export const GuessResultSchema = z.object({
-  character: CharacterSummarySchema,
+  character: GameEntitySummarySchema,
   cells: z.array(GuessCellSchema).min(1),
   isCorrect: z.boolean(),
   guessedAt: z.string().datetime(),
@@ -220,7 +240,7 @@ export const PublicGameSchema = z.object({
   startedAt: z.string().datetime(),
   completedAt: z.string().datetime().nullable(),
   elapsedMs: z.number().int().nonnegative(),
-  answer: CharacterSummarySchema.nullable(),
+  answer: GameEntitySummarySchema.nullable(),
   /** 创建对局时绑定的字段定义，旧响应缺失时由客户端使用兼容 manifest。 */
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)).optional(),
 });
@@ -236,6 +256,7 @@ export type CurrentGames = z.infer<typeof CurrentGamesSchema>;
 
 export const CreateGameRequestSchema = z.object({
   mode: z.enum(["daily", "random"]),
+  modeId: z.enum(["playable", "npc"]).optional(),
   difficulty: DifficultySchema,
 });
 export type CreateGameRequest = z.infer<typeof CreateGameRequestSchema>;

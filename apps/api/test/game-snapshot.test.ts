@@ -304,7 +304,10 @@ describe("单人模式快照迁移", () => {
     const elementCell = result.guesses[0]?.cells.find((cell) => cell.field === "element");
     const target = JSON.parse(targetRow.target_payload_json) as Character;
     expect(elementCell?.state).toBe(target.element === candidate.element ? "exact" : "miss");
-    expect(result.guesses[0]?.character.element).toBe(candidate.element);
+    const guessedEntity = result.guesses[0]?.character;
+    expect(guessedEntity && "element" in guessedEntity ? guessedEntity.element : undefined).toBe(
+      candidate.element,
+    );
   });
 
   it("提交判定读取对局创建时保存的字段规则快照", async () => {

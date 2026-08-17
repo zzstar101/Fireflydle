@@ -1,6 +1,7 @@
 import {
   CharacterSchema,
-  CharacterSummarySchema,
+  GameEntitySummarySchema,
+  NpcSummarySchema,
   FieldDefinitionSchema,
   GuessResultSchema,
   type Character,
@@ -8,16 +9,19 @@ import {
   type CurrentGames,
   type FieldDefinition,
   type GuessResult,
+  type GameEntitySummary,
   type PublicGame,
 } from "@fireflydle/contracts";
 import {
   createGuessResultWithRules,
+  createNpcGuessResult,
   getBeijingDateKey,
+  NPC_SNAPSHOT_FIELD_RULES,
   selectSnapshotFieldDefinitions,
   snapshotRulesFromFieldDefinitions,
   type SnapshotFieldRule,
 } from "@fireflydle/game-engine";
-import { contentManifest } from "@fireflydle/game-data";
+import { contentManifest, npcEntities, npcManifest, npcSummary } from "@fireflydle/game-data";
 import { getCharacterSnapshot, getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
 
@@ -76,37 +80,42 @@ async function readCurrentGameId(
   userId: string,
   mode: "daily" | "random",
   dateKey?: string,
+  modeId: "playable" | "npc" = "playable",
 ): Promise<string | null> {
   const row =
     mode === "daily"
       ? await db
           .prepare(
             `SELECT id FROM games
-             WHERE user_id = ? AND mode = 'daily' AND date_key = ?
+             WHERE user_id = ? AND mode = 'daily' AND date_key = ? AND mode_id = ?
              ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END,
                       started_at DESC, id DESC
              LIMIT 1`,
           )
-          .bind(userId, dateKey)
+          .bind(userId, dateKey, modeId)
           .first<{ id: string }>()
       : await db
           .prepare(
             `SELECT id FROM games
-             WHERE user_id = ? AND mode = 'random' AND status = 'active'
+             WHERE user_id = ? AND mode = 'random' AND status = 'active' AND mode_id = ?
              ORDER BY started_at DESC, id DESC
              LIMIT 1`,
           )
-          .bind(userId)
+          .bind(userId, modeId)
           .first<{ id: string }>();
   return row?.id ?? null;
 }
 
-function fieldDefinitionsForRules(rules: readonly SnapshotFieldRule[]): FieldDefinition[] {
+function fieldDefinitionsForRules(
+  rules: readonly SnapshotFieldRule[],
+  modeId: PublicGame["modeId"] = "playable",
+): FieldDefinition[] {
   const seen = new Set<string>();
+  const definitions = modeId === "npc" ? npcMode.fields : playableMode!.fields;
   return rules.flatMap((rule) => {
     if (seen.has(rule.field)) return [];
     seen.add(rule.field);
-    const definition = playableMode!.fields.find((field) => field.id === rule.field);
+    const definition = definitions.find((field) => field.id === rule.field);
     return definition ? [definition] : [];
   });
 }
@@ -129,7 +138,7 @@ function readFieldDefinitions(
       if (ordered.length === rules.length) return ordered;
     }
   }
-  return fieldDefinitionsForRules(rules);
+  return fieldDefinitionsForRules(rules, row.mode_id);
 }
 
 function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): PublicGame {
@@ -150,7 +159,7 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
     startedAt: new Date(row.started_at).toISOString(),
     completedAt: row.completed_at === null ? null : new Date(row.completed_at).toISOString(),
     elapsedMs: Math.max(0, (row.completed_at ?? now) - row.started_at),
-    answer: finished ? CharacterSummarySchema.parse(JSON.parse(row.target_payload_json)) : null,
+    answer: finished ? GameEntitySummarySchema.parse(JSON.parse(row.target_payload_json)) : null,
     fieldDefinitions: readFieldDefinitions(row, rules),
   };
 }
@@ -259,8 +268,26 @@ async function selectTarget(
 ): Promise<{
   targetId: string;
   dateKey: string | null;
-  candidateSnapshots: Record<string, Character>;
+  candidateSnapshots: Record<string, GameEntitySummary>;
 }> {
+  if (input.modeId === "npc") {
+    if (input.mode !== "random") {
+      throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "npc-practice-only" });
+    }
+    const targets = npcTargetPool.targetIds.flatMap((id) => {
+      const entity = npcById.get(id);
+      return entity ? [entity] : [];
+    });
+    const candidateSnapshots = Object.fromEntries(
+      npcCandidatePool.candidateIds.flatMap((id) => {
+        const entity = npcById.get(id);
+        return entity ? [[id, entity] as const] : [];
+      }),
+    );
+    const target = targets[secureRandomIndex(targets.length)];
+    if (!target) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-npc-pool" });
+    return { targetId: target.id, dateKey: null, candidateSnapshots };
+  }
   const pool = await getTargetPool(db);
   const candidatePool = await getEnabledCharacters(db);
   const candidateSnapshots = Object.fromEntries(candidatePool.map((item) => [item.id, item]));
@@ -280,17 +307,36 @@ async function selectTarget(
 
 const playableMode = contentManifest.modes.find((mode) => mode.id === "playable");
 if (!playableMode) throw new Error("普通角色模式未注册");
+const npcMode =
+  npcManifest.modes.find((mode) => mode.id === "npc") ??
+  (() => {
+    throw new Error("NPC 模式未注册");
+  })();
+const npcTargetPool =
+  npcManifest.pools.find((pool) => pool.id === npcMode.targetPoolId) ??
+  (() => {
+    throw new Error("NPC 目标池未注册");
+  })();
+const npcCandidatePool =
+  npcManifest.pools.find((pool) => pool.id === npcMode.candidatePoolId) ??
+  (() => {
+    throw new Error("NPC 候选池未注册");
+  })();
+const npcById = new Map(npcEntities.map((entity) => [entity.id, npcSummary(entity)]));
 
 const snapshotFieldRules: readonly SnapshotFieldRule[] = snapshotRulesFromFieldDefinitions(
   playableMode.fields,
 );
 if (snapshotFieldRules.length === 0) throw new Error("普通角色 manifest 没有可比较字段");
 
-function readCandidateSnapshot(row: GameRow, characterId: string): Character | null {
+function readCandidateSnapshot(row: GameRow, characterId: string): GameEntitySummary | null {
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
   if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
   const payload = (encoded as Record<string, unknown>)[characterId];
-  const parsed = CharacterSchema.safeParse(payload);
+  const parsed =
+    row.mode_id === "npc"
+      ? NpcSummarySchema.safeParse(payload)
+      : CharacterSchema.safeParse(payload);
   return parsed.success ? parsed.data : null;
 }
 
@@ -306,17 +352,21 @@ function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {
     : typeof parsed === "object" && parsed !== null
       ? (parsed as { rules?: unknown }).rules
       : null;
-  if (!Array.isArray(encodedRules)) return snapshotFieldRules;
+  const fallbackRules = row.mode_id === "npc" ? NPC_SNAPSHOT_FIELD_RULES : snapshotFieldRules;
+  const definitions = row.mode_id === "npc" ? npcMode.fields : playableMode!.fields;
+  if (!Array.isArray(encodedRules)) return fallbackRules;
   const rules = encodedRules.filter((rule): rule is SnapshotFieldRule => {
     if (typeof rule !== "object" || rule === null) return false;
     const value = rule as { field?: unknown; comparison?: unknown };
-    const definition = playableMode!.fields.find((field) => field.id === value.field);
+    const definition = definitions.find((field) => field.id === value.field);
     if (!definition) return false;
     if (value.comparison === "faction") return value.field === "faction";
-    if (value.comparison === "version") return value.field === "version";
+    if (value.comparison === "version") {
+      return value.field === "version" || value.field === "debut-version";
+    }
     return value.comparison === "exact" && definition.comparison === "exact";
   });
-  return rules.length > 0 ? rules : snapshotFieldRules;
+  return rules.length > 0 ? rules : fallbackRules;
 }
 
 export async function createGame(
@@ -325,9 +375,19 @@ export async function createGame(
   input: CreateGameRequest,
   now = Date.now(),
 ): Promise<PublicGame> {
-  const normalizedInput: CreateGameRequest = { mode: input.mode, difficulty: "standard" };
+  const normalizedInput: CreateGameRequest = {
+    mode: input.mode,
+    modeId: input.modeId ?? "playable",
+    difficulty: "standard",
+  };
   const dateKey = normalizedInput.mode === "daily" ? getBeijingDateKey(now) : undefined;
-  const currentId = await readCurrentGameId(db, userId, normalizedInput.mode, dateKey);
+  const currentId = await readCurrentGameId(
+    db,
+    userId,
+    normalizedInput.mode,
+    dateKey,
+    normalizedInput.modeId,
+  );
   if (currentId) return getPublicGame(db, currentId, userId, now);
 
   const target = await selectTarget(db, userId, normalizedInput, now);
@@ -340,30 +400,38 @@ export async function createGame(
            (id, user_id, mode, mode_id, activity_id, pool_rule_version, manifest_version,
             difficulty, date_key, target_character_id, target_payload_json,
             candidate_pool_json, field_rules_json, max_attempts, status, started_at, updated_at)
-         VALUES (?, ?, ?, 'playable', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
       )
       .bind(
         gameId,
         userId,
         normalizedInput.mode,
+        normalizedInput.modeId,
         normalizedInput.mode === "daily" ? "daily" : "practice",
-        playableMode!.rulesVersion,
-        contentManifest.manifestVersion,
+        normalizedInput.modeId === "npc" ? npcMode.rulesVersion : playableMode!.rulesVersion,
+        normalizedInput.modeId === "npc"
+          ? npcManifest.manifestVersion
+          : contentManifest.manifestVersion,
         normalizedInput.difficulty,
         target.dateKey,
         target.targetId,
         JSON.stringify(
-          (await getCharacterSnapshot(db, target.targetId)) ??
+          (normalizedInput.modeId === "npc"
+            ? target.candidateSnapshots[target.targetId]
+            : await getCharacterSnapshot(db, target.targetId)) ??
             (() => {
               throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
             })(),
         ),
         JSON.stringify(target.candidateSnapshots),
         JSON.stringify({
-          rules: snapshotFieldRules,
-          definitions: selectSnapshotFieldDefinitions(playableMode!.fields),
+          rules: normalizedInput.modeId === "npc" ? NPC_SNAPSHOT_FIELD_RULES : snapshotFieldRules,
+          definitions:
+            normalizedInput.modeId === "npc"
+              ? npcMode.fields
+              : selectSnapshotFieldDefinitions(playableMode!.fields),
         }),
-        playableMode!.maxAttempts,
+        normalizedInput.modeId === "npc" ? npcMode.maxAttempts : playableMode!.maxAttempts,
         now,
         now,
       )
@@ -374,6 +442,7 @@ export async function createGame(
       userId,
       normalizedInput.mode,
       target.dateKey ?? undefined,
+      normalizedInput.modeId,
     );
     if (existingId) return getPublicGame(db, existingId, userId, now);
     throw error;
@@ -398,7 +467,7 @@ export async function submitGameGuess(
   if (existingGuesses.length >= row.max_attempts) {
     throw new ApiProblem("GAME_ATTEMPTS_EXHAUSTED", 409);
   }
-  let guess: Character | null;
+  let guess: GameEntitySummary | null;
   if (hasCandidateSnapshotPool(row)) {
     guess = readCandidateSnapshot(row, characterId);
   } else {
@@ -409,8 +478,20 @@ export async function submitGameGuess(
     guess = await getCharacterSnapshot(db, characterId);
   }
   if (!guess) throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
-  const target = JSON.parse(row.target_payload_json) as Character;
-  const result = createGuessResultWithRules(target, guess, readFieldRules(row), new Date(now));
+  const targetPayload = JSON.parse(row.target_payload_json) as unknown;
+  const result =
+    row.mode_id === "npc"
+      ? createNpcGuessResult(
+          NpcSummarySchema.parse(targetPayload),
+          NpcSummarySchema.parse(guess),
+          new Date(now),
+        )
+      : createGuessResultWithRules(
+          CharacterSchema.parse(targetPayload),
+          CharacterSchema.parse(guess),
+          readFieldRules(row),
+          new Date(now),
+        );
   const guessId = crypto.randomUUID();
   const correct = result.isCorrect ? 1 : 0;
 
@@ -473,9 +554,9 @@ export async function submitGameGuess(
       db
         .prepare(
           `INSERT OR IGNORE INTO game_results
-             (game_id, user_id, mode, difficulty, date_key, result, guess_count,
+             (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
               elapsed_ms, completed_at, replay_expires_at)
-           SELECT game.id, game.user_id, game.mode, game.difficulty, game.date_key,
+           SELECT game.id, game.user_id, game.mode, game.mode_id, game.difficulty, game.date_key,
              game.status,
              (SELECT COUNT(*) FROM game_guesses WHERE game_id = game.id),
              MAX(0, ? - game.started_at), ?, ?
@@ -517,9 +598,9 @@ export async function concedeGame(
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at)
-         SELECT game.id, game.user_id, game.mode, game.difficulty, game.date_key,
+         SELECT game.id, game.user_id, game.mode, game.mode_id, game.difficulty, game.date_key,
            'conceded',
            (SELECT COUNT(*) FROM game_guesses WHERE game_id = game.id),
            MAX(0, ? - game.started_at), ?, ?

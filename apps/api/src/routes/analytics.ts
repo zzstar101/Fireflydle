@@ -83,7 +83,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
          SUM(CASE WHEN mode = 'random' THEN 1 ELSE 0 END) AS random_played,
          SUM(CASE WHEN mode = 'random' AND result = 'won' THEN 1 ELSE 0 END) AS random_won,
          AVG(CASE WHEN result IN ('won', 'lost') THEN guess_count END) AS average_guesses
-       FROM game_results WHERE user_id = ?`,
+       FROM game_results WHERE user_id = ? AND mode_id = 'playable'`,
     )
       .bind(auth.user.id)
       .first<AggregateRow>(),
@@ -100,7 +100,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
       .first<RankedRow>(),
     context.env.DB.prepare(
       `SELECT game_id, mode, result, guess_count, elapsed_ms, completed_at
-       FROM game_results WHERE user_id = ?
+       FROM game_results WHERE user_id = ? AND mode_id = 'playable'
        ORDER BY completed_at DESC LIMIT 20`,
     )
       .bind(auth.user.id)
@@ -124,7 +124,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
     context.env.DB.prepare(
       `SELECT DISTINCT date_key
        FROM game_results
-       WHERE user_id = ? AND mode = 'daily' AND result = 'won' AND date_key IS NOT NULL
+       WHERE user_id = ? AND mode_id = 'playable'
+         AND mode = 'daily' AND result = 'won' AND date_key IS NOT NULL
        ORDER BY date_key`,
     )
       .bind(auth.user.id)

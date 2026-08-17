@@ -4,11 +4,13 @@ import {
   FactionSchema,
   VersionSchema,
   type Character,
+  type ContentEntity,
   type Element,
   type Faction,
   type LocalizedText,
   type Path,
   type Version,
+  type NpcSummary,
 } from "@fireflydle/contracts";
 
 import characterData from "./generated/characters.json";
@@ -36,6 +38,42 @@ if (JSON.stringify(derivedContentManifest) !== JSON.stringify(publishedContentMa
 }
 export const contentManifest = Object.freeze(publishedContentManifest);
 
+/** T13 已审核 NPC 小池；与普通角色 manifest 和运行时实体完全分离。 */
+export const npcManifest = Object.freeze(ContentManifestSchema.parse(npcManifestData));
+
+export type NpcEntity = Extract<ContentEntity, { kind: "npc" }>;
+export const npcEntities = Object.freeze(
+  npcManifest.entities.filter((entity): entity is NpcEntity => entity.kind === "npc"),
+);
+
+export function getNpcSearchText(entity: NpcEntity): string {
+  return getEntitySearchText(entity);
+}
+
+function canonicalFactionId(factionId: string): string {
+  return factionId === "interastral-peace-corporation" ? "ipc" : factionId;
+}
+
+export function npcSummary(entity: NpcEntity): NpcSummary {
+  const faction = factions.find(
+    (entry) => entry.id === canonicalFactionId(entity.payload.factionId),
+  );
+  const version = versions.find((entry) => entry.id === entity.payload.debutVersionId);
+  if (!faction) throw new Error(`NPC ${entity.id} 引用了未知派系 ${entity.payload.factionId}`);
+  if (!version) throw new Error(`NPC ${entity.id} 引用了未知版本 ${entity.payload.debutVersionId}`);
+  return {
+    id: entity.id,
+    names: entity.names,
+    aliases: entity.aliases,
+    regionId: entity.payload.regionId,
+    factionId: entity.payload.factionId,
+    factionGroupId: faction.groupId,
+    debutVersionId: entity.payload.debutVersionId,
+    debutVersionOrder: version.order,
+    assets: entity.payload.assets,
+  };
+}
+
 const playableEntitiesById = new Map(
   contentManifest.entities
     .filter((entity) => entity.kind === "playable")
@@ -54,8 +92,6 @@ export const characters: readonly Character[] = Object.freeze(
 );
 
 export { buildPlayableManifest } from "./content-manifest";
-/** NPC 正式题池只读发布快照；正式目标和候选成员由发布 seam 另行核对来源证据。 */
-export const npcManifest = Object.freeze(ContentManifestSchema.parse(npcManifestData));
 
 export const elementLabels: Record<Element, LocalizedText> = {
   physical: { "zh-CN": "物理", en: "Physical", ja: "物理" },
@@ -80,7 +116,8 @@ export const pathLabels: Record<Path, LocalizedText> = {
 };
 
 export function getFactionName(factionId: string, locale: keyof LocalizedText): string {
-  return factions.find((faction) => faction.id === factionId)?.names[locale] ?? factionId;
+  const canonicalId = canonicalFactionId(factionId);
+  return factions.find((faction) => faction.id === canonicalId)?.names[locale] ?? factionId;
 }
 
 const regionLabels: Record<string, LocalizedText> = {
@@ -92,6 +129,12 @@ const regionLabels: Record<string, LocalizedText> = {
   belobog: { "zh-CN": "贝洛伯格", en: "Belobog", ja: "ベロブルグ" },
   penacony: { "zh-CN": "匹诺康尼", en: "Penacony", ja: "ピノコニー" },
   xianzhou: { "zh-CN": "仙舟", en: "Xianzhou", ja: "仙舟" },
+  "xianzhou-luofu": { "zh-CN": "仙舟「罗浮」", en: "Xianzhou Luofu", ja: "仙舟「羅浮」" },
+  "interastral-peace-corporation": {
+    "zh-CN": "星际和平公司",
+    en: "Interastral Peace Corporation",
+    ja: "スターピースカンパニー",
+  },
   amphoreus: { "zh-CN": "翁法罗斯", en: "Amphoreus", ja: "オンパロス" },
   cosmic: { "zh-CN": "银河", en: "Cosmic", ja: "銀河" },
   "astral-express": { "zh-CN": "星穹列车", en: "Astral Express", ja: "星穹列車" },
@@ -105,6 +148,10 @@ export function getRegionName(regionId: string | undefined, locale: keyof Locali
 }
 
 export function getSearchText(item: Character): string {
+  return getEntitySearchText(item);
+}
+
+export function getEntitySearchText(item: Pick<Character, "names" | "aliases">): string {
   return [
     ...Object.values(item.names),
     ...item.aliases["zh-CN"],

@@ -15,10 +15,10 @@ async function expireAbandonedGames(db: D1Database, now: number): Promise<void> 
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at)
          SELECT
-           g.id, g.user_id, g.mode, g.difficulty, g.date_key, 'expired',
+           g.id, g.user_id, g.mode, g.mode_id, g.difficulty, g.date_key, 'expired',
            (SELECT COUNT(*) FROM game_guesses gg WHERE gg.game_id = g.id),
            MAX(0, ? - g.started_at), ?, ?
          FROM games g

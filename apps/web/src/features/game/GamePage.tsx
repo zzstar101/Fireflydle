@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
-import { contentManifest } from "@fireflydle/game-data";
+import { contentManifest, npcManifest } from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
@@ -41,9 +41,13 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-function playableFieldSummary(locale: "zh-CN" | "en" | "ja"): string {
-  const fields = selectSnapshotFieldDefinitions(
-    contentManifest.modes.find((mode) => mode.id === "playable")?.fields ?? [],
+function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: "playable" | "npc"): string {
+  const manifest = contentModeId === "npc" ? npcManifest : contentManifest;
+  const mode = manifest.modes.find((entry) => entry.id === contentModeId);
+  const fields = (
+    contentModeId === "playable"
+      ? selectSnapshotFieldDefinitions(mode?.fields ?? [])
+      : (mode?.fields ?? [])
   )
     .map((field) => field.label[locale])
     .join(locale === "ja" ? "・" : ", ");
@@ -52,6 +56,7 @@ function playableFieldSummary(locale: "zh-CN" | "en" | "ja"): string {
 
 function GamePreparation({
   mode,
+  contentModeId,
   checking,
   busy,
   connectionFailed,
@@ -60,6 +65,7 @@ function GamePreparation({
   onOffline,
 }: {
   mode: "daily" | "random";
+  contentModeId: "playable" | "npc";
   checking: boolean;
   busy: boolean;
   connectionFailed: boolean;
@@ -69,6 +75,10 @@ function GamePreparation({
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
+  const modeDefinition = (contentModeId === "npc" ? npcManifest : contentManifest).modes.find(
+    (entry) => entry.id === contentModeId,
+  );
+  const maxAttempts = modeDefinition?.maxAttempts ?? 6;
 
   return (
     <main className={`game-preparation prep-${mode}`}>
@@ -80,8 +90,20 @@ function GamePreparation({
           <p className="eyebrow">
             {mode === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
           </p>
-          <h1>{mode === "daily" ? t("game.daily") : t("game.random")}</h1>
-          <p>{mode === "daily" ? t("prep.dailyIntro") : t("prep.randomIntro")}</p>
+          <h1>
+            {contentModeId === "npc"
+              ? "NPC"
+              : mode === "daily"
+                ? t("game.daily")
+                : t("game.random")}
+          </h1>
+          <p>
+            {contentModeId === "npc"
+              ? fieldSummary(locale, contentModeId)
+              : mode === "daily"
+                ? t("prep.dailyIntro")
+                : t("prep.randomIntro")}
+          </p>
         </div>
         <div className="prep-route-mark" aria-hidden="true">
           <span>{mode === "daily" ? "01" : "02"}</span>
@@ -108,10 +130,10 @@ function GamePreparation({
             </h2>
             <p>
               {locale === "zh-CN"
-                ? `${mode === "daily" ? "每日一题" : "练习"}固定 6 次猜测${mode === "daily" ? "，每位玩家每天只有一局。" : "。"}`
+                ? `${contentModeId === "npc" ? "NPC 练习" : mode === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${mode === "daily" ? "，每位玩家每天只有一局。" : "。"}`
                 : locale === "ja"
-                  ? `${mode === "daily" ? "デイリー" : "練習"}は6回固定です${mode === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
-                  : `${mode === "daily" ? "Daily puzzles" : "Practice"} always allow 6 guesses${mode === "daily" ? " and one run per player." : "."}`}
+                  ? `${contentModeId === "npc" ? "NPC練習" : mode === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${mode === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
+                  : `${contentModeId === "npc" ? "NPC practice" : mode === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${mode === "daily" ? " and one run per player." : "."}`}
             </p>
           </div>
         </div>
@@ -127,13 +149,19 @@ function GamePreparation({
             </strong>
             <small>
               {locale === "zh-CN"
-                ? "所有普通角色活动使用相同次数规则"
+                ? contentModeId === "npc"
+                  ? "NPC 练习使用独立四猜规则"
+                  : "所有普通角色活动使用相同次数规则"
                 : locale === "ja"
-                  ? "通常キャラクターの全アクティビティで同じルール"
-                  : "The same limit for every playable-character activity"}
+                  ? contentModeId === "npc"
+                    ? "NPC練習専用の4回ルール"
+                    : "通常キャラクターの全アクティビティで同じルール"
+                  : contentModeId === "npc"
+                    ? "Four attempts for NPC practice"
+                    : "The same limit for every playable-character activity"}
             </small>
           </span>
-          <b>6</b>
+          <b>{maxAttempts}</b>
           <em>{t("prep.attemptUnit")}</em>
         </div>
 
@@ -224,7 +252,7 @@ function GamePreparation({
                 </span>
               </li>
             </ul>
-            <small>{playableFieldSummary(locale)}</small>
+            <small>{fieldSummary(locale, contentModeId)}</small>
           </div>
         </details>
       </section>
@@ -234,9 +262,11 @@ function GamePreparation({
 
 function ActiveGame({
   mode,
+  contentModeId,
   session,
 }: {
   mode: "daily" | "random";
+  contentModeId: "playable" | "npc";
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
 }) {
   const { t } = useTranslation();
@@ -346,10 +376,18 @@ function ActiveGame({
             <ArrowLeft size={15} /> {t("hub.backToHub")}
           </Link>
           <p className="eyebrow">
-            {mode === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
+            {contentModeId === "npc"
+              ? "NPC · TRACER"
+              : mode === "daily"
+                ? t("prep.dailyEyebrow")
+                : t("prep.randomEyebrow")}
           </p>
           <h1 ref={gameHeadingRef} tabIndex={-1}>
-            {mode === "daily" ? t("game.daily") : t("game.random")}
+            {contentModeId === "npc"
+              ? "NPC"
+              : mode === "daily"
+                ? t("game.daily")
+                : t("game.random")}
           </h1>
           <p>{t("prep.activeIntro")}</p>
         </div>
@@ -619,7 +657,13 @@ function ActiveGame({
   );
 }
 
-export default function GamePage({ mode }: { mode: "daily" | "random" }) {
+export default function GamePage({
+  mode,
+  contentModeId = "playable",
+}: {
+  mode: "daily" | "random";
+  contentModeId?: "playable" | "npc";
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedGameId = searchParams.get("game");
   const currentGames = useCurrentGames();
@@ -628,14 +672,20 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
     queryFn: async () => {
       await ensureSession();
       const game = await apiRequest<PublicGame>(`/games/${requestedGameId}`);
-      if (game.mode !== mode) throw new Error("GAME_MODE_MISMATCH");
+      if (game.mode !== mode || game.modeId !== contentModeId) {
+        throw new Error("GAME_MODE_MISMATCH");
+      }
       return game;
     },
     enabled: Boolean(requestedGameId),
     retry: false,
   });
-  const initialGame = requestedGameId ? requestedGame.data : currentGames.data?.[mode];
-  const session = useGameSession(mode, "standard", initialGame);
+  const initialGame = requestedGameId
+    ? requestedGame.data
+    : contentModeId === "playable"
+      ? currentGames.data?.[mode]
+      : null;
+  const session = useGameSession(mode, "standard", initialGame, contentModeId);
   const navigationGameId = session.navigationGameId;
   const navigationGame =
     navigationGameId && session.game?.id === navigationGameId ? session.game : null;
@@ -679,6 +729,7 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
     return (
       <GamePreparation
         mode={mode}
+        contentModeId={contentModeId}
         checking={checking}
         busy={session.busy}
         connectionFailed={connectionFailed}
@@ -689,5 +740,5 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
     );
   }
 
-  return <ActiveGame mode={mode} session={{ ...session, game }} />;
+  return <ActiveGame mode={mode} contentModeId={contentModeId} session={{ ...session, game }} />;
 }

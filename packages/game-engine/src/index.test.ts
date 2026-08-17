@@ -12,6 +12,7 @@ import {
   compareFieldValues,
   compareCharactersWithRules,
   snapshotRulesFromFieldDefinitions,
+  compareNpcEntities,
 } from "./index";
 
 const asset = {
@@ -44,6 +45,47 @@ function character(overrides: Partial<Character> = {}): Character {
     ...overrides,
   };
 }
+
+describe("NPC 三列黄金判题", () => {
+  const target = {
+    id: "npc-skott",
+    names: { "zh-CN": "斯科特", en: "Skott", ja: "スコート" },
+    regionId: "xianzhou-luofu",
+    factionId: "xianzhou-luofu",
+    factionGroupId: "xianzhou-alliance",
+    debutVersionId: "1.3",
+    debutVersionOrder: 3,
+  };
+
+  test("地区 exact、派系同大组 close、版本方向 close", () => {
+    const cells = compareNpcEntities(target, {
+      ...target,
+      id: "npc-fixture-yaoqing",
+      regionId: "penacony",
+      factionId: "xianzhou-yaoqing",
+      factionGroupId: "xianzhou-alliance",
+      debutVersionId: "1.1",
+      debutVersionOrder: 1,
+    });
+    expect(cells.map((cell) => [cell.field, cell.state, cell.direction])).toEqual([
+      ["region", "miss", "none"],
+      ["faction", "close", "none"],
+      ["debut-version", "close", "higher"],
+    ]);
+  });
+
+  test("跨大版本按统一发布序位比较 1.6 与 2.0", () => {
+    const cells = compareNpcEntities(
+      { ...target, debutVersionId: "2.0", debutVersionOrder: 7 },
+      { ...target, id: "npc-fixture-1-6", debutVersionId: "1.6", debutVersionOrder: 6 },
+    );
+    expect(cells[2]).toEqual({
+      field: "debut-version",
+      state: "close",
+      direction: "higher",
+    });
+  });
+});
 
 describe("角色反馈", () => {
   test("完全相同的角色得到六个绿色格", () => {

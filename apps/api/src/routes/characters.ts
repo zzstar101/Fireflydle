@@ -3,11 +3,19 @@ import { Hono } from "hono";
 import { getCharacter, getEnabledCharacters } from "../lib/db";
 import { ApiProblem, ok } from "../lib/http";
 import type { AppContext } from "../types";
+import { npcEntities, npcManifest, npcSummary } from "@fireflydle/game-data";
 
 export const characterRoutes = new Hono<AppContext>();
 
 characterRoutes.get("/characters", async (context) => {
   return ok(context, await getEnabledCharacters(context.env.DB));
+});
+
+characterRoutes.get("/npcs", (context) => {
+  const mode = npcManifest.modes.find((entry) => entry.id === "npc");
+  const pool = npcManifest.pools.find((entry) => entry.id === mode?.candidatePoolId);
+  const allowed = new Set(pool?.candidateIds ?? []);
+  return ok(context, npcEntities.filter((entity) => allowed.has(entity.id)).map(npcSummary));
 });
 
 characterRoutes.get("/characters/:characterId", async (context) => {

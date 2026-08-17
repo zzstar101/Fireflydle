@@ -5,12 +5,21 @@ import type {
   CurrentGames,
   Difficulty,
   GameMode,
+  GameEntitySummary,
+  NpcSummary,
   PublicGame,
 } from "@fireflydle/contracts";
-import { characters, contentManifest } from "@fireflydle/game-data";
+import {
+  characters,
+  contentManifest,
+  npcEntities,
+  npcManifest,
+  npcSummary,
+} from "@fireflydle/game-data";
 import {
   ATTEMPTS_BY_DIFFICULTY,
   createGuessResultWithRules,
+  createNpcGuessResult,
   getBeijingDateKey,
   hasDuplicateGuess,
   selectSnapshotFieldDefinitions,
@@ -20,16 +29,30 @@ import { ApiClientError, apiRequest, ensureSession } from "../../api/client";
 import { currentGamesQueryKey } from "./useCurrentGames";
 
 type PlayableMode = Extract<GameMode, "daily" | "random">;
+type SoloContentMode = "playable" | "npc";
 type SessionSource = "server" | "local" | null;
 const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
-const playableMode = contentManifest.modes.find((item) => item.id === "playable");
-if (!playableMode) throw new Error("普通角色模式未注册");
+const playableMode =
+  contentManifest.modes.find((item) => item.id === "playable") ??
+  (() => {
+    throw new Error("普通角色模式未注册");
+  })();
 const playableFieldDefinitions = playableMode.fields;
 const snapshotFieldRules = snapshotRulesFromFieldDefinitions(playableFieldDefinitions);
+const npcMode =
+  npcManifest.modes.find((item) => item.id === "npc") ??
+  (() => {
+    throw new Error("NPC 模式未注册");
+  })();
+const npcRoster = npcEntities.map(npcSummary);
+
+function rosterFor(contentModeId: SoloContentMode): readonly GameEntitySummary[] {
+  return contentModeId === "npc" ? npcRoster : characters;
+}
 
 interface GameSession {
   game: PublicGame | null;
-  roster: readonly Character[];
+  roster: readonly GameEntitySummary[];
   source: SessionSource;
   navigationGameId: string | null;
   busy: boolean;
@@ -45,7 +68,7 @@ interface GameSession {
 
 interface ServerStartResult {
   game: PublicGame;
-  roster: readonly Character[];
+  roster: readonly GameEntitySummary[];
 }
 
 function errorCodeOf(error: unknown): string {
@@ -55,15 +78,18 @@ function errorCodeOf(error: unknown): string {
 async function startServerGame(
   mode: PlayableMode,
   difficulty: Difficulty,
+  contentModeId: SoloContentMode,
 ): Promise<ServerStartResult> {
   // 会话与对局创建必须顺序执行，首次访客请求才能稳定携带身份 cookie。
   await ensureSession();
   const [game, roster] = await Promise.all([
     apiRequest<PublicGame>("/games", {
       method: "POST",
-      body: JSON.stringify({ mode, difficulty }),
+      body: JSON.stringify({ mode, difficulty, modeId: contentModeId }),
     }),
-    apiRequest<Character[]>("/characters").catch(() => characters),
+    contentModeId === "npc"
+      ? apiRequest<NpcSummary[]>("/npcs").catch(() => npcRoster)
+      : apiRequest<Character[]>("/characters").catch(() => characters),
   ]);
   return { game, roster };
 }
@@ -85,8 +111,16 @@ function localPlayerSeed(): string {
   return created;
 }
 
-function targetFor(mode: PlayableMode, difficulty: Difficulty, salt = ""): Character {
-  const eligible = characters.filter((character) => character.enabled && character.targetEligible);
+function targetFor(
+  mode: PlayableMode,
+  difficulty: Difficulty,
+  contentModeId: SoloContentMode,
+  salt = "",
+): GameEntitySummary {
+  const eligible =
+    contentModeId === "npc"
+      ? npcRoster
+      : characters.filter((character) => character.enabled && character.targetEligible);
   const seed =
     mode === "daily"
       ? `${getBeijingDateKey()}-${localPlayerSeed()}`
@@ -96,26 +130,33 @@ function targetFor(mode: PlayableMode, difficulty: Difficulty, salt = ""): Chara
   return target;
 }
 
-function createLocalGame(mode: PlayableMode, difficulty: Difficulty): PublicGame {
+function createLocalGame(
+  mode: PlayableMode,
+  difficulty: Difficulty,
+  contentModeId: SoloContentMode,
+): PublicGame {
   const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
     mode,
-    modeId: "playable",
+    modeId: contentModeId,
     activityId: mode === "daily" ? "daily" : "practice",
-    poolRuleVersion:
-      contentManifest.modes.find((item) => item.id === "playable")?.rulesVersion ?? "1.0.0",
-    manifestVersion: contentManifest.manifestVersion,
+    poolRuleVersion: contentModeId === "npc" ? npcMode.rulesVersion : playableMode.rulesVersion,
+    manifestVersion:
+      contentModeId === "npc" ? npcManifest.manifestVersion : contentManifest.manifestVersion,
     difficulty,
     dateKey: mode === "daily" ? getBeijingDateKey() : null,
-    maxAttempts: ATTEMPTS_BY_DIFFICULTY[difficulty],
+    maxAttempts: contentModeId === "npc" ? npcMode.maxAttempts : ATTEMPTS_BY_DIFFICULTY[difficulty],
     guesses: [],
     status: "active",
     startedAt: now,
     completedAt: null,
     elapsedMs: 0,
     answer: null,
-    fieldDefinitions: selectSnapshotFieldDefinitions(playableFieldDefinitions),
+    fieldDefinitions:
+      contentModeId === "npc"
+        ? npcMode.fields
+        : selectSnapshotFieldDefinitions(playableFieldDefinitions),
   };
 }
 
@@ -123,10 +164,11 @@ export function useGameSession(
   mode: PlayableMode,
   difficulty: Difficulty,
   initialGame: PublicGame | null | undefined,
+  contentModeId: SoloContentMode = "playable",
 ): GameSession {
   const queryClient = useQueryClient();
   const [gameState, setGameState] = useState<PublicGame | null>(initialGame ?? null);
-  const [roster, setRoster] = useState<readonly Character[]>(characters);
+  const [roster, setRoster] = useState<readonly GameEntitySummary[]>(rosterFor(contentModeId));
   const [sourceState, setSourceState] = useState<SessionSource>(initialGame ? "server" : null);
   const [navigationGameId, setNavigationGameId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -142,6 +184,7 @@ export function useGameSession(
 
   const writeCurrentCache = useCallback(
     (next: PublicGame | null) => {
+      if (contentModeId === "npc") return;
       queryClient.setQueryData<CurrentGames>(currentGamesQueryKey, (current) => {
         if (!current) return current;
         return {
@@ -151,7 +194,7 @@ export function useGameSession(
         };
       });
     },
-    [mode, queryClient],
+    [contentModeId, mode, queryClient],
   );
 
   useEffect(() => {
@@ -161,7 +204,7 @@ export function useGameSession(
       sessionEpoch.current += 1;
       localTargetId.current = null;
       submitting.current = false;
-      setRoster(characters);
+      setRoster(rosterFor(contentModeId));
       setGameState(initialGame ?? null);
       setSourceState(initialGame ? "server" : null);
       setNavigationGameId(null);
@@ -173,7 +216,7 @@ export function useGameSession(
     setGameState(initialGame);
     setSourceState(initialGame ? "server" : null);
     localTargetId.current = null;
-  }, [initialGame, mode, sourceState]);
+  }, [contentModeId, initialGame, mode, sourceState]);
 
   const applyServerStart = useCallback(
     (result: ServerStartResult) => {
@@ -193,7 +236,7 @@ export function useGameSession(
     setBusy(true);
     setErrorCode(null);
     try {
-      const result = await startServerGame(mode, difficulty);
+      const result = await startServerGame(mode, difficulty, contentModeId);
       if (sequence !== startSequence.current) return false;
       applyServerStart(result);
       setBusy(false);
@@ -204,22 +247,22 @@ export function useGameSession(
       setBusy(false);
       return false;
     }
-  }, [applyServerStart, difficulty, mode]);
+  }, [applyServerStart, contentModeId, difficulty, mode]);
 
   const startOffline = useCallback(() => {
-    const target = targetFor(mode, difficulty, String(Date.now()));
-    const localGame = createLocalGame(mode, difficulty);
+    const target = targetFor(mode, difficulty, contentModeId, String(Date.now()));
+    const localGame = createLocalGame(mode, difficulty, contentModeId);
     ++startSequence.current;
     sessionEpoch.current += 1;
     localTargetId.current = target.id;
-    setRoster(characters);
+    setRoster(rosterFor(contentModeId));
     setGameState(localGame);
     setSourceState("local");
     setNavigationGameId(null);
     setErrorCode(null);
     setBusy(false);
     return true;
-  }, [difficulty, mode]);
+  }, [contentModeId, difficulty, mode]);
 
   const submitGuess = useCallback(
     async (characterId: string) => {
@@ -255,15 +298,19 @@ export function useGameSession(
         return;
       }
 
-      const target = characters.find((character) => character.id === localTargetId.current);
-      const guess = characters.find((character) => character.id === characterId);
+      const localRoster = rosterFor(contentModeId);
+      const target = localRoster.find((entity) => entity.id === localTargetId.current);
+      const guess = localRoster.find((entity) => entity.id === characterId);
       if (!target || !guess) {
         setErrorCode("NOT_FOUND");
         submitting.current = false;
         setBusy(false);
         return;
       }
-      const result = createGuessResultWithRules(target, guess, snapshotFieldRules);
+      const result =
+        contentModeId === "npc"
+          ? createNpcGuessResult(target as NpcSummary, guess as NpcSummary)
+          : createGuessResultWithRules(target as Character, guess as Character, snapshotFieldRules);
       const guesses = [...game.guesses, result];
       const ended = result.isCorrect || guesses.length >= game.maxAttempts;
       const completedAt = ended ? new Date().toISOString() : null;
@@ -278,7 +325,7 @@ export function useGameSession(
       submitting.current = false;
       setBusy(false);
     },
-    [game, queryClient, source, writeCurrentCache],
+    [contentModeId, game, queryClient, source, writeCurrentCache],
   );
 
   const restart = useCallback(async () => {
@@ -306,7 +353,7 @@ export function useGameSession(
       setGameState(conceded);
       setSourceState("server");
       writeCurrentCache(null);
-      const result = await startServerGame(mode, difficulty);
+      const result = await startServerGame(mode, difficulty, contentModeId);
       applyServerStart(result);
       void queryClient.invalidateQueries({ queryKey: ["stats"] });
       setBusy(false);
@@ -318,6 +365,7 @@ export function useGameSession(
     }
   }, [
     applyServerStart,
+    contentModeId,
     difficulty,
     game,
     mode,

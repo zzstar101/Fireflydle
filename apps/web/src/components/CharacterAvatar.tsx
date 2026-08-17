@@ -1,13 +1,13 @@
 import { useState } from "react";
-import type { CharacterSummary } from "@fireflydle/contracts";
+import type { GameEntitySummary } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
 
 const PIXELS_BY_SIZE = { small: 38, medium: 52, large: 88 } as const;
 
-export function getCharacterImageSources(character: CharacterSummary, pixels: number) {
-  const responsive = character.assets.responsive?.toSorted(
-    (left, right) => left.width - right.width,
-  );
+export function getCharacterImageSources(character: GameEntitySummary, pixels: number) {
+  const responsive = (
+    "responsive" in character.assets ? character.assets.responsive : undefined
+  )?.toSorted((left, right) => left.width - right.width);
   const selected = responsive?.find((variant) => variant.width >= pixels) ?? responsive?.at(-1);
   return {
     width: selected?.width ?? pixels,
@@ -24,7 +24,7 @@ export function CharacterAvatar({
   size = "medium",
   priority = false,
 }: {
-  character: CharacterSummary;
+  character: GameEntitySummary;
   size?: "small" | "medium" | "large";
   priority?: boolean;
 }) {
@@ -37,7 +37,7 @@ export function CharacterAvatar({
 
   return (
     <span
-      className={`character-avatar avatar-${size} element-${character.element}`}
+      className={`character-avatar avatar-${size}${"element" in character ? ` element-${character.element}` : " entity-npc"}`}
       aria-label={name}
     >
       {!failed ? (

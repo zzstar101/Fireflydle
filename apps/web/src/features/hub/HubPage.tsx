@@ -10,7 +10,7 @@ import { useCurrentGames } from "../game/useCurrentGames";
 import { getDefaultModeNavigation } from "../modes/mode-registry";
 import "./hub.css";
 
-type HubMode = "daily" | "random" | "duel";
+type HubMode = "daily" | "random" | "duel" | "npc";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
@@ -67,7 +67,9 @@ function ModeBoard({
   const content = (
     <>
       <div className="mode-board-head">
-        <span className="mode-index">0{mode === "daily" ? 1 : mode === "random" ? 2 : 3}</span>
+        <span className="mode-index">
+          0{mode === "daily" ? 1 : mode === "random" ? 2 : mode === "duel" ? 3 : 4}
+        </span>
         <span className="mode-status">
           <i /> {status}
         </span>
@@ -209,6 +211,19 @@ export default function HubPage() {
             disabled={!serviceChecking && !serviceOnline}
           />
         ) : null}
+        <ModeBoard
+          mode="npc"
+          to="/npc/practice"
+          icon={<RadioTower size={30} />}
+          status={t("hub.statusReady")}
+          title="NPC"
+          description={t("game.npcDescription", {
+            defaultValue: "通过主叙事地区、主派系与首次剧情登场版本锁定 NPC。",
+          })}
+          metricLabel={t("game.attempts")}
+          metricValue="4"
+          action={t("hub.startRandom")}
+        />
       </section>
 
       <section className="station-status" aria-label={t("hub.stationStatus")}>

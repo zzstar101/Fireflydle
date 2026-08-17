@@ -25,13 +25,14 @@
         {
           "id": "debut-version",
           "label": { "zh-CN": "首次剧情登场版本", "en": "Debut version", "ja": "初登場バージョン" },
-          "valueType": "enum",
-          "comparison": "exact",
-          "required": true
+          "valueType": "number",
+          "comparison": "direction",
+          "required": true,
+          "directional": true
         }
       ],
       "maxAttempts": 4,
-      "rulesVersion": "1.0",
+      "rulesVersion": "1.0.0",
       "activities": ["practice"]
     }
   ],

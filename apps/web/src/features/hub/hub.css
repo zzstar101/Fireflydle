@@ -56,7 +56,7 @@
 
 .mode-board-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border-left: 1px solid var(--border);
 }
 
@@ -160,6 +160,10 @@
   --mode-signal: #b46264;
 }
 
+.mode-npc {
+  --mode-signal: #69a77c;
+}
+
 .mode-board-head {
   display: flex;
   align-items: center;
@@ -193,7 +197,8 @@
 }
 
 .is-active .mode-status i,
-.mode-duel:not(.is-disabled) .mode-status i {
+.mode-duel:not(.is-disabled) .mode-status i,
+.mode-npc .mode-status i {
   background: var(--mode-signal);
   box-shadow: 0 0 10px color-mix(in srgb, var(--mode-signal) 62%, transparent);
 }

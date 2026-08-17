@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Search, Send } from "lucide-react";
-import type { Character, Locale } from "@fireflydle/contracts";
-import { getSearchText } from "@fireflydle/game-data";
+import type { GameEntitySummary, Locale } from "@fireflydle/contracts";
+import { getEntitySearchText } from "@fireflydle/game-data";
 import { useTranslation } from "react-i18next";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 
@@ -12,7 +12,7 @@ export function CharacterCombobox({
   disabled,
   onSubmit,
 }: {
-  characters: readonly Character[];
+  characters: readonly GameEntitySummary[];
   locale: Locale;
   excludedIds: ReadonlySet<string>;
   disabled: boolean;
@@ -30,11 +30,13 @@ export function CharacterCombobox({
     if (!normalized) return [];
     return characters
       .filter((character) => !excludedIds.has(character.id))
-      .filter((character) => getSearchText(character).includes(normalized))
+      .filter((character) => {
+        return getEntitySearchText(character).includes(normalized);
+      })
       .slice(0, 9);
   }, [characters, excludedIds, query]);
 
-  const select = (character: Character) => {
+  const select = (character: GameEntitySummary) => {
     setSelectedId(character.id);
     setQuery(character.names[locale]);
     setOpen(false);

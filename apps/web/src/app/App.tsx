@@ -112,6 +112,10 @@ export function App() {
             <Route path="/verify-email" element={<EmailVerificationPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/replay/:replayId" element={<ReplayPage />} />
+            <Route
+              path="/npc/practice"
+              element={<GamePage key="npc-practice" mode="random" contentModeId="npc" />}
+            />
             <Route path="/legal" element={<LegalPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

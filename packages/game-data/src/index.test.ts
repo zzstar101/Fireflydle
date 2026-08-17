@@ -6,6 +6,8 @@ import {
   contentManifest,
   factions,
   getSearchText,
+  getNpcSearchText,
+  npcEntities,
   npcManifest,
   versions,
 } from "./index.ts";
@@ -60,6 +62,23 @@ describe("NPC 正式题池", () => {
         (id) => npcManifest.entities.find((entity) => entity.id === id)?.kind === "npc",
       ),
     ).toBeTrue();
+  });
+
+  test("答案与搜索只来自审核 NPC 池，且不混入普通角色", () => {
+    const mode = npcManifest.modes.find((entry) => entry.id === "npc");
+    const targets = npcManifest.pools.find((pool) => pool.id === mode?.targetPoolId);
+    const candidates = npcManifest.pools.find((pool) => pool.id === mode?.candidatePoolId);
+    expect(candidates?.candidateIds).toEqual(targets?.targetIds);
+    expect(npcEntities.every((entity) => entity.kind === "npc")).toBeTrue();
+    expect(
+      characters.some((character) => candidates?.candidateIds.includes(character.id)),
+    ).toBeFalse();
+  });
+
+  test("统一搜索文本支持 NPC 三语名称和别名", () => {
+    const pomPom = npcEntities.find((entity) => entity.id === "npc-pom-pom");
+    expect(pomPom).toBeDefined();
+    expect(getNpcSearchText(pomPom!)).toContain("pamu");
   });
 });
 
