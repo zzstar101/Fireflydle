@@ -40,6 +40,16 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "CACHE_CURRENT_PAGE_ASSETS" || !Array.isArray(event.data.urls)) return;
+  const urls = event.data.urls.filter(
+    (url) =>
+      typeof url === "string" && new URL(url, self.location.origin).origin === self.location.origin,
+  );
+  if (urls.length === 0) return;
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urls)));
+});
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;

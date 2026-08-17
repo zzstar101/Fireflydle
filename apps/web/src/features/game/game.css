@@ -370,6 +370,36 @@
   gap: 8px;
 }
 
+.offline-pack-status {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  margin: 18px 0 0 58px;
+  padding: 14px 16px;
+  gap: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+}
+
+.offline-pack-status > svg {
+  color: var(--cyan);
+}
+
+.offline-pack-status div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.offline-pack-status strong {
+  font-size: 0.75rem;
+}
+
+.offline-pack-status span {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
 .offline-practice-button,
 .result-share-button,
 .active-game-tools > button,
@@ -916,6 +946,13 @@
   }
   .connection-choice {
     grid-template-columns: auto 1fr;
+  }
+  .offline-pack-status {
+    grid-template-columns: auto 1fr;
+  }
+  .offline-pack-status > button {
+    grid-column: 1 / -1;
+    justify-self: end;
   }
   .connection-actions {
     grid-column: 1 / -1;
@@ -2443,6 +2480,7 @@
   .prep-daily-rule,
   .prep-start-zone,
   .connection-choice,
+  .offline-pack-status,
   .prep-rules {
     margin-left: 0;
   }
@@ -2454,6 +2492,12 @@
   }
   .connection-choice {
     padding: 18px;
+  }
+  .offline-pack-status {
+    padding: 14px;
+  }
+  .offline-pack-status > button {
+    width: 100%;
   }
   .connection-actions {
     display: grid;

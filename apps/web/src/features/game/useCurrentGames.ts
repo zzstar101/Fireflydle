@@ -14,7 +14,7 @@ function millisecondsUntilBeijingMidnight(serverNow: string): number {
   return Math.max(1_000, nextMidnight - now + 1_000);
 }
 
-export function useCurrentGames() {
+export function useCurrentGames(enabled = true) {
   return useQuery({
     queryKey: currentGamesQueryKey,
     queryFn: async () => {
@@ -29,5 +29,6 @@ export function useCurrentGames() {
     },
     refetchIntervalInBackground: true,
     retry: false,
+    enabled,
   });
 }

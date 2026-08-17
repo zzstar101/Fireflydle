@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AppShell } from "../components/AppShell";
@@ -6,6 +6,7 @@ import { LoadingScreen } from "../components/LoadingScreen";
 import { ModeShell } from "../features/modes/ModeShell";
 import { getDefaultMode, type ModeNavigationItem } from "../features/modes/mode-registry";
 import { usePreferences } from "../state/preferences";
+import { useNetworkStatus } from "../offline/network-status";
 
 const GamePage = lazy(() => import("../features/game/GamePage"));
 const EndlessPage = lazy(() => import("../features/game/EndlessPage"));
@@ -73,10 +74,29 @@ function DefaultModeLayout() {
 }
 
 function activityPage(activity: ModeNavigationItem) {
-  if (activity.id === "daily") return <GamePage key="daily" activityId="daily" />;
+  if (activity.id === "daily")
+    return (
+      <OnlineActivity>
+        <GamePage key="daily" activityId="daily" />
+      </OnlineActivity>
+    );
   if (activity.id === "practice") return <GamePage key="practice" activityId="practice" />;
-  if (activity.id === "endless") return <EndlessPage key="endless" contentModeId="playable" />;
-  return <DuelPage activityIds={activity.activityIds} />;
+  if (activity.id === "endless")
+    return (
+      <OnlineActivity>
+        <EndlessPage key="endless" contentModeId="playable" />
+      </OnlineActivity>
+    );
+  return (
+    <OnlineActivity>
+      <DuelPage activityIds={activity.activityIds} />
+    </OnlineActivity>
+  );
+}
+
+function OnlineActivity({ children }: { children: ReactNode }) {
+  const online = useNetworkStatus();
+  return online ? children : <Navigate to="/playable/practice" replace />;
 }
 
 function RouteContent() {
@@ -106,7 +126,11 @@ function RouteContent() {
         />
         <Route
           path="/npc/endless"
-          element={<EndlessPage key="npc-endless" contentModeId="npc" />}
+          element={
+            <OnlineActivity>
+              <EndlessPage key="npc-endless" contentModeId="npc" />
+            </OnlineActivity>
+          }
         />
         <Route
           path="/currency-wars/practice"
@@ -120,7 +144,11 @@ function RouteContent() {
         />
         <Route
           path="/currency-wars/endless"
-          element={<EndlessPage key="currency-wars-endless" contentModeId="currency-wars" />}
+          element={
+            <OnlineActivity>
+              <EndlessPage key="currency-wars-endless" contentModeId="currency-wars" />
+            </OnlineActivity>
+          }
         />
         <Route
           path="/aeon/practice"
@@ -128,7 +156,11 @@ function RouteContent() {
         />
         <Route
           path="/aeon/endless"
-          element={<EndlessPage key="aeon-endless" contentModeId="aeon" />}
+          element={
+            <OnlineActivity>
+              <EndlessPage key="aeon-endless" contentModeId="aeon" />
+            </OnlineActivity>
+          }
         />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="*" element={<NotFoundPage />} />

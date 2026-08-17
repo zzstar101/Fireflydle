@@ -10,6 +10,12 @@ import {
   promptInstall,
   registerPwaServiceWorker,
 } from "./pwa";
+import {
+  aeonManifest,
+  contentManifest,
+  currencyWarsManifest,
+  npcManifest,
+} from "@fireflydle/game-data";
 
 describe("PWA service worker", () => {
   beforeEach(() => {
@@ -47,12 +53,24 @@ describe("PWA service worker", () => {
   });
 
   it("在生产环境按内容 manifest 版本注册根 scope", () => {
-    const register = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, "serviceWorker", { configurable: true, value: { register } });
+    const registration = { active: { postMessage: vi.fn() } };
+    const register = vi.fn().mockResolvedValue(registration);
+    Object.defineProperty(navigator, "serviceWorker", {
+      configurable: true,
+      value: { ready: Promise.resolve(registration), register },
+    });
 
     registerPwaServiceWorker(false);
 
-    expect(register).toHaveBeenCalledWith(expect.stringMatching(/^\/sw\.js\?v=.+/), { scope: "/" });
+    const releaseVersion = [
+      contentManifest.manifestVersion,
+      npcManifest.manifestVersion,
+      currencyWarsManifest.manifestVersion,
+      aeonManifest.manifestVersion,
+    ].join(".");
+    expect(register).toHaveBeenCalledWith(`/sw.js?v=${encodeURIComponent(releaseVersion)}`, {
+      scope: "/",
+    });
   });
 
   it("只在完成结算后获得安装资格，并支持 30 天关闭冷却", () => {

@@ -10,6 +10,7 @@ import {
   Infinity,
   RadioTower,
   Shuffle,
+  Sparkles,
   Swords,
 } from "lucide-react";
 import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
@@ -18,9 +19,11 @@ import { useSession } from "../account/useSession";
 import { useCurrentGames } from "../game/useCurrentGames";
 import { getDefaultModeNavigation } from "../modes/mode-registry";
 import { usePreferences } from "../../state/preferences";
+import { useNetworkStatus } from "../../offline/network-status";
+import { useSpecialModePack, type SpecialModePackState } from "../../offline/use-special-mode-pack";
 import "./hub.css";
 
-type HubMode = "daily" | "practice" | "duel" | "npc" | "currency-wars";
+type HubMode = "daily" | "practice" | "duel" | "npc" | "currency-wars" | "aeon";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
@@ -47,6 +50,18 @@ function millisecondsUntilBeijingMidnight(now: number): number {
 
 function elapsedFor(game: PublicGame, now: number): number {
   return game.status === "active" ? now - Date.parse(game.startedAt) : game.elapsedMs;
+}
+
+function packStatus(locale: "zh-CN" | "en" | "ja", state: SpecialModePackState): string {
+  if (state === "ready")
+    return locale === "en" ? "Offline ready" : locale === "ja" ? "オフライン利用可" : "可离线使用";
+  if (state === "checking")
+    return locale === "en" ? "Checking" : locale === "ja" ? "確認中" : "检查中";
+  return locale === "en"
+    ? "Open online once"
+    : locale === "ja"
+      ? "一度オンラインで開く必要があります"
+      : "需联网打开一次";
 }
 
 function ModeBoard({
@@ -78,7 +93,18 @@ function ModeBoard({
     <>
       <div className="mode-board-head">
         <span className="mode-index">
-          0{mode === "daily" ? 1 : mode === "practice" ? 2 : mode === "duel" ? 3 : 4}
+          0
+          {mode === "daily"
+            ? 1
+            : mode === "practice"
+              ? 2
+              : mode === "duel"
+                ? 3
+                : mode === "npc"
+                  ? 4
+                  : mode === "currency-wars"
+                    ? 5
+                    : 6}
         </span>
         <span className="mode-status">
           <i /> {status}
@@ -114,13 +140,17 @@ function ModeBoard({
 export default function HubPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
+  const online = useNetworkStatus();
+  const npcPack = useSpecialModePack("npc", false);
+  const currencyWarsPack = useSpecialModePack("currency-wars", false);
+  const aeonPack = useSpecialModePack("aeon", false);
   const [now, setNow] = useState(Date.now());
-  const currentGames = useCurrentGames();
-  const session = useSession();
+  const currentGames = useCurrentGames(online);
+  const session = useSession(online);
   const stats = useQuery({
     queryKey: ["stats", "hub"],
     queryFn: () => apiRequest<PersonalStats>("/stats/me"),
-    enabled: currentGames.isSuccess,
+    enabled: online && currentGames.isSuccess,
     retry: false,
   });
   useEffect(() => {
@@ -130,8 +160,8 @@ export default function HubPage() {
 
   const daily = currentGames.data?.daily ?? null;
   const practice = currentGames.data?.practice ?? null;
-  const serviceOnline = currentGames.isSuccess;
-  const serviceChecking = currentGames.isPending;
+  const serviceOnline = online && currentGames.isSuccess;
+  const serviceChecking = online && currentGames.isPending;
   const dailyStatus = serviceChecking
     ? t("hub.statusSyncing")
     : daily?.status === "active"
@@ -191,6 +221,7 @@ export default function HubPage() {
                   : t("hub.startDaily")
             }
             active={daily?.status === "active"}
+            disabled={!online}
           />
         ) : null}
         {practiceActivity ? (
@@ -203,7 +234,13 @@ export default function HubPage() {
             description={t("hub.randomDescription")}
             metricLabel={practice ? t("game.elapsed") : t("hub.completedRuns")}
             metricValue={practiceMetric}
-            action={practice ? t("hub.continueGame") : t("hub.startRandom")}
+            action={
+              online
+                ? practice
+                  ? t("hub.continueGame")
+                  : t("hub.startRandom")
+                : t("prep.offlinePractice")
+            }
             active={Boolean(practice)}
           />
         ) : null}
@@ -224,14 +261,14 @@ export default function HubPage() {
             metricLabel="ELO"
             metricValue={String(session.data?.user.elo ?? 1000)}
             action={serviceOnline ? t("hub.enterDuel") : t("hub.duelUnavailable")}
-            disabled={!serviceChecking && !serviceOnline}
+            disabled={!online || (!serviceChecking && !serviceOnline)}
           />
         ) : null}
         <ModeBoard
           mode="npc"
           to="/npc/practice"
           icon={<RadioTower size={30} />}
-          status={t("hub.statusReady")}
+          status={packStatus(locale, npcPack.state)}
           title="NPC"
           description={t("game.npcDescription", {
             defaultValue: "通过主叙事地区、主派系与首次剧情登场版本锁定 NPC。",
@@ -239,12 +276,13 @@ export default function HubPage() {
           metricLabel={t("game.attempts")}
           metricValue="4"
           action={t("hub.startRandom")}
+          disabled={!online && npcPack.state !== "ready"}
         />
         <ModeBoard
           mode="currency-wars"
           to="/currency-wars/practice"
           icon={<Coins size={30} />}
-          status={t("hub.statusReady")}
+          status={packStatus(locale, currencyWarsPack.state)}
           title={locale === "en" ? "Currency Wars" : locale === "ja" ? "コイン戦争" : "货币战争"}
           description={
             locale === "en"
@@ -256,6 +294,25 @@ export default function HubPage() {
           metricLabel={t("game.attempts")}
           metricValue="6"
           action={t("hub.startRandom")}
+          disabled={!online && currencyWarsPack.state !== "ready"}
+        />
+        <ModeBoard
+          mode="aeon"
+          to="/aeon/practice"
+          icon={<Sparkles size={30} />}
+          status={packStatus(locale, aeonPack.state)}
+          title={locale === "en" ? "Aeons" : "星神"}
+          description={
+            locale === "en"
+              ? "Identify an Aeon from a stable sequence of revealed image tiles."
+              : locale === "ja"
+                ? "順番に開示される画像タイルから星神を当てます。"
+                : "根据按稳定顺序逐步揭示的图片方格猜出星神。"
+          }
+          metricLabel={t("game.attempts")}
+          metricValue="6"
+          action={t("hub.startRandom")}
+          disabled={!online && aeonPack.state !== "ready"}
         />
       </section>
 
@@ -284,15 +341,17 @@ export default function HubPage() {
           <span>{t("hub.nextReset")}</span>
           <strong className="mono">{formatTime(millisecondsUntilBeijingMidnight(now))}</strong>
         </div>
-        <div className={serviceOnline ? "status-online" : "status-offline"}>
+        <div className={online ? "status-online" : "status-offline"}>
           <RadioTower size={16} aria-hidden="true" />
           <span>{t("hub.service")}</span>
           <strong>
-            {serviceChecking
-              ? t("hub.statusSyncing")
-              : serviceOnline
-                ? t("common.online")
-                : t("hub.statusUnavailable")}
+            {!online
+              ? t("common.offline")
+              : serviceChecking
+                ? t("hub.statusSyncing")
+                : serviceOnline
+                  ? t("common.online")
+                  : t("hub.statusUnavailable")}
           </strong>
         </div>
       </section>

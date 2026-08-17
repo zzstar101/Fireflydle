@@ -186,6 +186,14 @@
   --mode-signal: #69a77c;
 }
 
+.mode-currency-wars {
+  --mode-signal: #d19a49;
+}
+
+.mode-aeon {
+  --mode-signal: #a98ed1;
+}
+
 .mode-board-head {
   display: flex;
   align-items: center;
@@ -220,7 +228,9 @@
 
 .is-active .mode-status i,
 .mode-duel:not(.is-disabled) .mode-status i,
-.mode-npc .mode-status i {
+.mode-npc:not(.is-disabled) .mode-status i,
+.mode-currency-wars:not(.is-disabled) .mode-status i,
+.mode-aeon:not(.is-disabled) .mode-status i {
   background: var(--mode-signal);
   box-shadow: 0 0 10px color-mix(in srgb, var(--mode-signal) 62%, transparent);
 }

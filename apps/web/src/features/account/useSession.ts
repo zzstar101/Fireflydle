@@ -18,7 +18,7 @@ function localGuest(): PublicUser {
   };
 }
 
-export function useSession() {
+export function useSession(enabled = true) {
   return useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -29,6 +29,7 @@ export function useSession() {
       }
     },
     staleTime: 5 * 60_000,
+    enabled,
   });
 }
 

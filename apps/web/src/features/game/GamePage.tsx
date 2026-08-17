@@ -57,6 +57,7 @@ import {
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
 import { markInstallEligible } from "../../pwa";
+import { useSpecialModePack } from "../../offline/use-special-mode-pack";
 import "./game.css";
 
 interface SharePreview {
@@ -126,6 +127,9 @@ function GamePreparation({
   onStart,
   onRetry,
   onOffline,
+  offlineUnavailable,
+  offlinePackState,
+  onRetryOfflinePack,
   onReplayTutorial,
 }: {
   activityId: "daily" | "practice";
@@ -136,6 +140,9 @@ function GamePreparation({
   onStart: () => void;
   onRetry: () => void;
   onOffline: () => void;
+  offlineUnavailable: boolean;
+  offlinePackState?: "checking" | "downloading" | "ready" | "missing" | "unsupported" | "error";
+  onRetryOfflinePack?: () => void;
   onReplayTutorial?: () => void;
 }) {
   const { t } = useTranslation();
@@ -265,7 +272,7 @@ function GamePreparation({
           <button
             className="ticket-button prep-start-button"
             type="button"
-            disabled={checking || busy || connectionFailed}
+            disabled={checking || busy || connectionFailed || offlineUnavailable}
             onClick={onStart}
           >
             {busy || checking ? <span className="button-spinner" /> : <RadioTower size={18} />}
@@ -273,7 +280,50 @@ function GamePreparation({
           </button>
         </div>
 
-        {connectionFailed && activityId === "practice" && contentModeId === "playable" && (
+        {contentModeId !== "playable" && offlinePackState ? (
+          <section className="offline-pack-status" role="status">
+            <WifiOff size={20} aria-hidden="true" />
+            <div>
+              <strong>
+                {offlinePackState === "ready"
+                  ? locale === "en"
+                    ? "Available offline"
+                    : locale === "ja"
+                      ? "オフライン利用可"
+                      : "可离线使用"
+                  : offlinePackState === "downloading" || offlinePackState === "checking"
+                    ? locale === "en"
+                      ? "Preparing offline pack"
+                      : locale === "ja"
+                        ? "オフラインパックを準備中"
+                        : "正在准备离线包"
+                    : locale === "en"
+                      ? "Open online once to prepare this mode"
+                      : locale === "ja"
+                        ? "オンラインで一度開いて準備してください"
+                        : "需要联网打开一次以缓存此模式"}
+              </strong>
+              <span>
+                {locale === "en"
+                  ? "Offline games stay on this device and are not uploaded."
+                  : locale === "ja"
+                    ? "オフライン対局は端末内だけに保存され、アップロードされません。"
+                    : "离线对局仅保留在本机，不会上传。"}
+              </span>
+            </div>
+            {offlinePackState === "error" && onRetryOfflinePack ? (
+              <button
+                type="button"
+                className="ticket-button-secondary"
+                onClick={onRetryOfflinePack}
+              >
+                {t("common.retry")}
+              </button>
+            ) : null}
+          </section>
+        ) : null}
+
+        {connectionFailed && activityId === "practice" && !offlineUnavailable && (
           <section className="connection-choice" role="alert" aria-labelledby="connection-title">
             <WifiOff size={22} aria-hidden="true" />
             <div>
@@ -870,7 +920,7 @@ function ActiveGame({
             <strong>{activityId === "daily" ? "00:00" : "∞"}</strong>
             <small>{activityId === "daily" ? "UTC+8" : t("game.unlimited")}</small>
           </div>
-          {activityId === "practice" ? (
+          {activityId === "practice" && source === "server" ? (
             <Link className="leaderboard-callout" to="/leaderboard">
               <Trophy size={18} />
               <span>{t("prep.viewLeaderboard")}</span>
@@ -910,7 +960,6 @@ export default function GamePage({
   const [searchParams, setSearchParams] = useSearchParams();
   const locale = usePreferences((state) => state.language);
   const queryClient = useQueryClient();
-  const accountSession = useSession();
   const [guestTutorialCompleted, setGuestTutorialCompleted] = useState(() => {
     try {
       return hasCompletedGuestPlayableTutorial(window.localStorage);
@@ -923,21 +972,25 @@ export default function GamePage({
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [tutorialError, setTutorialError] = useState(false);
   const requestedGameId = searchParams.get("game");
-  const currentGames = useCurrentGames();
+  const specialModeId = contentModeId === "playable" ? null : contentModeId;
+  const offlinePack = useSpecialModePack(specialModeId, specialModeId !== null);
+  const accountSession = useSession(offlinePack.online);
+  const serverRequestedGameId = offlinePack.online ? requestedGameId : null;
+  const currentGames = useCurrentGames(offlinePack.online);
   const requestedGame = useQuery({
-    queryKey: ["games", "detail", requestedGameId],
+    queryKey: ["games", "detail", serverRequestedGameId],
     queryFn: async () => {
       await ensureSession();
-      const game = await apiRequest<PublicGame>(`/games/${requestedGameId}`);
+      const game = await apiRequest<PublicGame>(`/games/${serverRequestedGameId}`);
       if (game.activityId !== activityId || game.modeId !== contentModeId) {
         throw new Error("GAME_MODE_MISMATCH");
       }
       return game;
     },
-    enabled: Boolean(requestedGameId),
+    enabled: Boolean(serverRequestedGameId),
     retry: false,
   });
-  const initialGame = requestedGameId
+  const initialGame = serverRequestedGameId
     ? requestedGame.data
     : contentModeId === "playable"
       ? currentGames.data?.[activityId]
@@ -948,8 +1001,8 @@ export default function GamePage({
     navigationGameId && session.game?.id === navigationGameId ? session.game : null;
   const game =
     navigationGame ??
-    (requestedGameId
-      ? session.game?.id === requestedGameId
+    (serverRequestedGameId
+      ? session.game?.id === serverRequestedGameId
         ? session.game
         : (requestedGame.data ?? null)
       : session.game);
@@ -968,8 +1021,23 @@ export default function GamePage({
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [game?.id]);
 
-  const checking = requestedGameId ? requestedGame.isPending : currentGames.isPending;
-  const lookupFailed = requestedGameId ? requestedGame.isError : currentGames.isError;
+  const offlinePackBusy =
+    specialModeId !== null &&
+    (offlinePack.state === "checking" || offlinePack.state === "downloading");
+  const offlineUnavailable =
+    specialModeId !== null &&
+    offlinePack.state !== "ready" &&
+    (!offlinePack.online || offlinePack.state === "error");
+  const checking = serverRequestedGameId
+    ? requestedGame.isPending
+    : specialModeId
+      ? offlinePackBusy
+      : offlinePack.online && currentGames.isPending;
+  const lookupFailed = serverRequestedGameId
+    ? requestedGame.isError
+    : specialModeId
+      ? offlinePack.online && offlinePack.state === "error"
+      : offlinePack.online && currentGames.isError;
   const connectionFailed = lookupFailed || Boolean(session.errorCode);
   const tutorialUser = accountSession.data?.user;
   const tutorialAutoOpen =
@@ -1014,7 +1082,7 @@ export default function GamePage({
     session.clearError();
     if (session.errorCode) {
       void session.start();
-    } else if (requestedGameId) {
+    } else if (serverRequestedGameId) {
       void requestedGame.refetch();
     } else {
       void currentGames.refetch();
@@ -1028,7 +1096,14 @@ export default function GamePage({
       checking={checking}
       busy={session.busy}
       connectionFailed={connectionFailed}
-      onStart={() => void session.start()}
+      offlineUnavailable={offlineUnavailable}
+      {...(specialModeId
+        ? {
+            offlinePackState: offlinePack.state,
+            onRetryOfflinePack: () => void offlinePack.retry(),
+          }
+        : {})}
+      onStart={() => (offlinePack.online ? void session.start() : session.startOffline())}
       onRetry={retry}
       onOffline={() => session.startOffline()}
       onReplayTutorial={replayTutorial}

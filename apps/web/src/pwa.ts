@@ -1,4 +1,9 @@
-import { contentManifest } from "@fireflydle/game-data";
+import {
+  aeonManifest,
+  contentManifest,
+  currencyWarsManifest,
+  npcManifest,
+} from "@fireflydle/game-data";
 
 const INSTALL_ELIGIBLE_KEY = "fireflydle-install-eligible";
 const INSTALL_DISMISSED_KEY = "fireflydle-install-dismissed-at";
@@ -99,6 +104,28 @@ export function initializePwaInstall(): () => void {
 
 export function registerPwaServiceWorker(isDevelopment = import.meta.env.DEV): void {
   if (isDevelopment || !("serviceWorker" in navigator)) return;
-  const version = encodeURIComponent(contentManifest.manifestVersion);
-  void navigator.serviceWorker.register(`/sw.js?v=${version}`, { scope: "/" });
+  const version = encodeURIComponent(
+    [
+      contentManifest.manifestVersion,
+      npcManifest.manifestVersion,
+      currencyWarsManifest.manifestVersion,
+      aeonManifest.manifestVersion,
+    ].join("."),
+  );
+  void navigator.serviceWorker.register(`/sw.js?v=${version}`, { scope: "/" }).then(async () => {
+    const registration = await navigator.serviceWorker.ready;
+    const location = (window as Window & { location?: Location }).location;
+    if (!location) return;
+    const urls = performance
+      .getEntriesByType("resource")
+      .map((entry) => entry.name)
+      .filter((url) => {
+        const resource = new URL(url, location.href);
+        return (
+          resource.origin === location.origin &&
+          /\.(?:css|js|woff2?)(?:\?|$)/i.test(resource.pathname)
+        );
+      });
+    registration.active?.postMessage({ type: "CACHE_CURRENT_PAGE_ASSETS", urls });
+  });
 }

@@ -6,7 +6,8 @@
 
 .mode-shell-navigation,
 .mode-switcher a,
-.activity-switcher a {
+.activity-switcher a,
+.activity-switcher > span {
   transition:
     opacity var(--motion-fast) ease,
     transform var(--motion-fast) ease;
@@ -39,7 +40,8 @@
 }
 
 .mode-switcher a,
-.activity-switcher a {
+.activity-switcher a,
+.activity-switcher > span {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -50,6 +52,11 @@
   font-size: 0.78rem;
   font-weight: 650;
   white-space: nowrap;
+}
+
+.activity-switcher > span.activity-disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .mode-switcher a::after,
@@ -119,7 +126,8 @@
     min-height: 48px;
   }
 
-  .activity-switcher a {
+  .activity-switcher a,
+  .activity-switcher > span {
     min-height: 52px;
   }
 }
