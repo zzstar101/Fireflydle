@@ -10,6 +10,8 @@ import {
   ManifestVersionSchema,
   SearchIndexEntrySchema,
   PublicEndlessRunSchema,
+  ClientRoomMessageSchema,
+  RoundSkipStateSchema,
 } from "./index";
 
 const labels = { "zh-CN": "普通角色", en: "Characters", ja: "キャラクター" };
@@ -180,5 +182,26 @@ describe("无尽玩法契约", () => {
       fieldDefinitions: [field],
     });
     expect(run).toMatchObject({ lives: 5, maxAttempts: 6, skipAvailable: true });
+  });
+});
+
+describe("实时房间跳过契约", () => {
+  test("只接受实时房间的请求、回应与四种协商状态", () => {
+    expect(ClientRoomMessageSchema.parse({ type: "request-skip" })).toEqual({
+      type: "request-skip",
+    });
+    expect(ClientRoomMessageSchema.parse({ type: "respond-skip", accepted: false })).toEqual({
+      type: "respond-skip",
+      accepted: false,
+    });
+    expect(
+      RoundSkipStateSchema.parse({
+        status: "pending",
+        round: 2,
+        requestedByPlayerId: "f4f64434-e8b5-4ba1-9094-d11b9252de29",
+        expiresAt: 1_725_000_000_000,
+      }),
+    ).toMatchObject({ status: "pending", round: 2 });
+    expect(() => RoundSkipStateSchema.parse({ status: "executed", round: 2 })).toThrow();
   });
 });

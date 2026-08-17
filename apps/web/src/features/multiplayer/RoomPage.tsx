@@ -9,6 +9,7 @@ import {
   LogOut,
   Radio,
   ShieldAlert,
+  SkipForward,
   Trophy,
   UserRound,
   Wifi,
@@ -188,6 +189,9 @@ export default function RoomPage() {
   const offerDraw = () => socketRef.current?.send(JSON.stringify({ type: "offer-draw" }));
   const respondDraw = (accepted: boolean) =>
     socketRef.current?.send(JSON.stringify({ type: "respond-draw", accepted }));
+  const requestSkip = () => socketRef.current?.send(JSON.stringify({ type: "request-skip" }));
+  const respondSkip = (accepted: boolean) =>
+    socketRef.current?.send(JSON.stringify({ type: "respond-skip", accepted }));
   const leave = async () => {
     if (
       snapshot &&
@@ -345,6 +349,88 @@ export default function RoomPage() {
                     : "Connection lost. The match is paused for up to 30 seconds."}
               </span>
             </div>
+          )}
+
+          {snapshot.state === "playing" && (
+            <section
+              className={`skip-controls state-${snapshot.roundSkip.status}`}
+              aria-label={tr("协商跳过本题", "問題のスキップ交渉", "Skip question")}
+              role="status"
+            >
+              <SkipForward size={18} />
+              {snapshot.roundSkip.status === "pending" &&
+              snapshot.roundSkip.requestedByPlayerId === session.data?.user.id ? (
+                <p>
+                  {tr(
+                    `已请求跳过，等待对手确认（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
+                    `スキップを申請しました。相手の確認待ち（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
+                    `Skip requested. Waiting for your opponent (${formatSeconds(snapshot.roundSkip.expiresAt - now)})`,
+                  )}
+                </p>
+              ) : snapshot.roundSkip.status === "pending" ? (
+                <>
+                  <p>
+                    {tr(
+                      "对手请求跳过本题",
+                      "相手が問題のスキップを申請しました",
+                      "Your opponent wants to skip this question",
+                    )}
+                  </p>
+                  <div>
+                    <button
+                      className="ticket-button"
+                      type="button"
+                      onClick={() => respondSkip(true)}
+                    >
+                      <Check size={16} /> {tr("同意跳过", "スキップ", "Skip")}
+                    </button>
+                    <button
+                      className="ticket-button-secondary"
+                      type="button"
+                      onClick={() => respondSkip(false)}
+                    >
+                      <X size={16} /> {tr("拒绝", "拒否", "Decline")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>
+                    {snapshot.roundSkip.status === "cancelled"
+                      ? snapshot.roundSkip.reason === "timeout"
+                        ? tr(
+                            "跳过请求已超时，本题继续",
+                            "申請がタイムアウトしました。この問題を続けます",
+                            "Skip request timed out. This question continues",
+                          )
+                        : tr(
+                            "跳过请求已拒绝，本题继续",
+                            "申請は拒否されました。この問題を続けます",
+                            "Skip request declined. This question continues",
+                          )
+                      : snapshot.roundSkip.status === "executed"
+                        ? tr(
+                            `第 ${snapshot.roundSkip.round} 题已共同跳过，双方均不得分`,
+                            `第${snapshot.roundSkip.round}問は合意によりスキップされ、得点はありません`,
+                            `Question ${snapshot.roundSkip.round} was skipped by agreement. No points awarded`,
+                          )
+                        : tr(
+                            "需要对手同意才能跳过本题",
+                            "相手の同意がある場合のみスキップできます",
+                            "Your opponent must agree to skip",
+                          )}
+                  </p>
+                  <button
+                    className="ticket-button-secondary"
+                    type="button"
+                    disabled={connection !== "open"}
+                    onClick={requestSkip}
+                  >
+                    {tr("请求跳过", "スキップを申請", "Request skip")}
+                  </button>
+                </>
+              )}
+            </section>
           )}
 
           {!["waiting", "finished"].includes(snapshot.state) && (

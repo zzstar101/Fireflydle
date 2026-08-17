@@ -4,6 +4,7 @@ import type {
   ErrorCode,
   GuessResult,
   MatchFinishReason,
+  RoundSkipState,
   RoomPlayer,
   RoomSnapshot,
 } from "@fireflydle/contracts";
@@ -25,6 +26,8 @@ const ROOM_PURGE_DELAY_MS = 24 * 60 * 60 * 1_000;
 const GUESS_RATE_WINDOW_MS = 60 * 1_000;
 const GUESS_RATE_LIMIT = 60;
 const PROCESSED_ACTION_LIMIT = 256;
+const SKIP_REQUEST_TIMEOUT_MS = 15_000;
+const IDLE_ROUND_SKIP: RoundSkipState = { status: "idle" };
 
 type RoomState = RoomSnapshot["state"];
 
@@ -42,6 +45,7 @@ interface MetaRow extends Record<string, SqlStorageValue> {
   paused_remaining_ms: number | null;
   winner_id: string | null;
   draw_offer_by_id: string | null;
+  round_skip_json: string;
   finish_reason: MatchFinishReason | null;
   target_json: string | null;
   pool_json: string;
@@ -91,7 +95,7 @@ interface RoundRow extends Record<string, SqlStorageValue> {
 
 interface TaskRow extends Record<string, SqlStorageValue> {
   task_key: string;
-  kind: "round-timeout" | "reconnect-timeout" | "next-round";
+  kind: "round-timeout" | "reconnect-timeout" | "next-round" | "skip-request-timeout";
   due_at: number;
   generation: number;
   payload_json: string;
@@ -141,6 +145,7 @@ export class GameRoom extends DurableObject<Env> {
           paused_remaining_ms INTEGER,
           winner_id TEXT,
           draw_offer_by_id TEXT,
+          round_skip_json TEXT NOT NULL DEFAULT '{"status":"idle"}',
           finish_reason TEXT,
           target_json TEXT,
           pool_json TEXT NOT NULL,
@@ -218,6 +223,11 @@ export class GameRoom extends DurableObject<Env> {
       const metaColumns = this.sql.exec<{ name: string }>("PRAGMA table_info(room_meta)").toArray();
       if (!metaColumns.some((column) => column.name === "draw_offer_by_id")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN draw_offer_by_id TEXT");
+      }
+      if (!metaColumns.some((column) => column.name === "round_skip_json")) {
+        this.sql.exec(
+          `ALTER TABLE room_meta ADD COLUMN round_skip_json TEXT NOT NULL DEFAULT '{"status":"idle"}'`,
+        );
       }
       if (!metaColumns.some((column) => column.name === "mode_id")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN mode_id TEXT NOT NULL DEFAULT 'playable'");
@@ -305,6 +315,10 @@ export class GameRoom extends DurableObject<Env> {
     return encoded.rules as typeof DEFAULT_SNAPSHOT_FIELD_RULES;
   }
 
+  private roundSkip(meta = this.meta()): RoundSkipState {
+    return JSON.parse(meta.round_skip_json) as RoundSkipState;
+  }
+
   private selectTarget(meta: MetaRow): Character {
     const pool = this.candidateSnapshots(meta);
     const targetIds = JSON.parse(meta.target_ids_json) as string[];
@@ -326,7 +340,7 @@ export class GameRoom extends DurableObject<Env> {
     return target;
   }
 
-  private startRound(now: number): void {
+  private startRound(now: number, roundSkip: RoundSkipState = IDLE_ROUND_SKIP): void {
     let meta = this.meta();
     if (meta.state === "finished") return;
     const disconnected = this.players().find((player) => player.connected === 0);
@@ -344,13 +358,14 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE room_meta SET
          state = 'playing', round_number = ?, round_ends_at = ?, reconnect_deadline = NULL,
          paused_seat = NULL, paused_remaining_ms = NULL, target_json = ?, revision = ?,
-         started_at = COALESCE(started_at, ?)
+         started_at = COALESCE(started_at, ?), round_skip_json = ?
        WHERE singleton = 1`,
       roundNumber,
       endsAt,
       JSON.stringify(target),
       revision,
       now,
+      JSON.stringify(roundSkip),
     );
     this.sql.exec("UPDATE players SET guesses_used = 0");
     this.sql.exec(
@@ -361,6 +376,7 @@ export class GameRoom extends DurableObject<Env> {
     );
     this.enqueueTask("round", "round-timeout", endsAt, revision, { roundNumber });
     this.deleteTask("next-round");
+    this.deleteTask("skip-request");
     meta = this.meta();
     if (disconnected) this.pauseForSeat(disconnected.seat, now, MULTIPLAYER_ROUND_MS, meta);
   }
@@ -374,7 +390,8 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE room_meta SET
          state = 'finished', winner_id = ?, finish_reason = ?, round_ends_at = NULL,
          reconnect_deadline = NULL, paused_seat = NULL, paused_remaining_ms = NULL,
-         draw_offer_by_id = NULL,
+          draw_offer_by_id = NULL,
+          round_skip_json = '{"status":"idle"}',
          completed_at = ?, archive_status = 'pending', archive_next_at = ?, revision = revision + 1
        WHERE singleton = 1`,
       winnerId,
@@ -397,6 +414,7 @@ export class GameRoom extends DurableObject<Env> {
       meta.round_number,
     );
     this.deleteTask("round");
+    this.deleteTask("skip-request");
     if (winner) {
       this.sql.exec("UPDATE players SET score = score + 1 WHERE seat = ?", winner.seat);
       this.sql.exec("UPDATE room_meta SET consecutive_draws = 0 WHERE singleton = 1");
@@ -417,7 +435,8 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec(
       `UPDATE room_meta SET
          state = 'round-ended', round_ends_at = NULL, reconnect_deadline = NULL,
-         paused_seat = NULL, paused_remaining_ms = NULL, revision = ?
+         paused_seat = NULL, paused_remaining_ms = NULL,
+         round_skip_json = '{"status":"idle"}', revision = ?
        WHERE singleton = 1`,
       revision,
     );
@@ -454,7 +473,7 @@ export class GameRoom extends DurableObject<Env> {
       if (!task) break;
       this.deleteTask(task.task_key);
       const meta = this.meta();
-      if (task.generation !== meta.revision) continue;
+      if (task.kind !== "skip-request-timeout" && task.generation !== meta.revision) continue;
       changed = true;
       if (task.kind === "round-timeout" && meta.state === "playing") {
         this.settleRound(null, now);
@@ -466,6 +485,22 @@ export class GameRoom extends DurableObject<Env> {
         if (disconnected?.connected === 0) {
           const opponent = this.players().find((player) => player.seat !== disconnected.seat);
           this.finish(opponent?.player_id ?? null, "disconnect", now);
+        }
+      } else if (
+        task.kind === "skip-request-timeout" &&
+        (meta.state === "playing" || meta.state === "paused")
+      ) {
+        const roundSkip = this.roundSkip(meta);
+        if (roundSkip.status === "pending" && roundSkip.round === meta.round_number) {
+          this.sql.exec(
+            "UPDATE room_meta SET round_skip_json = ? WHERE singleton = 1",
+            JSON.stringify({
+              status: "cancelled",
+              round: roundSkip.round,
+              requestedByPlayerId: roundSkip.requestedByPlayerId,
+              reason: "timeout",
+            } satisfies RoundSkipState),
+          );
         }
       }
     }
@@ -528,6 +563,7 @@ export class GameRoom extends DurableObject<Env> {
       opponentFeedback,
       roundAnswer,
       roundWinnerId: currentRound?.winner_id ?? null,
+      roundSkip: this.roundSkip(meta),
       drawOfferByPlayerId: meta.draw_offer_by_id,
       winnerId: meta.winner_id,
       finishReason: meta.finish_reason,
@@ -951,6 +987,10 @@ export class GameRoom extends DurableObject<Env> {
         code = "FORBIDDEN";
         return;
       }
+      if (this.roundSkip(meta).status === "pending") {
+        code = "FORBIDDEN";
+        return;
+      }
       if (meta.draw_offer_by_id === playerId) return;
       if (meta.draw_offer_by_id !== null) {
         code = "FORBIDDEN";
@@ -993,6 +1033,95 @@ export class GameRoom extends DurableObject<Env> {
           "UPDATE room_meta SET draw_offer_by_id = NULL, revision = revision + 1 WHERE singleton = 1",
         );
       }
+    });
+    await this.rearmAlarm();
+    if (code) return { ok: false, code };
+    await this.broadcastSnapshots();
+    return { ok: true, snapshot: this.snapshotSync(playerId) };
+  }
+
+  public async requestSkip(playerId: string, now = Date.now()): Promise<RoomCommandResult> {
+    let code: ErrorCode | null = null;
+    this.ctx.storage.transactionSync(() => {
+      this.advanceSync(now);
+      const meta = this.meta();
+      const roundSkip = this.roundSkip(meta);
+      if (!this.player(playerId) || meta.state !== "playing" || meta.draw_offer_by_id !== null) {
+        code = "FORBIDDEN";
+        return;
+      }
+      if (roundSkip.status === "pending") {
+        if (roundSkip.requestedByPlayerId !== playerId) code = "FORBIDDEN";
+        return;
+      }
+      const expiresAt = now + SKIP_REQUEST_TIMEOUT_MS;
+      const pending = {
+        status: "pending",
+        round: meta.round_number,
+        requestedByPlayerId: playerId,
+        expiresAt,
+      } satisfies RoundSkipState;
+      this.sql.exec(
+        "UPDATE room_meta SET round_skip_json = ? WHERE singleton = 1",
+        JSON.stringify(pending),
+      );
+      this.enqueueTask("skip-request", "skip-request-timeout", expiresAt, meta.revision, {
+        round: meta.round_number,
+        requestedByPlayerId: playerId,
+      });
+    });
+    await this.rearmAlarm();
+    if (code) return { ok: false, code };
+    await this.broadcastSnapshots();
+    return { ok: true, snapshot: this.snapshotSync(playerId) };
+  }
+
+  public async respondSkip(
+    playerId: string,
+    accepted: boolean,
+    now = Date.now(),
+  ): Promise<RoomCommandResult> {
+    let code: ErrorCode | null = null;
+    this.ctx.storage.transactionSync(() => {
+      this.advanceSync(now);
+      const meta = this.meta();
+      const roundSkip = this.roundSkip(meta);
+      if (
+        !this.player(playerId) ||
+        meta.state !== "playing" ||
+        roundSkip.status !== "pending" ||
+        roundSkip.round !== meta.round_number ||
+        roundSkip.requestedByPlayerId === playerId
+      ) {
+        code = "FORBIDDEN";
+        return;
+      }
+      this.deleteTask("skip-request");
+      if (!accepted) {
+        this.sql.exec(
+          "UPDATE room_meta SET round_skip_json = ? WHERE singleton = 1",
+          JSON.stringify({
+            status: "cancelled",
+            round: roundSkip.round,
+            requestedByPlayerId: roundSkip.requestedByPlayerId,
+            reason: "declined",
+          } satisfies RoundSkipState),
+        );
+        return;
+      }
+
+      this.sql.exec(
+        "UPDATE rounds SET winner_id = NULL, completed_at = ? WHERE round_number = ?",
+        now,
+        meta.round_number,
+      );
+      this.deleteTask("round");
+      this.startRound(now, {
+        status: "executed",
+        round: roundSkip.round,
+        requestedByPlayerId: roundSkip.requestedByPlayerId,
+        acceptedByPlayerId: playerId,
+      });
     });
     await this.rearmAlarm();
     if (code) return { ok: false, code };
@@ -1265,6 +1394,12 @@ export class GameRoom extends DurableObject<Env> {
       if (!result.ok) this.sendSocketError(webSocket, result.code);
     } else if (clientMessage.type === "respond-draw") {
       const result = await this.respondDraw(playerId, clientMessage.accepted);
+      if (!result.ok) this.sendSocketError(webSocket, result.code);
+    } else if (clientMessage.type === "request-skip") {
+      const result = await this.requestSkip(playerId);
+      if (!result.ok) this.sendSocketError(webSocket, result.code);
+    } else if (clientMessage.type === "respond-skip") {
+      const result = await this.respondSkip(playerId, clientMessage.accepted);
       if (!result.ok) this.sendSocketError(webSocket, result.code);
     } else if (clientMessage.type === "leave") {
       await this.leave(playerId);

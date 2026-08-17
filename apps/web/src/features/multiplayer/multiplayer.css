@@ -489,6 +489,37 @@
   margin-bottom: 18px;
   gap: 14px;
 }
+.skip-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 54px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  gap: 10px;
+  border-left: 2px solid var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 7%, transparent);
+}
+.skip-controls > svg {
+  color: var(--cyan);
+}
+.skip-controls p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.skip-controls > div {
+  display: flex;
+  gap: 10px;
+}
+.skip-controls.state-cancelled {
+  border-left-color: var(--gold);
+  background: rgb(216 182 107 / 7%);
+}
+.skip-controls.state-executed {
+  border-left-color: var(--exact);
+  background: color-mix(in srgb, var(--exact) 7%, transparent);
+}
 .draw-controls p {
   margin: 0;
   color: var(--text-muted);
@@ -822,9 +853,24 @@
     flex-direction: column;
   }
   .draw-controls > div,
+  .skip-controls > div,
   .match-finished-actions {
     width: 100%;
     flex-direction: column;
+  }
+  .skip-controls {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .skip-controls > button,
+  .skip-controls > div {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .skip-controls > div {
+    flex-direction: row;
+  }
+  .skip-controls > div button {
+    flex: 1;
   }
   .match-finished-actions {
     margin-left: 0;

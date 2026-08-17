@@ -74,8 +74,11 @@ async function dataOf<T>(response: Response): Promise<T> {
   return record.data as T;
 }
 
-async function createSession(): Promise<{ cookie: string; data: SessionData }> {
-  const response = await SELF.fetch("https://fireflydle.games/api/session", { method: "POST" });
+async function createSession(ipAddress?: string): Promise<{ cookie: string; data: SessionData }> {
+  const response = await SELF.fetch("https://fireflydle.games/api/session", {
+    method: "POST",
+    ...(ipAddress ? { headers: { "cf-connecting-ip": ipAddress } } : {}),
+  });
   expect(response.status).toBe(201);
   const cookie = response.headers.get("set-cookie");
   expect(cookie).toContain("HttpOnly");
@@ -1130,6 +1133,185 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     expect(accepted.snapshot.finishReason).toBe("agreed-draw");
     expect(accepted.snapshot.winnerId).toBeNull();
     expect(accepted.snapshot.drawOfferByPlayerId).toBeNull();
+  });
+
+  it("通过 WebSocket 向双方同步跳过的待确认、取消和执行状态", async () => {
+    const owner = await createSession("test:skip-owner");
+    const opponent = await createSession("test:skip-opponent");
+    const created = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ format: 3 }),
+    });
+    const room = await dataOf<{ roomId: string; code: string }>(created);
+    await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ code: room.code }),
+    });
+
+    const [ownerResponse, opponentResponse] = await Promise.all([
+      SELF.fetch(`https://fireflydle.games/api/rooms/${room.roomId}/socket`, {
+        headers: { cookie: owner.cookie, upgrade: "websocket" },
+      }),
+      SELF.fetch(`https://fireflydle.games/api/rooms/${room.roomId}/socket`, {
+        headers: { cookie: opponent.cookie, upgrade: "websocket" },
+      }),
+    ]);
+    const ownerSocket = ownerResponse.webSocket;
+    const opponentSocket = opponentResponse.webSocket;
+    expect(ownerSocket).not.toBeNull();
+    expect(opponentSocket).not.toBeNull();
+    if (!ownerSocket || !opponentSocket) return;
+    ownerSocket.accept();
+    opponentSocket.accept();
+    const [ownerPlaying] = await Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+    ]);
+
+    const ownerPending = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    const opponentPending = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    ownerSocket.send(JSON.stringify({ type: "request-skip" }));
+    const pendingSnapshots = await Promise.all([ownerPending, opponentPending]);
+    expect(pendingSnapshots.map((snapshot) => snapshot.roundSkip)).toEqual([
+      pendingSnapshots[0]?.roundSkip,
+      pendingSnapshots[0]?.roundSkip,
+    ]);
+
+    const ownerCancelled = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "cancelled",
+    );
+    const opponentCancelled = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "cancelled",
+    );
+    opponentSocket.send(JSON.stringify({ type: "respond-skip", accepted: false }));
+    const cancelledSnapshots = await Promise.all([ownerCancelled, opponentCancelled]);
+    expect(cancelledSnapshots.map((snapshot) => snapshot.roundSkip)).toEqual([
+      {
+        status: "cancelled",
+        round: ownerPlaying.round,
+        requestedByPlayerId: owner.data.user.id,
+        reason: "declined",
+      },
+      {
+        status: "cancelled",
+        round: ownerPlaying.round,
+        requestedByPlayerId: owner.data.user.id,
+        reason: "declined",
+      },
+    ]);
+
+    const ownerPendingAgain = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    const opponentPendingAgain = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    ownerSocket.send(JSON.stringify({ type: "request-skip" }));
+    await Promise.all([ownerPendingAgain, opponentPendingAgain]);
+    const ownerExecuted = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "executed",
+    );
+    const opponentExecuted = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "executed",
+    );
+    opponentSocket.send(JSON.stringify({ type: "respond-skip", accepted: true }));
+    const executedSnapshots = await Promise.all([ownerExecuted, opponentExecuted]);
+    for (const snapshot of executedSnapshots) {
+      expect(snapshot).toMatchObject({
+        state: "playing",
+        round: ownerPlaying.round + 1,
+        roundAnswer: null,
+        players: [{ score: 0 }, { score: 0 }],
+        roundSkip: {
+          status: "executed",
+          round: ownerPlaying.round,
+          requestedByPlayerId: owner.data.user.id,
+          acceptedByPlayerId: opponent.data.user.id,
+        },
+      });
+    }
+    ownerSocket.close(1000, "test-complete");
+    opponentSocket.close(1000, "test-complete");
+  });
+
+  it("跳过拒绝或超时保持本题，并发确认只推进一次", async () => {
+    const roomId = crypto.randomUUID();
+    const ownerId = crypto.randomUUID();
+    const opponentId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "SKP42",
+      format: 3,
+      ranked: false,
+      owner: {
+        userId: ownerId,
+        displayName: "Skip Left",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponentId,
+        displayName: "Skip Right",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+
+    await roomObject.requestSkip(ownerId, startedAt + 10);
+    const declined = await roomObject.respondSkip(opponentId, false, startedAt + 20);
+    expect(declined.ok && declined.snapshot).toMatchObject({
+      state: "playing",
+      round: 1,
+      players: [{ score: 0 }, { score: 0 }],
+      roundSkip: { status: "cancelled", reason: "declined" },
+    });
+
+    const pending = await roomObject.requestSkip(opponentId, startedAt + 30);
+    expect(pending.ok).toBe(true);
+    if (!pending.ok || pending.snapshot.roundSkip.status !== "pending") return;
+    const timedOut = await roomObject.snapshot(ownerId, pending.snapshot.roundSkip.expiresAt + 1);
+    expect(timedOut.ok && timedOut.snapshot).toMatchObject({
+      state: "playing",
+      round: 1,
+      players: [{ score: 0 }, { score: 0 }],
+      roundSkip: { status: "cancelled", reason: "timeout" },
+    });
+
+    await roomObject.requestSkip(ownerId, pending.snapshot.roundSkip.expiresAt + 2);
+    const confirmations = await Promise.all([
+      roomObject.respondSkip(opponentId, true, pending.snapshot.roundSkip.expiresAt + 3),
+      roomObject.respondSkip(opponentId, true, pending.snapshot.roundSkip.expiresAt + 3),
+    ]);
+    expect(confirmations.filter((result) => result.ok)).toHaveLength(1);
+    const final = await roomObject.snapshot(ownerId, pending.snapshot.roundSkip.expiresAt + 4);
+    expect(final.ok && final.snapshot).toMatchObject({
+      state: "playing",
+      round: 2,
+      consecutiveDraws: 0,
+      roundAnswer: null,
+      players: [{ score: 0 }, { score: 0 }],
+      roundSkip: { status: "executed", round: 1 },
+    });
   });
 
   it("排位结算向双方返回各自的 Elo 加减分", async () => {

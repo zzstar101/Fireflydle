@@ -493,6 +493,29 @@ export const MatchFinishReasonSchema = z.enum([
 ]);
 export type MatchFinishReason = z.infer<typeof MatchFinishReasonSchema>;
 
+export const RoundSkipStateSchema = z.discriminatedUnion("status", [
+  z.object({ status: z.literal("idle") }),
+  z.object({
+    status: z.literal("pending"),
+    round: z.number().int().positive(),
+    requestedByPlayerId: z.string().uuid(),
+    expiresAt: z.number().int(),
+  }),
+  z.object({
+    status: z.literal("cancelled"),
+    round: z.number().int().positive(),
+    requestedByPlayerId: z.string().uuid(),
+    reason: z.enum(["declined", "timeout"]),
+  }),
+  z.object({
+    status: z.literal("executed"),
+    round: z.number().int().positive(),
+    requestedByPlayerId: z.string().uuid(),
+    acceptedByPlayerId: z.string().uuid(),
+  }),
+]);
+export type RoundSkipState = z.infer<typeof RoundSkipStateSchema>;
+
 export const RoomSnapshotSchema = z.object({
   roomId: z.string().uuid(),
   code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
@@ -509,6 +532,7 @@ export const RoomSnapshotSchema = z.object({
   opponentFeedback: z.array(z.array(GuessCellSchema)),
   roundAnswer: CharacterSchema.nullable(),
   roundWinnerId: z.string().uuid().nullable(),
+  roundSkip: RoundSkipStateSchema,
   drawOfferByPlayerId: z.string().uuid().nullable(),
   winnerId: z.string().uuid().nullable(),
   finishReason: MatchFinishReasonSchema.nullable(),
@@ -525,6 +549,8 @@ export const ClientRoomMessageSchema = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("offer-draw") }),
   z.object({ type: z.literal("respond-draw"), accepted: z.boolean() }),
+  z.object({ type: z.literal("request-skip") }),
+  z.object({ type: z.literal("respond-skip"), accepted: z.boolean() }),
   z.object({ type: z.literal("leave") }),
   z.object({ type: z.literal("ping"), sentAt: z.number().int() }),
 ]);
