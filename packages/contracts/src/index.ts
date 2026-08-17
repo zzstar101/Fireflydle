@@ -440,6 +440,7 @@ export const PublicUserSchema = z.object({
   elo: z.number().int(),
   rankedMatches: z.number().int().nonnegative(),
   leaderboardEligible: z.boolean(),
+  playableTutorialCompleted: z.boolean(),
   createdAt: z.string().datetime(),
 });
 export type PublicUser = z.infer<typeof PublicUserSchema>;

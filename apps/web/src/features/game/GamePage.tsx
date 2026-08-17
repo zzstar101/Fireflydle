@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -16,16 +16,29 @@ import {
   Trophy,
   WifiOff,
 } from "lucide-react";
-import type { FriendChallenge, PersonalStats, PublicGame } from "@fireflydle/contracts";
+import type {
+  FriendChallenge,
+  PersonalStats,
+  PublicGame,
+  PublicUser,
+  SessionPayload,
+} from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
 import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
+import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
+import { PlayableTutorial } from "./PlayableTutorial";
+import {
+  hasCompletedGuestPlayableTutorial,
+  markGuestPlayableTutorialCompleted,
+  supportsPlayableTutorial,
+} from "./playable-tutorial-state";
 import { triggerGameHaptic } from "./haptics";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
@@ -67,7 +80,7 @@ function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: SoloContentM
   return fields ?? "";
 }
 
-function ruleLabels(t: (key: string) => string) {
+function ruleLabels(t: (key: string) => string, locale: "zh-CN" | "en" | "ja") {
   return {
     open: t("prep.viewRules"),
     close: t("common.close"),
@@ -82,6 +95,8 @@ function ruleLabels(t: (key: string) => string) {
     miss: t("game.miss"),
     higher: t("game.higher"),
     lower: t("game.lower"),
+    replayTutorial:
+      locale === "zh-CN" ? "重播新手教学" : locale === "ja" ? "ガイドを再生" : "Replay tutorial",
   };
 }
 
@@ -94,6 +109,7 @@ function GamePreparation({
   onStart,
   onRetry,
   onOffline,
+  onReplayTutorial,
 }: {
   mode: "daily" | "random";
   contentModeId: SoloContentMode;
@@ -103,6 +119,7 @@ function GamePreparation({
   onStart: () => void;
   onRetry: () => void;
   onOffline: () => void;
+  onReplayTutorial?: () => void;
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
@@ -267,7 +284,10 @@ function GamePreparation({
           poolSize={poolSize}
           maxAttempts={maxAttempts}
           fields={fields}
-          labels={ruleLabels(t)}
+          labels={ruleLabels(t, locale)}
+          {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
+            ? { onReplayTutorial }
+            : {})}
         />
       </section>
     </main>
@@ -278,10 +298,12 @@ function ActiveGame({
   mode,
   contentModeId,
   session,
+  onReplayTutorial,
 }: {
   mode: "daily" | "random";
   contentModeId: SoloContentMode;
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
+  onReplayTutorial?: () => void;
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
@@ -493,7 +515,10 @@ function ActiveGame({
               poolSize={rulePoolSize}
               maxAttempts={game.maxAttempts}
               fields={ruleFields}
-              labels={ruleLabels(t)}
+              labels={ruleLabels(t, locale)}
+              {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
+                ? { onReplayTutorial }
+                : {})}
             />
           </div>
         </aside>
@@ -752,6 +777,20 @@ export default function GamePage({
   contentModeId?: SoloContentMode;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const locale = usePreferences((state) => state.language);
+  const queryClient = useQueryClient();
+  const accountSession = useSession();
+  const [guestTutorialCompleted, setGuestTutorialCompleted] = useState(() => {
+    try {
+      return hasCompletedGuestPlayableTutorial(window.localStorage);
+    } catch {
+      return false;
+    }
+  });
+  const [tutorialDismissed, setTutorialDismissed] = useState(false);
+  const [tutorialReplayOpen, setTutorialReplayOpen] = useState(false);
+  const [tutorialBusy, setTutorialBusy] = useState(false);
+  const [tutorialError, setTutorialError] = useState(false);
   const requestedGameId = searchParams.get("game");
   const currentGames = useCurrentGames();
   const requestedGame = useQuery({
@@ -801,6 +840,45 @@ export default function GamePage({
   const checking = requestedGameId ? requestedGame.isPending : currentGames.isPending;
   const lookupFailed = requestedGameId ? requestedGame.isError : currentGames.isError;
   const connectionFailed = lookupFailed || Boolean(session.errorCode);
+  const tutorialUser = accountSession.data?.user;
+  const tutorialAutoOpen =
+    accountSession.isSuccess &&
+    !tutorialDismissed &&
+    Boolean(
+      tutorialUser &&
+      (tutorialUser.isGuest ? !guestTutorialCompleted : !tutorialUser.playableTutorialCompleted),
+    );
+  const tutorialOpen =
+    supportsPlayableTutorial(contentModeId) && (tutorialReplayOpen || tutorialAutoOpen);
+  const replayTutorial = useCallback(() => {
+    setTutorialError(false);
+    setTutorialReplayOpen(true);
+  }, []);
+  const finishTutorial = useCallback(async () => {
+    const user = accountSession.data?.user;
+    if (!user || tutorialBusy) return;
+    setTutorialBusy(true);
+    setTutorialError(false);
+    try {
+      if (user.isGuest) {
+        markGuestPlayableTutorialCompleted(window.localStorage);
+        setGuestTutorialCompleted(true);
+      } else {
+        const updatedUser = await apiRequest<PublicUser>("/account/playable-tutorial", {
+          method: "PATCH",
+        });
+        queryClient.setQueryData<SessionPayload>(["session"], (current) =>
+          current ? { ...current, user: updatedUser } : current,
+        );
+      }
+      setTutorialDismissed(true);
+      setTutorialReplayOpen(false);
+    } catch {
+      setTutorialError(true);
+    } finally {
+      setTutorialBusy(false);
+    }
+  }, [accountSession.data?.user, queryClient, tutorialBusy]);
   const retry = () => {
     session.clearError();
     if (session.errorCode) {
@@ -812,20 +890,39 @@ export default function GamePage({
     }
   };
 
-  if (!game) {
-    return (
-      <GamePreparation
-        mode={mode}
-        contentModeId={contentModeId}
-        checking={checking}
-        busy={session.busy}
-        connectionFailed={connectionFailed}
-        onStart={() => void session.start()}
-        onRetry={retry}
-        onOffline={() => session.startOffline()}
-      />
-    );
-  }
+  const page = !game ? (
+    <GamePreparation
+      mode={mode}
+      contentModeId={contentModeId}
+      checking={checking}
+      busy={session.busy}
+      connectionFailed={connectionFailed}
+      onStart={() => void session.start()}
+      onRetry={retry}
+      onOffline={() => session.startOffline()}
+      onReplayTutorial={replayTutorial}
+    />
+  ) : (
+    <ActiveGame
+      mode={mode}
+      contentModeId={contentModeId}
+      session={{ ...session, game }}
+      onReplayTutorial={replayTutorial}
+    />
+  );
 
-  return <ActiveGame mode={mode} contentModeId={contentModeId} session={{ ...session, game }} />;
+  return (
+    <>
+      {page}
+      {tutorialOpen ? (
+        <PlayableTutorial
+          locale={locale}
+          busy={tutorialBusy}
+          error={tutorialError}
+          onComplete={() => void finishTutorial()}
+          onSkip={() => void finishTutorial()}
+        />
+      ) : null}
+    </>
+  );
 }

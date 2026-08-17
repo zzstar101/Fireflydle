@@ -13,6 +13,7 @@ function localGuest(): PublicUser {
     elo: 1000,
     rankedMatches: 0,
     leaderboardEligible: false,
+    playableTutorialCompleted: false,
     createdAt: new Date(0).toISOString(),
   };
 }

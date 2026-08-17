@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, Check, CircleDot, X, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, Check, CircleDot, GraduationCap, X } from "lucide-react";
 import type { FieldDefinition, Locale } from "@fireflydle/contracts";
 
 export function RulesPanel({
@@ -10,6 +10,7 @@ export function RulesPanel({
   maxAttempts,
   fields,
   labels,
+  onReplayTutorial,
 }: {
   locale: Locale;
   title: string;
@@ -31,7 +32,9 @@ export function RulesPanel({
     miss: string;
     higher: string;
     lower: string;
+    replayTutorial?: string;
   };
+  onReplayTutorial?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -155,6 +158,18 @@ export function RulesPanel({
               </section>
             </div>
             <footer>
+              {onReplayTutorial && labels.replayTutorial ? (
+                <button
+                  className="ticket-button-secondary"
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    onReplayTutorial();
+                  }}
+                >
+                  <GraduationCap size={17} aria-hidden="true" /> {labels.replayTutorial}
+                </button>
+              ) : null}
               <button className="ticket-button" type="button" onClick={() => setOpen(false)}>
                 {labels.close}
               </button>

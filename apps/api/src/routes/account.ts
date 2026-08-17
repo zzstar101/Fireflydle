@@ -46,6 +46,20 @@ async function writeAudit(
 
 export const accountRoutes = new Hono<AppContext>();
 
+accountRoutes.patch("/account/playable-tutorial", async (context) => {
+  const auth = requireAuth(context, false);
+  const now = Date.now();
+  await context.env.DB.prepare(
+    `UPDATE users
+     SET playable_tutorial_completed_at = COALESCE(playable_tutorial_completed_at, ?),
+         updated_at = ?
+     WHERE id = ? AND is_guest = 0`,
+  )
+    .bind(now, now, auth.user.id)
+    .run();
+  return ok(context, toPublicUser({ ...auth.user, playableTutorialCompleted: true }));
+});
+
 accountRoutes.patch("/account/profile", async (context) => {
   const auth = requireAuth(context, false);
   const parsed = ProfileSchema.safeParse(await readJson(context));

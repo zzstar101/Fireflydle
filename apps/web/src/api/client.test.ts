@@ -28,6 +28,7 @@ globalThis.fetch = vi.fn(async (_input: string | URL | Request, init?: RequestIn
           elo: 1000,
           rankedMatches: 0,
           leaderboardEligible: false,
+          playableTutorialCompleted: false,
           createdAt: "2026-08-17T00:00:00.000Z",
         },
       },

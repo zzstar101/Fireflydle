@@ -1118,6 +1118,7 @@
 }
 .rules-panel > footer {
   justify-content: flex-end;
+  gap: 10px;
   border-top: 1px solid var(--border);
   border-bottom: 0;
 }
@@ -1218,6 +1219,144 @@
   color: var(--cyan);
 }
 
+.tutorial-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(4 8 15 / 82%);
+}
+
+.playable-tutorial {
+  width: min(760px, 100%);
+  max-height: min(760px, calc(100vh - 40px));
+  overflow: auto;
+  color: var(--text);
+  background: var(--canvas);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 28px 80px rgb(0 0 0 / 52%);
+  outline: none;
+}
+
+.playable-tutorial > header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tutorial-heading-mark {
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--canvas);
+  background: var(--gold-bright);
+}
+
+.playable-tutorial h2 {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
+}
+
+.tutorial-body {
+  padding: 22px;
+}
+
+.tutorial-body > p {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+}
+
+.tutorial-spoiler-note {
+  display: inline-flex;
+  padding: 5px 8px;
+  color: var(--cyan) !important;
+  border: 1px solid currentcolor;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tutorial-example {
+  display: grid;
+  grid-template-columns: 1.15fr repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--border-strong);
+}
+
+.tutorial-example > strong,
+.tutorial-example > span {
+  display: flex;
+  min-width: 0;
+  min-height: 92px;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 9px;
+  text-align: center;
+}
+
+.tutorial-example > span {
+  border-left: 1px solid rgb(255 255 255 / 24%);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tutorial-example small {
+  flex-basis: 100%;
+  font-size: 0.65rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.tutorial-state-exact {
+  color: #effff3;
+  background: var(--exact);
+}
+
+.tutorial-state-close {
+  color: #211a08;
+  background: var(--close);
+}
+
+.tutorial-state-miss {
+  color: #fff;
+  background: var(--miss);
+}
+
+.tutorial-state-direction {
+  color: var(--cyan);
+  background: rgb(34 58 75);
+}
+
+.tutorial-save-error {
+  margin: 14px 0 0 !important;
+  color: var(--danger) !important;
+}
+
+.playable-tutorial > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-top: 1px solid var(--border);
+}
+
+.playable-tutorial > footer > button:first-child {
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 @media (max-width: 680px) {
   .rules-panel-backdrop {
     align-items: end;
@@ -1228,6 +1367,34 @@
     border-right: 0;
     border-bottom: 0;
     border-left: 0;
+  }
+  .tutorial-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+  .playable-tutorial {
+    max-height: 92vh;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+  }
+  .tutorial-example {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tutorial-example > strong {
+    grid-column: 1 / -1;
+    min-height: 52px;
+  }
+  .tutorial-example > span {
+    min-height: 82px;
+    border-top: 1px solid rgb(255 255 255 / 24%);
+  }
+  .playable-tutorial > footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+  .playable-tutorial > footer .ticket-button {
+    width: 100%;
   }
 }
 

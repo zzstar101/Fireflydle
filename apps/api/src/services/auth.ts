@@ -17,6 +17,7 @@ interface SessionUserRow {
   elo: number;
   ranked_matches: number;
   leaderboard_eligible: number;
+  playable_tutorial_completed: number;
   created_at: number;
 }
 
@@ -257,7 +258,10 @@ async function mergeGuestProgress(
          id AS user_id, display_name, role, is_guest,
          CASE WHEN email IS NULL THEN 0 ELSE 1 END AS has_email,
          email_verified, elo,
-         ranked_matches, leaderboard_eligible, created_at
+         ranked_matches, leaderboard_eligible,
+         CASE WHEN playable_tutorial_completed_at IS NULL THEN 0 ELSE 1 END
+           AS playable_tutorial_completed,
+         created_at
        FROM users WHERE id = ? AND merged_into_user_id IS NULL`,
     )
     .bind(targetUserId)
@@ -297,6 +301,7 @@ function mapAuthUser(row: SessionUserRow): AuthUser {
     elo: row.elo,
     rankedMatches: row.ranked_matches,
     leaderboardEligible: row.leaderboard_eligible === 1,
+    playableTutorialCompleted: row.playable_tutorial_completed === 1,
     createdAt: row.created_at,
   };
 }
@@ -312,6 +317,7 @@ export function toPublicUser(user: AuthUser): PublicUser {
     elo: user.elo,
     rankedMatches: user.rankedMatches,
     leaderboardEligible: user.leaderboardEligible,
+    playableTutorialCompleted: user.playableTutorialCompleted,
     createdAt: new Date(user.createdAt).toISOString(),
   };
 }
@@ -345,7 +351,10 @@ export async function resolveAuth(env: Env, request: Request): Promise<AuthConte
        s.id AS session_id, s.expires_at, s.last_seen_at,
        u.id AS user_id, u.display_name, u.role, u.is_guest,
        CASE WHEN u.email IS NULL THEN 0 ELSE 1 END AS has_email, u.email_verified,
-       u.elo, u.ranked_matches, u.leaderboard_eligible, u.created_at
+       u.elo, u.ranked_matches, u.leaderboard_eligible,
+       CASE WHEN u.playable_tutorial_completed_at IS NULL THEN 0 ELSE 1 END
+         AS playable_tutorial_completed,
+       u.created_at
      FROM sessions s
      JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ? AND s.revoked_at IS NULL AND s.expires_at > ?
@@ -433,6 +442,7 @@ export async function createGuest(
       elo: 1000,
       rankedMatches: 0,
       leaderboardEligible: false,
+      playableTutorialCompleted: false,
       createdAt: guest.created_at,
     },
   };
@@ -555,6 +565,7 @@ export async function registerUser(
       elo: 1000,
       rankedMatches: 0,
       leaderboardEligible: true,
+      playableTutorialCompleted: false,
       createdAt: now,
     },
   };
@@ -574,7 +585,10 @@ export async function loginUser(
        id AS user_id, display_name, role, is_guest,
        CASE WHEN email IS NULL THEN 0 ELSE 1 END AS has_email,
        email_verified, elo,
-       ranked_matches, leaderboard_eligible, created_at,
+       ranked_matches, leaderboard_eligible,
+       CASE WHEN playable_tutorial_completed_at IS NULL THEN 0 ELSE 1 END
+         AS playable_tutorial_completed,
+       created_at,
        password_hash, password_salt, password_iterations
      FROM users
      WHERE login_name_normalized = ? AND is_guest = 0 AND merged_into_user_id IS NULL

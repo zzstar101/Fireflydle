@@ -10,6 +10,7 @@ export interface AuthUser {
   elo: number;
   rankedMatches: number;
   leaderboardEligible: boolean;
+  playableTutorialCompleted: boolean;
   createdAt: number;
 }
 
