@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import type { AeonSummary, Locale } from "@fireflydle/contracts";
-import { aeonRevealedCells } from "@fireflydle/game-engine";
+import { aeonRevealOrder, aeonRevealedCells } from "@fireflydle/game-engine";
 
 export function AeonGuessBoard({
   gameId,
@@ -20,6 +20,11 @@ export function AeonGuessBoard({
   finished: boolean;
 }) {
   const revealed = useMemo(() => aeonRevealedCells(gameId, wrongGuesses), [gameId, wrongGuesses]);
+  const revealOrder = useMemo(() => {
+    const ranks = new Map<number, number>();
+    aeonRevealOrder(gameId).forEach((cell, rank) => ranks.set(cell, rank));
+    return ranks;
+  }, [gameId]);
   const path = answer?.assets.imagePath ?? imagePath;
   const focus = answer?.assets.focus ?? imageFocus ?? [0.5, 0.5];
   return (
@@ -38,6 +43,9 @@ export function AeonGuessBoard({
           <span
             key={index}
             className={revealed.has(index) || finished ? "revealed" : "masked"}
+            style={
+              { "--reveal-delay": `${(revealOrder.get(index) ?? index) * 55}ms` } as CSSProperties
+            }
             aria-hidden="true"
           />
         ))}

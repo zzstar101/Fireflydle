@@ -72,6 +72,7 @@
 .endless-metrics .is-lost {
   color: var(--text-faint);
   opacity: 0.32;
+  animation: endless-life-extinguish 420ms var(--motion-ease) both;
 }
 
 .endless-layout {
@@ -216,6 +217,21 @@
   }
 }
 
+@keyframes endless-life-extinguish {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  45% {
+    opacity: 0.9;
+    transform: scale(1.18) rotate(-8deg);
+  }
+  100% {
+    opacity: 0.32;
+    transform: scale(0.92) rotate(0deg);
+  }
+}
+
 @media (max-width: 900px) {
   .endless-metrics {
     grid-template-columns: repeat(2, 1fr);
@@ -266,7 +282,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .endless-spinner {
+  .endless-spinner,
+  .endless-metrics .is-lost {
     animation: none;
+    transform: none;
   }
+}
+
+:root[data-motion="reduced"] .endless-metrics .is-lost {
+  animation: none;
+  transform: none;
 }

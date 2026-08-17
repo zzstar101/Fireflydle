@@ -536,6 +536,49 @@
   gap: 8px;
   color: var(--text-muted);
 }
+.room-state-signal {
+  position: relative;
+  display: inline-grid !important;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+.room-state-signal::before {
+  position: absolute;
+  inset: 5px;
+  content: "";
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+.room-state-signal i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: radar-pulse 1.8s ease-in-out infinite;
+}
+.room-state-signal i:nth-child(2) {
+  animation-delay: 600ms;
+}
+.room-state-signal i:nth-child(3) {
+  animation-delay: 1200ms;
+}
+.guess-submit-status {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 10px;
+  margin: -8px 0 16px;
+  color: var(--cyan);
+  border-left: 2px solid var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 6%, transparent);
+  font-size: 0.7rem;
+  animation: room-status-in 180ms ease-out both;
+}
 .invite-strip strong {
   margin-left: auto;
   font-family: var(--font-mono);
@@ -641,6 +684,10 @@
   grid-template-columns: 28px repeat(6, 1fr);
   gap: 5px;
 }
+.masked-feedback-grid > div.is-latest i {
+  animation: opponent-signal-in 260ms var(--motion-ease) both;
+  animation-delay: var(--cell-delay);
+}
 .masked-feedback-grid span {
   align-self: center;
   color: var(--text-faint);
@@ -741,6 +788,22 @@
     opacity: 1;
     transform: scale(1.2);
     box-shadow: 0 0 12px var(--cyan);
+  }
+}
+@keyframes opponent-signal-in {
+  from {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes room-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
   }
 }
 @media (max-width: 900px) {
@@ -885,4 +948,10 @@
     width: 100%;
     margin: 0;
   }
+}
+
+:root[data-motion="reduced"] .room-state-signal i,
+:root[data-motion="reduced"] .guess-submit-status,
+:root[data-motion="reduced"] .masked-feedback-grid > div.is-latest i {
+  animation: none;
 }

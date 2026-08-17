@@ -1697,6 +1697,8 @@
 }
 .aeon-image-grid span.revealed {
   opacity: 0;
+  animation: aeon-mask-reveal 360ms var(--motion-ease) both;
+  animation-delay: var(--reveal-delay);
 }
 .aeon-guess-board h2 {
   margin: 1rem 0 0;
@@ -2094,6 +2096,17 @@
   }
 }
 
+@keyframes aeon-mask-reveal {
+  from {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
 @keyframes reveal-cell {
   from {
     opacity: 0;
@@ -2185,6 +2198,11 @@
 :root[data-motion="reduced"] .settlement-energy::after,
 :root[data-motion="reduced"] .game-result.result-animated {
   animation: none;
+}
+
+:root[data-motion="reduced"] .aeon-image-grid span.revealed {
+  animation: none;
+  transition: none;
 }
 
 :root[data-motion="reduced"] .settlement-energy i,

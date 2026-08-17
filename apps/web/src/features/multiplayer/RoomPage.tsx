@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -59,6 +59,7 @@ export default function RoomPage() {
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
   const [connection, setConnection] = useState<"connecting" | "open" | "closed">("connecting");
   const [error, setError] = useState<string | null>(null);
+  const [guessPending, setGuessPending] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [codeCopied, setCodeCopied] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
@@ -99,6 +100,7 @@ export default function RoomPage() {
       };
       socket.onclose = () => {
         if (disposed || leavingRef.current) return;
+        setGuessPending(false);
         setConnection("closed");
         const delay = Math.min(5_000, 600 * 2 ** attempt);
         attempt += 1;
@@ -111,7 +113,10 @@ export default function RoomPage() {
           if (!parsed.success) throw new Error("Invalid room message");
           const message = parsed.data;
           if (message.type === "snapshot") setSnapshot(message.snapshot);
-          if (message.type === "error") setError(message.code);
+          if (message.type === "error") {
+            setGuessPending(false);
+            setError(message.code);
+          }
         } catch {
           setError("INTERNAL_ERROR");
         }
@@ -131,6 +136,10 @@ export default function RoomPage() {
     const interval = window.setInterval(() => setNow(Date.now()), 250);
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (snapshot?.state !== "playing" || snapshot.ownGuesses.length) setGuessPending(false);
+  }, [snapshot?.ownGuesses.length, snapshot?.state]);
 
   useEffect(() => {
     if (snapshot?.state !== "finished" || !matchTicket || acknowledgedRef.current) return;
@@ -182,10 +191,13 @@ export default function RoomPage() {
       )
     : "";
 
-  const submit = (characterId: string) =>
+  const submit = (characterId: string) => {
+    if (connection !== "open") return;
+    setGuessPending(true);
     socketRef.current?.send(
       JSON.stringify({ type: "guess", characterId, actionId: crypto.randomUUID() }),
     );
+  };
   const offerDraw = () => socketRef.current?.send(JSON.stringify({ type: "offer-draw" }));
   const respondDraw = (accepted: boolean) =>
     socketRef.current?.send(JSON.stringify({ type: "respond-draw", accepted }));
@@ -322,6 +334,11 @@ export default function RoomPage() {
 
           {snapshot.state === "waiting" && (
             <section className="invite-strip">
+              <span className="room-state-signal state-waiting" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
               <span>
                 <Copy size={17} />
                 {tr("邀请好友使用房间码", "ルームコードを共有", "Share room code")}
@@ -512,10 +529,19 @@ export default function RoomPage() {
               locale={locale}
               searchIndex={contentManifest.searchIndex}
               excludedIds={ownGuessedIds}
-              disabled={!canGuess || snapshot.ownGuesses.length >= 6}
+              disabled={!canGuess || guessPending || snapshot.ownGuesses.length >= 6}
               onSubmit={submit}
             />
           )}
+          {snapshot.state === "playing" && guessPending ? (
+            <p className="guess-submit-status" role="status" aria-live="polite">
+              {tr(
+                "已提交，等待对手…",
+                "送信済み。相手を待っています…",
+                "Submitted. Waiting for the opponent…",
+              )}
+            </p>
+          ) : null}
           {error && (
             <div className="inline-error" role="alert">
               {t(`error.${error}`, { defaultValue: t("error.generic") })}
@@ -543,12 +569,16 @@ export default function RoomPage() {
               </div>
               <div className="masked-feedback-grid">
                 {snapshot.opponentFeedback.map((row, rowIndex) => (
-                  <div key={rowIndex}>
+                  <div
+                    key={rowIndex}
+                    className={rowIndex === snapshot.opponentFeedback.length - 1 ? "is-latest" : ""}
+                  >
                     <span>#{rowIndex + 1}</span>
-                    {row.map((cell) => (
+                    {row.map((cell, cellIndex) => (
                       <i
                         key={cell.field}
                         className={`state-${cell.state}`}
+                        style={{ "--cell-delay": `${cellIndex * 75}ms` } as CSSProperties}
                         role="img"
                         aria-label={tr(
                           `第 ${rowIndex + 1} 次，${t(`game.${cell.field}`)}：${t(`game.${cell.state}`)}`,
