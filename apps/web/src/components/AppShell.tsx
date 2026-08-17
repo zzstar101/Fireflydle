@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { BarChart3, Home, Languages, Menu, MoonStar, Sun, UserRound, X } from "lucide-react";
+import {
+  BarChart3,
+  Download,
+  Home,
+  Languages,
+  Menu,
+  MoonStar,
+  Sun,
+  UserRound,
+  X,
+} from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import type { Locale } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
@@ -9,6 +19,8 @@ import { BrandMark } from "./BrandMark";
 import { AnnouncementCenter } from "./AnnouncementCenter";
 import { getDefaultMode } from "../features/modes/mode-registry";
 import { motionModeFromPreference, motionPausedForPage } from "./motion";
+import { PwaInstallPrompt } from "./PwaInstallPrompt";
+import { requestInstallFromMenu } from "../pwa";
 
 const mainNavigation = [
   { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
@@ -246,6 +258,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BarChart3 size={18} /> {t("nav.stats")}
             </NavLink>
             <div className="drawer-controls">
+              <button type="button" onClick={() => requestInstallFromMenu()}>
+                <Download size={18} aria-hidden="true" />
+                <span>{t("pwa.menu")}</span>
+              </button>
               <label title="Language">
                 <Languages size={17} aria-hidden="true" />
                 <span className="sr-only">Language</span>
@@ -297,6 +313,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+      <PwaInstallPrompt />
     </div>
   );
 }

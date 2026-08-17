@@ -6,7 +6,7 @@ import { App } from "./app/App";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import "./styles/tokens.css";
 import "./styles/global.css";
-import { registerPwaServiceWorker } from "./pwa";
+import { initializePwaInstall, registerPwaServiceWorker } from "./pwa";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,3 +32,4 @@ ReactDOM.createRoot(root).render(
 );
 
 registerPwaServiceWorker();
+initializePwaInstall();

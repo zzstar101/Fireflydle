@@ -27,6 +27,7 @@ import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
+import { markInstallEligible } from "../../pwa";
 import "./game.css";
 
 interface SharePreview {
@@ -292,6 +293,7 @@ function ActiveGame({
 
   useEffect(() => {
     if (game.status !== "active") resultRef.current?.focus();
+    if (game.status === "won" || game.status === "lost") markInstallEligible();
   }, [game.status]);
 
   useEffect(() => {
