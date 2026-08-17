@@ -21,6 +21,8 @@ import {
   ENDLESS_INITIAL_LIVES,
   aeonRevealOrder,
   aeonRevealedCells,
+  createGuessResultWithRules,
+  createInferenceReview,
 } from "./index";
 
 const asset = {
@@ -300,6 +302,29 @@ describe("通用字段反馈", () => {
 });
 
 describe("游戏规则", () => {
+  test("复盘按累计反馈给出精确剩余数并在最大缩减并列时选择较早猜测", () => {
+    const alpha = character({ id: "alpha", element: "fire", path: "harmony" });
+    const beta = character({ id: "beta", element: "fire", path: "harmony" });
+    const gamma = character({ id: "gamma", element: "fire", path: "harmony" });
+    const delta = character({ id: "delta", element: "ice", path: "hunt" });
+    const rules = [
+      { field: "element", comparison: "exact" as const },
+      { field: "path", comparison: "exact" as const },
+    ];
+    const guesses = [
+      createGuessResultWithRules(alpha, delta, rules),
+      createGuessResultWithRules(alpha, beta, rules),
+    ];
+    expect(createInferenceReview([alpha, beta, gamma, delta], guesses, rules)).toEqual({
+      initialCandidates: 4,
+      bestGuessNumber: 1,
+      steps: [
+        { guessNumber: 1, remainingCandidates: 3, eliminatedCandidates: 1, isBest: true },
+        { guessNumber: 2, remainingCandidates: 2, eliminatedCandidates: 1, isBest: false },
+      ],
+    });
+  });
+
   test("重复角色会被识别", () => {
     const target = character();
     const result = createGuessResult(target, target);

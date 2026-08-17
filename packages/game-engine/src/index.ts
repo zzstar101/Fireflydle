@@ -11,6 +11,7 @@ import type {
   GuessCell,
   GuessField,
   GuessResult,
+  InferenceReview,
   Locale,
   NpcSummary,
   CurrencyWarsUnit,
@@ -291,6 +292,59 @@ export function createGuessResultWithRules(
     cells: compareCharactersWithRules(target, guess, rules),
     isCorrect: target.id === guess.id,
     guessedAt: guessedAt.toISOString(),
+  };
+}
+
+function sameFeedback(left: readonly GuessCell[], right: readonly GuessCell[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((cell, index) => {
+      const other = right[index];
+      return (
+        other !== undefined &&
+        cell.field === other.field &&
+        cell.state === other.state &&
+        cell.direction === other.direction
+      );
+    })
+  );
+}
+
+/** 使用对局绑定的候选实体与规则重放每一步反馈，计算累计剩余候选。 */
+export function createInferenceReview(
+  candidates: readonly Character[],
+  guesses: readonly GuessResult[],
+  rules: readonly SnapshotFieldRule[],
+): InferenceReview {
+  let remaining = [...candidates];
+  let bestGuessNumber: number | null = null;
+  let largestReduction = -1;
+  const steps = guesses.map((result, index) => {
+    const before = remaining.length;
+    const guess = candidates.find((candidate) => candidate.id === result.character.id);
+    remaining = guess
+      ? remaining.filter(
+          (candidate) =>
+            (candidate.id === guess.id) === result.isCorrect &&
+            sameFeedback(compareCharactersWithRules(candidate, guess, rules), result.cells),
+        )
+      : [];
+    const eliminatedCandidates = before - remaining.length;
+    if (eliminatedCandidates > largestReduction) {
+      largestReduction = eliminatedCandidates;
+      bestGuessNumber = index + 1;
+    }
+    return {
+      guessNumber: index + 1,
+      remainingCandidates: remaining.length,
+      eliminatedCandidates,
+      isBest: false,
+    };
+  });
+  return {
+    initialCandidates: candidates.length,
+    bestGuessNumber,
+    steps: steps.map((step) => ({ ...step, isBest: step.guessNumber === bestGuessNumber })),
   };
 }
 

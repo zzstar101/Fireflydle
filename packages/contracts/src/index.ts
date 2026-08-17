@@ -246,6 +246,21 @@ export const GuessResultSchema = z.object({
 });
 export type GuessResult = z.infer<typeof GuessResultSchema>;
 
+export const InferenceReviewStepSchema = z.object({
+  guessNumber: z.number().int().positive(),
+  remainingCandidates: z.number().int().nonnegative(),
+  eliminatedCandidates: z.number().int().nonnegative(),
+  isBest: z.boolean(),
+});
+export type InferenceReviewStep = z.infer<typeof InferenceReviewStepSchema>;
+
+export const InferenceReviewSchema = z.object({
+  initialCandidates: z.number().int().positive(),
+  bestGuessNumber: z.number().int().positive().nullable(),
+  steps: z.array(InferenceReviewStepSchema),
+});
+export type InferenceReview = z.infer<typeof InferenceReviewSchema>;
+
 export const PublicGameSchema = z.object({
   id: z.string().uuid(),
   modeId: ContentModeIdSchema,
@@ -267,6 +282,7 @@ export const PublicGameSchema = z.object({
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)).optional(),
   aeonImagePath: z.string().min(1).optional(),
   aeonImageFocus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]).optional(),
+  inferenceReview: InferenceReviewSchema.optional(),
 });
 export type PublicGame = z.infer<typeof PublicGameSchema>;
 
@@ -614,6 +630,7 @@ export const RecentGameSummarySchema = z.object({
   scoreFor: z.number().int().nonnegative().optional(),
   scoreAgainst: z.number().int().nonnegative().optional(),
   ranked: z.boolean().optional(),
+  inferenceReview: InferenceReviewSchema.optional(),
 });
 
 export const DailyCompletionSchema = z.object({

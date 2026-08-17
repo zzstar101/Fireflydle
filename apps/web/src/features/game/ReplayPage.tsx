@@ -15,6 +15,7 @@ import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { GuessBoard } from "./GuessBoard";
 import { AeonGuessBoard } from "./AeonGuessBoard";
+import { InferenceReview } from "./InferenceReview";
 import type { AeonSummary } from "@fireflydle/contracts";
 import "./game.css";
 
@@ -292,7 +293,12 @@ export default function ReplayPage() {
           finished={game.status !== "active"}
         />
       ) : (
-        <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+        <>
+          <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+          {game.inferenceReview ? (
+            <InferenceReview review={game.inferenceReview} locale={locale} />
+          ) : null}
+        </>
       )}
       <section className="replay-actions">
         <p>

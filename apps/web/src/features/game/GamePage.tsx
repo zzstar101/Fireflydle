@@ -39,6 +39,7 @@ import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import { AeonGuessBoard } from "./AeonGuessBoard";
+import { InferenceReview } from "./InferenceReview";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
 import { PlayableTutorial } from "./PlayableTutorial";
@@ -838,12 +839,17 @@ function ActiveGame({
           )}
 
           {contentModeId !== "aeon" ? (
-            <GuessBoard
-              guesses={game.guesses}
-              locale={locale}
-              fields={game.fieldDefinitions}
-              animateLatest={contentModeId === "playable"}
-            />
+            <>
+              {game.inferenceReview ? (
+                <InferenceReview review={game.inferenceReview} locale={locale} />
+              ) : null}
+              <GuessBoard
+                guesses={game.guesses}
+                locale={locale}
+                fields={game.fieldDefinitions}
+                animateLatest={contentModeId === "playable"}
+              />
+            </>
           ) : null}
         </div>
 

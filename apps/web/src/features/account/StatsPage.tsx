@@ -16,6 +16,7 @@ import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "./useSession";
+import { InferenceReview } from "../game/InferenceReview";
 import "./account.css";
 
 export default function StatsPage() {
@@ -238,6 +239,9 @@ export default function StatsPage() {
                     ? `${item.scoreFor} : ${item.scoreAgainst}`
                     : `${item.guesses} · ${Math.round(item.elapsedMs / 1000)}${locale === "zh-CN" ? " 秒" : "s"}`}
                 </i>
+                {item.inferenceReview ? (
+                  <InferenceReview review={item.inferenceReview} locale={locale} compact />
+                ) : null}
                 <ChevronRight size={16} />
               </Link>
             ))}

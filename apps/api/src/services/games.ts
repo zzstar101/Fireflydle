@@ -16,6 +16,7 @@ import {
 } from "@fireflydle/contracts";
 import {
   createGuessResultWithRules,
+  createInferenceReview,
   createNpcGuessResult,
   createCurrencyWarsGuessResult,
   createAeonGuessResult,
@@ -166,6 +167,8 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
   const finished = row.status !== "active";
   const rules = readFieldRules(row);
   const target = GameEntitySummarySchema.parse(JSON.parse(row.target_payload_json));
+  const candidatePool =
+    finished && row.mode_id === "playable" ? readPlayableCandidatePool(row) : null;
   return {
     id: row.id,
     modeId: row.mode_id,
@@ -184,6 +187,9 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
       ? { aeonImagePath: target.assets.imagePath, aeonImageFocus: target.assets.focus }
       : {}),
     fieldDefinitions: readFieldDefinitions(row, rules),
+    ...(candidatePool
+      ? { inferenceReview: createInferenceReview(candidatePool, guesses, rules) }
+      : {}),
   };
 }
 
@@ -426,6 +432,13 @@ function readCandidateSnapshot(row: GameRow, characterId: string): GameEntitySum
 function hasCandidateSnapshotPool(row: GameRow): boolean {
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
   return typeof encoded === "object" && encoded !== null && !Array.isArray(encoded);
+}
+
+function readPlayableCandidatePool(row: GameRow): Character[] | null {
+  const encoded = JSON.parse(row.candidate_pool_json) as unknown;
+  if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
+  const parsed = CharacterSchema.array().safeParse(Object.values(encoded));
+  return parsed.success && parsed.data.length > 0 ? parsed.data : null;
 }
 
 function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {

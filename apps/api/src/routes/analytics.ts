@@ -2,6 +2,7 @@ import { getBeijingDateKey } from "@fireflydle/game-engine";
 import { Hono } from "hono";
 import { ok } from "../lib/http";
 import { requireAuth } from "../services/auth";
+import { getReplayGame } from "../services/games";
 import type { AppContext } from "../types";
 
 interface AggregateRow {
@@ -175,6 +176,23 @@ analyticsRoutes.get("/stats/me", async (context) => {
   }));
   const dailyGuessSum = uniqueDaily.reduce((sum, row) => sum + row.guess_count, 0);
   const totalGuessGames = (aggregate?.guess_games ?? 0) + uniqueDaily.length;
+  const soloRecent = await Promise.all(
+    recentRows.results.map(async (row) => {
+      const game = await getReplayGame(context.env.DB, row.game_id);
+      return {
+        id: row.game_id,
+        modeId: row.mode_id,
+        activityId: row.activity_id,
+        result: row.result === "expired" ? "lost" : row.result,
+        guesses: row.guess_count,
+        elapsedMs: row.elapsed_ms,
+        playedAt: new Date(row.completed_at).toISOString(),
+        ...(game.guesses.length === row.guess_count && game.inferenceReview
+          ? { inferenceReview: game.inferenceReview }
+          : {}),
+      };
+    }),
+  );
   return ok(context, {
     dailyPlayed: uniqueDaily.length,
     dailyWon: uniqueDaily.filter((row) => row.result === "won").length,
@@ -197,15 +215,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
     failedDaily: uniqueDaily.filter((row) => row.result === "lost").length,
     todayCompletions: todayRow?.count ?? 0,
     recent: [
-      ...recentRows.results.map((row) => ({
-        id: row.game_id,
-        modeId: row.mode_id,
-        activityId: row.activity_id,
-        result: row.result === "expired" ? "lost" : row.result,
-        guesses: row.guess_count,
-        elapsedMs: row.elapsed_ms,
-        playedAt: new Date(row.completed_at).toISOString(),
-      })),
+      ...soloRecent,
       ...multiplayerRows.results.map((row) => ({
         id: row.match_id,
         modeId: "playable",
