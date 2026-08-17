@@ -27,7 +27,7 @@ describe("结果分享图片", () => {
       maxAttempts: 6,
       won: true,
       elapsedMs: 83_000,
-      siteUrl: "https://fireflydle.games/",
+      siteUrl: "https://fireflydle.games/challenge/same-puzzle",
     });
 
     expect(model).toMatchObject({
@@ -38,8 +38,8 @@ describe("结果分享图片", () => {
       attempts: "1 / 6",
       time: "01:23",
       difficulty: "标准",
-      site: "fireflydle.games",
-      qrUrl: "https://fireflydle.games/",
+      site: "fireflydle.games/challenge",
+      qrUrl: "https://fireflydle.games/challenge/same-puzzle",
       guesses: [
         {
           name: "#01",
@@ -85,5 +85,36 @@ describe("结果分享图片", () => {
 
     expect(model.fields).toEqual(["快照版本", "快照地区"]);
     expect(model.guesses[0]?.cells).toEqual(["close", "exact"]);
+  });
+
+  it.each([
+    ["zh-CN" as const, "每日一题", "标准"],
+    ["en" as const, "DAILY PUZZLE", "STANDARD"],
+    ["ja" as const, "デイリー", "スタンダード"],
+  ])("%s 结果卡使用同题挑战二维码且不包含角色身份", (locale, mode, difficulty) => {
+    const challengeUrl = "https://fireflydle.games/challenge/00000000-0000-4000-8000-000000000029";
+    const model = buildShareCardModel({
+      locale,
+      mode: "daily",
+      dateKey: "2026-08-17",
+      difficulty: "standard",
+      guesses,
+      maxAttempts: 6,
+      won: true,
+      elapsedMs: 83_000,
+      siteUrl: challengeUrl,
+    });
+
+    expect(model).toMatchObject({
+      mode,
+      difficulty,
+      attempts: "1 / 6",
+      time: "01:23",
+      site: "fireflydle.games/challenge",
+      qrUrl: challengeUrl,
+    });
+    expect(JSON.stringify(model)).not.toContain("不应出现的答案");
+    expect(JSON.stringify(model)).not.toContain("Hidden");
+    expect(JSON.stringify(model)).not.toContain("非表示");
   });
 });

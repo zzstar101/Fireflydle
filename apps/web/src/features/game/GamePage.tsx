@@ -11,8 +11,8 @@ import {
   RadioTower,
   RotateCcw,
   Signal,
+  Share2,
   Sparkles,
-  Swords,
   Trophy,
   WifiOff,
 } from "lucide-react";
@@ -21,6 +21,7 @@ import type {
   PersonalStats,
   PublicGame,
   PublicUser,
+  ReplayShareResponse,
   SessionPayload,
 } from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
@@ -40,6 +41,11 @@ import {
   supportsPlayableTutorial,
 } from "./playable-tutorial-state";
 import { triggerGameHaptic } from "./haptics";
+import {
+  buildFriendChallengeSharePayload,
+  copyShareText,
+  tryNativeFriendChallengeShare,
+} from "./share-friend-challenge";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
 import { markInstallEligible } from "../../pwa";
@@ -48,6 +54,7 @@ import "./game.css";
 interface SharePreview {
   imageUrl: string;
   fileName: string;
+  challengeUrl?: string;
 }
 
 function formatTime(milliseconds: number): string {
@@ -314,6 +321,11 @@ function ActiveGame({
   const [challengeBusy, setChallengeBusy] = useState(false);
   const [challengeUrl, setChallengeUrl] = useState<string | null>(null);
   const [challengeError, setChallengeError] = useState(false);
+  const [replayUrl, setReplayUrl] = useState<string | null>(null);
+  const [dialogActionBusy, setDialogActionBusy] = useState(false);
+  const [dialogActionError, setDialogActionError] = useState(false);
+  const [challengeCopied, setChallengeCopied] = useState(false);
+  const [replayCopied, setReplayCopied] = useState(false);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const gameHeadingRef = useRef<HTMLHeadingElement>(null);
   const resultRef = useRef<HTMLElement>(null);
@@ -339,6 +351,10 @@ function ActiveGame({
 
   useEffect(() => {
     setConfirmAbandon(false);
+    setChallengeUrl(null);
+    setReplayUrl(null);
+    setChallengeError(false);
+    setSharePreview(null);
     observedGuessCountRef.current = game.guesses.length;
     gameHeadingRef.current?.focus();
   }, [game.id]);
@@ -386,31 +402,39 @@ function ActiveGame({
 
   const closeSharePreview = useCallback(() => {
     setSharePreview(null);
+    setDialogActionError(false);
+    setChallengeCopied(false);
+    setReplayCopied(false);
     window.requestAnimationFrame(() => shareButtonRef.current?.focus());
   }, []);
+
+  const generateShareImage = async (siteUrl: string) => {
+    const { generateShareResultImage, shareImageFileName } = await import("./share-result-image");
+    const dateKey = game.dateKey ?? getBeijingDateKey();
+    const blob = await generateShareResultImage({
+      locale,
+      mode,
+      dateKey,
+      difficulty: game.difficulty,
+      guesses: game.guesses,
+      ...(game.fieldDefinitions ? { fieldDefinitions: game.fieldDefinitions } : {}),
+      maxAttempts: game.maxAttempts,
+      won: game.status === "won",
+      elapsedMs: game.elapsedMs,
+      siteUrl,
+    });
+    return { blob, fileName: shareImageFileName({ dateKey, mode }) };
+  };
 
   const createShareImage = async () => {
     if (!shareable || shareBusy) return;
     setShareBusy(true);
     setShareError(false);
     try {
-      const { generateShareResultImage, shareImageFileName } = await import("./share-result-image");
-      const dateKey = game.dateKey ?? getBeijingDateKey();
-      const blob = await generateShareResultImage({
-        locale,
-        mode,
-        dateKey,
-        difficulty: game.difficulty,
-        guesses: game.guesses,
-        ...(game.fieldDefinitions ? { fieldDefinitions: game.fieldDefinitions } : {}),
-        maxAttempts: game.maxAttempts,
-        won: game.status === "won",
-        elapsedMs: game.elapsedMs,
-        siteUrl: window.location.origin,
-      });
+      const { blob, fileName } = await generateShareImage(window.location.origin);
       setSharePreview({
         imageUrl: URL.createObjectURL(blob),
-        fileName: shareImageFileName({ dateKey, mode }),
+        fileName,
       });
     } catch {
       setShareError(true);
@@ -419,10 +443,11 @@ function ActiveGame({
     }
   };
 
-  const copyFriendChallenge = async () => {
+  const shareFriendChallenge = async () => {
     if (challengeBusy) return;
     setChallengeBusy(true);
     setChallengeError(false);
+    setDialogActionError(false);
     try {
       let url = challengeUrl;
       if (!url) {
@@ -432,11 +457,61 @@ function ActiveGame({
         url = `${window.location.origin}/challenge/${challenge.id}`;
         setChallengeUrl(url);
       }
-      await navigator.clipboard.writeText(url);
+      const { blob, fileName } = await generateShareImage(url);
+      const payload = buildFriendChallengeSharePayload({
+        locale,
+        won: game.status === "won",
+        guessCount: game.guesses.length,
+        maxAttempts: game.maxAttempts,
+        elapsedMs: game.elapsedMs,
+        challengeUrl: url,
+      });
+      const nativeResult = await tryNativeFriendChallengeShare(payload, blob, fileName);
+      if (nativeResult === "fallback") {
+        setSharePreview({ imageUrl: URL.createObjectURL(blob), fileName, challengeUrl: url });
+      }
     } catch {
       setChallengeError(true);
     } finally {
       setChallengeBusy(false);
+    }
+  };
+
+  const copyChallengeFromDialog = async () => {
+    if (!challengeUrl || dialogActionBusy) return;
+    setDialogActionBusy(true);
+    setDialogActionError(false);
+    try {
+      await copyShareText(challengeUrl);
+      setChallengeCopied(true);
+      window.setTimeout(() => setChallengeCopied(false), 1_800);
+    } catch {
+      setDialogActionError(true);
+    } finally {
+      setDialogActionBusy(false);
+    }
+  };
+
+  const copyReplayFromDialog = async () => {
+    if (dialogActionBusy) return;
+    setDialogActionBusy(true);
+    setDialogActionError(false);
+    try {
+      let url = replayUrl;
+      if (!url) {
+        const shared = await apiRequest<ReplayShareResponse>(`/replays/${game.id}/share`, {
+          method: "POST",
+        });
+        url = shared.url;
+        setReplayUrl(url);
+      }
+      await copyShareText(url);
+      setReplayCopied(true);
+      window.setTimeout(() => setReplayCopied(false), 1_800);
+    } catch {
+      setDialogActionError(true);
+    } finally {
+      setDialogActionBusy(false);
     }
   };
 
@@ -646,6 +721,22 @@ function ActiveGame({
                   </small>
                 </div>
                 <div className="result-actions">
+                  {shareable && contentModeId === "playable" && source === "server" && (
+                    <button
+                      ref={shareButtonRef}
+                      className="ticket-button"
+                      type="button"
+                      disabled={challengeBusy}
+                      onClick={() => void shareFriendChallenge()}
+                    >
+                      {challengeBusy ? (
+                        <span className="button-spinner" aria-hidden="true" />
+                      ) : (
+                        <Share2 size={17} />
+                      )}{" "}
+                      {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
+                    </button>
+                  )}
                   {mode === "daily" ? (
                     <Link className="ticket-button" to="/">
                       <ArrowLeft size={17} /> {t("hub.backToHub")}
@@ -665,7 +756,7 @@ function ActiveGame({
                       <ArrowLeft size={17} /> {t("hub.backToHub")}
                     </Link>
                   )}
-                  {shareable && (
+                  {shareable && !(contentModeId === "playable" && source === "server") && (
                     <button
                       ref={shareButtonRef}
                       className="result-share-button"
@@ -681,31 +772,6 @@ function ActiveGame({
                       {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
                     </button>
                   )}
-                  {shareable && contentModeId === "playable" && source === "server" && (
-                    <button
-                      className="ticket-button-secondary"
-                      type="button"
-                      disabled={challengeBusy}
-                      onClick={() => void copyFriendChallenge()}
-                    >
-                      {challengeBusy ? (
-                        <span className="button-spinner" aria-hidden="true" />
-                      ) : (
-                        <Swords size={17} />
-                      )}{" "}
-                      {challengeUrl
-                        ? locale === "zh-CN"
-                          ? "复制挑战链接"
-                          : locale === "ja"
-                            ? "リンクをコピー"
-                            : "Copy challenge link"
-                        : locale === "zh-CN"
-                          ? "好友同题挑战"
-                          : locale === "ja"
-                            ? "同じ問題で挑戦"
-                            : "Challenge a friend"}
-                    </button>
-                  )}
                 </div>
                 {shareError && (
                   <p className="share-image-error" role="alert">
@@ -714,11 +780,7 @@ function ActiveGame({
                 )}
                 {challengeError && (
                   <p className="share-image-error" role="alert">
-                    {locale === "zh-CN"
-                      ? "暂时无法生成或复制挑战链接。"
-                      : locale === "ja"
-                        ? "チャレンジリンクを作成できません。"
-                        : "Could not create or copy the challenge link."}
+                    {t("game.challengeShareError")}
                   </p>
                 )}
               </section>
@@ -762,6 +824,17 @@ function ActiveGame({
         <ShareResultDialog
           imageUrl={sharePreview.imageUrl}
           fileName={sharePreview.fileName}
+          challengeCopied={challengeCopied}
+          replayCopied={replayCopied}
+          actionBusy={dialogActionBusy}
+          actionError={dialogActionError}
+          {...(sharePreview.challengeUrl
+            ? {
+                challengeUrl: sharePreview.challengeUrl,
+                onCopyChallenge: copyChallengeFromDialog,
+                onCopyReplay: copyReplayFromDialog,
+              }
+            : {})}
           onClose={closeSharePreview}
         />
       ) : null}

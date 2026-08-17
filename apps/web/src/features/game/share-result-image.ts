@@ -127,6 +127,11 @@ function formatElapsed(milliseconds: number): string {
     .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
 
+function shareCardSiteLabel(siteUrl: string): string {
+  const url = new URL(siteUrl);
+  return `${url.host}${url.pathname.startsWith("/challenge/") ? "/challenge" : url.pathname.replace(/\/$/u, "")}`;
+}
+
 export function buildShareCardModel(input: ShareResultImageInput): ShareCardModel {
   const labels = LABELS[input.locale];
   const definitions =
@@ -153,7 +158,7 @@ export function buildShareCardModel(input: ShareResultImageInput): ShareCardMode
         (field) => guess.cells.find((cell) => cell.field === field.id)?.state ?? "unavailable",
       ),
     })),
-    site: input.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+    site: shareCardSiteLabel(input.siteUrl),
     qrUrl: input.siteUrl,
   };
 }

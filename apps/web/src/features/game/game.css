@@ -560,7 +560,8 @@
   opacity: 0.62;
 }
 
-.result-share-button .button-spinner {
+.result-share-button .button-spinner,
+.result-actions .ticket-button .button-spinner {
   width: 15px;
   height: 15px;
   border: 2px solid currentcolor;
@@ -590,6 +591,10 @@
 }
 
 .share-image-dialog {
+  display: flex;
+  max-height: calc(100dvh - 56px);
+  overflow: hidden;
+  flex-direction: column;
   width: min(100%, 690px);
   border: 1px solid var(--border-strong);
   background: var(--surface);
@@ -600,6 +605,7 @@
 .share-image-dialog > header,
 .share-image-dialog > footer {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   padding: 22px 24px;
   gap: 18px;
@@ -643,6 +649,8 @@
 
 .share-image-preview {
   display: grid;
+  flex: 1 1 auto;
+  min-height: 180px;
   max-height: 62vh;
   padding: 24px;
   background:
@@ -676,8 +684,58 @@
   line-height: 1.65;
 }
 
-.share-image-dialog > footer .ticket-button {
+.share-image-dialog > footer p span[role="alert"] {
+  color: var(--danger);
+}
+
+.share-challenge-link {
+  display: grid;
   flex: 0 0 auto;
+  padding: 15px 24px;
+  gap: 4px;
+  border-top: 1px solid var(--border);
+  background: var(--canvas-deep);
+}
+
+.share-challenge-link span {
+  color: var(--text-faint);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.share-challenge-link strong {
+  overflow: hidden;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-dialog-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.share-replay-button {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 4px 0;
+  gap: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font-size: 0.64rem;
+}
+
+.share-replay-button:hover {
+  color: var(--text);
 }
 
 @keyframes share-backdrop-in {
@@ -2492,11 +2550,23 @@
     max-height: 58vh;
     padding: 12px;
   }
+  .share-image-dialog {
+    max-height: calc(100dvh - 20px);
+  }
   .share-image-dialog > footer {
     align-items: stretch;
     flex-direction: column;
   }
-  .share-image-dialog > footer .ticket-button {
+  .share-dialog-actions,
+  .share-dialog-actions > .ticket-button,
+  .share-dialog-actions > .ticket-button-secondary {
     width: 100%;
+  }
+  .share-dialog-actions {
+    display: grid;
+  }
+  .share-replay-button {
+    justify-content: center;
+    margin: 2px 0 0;
   }
 }
