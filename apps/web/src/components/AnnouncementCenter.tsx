@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellRing, ChevronLeft, ChevronRight, Megaphone, Wrench, X } from "lucide-react";
@@ -8,7 +8,10 @@ import { apiRequest } from "../api/client";
 import { useSession } from "../features/account/useSession";
 import { getDefaultModeNavigation } from "../features/modes/mode-registry";
 import { usePreferences } from "../state/preferences";
-import { MarkdownContent } from "./MarkdownContent";
+
+const MarkdownContent = lazy(() =>
+  import("./MarkdownContent").then((module) => ({ default: module.MarkdownContent })),
+);
 
 const quietActivityPaths = (["daily", "practice"] as const).flatMap((navigationId) => {
   const activity = getDefaultModeNavigation(navigationId);
@@ -71,7 +74,9 @@ function AnnouncementBody({
         {formatDate(announcement.publishedAt ?? announcement.startsAt, locale)}
       </p>
       <div className="announcement-markdown">
-        <MarkdownContent>{announcement.body[locale]}</MarkdownContent>
+        <Suspense fallback={<p>{announcement.body[locale]}</p>}>
+          <MarkdownContent>{announcement.body[locale]}</MarkdownContent>
+        </Suspense>
       </div>
     </div>
   );

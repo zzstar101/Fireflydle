@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
@@ -26,19 +26,12 @@ import type {
   SessionPayload,
 } from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
-import {
-  aeonManifest,
-  contentManifest,
-  currencyWarsManifest,
-  npcManifest,
-} from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
-import { AeonGuessBoard } from "./AeonGuessBoard";
 import { InferenceReview } from "./InferenceReview";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
@@ -56,6 +49,7 @@ import {
 } from "./share-friend-challenge";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
+import type { SoloContentMode, SoloModeRuntime } from "./mode-runtime";
 import { markInstallEligible } from "../../pwa";
 import { useSpecialModePack } from "../../offline/use-special-mode-pack";
 import "./game.css";
@@ -73,20 +67,16 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-type SoloContentMode = "playable" | "npc" | "currency-wars" | "aeon";
+const AeonGuessBoard = lazy(() =>
+  import("./AeonGuessBoard").then((module) => ({ default: module.AeonGuessBoard })),
+);
 
-function manifestFor(contentModeId: SoloContentMode) {
-  return contentModeId === "npc"
-    ? npcManifest
-    : contentModeId === "aeon"
-      ? aeonManifest
-      : contentModeId === "currency-wars"
-        ? currencyWarsManifest
-        : contentManifest;
-}
-
-function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: SoloContentMode): string {
-  const manifest = manifestFor(contentModeId);
+function fieldSummary(
+  locale: "zh-CN" | "en" | "ja",
+  contentModeId: SoloContentMode,
+  runtime: SoloModeRuntime,
+): string {
+  const manifest = runtime.manifest;
   const mode = manifest.modes.find((entry) => entry.id === contentModeId);
   const fields = (
     contentModeId === "playable"
@@ -121,6 +111,7 @@ function ruleLabels(t: (key: string) => string, locale: "zh-CN" | "en" | "ja") {
 function GamePreparation({
   activityId,
   contentModeId,
+  runtime,
   checking,
   busy,
   connectionFailed,
@@ -134,6 +125,7 @@ function GamePreparation({
 }: {
   activityId: "daily" | "practice";
   contentModeId: SoloContentMode;
+  runtime: SoloModeRuntime;
   checking: boolean;
   busy: boolean;
   connectionFailed: boolean;
@@ -147,14 +139,12 @@ function GamePreparation({
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
-  const modeDefinition = manifestFor(contentModeId).modes.find(
-    (entry) => entry.id === contentModeId,
-  );
+  const modeDefinition = runtime.manifest.modes.find((entry) => entry.id === contentModeId);
   const maxAttempts = modeDefinition?.maxAttempts ?? 6;
   const fields = modeDefinition?.fields ?? [];
   const poolSize =
-    manifestFor(contentModeId).pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)
-      ?.candidateIds.length ?? 0;
+    runtime.manifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
+      .length ?? 0;
 
   return (
     <main className={`game-preparation prep-${activityId}`}>
@@ -189,7 +179,7 @@ function GamePreparation({
             {contentModeId === "npc" ||
             contentModeId === "currency-wars" ||
             contentModeId === "aeon"
-              ? fieldSummary(locale, contentModeId)
+              ? fieldSummary(locale, contentModeId, runtime)
               : activityId === "daily"
                 ? t("prep.dailyIntro")
                 : t("prep.randomIntro")}
@@ -371,11 +361,13 @@ function GamePreparation({
 function ActiveGame({
   activityId,
   contentModeId,
+  runtime,
   session,
   onReplayTutorial,
 }: {
   activityId: "daily" | "practice";
   contentModeId: SoloContentMode;
+  runtime: SoloModeRuntime;
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
   onReplayTutorial?: () => void;
 }) {
@@ -403,7 +395,7 @@ function ActiveGame({
   const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
     session;
   const guessCount = game.guesses.length;
-  const modeManifest = manifestFor(contentModeId);
+  const modeManifest = runtime.manifest;
   const modeDefinition = modeManifest.modes.find((entry) => entry.id === contentModeId);
   const ruleFields = game.fieldDefinitions ?? modeDefinition?.fields ?? [];
   const rulePoolSize =
@@ -773,7 +765,7 @@ function ActiveGame({
               characters={roster}
               locale={locale}
               {...(contentModeId === "playable"
-                ? { searchIndex: contentManifest.searchIndex }
+                ? { searchIndex: runtime.manifest.searchIndex }
                 : {})}
               {...(contentModeId === "aeon"
                 ? { entityLabel: locale === "en" ? "Aeon" : "星神" }
@@ -950,13 +942,14 @@ function ActiveGame({
   );
 }
 
-export default function GamePage({
+export function ModeGamePage({
   activityId,
-  contentModeId = "playable",
+  runtime,
 }: {
   activityId: "daily" | "practice";
-  contentModeId?: SoloContentMode;
+  runtime: SoloModeRuntime;
 }) {
+  const contentModeId = runtime.contentModeId;
   const [searchParams, setSearchParams] = useSearchParams();
   const locale = usePreferences((state) => state.language);
   const queryClient = useQueryClient();
@@ -995,7 +988,7 @@ export default function GamePage({
     : contentModeId === "playable"
       ? currentGames.data?.[activityId]
       : null;
-  const session = useGameSession(activityId, initialGame, contentModeId);
+  const session = useGameSession(activityId, initialGame, runtime);
   const navigationGameId = session.navigationGameId;
   const navigationGame =
     navigationGameId && session.game?.id === navigationGameId ? session.game : null;
@@ -1093,6 +1086,7 @@ export default function GamePage({
     <GamePreparation
       activityId={activityId}
       contentModeId={contentModeId}
+      runtime={runtime}
       checking={checking}
       busy={session.busy}
       connectionFailed={connectionFailed}
@@ -1112,6 +1106,7 @@ export default function GamePage({
     <ActiveGame
       activityId={activityId}
       contentModeId={contentModeId}
+      runtime={runtime}
       session={{ ...session, game }}
       onReplayTutorial={replayTutorial}
     />

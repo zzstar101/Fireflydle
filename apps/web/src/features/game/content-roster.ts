@@ -1,22 +1,8 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import type { GameEntitySummary } from "@fireflydle/contracts";
-import {
-  characters,
-  currencyWarsUnitSummaries,
-  npcEntities,
-  npcSummary,
-} from "@fireflydle/game-data";
 import { apiRequest } from "../../api/client";
 
 export type RosterContentMode = "playable" | "npc" | "currency-wars";
-
-const bundledNpcRoster = npcEntities.map(npcSummary);
-
-export function bundledRosterFor(contentModeId: RosterContentMode): readonly GameEntitySummary[] {
-  if (contentModeId === "npc") return bundledNpcRoster;
-  if (contentModeId === "currency-wars") return currencyWarsUnitSummaries;
-  return characters;
-}
 
 export function contentRosterQueryKey(contentModeId: RosterContentMode, manifestVersion: string) {
   return ["content-roster", contentModeId, manifestVersion] as const;
@@ -38,6 +24,7 @@ export function contentRosterRequestPath(
 export function contentRosterQueryOptions(
   contentModeId: RosterContentMode,
   manifestVersion: string,
+  bundledRoster: readonly GameEntitySummary[],
 ) {
   return queryOptions({
     queryKey: contentRosterQueryKey(contentModeId, manifestVersion),
@@ -48,7 +35,7 @@ export function contentRosterQueryOptions(
         );
       } catch {
         // 发布包自带同版本题库；离线或服务端已切换版本时仍可继续当前版本。
-        return bundledRosterFor(contentModeId);
+        return bundledRoster;
       }
     },
     staleTime: Infinity,
@@ -61,6 +48,9 @@ export function loadContentRoster(
   queryClient: QueryClient,
   contentModeId: RosterContentMode,
   manifestVersion: string,
+  bundledRoster: readonly GameEntitySummary[],
 ): Promise<readonly GameEntitySummary[]> {
-  return queryClient.ensureQueryData(contentRosterQueryOptions(contentModeId, manifestVersion));
+  return queryClient.ensureQueryData(
+    contentRosterQueryOptions(contentModeId, manifestVersion, bundledRoster),
+  );
 }

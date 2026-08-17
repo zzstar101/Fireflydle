@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contentManifest } from "@fireflydle/game-data";
+import { contentManifest } from "@fireflydle/game-data/playable";
 import { contentModeRegistry, getRegisteredMode } from "./mode-registry";
 
 describe("内容模式注册表", () => {
@@ -10,7 +10,7 @@ describe("内容模式注册表", () => {
       manifestVersion: contentModeRegistry.manifestVersion,
       defaultModeId: contentModeRegistry.defaultModeId,
       modes: contentModeRegistry.modes.map((mode) => ({
-        definitionIsPublished: mode.definition === playableDefinition,
+        definition: mode.definition,
         activities: mode.activities.map((activity) => activity.id),
         navigation: mode.navigation.map(({ id, segment, path, activityIds }) => ({
           id,
@@ -25,7 +25,7 @@ describe("内容模式注册表", () => {
       defaultModeId: "playable",
       modes: [
         {
-          definitionIsPublished: true,
+          definition: playableDefinition,
           activities: ["daily", "practice", "weekly", "endless", "private-room"],
           navigation: [
             {

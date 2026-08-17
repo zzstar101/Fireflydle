@@ -37,7 +37,7 @@ import type {
   UserRole,
   Version,
 } from "@fireflydle/contracts";
-import { characters, getFactionName, pathLabels } from "@fireflydle/game-data";
+import { characters, getFactionName, pathLabels } from "@fireflydle/game-data/playable";
 import { PageHeader } from "../../components/PageHeader";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { MarkdownContent } from "../../components/MarkdownContent";

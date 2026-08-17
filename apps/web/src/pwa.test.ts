@@ -10,12 +10,7 @@ import {
   promptInstall,
   registerPwaServiceWorker,
 } from "./pwa";
-import {
-  aeonManifest,
-  contentManifest,
-  currencyWarsManifest,
-  npcManifest,
-} from "@fireflydle/game-data";
+import { playableShell } from "@fireflydle/game-data/playable-shell";
 
 describe("PWA service worker", () => {
   beforeEach(() => {
@@ -62,15 +57,12 @@ describe("PWA service worker", () => {
 
     registerPwaServiceWorker(false);
 
-    const releaseVersion = [
-      contentManifest.manifestVersion,
-      npcManifest.manifestVersion,
-      currencyWarsManifest.manifestVersion,
-      aeonManifest.manifestVersion,
-    ].join(".");
-    expect(register).toHaveBeenCalledWith(`/sw.js?v=${encodeURIComponent(releaseVersion)}`, {
-      scope: "/",
-    });
+    expect(register).toHaveBeenCalledWith(
+      `/sw.js?v=${encodeURIComponent(playableShell.manifestVersion)}`,
+      {
+        scope: "/",
+      },
+    );
   });
 
   it("只在完成结算后获得安装资格，并支持 30 天关闭冷却", () => {

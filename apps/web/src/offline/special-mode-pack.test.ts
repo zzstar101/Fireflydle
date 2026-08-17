@@ -4,6 +4,9 @@ import {
   prepareSpecialModePack,
   specialModePackDefinition,
 } from "./special-mode-pack";
+import { aeonManifest } from "@fireflydle/game-data/aeon";
+import { currencyWarsManifest } from "@fireflydle/game-data/currency-wars";
+import { npcManifest } from "@fireflydle/game-data/npc";
 
 class MemoryCache {
   readonly entries = new Map<string, Response>();
@@ -55,6 +58,14 @@ describe("特殊模式离线包", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it.each([
+    ["npc", npcManifest.manifestVersion],
+    ["currency-wars", currencyWarsManifest.manifestVersion],
+    ["aeon", aeonManifest.manifestVersion],
+  ] as const)("%s 轻量包版本与完整 manifest 同步", (modeId, version) => {
+    expect(specialModePackDefinition(modeId).version).toBe(version);
   });
 
   it.each(["npc", "currency-wars", "aeon"] as const)(

@@ -1,9 +1,4 @@
-import {
-  aeonManifest,
-  contentManifest,
-  currencyWarsManifest,
-  npcManifest,
-} from "@fireflydle/game-data";
+import { playableShell } from "@fireflydle/game-data/playable-shell";
 
 const INSTALL_ELIGIBLE_KEY = "fireflydle-install-eligible";
 const INSTALL_DISMISSED_KEY = "fireflydle-install-dismissed-at";
@@ -104,14 +99,7 @@ export function initializePwaInstall(): () => void {
 
 export function registerPwaServiceWorker(isDevelopment = import.meta.env.DEV): void {
   if (isDevelopment || !("serviceWorker" in navigator)) return;
-  const version = encodeURIComponent(
-    [
-      contentManifest.manifestVersion,
-      npcManifest.manifestVersion,
-      currencyWarsManifest.manifestVersion,
-      aeonManifest.manifestVersion,
-    ].join("."),
-  );
+  const version = encodeURIComponent(playableShell.manifestVersion);
   void navigator.serviceWorker.register(`/sw.js?v=${version}`, { scope: "/" }).then(async () => {
     const registration = await navigator.serviceWorker.ready;
     const location = (window as Window & { location?: Location }).location;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Clock3,
   Heart,
@@ -16,18 +16,10 @@ import type {
   Locale,
   PublicEndlessRun,
 } from "@fireflydle/contracts";
-import {
-  aeonEntities,
-  characters,
-  currencyWarsUnitSummaries,
-  npcEntities,
-  npcSummary,
-} from "@fireflydle/game-data";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
-import { AeonGuessBoard } from "./AeonGuessBoard";
 import "./game.css";
 import "./endless.css";
 
@@ -110,12 +102,9 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
 
-const defaultRosters: Record<ContentModeId, readonly GameEntitySummary[]> = {
-  playable: characters,
-  npc: npcEntities.map(npcSummary),
-  "currency-wars": currencyWarsUnitSummaries,
-  aeon: aeonEntities,
-};
+const AeonGuessBoard = lazy(() =>
+  import("./AeonGuessBoard").then((module) => ({ default: module.AeonGuessBoard })),
+);
 
 const rosterEndpoints: Partial<Record<ContentModeId, string>> = {
   playable: "/characters",
@@ -123,15 +112,17 @@ const rosterEndpoints: Partial<Record<ContentModeId, string>> = {
   "currency-wars": "/currency-wars/units",
 };
 
-export default function EndlessPage({
-  contentModeId = "playable",
+export function EndlessPage({
+  contentModeId,
+  bundledRoster,
 }: {
-  contentModeId?: ContentModeId;
+  contentModeId: ContentModeId;
+  bundledRoster: readonly GameEntitySummary[];
 }) {
   const locale = usePreferences((state) => state.language);
   const labels = copy[locale];
   const [run, setRun] = useState<PublicEndlessRun | null>(null);
-  const [roster, setRoster] = useState<readonly GameEntitySummary[]>(defaultRosters[contentModeId]);
+  const [roster, setRoster] = useState<readonly GameEntitySummary[]>(bundledRoster);
   const [leaderboard, setLeaderboard] = useState<EndlessLeaderboardEntry[]>([]);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState(false);
@@ -153,9 +144,9 @@ export default function EndlessPage({
         apiRequest<PublicEndlessRun>(`/endless?modeId=${contentModeId}`, { method: "POST" }),
         rosterEndpoints[contentModeId]
           ? apiRequest<GameEntitySummary[]>(rosterEndpoints[contentModeId]!).catch(
-              () => defaultRosters[contentModeId],
+              () => bundledRoster,
             )
-          : Promise.resolve(defaultRosters[contentModeId]),
+          : Promise.resolve(bundledRoster),
         apiRequest<EndlessLeaderboardEntry[]>(
           `/leaderboards/endless?modeId=${contentModeId}`,
         ).catch(() => []),
@@ -168,7 +159,7 @@ export default function EndlessPage({
     } finally {
       setBusy(false);
     }
-  }, [contentModeId]);
+  }, [bundledRoster, contentModeId]);
 
   useEffect(() => {
     void start();

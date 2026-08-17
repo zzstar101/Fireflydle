@@ -7,7 +7,7 @@ import {
   getFactionName,
   getRegionName,
   pathLabels,
-} from "@fireflydle/game-data";
+} from "@fireflydle/game-data/playable";
 import { selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 

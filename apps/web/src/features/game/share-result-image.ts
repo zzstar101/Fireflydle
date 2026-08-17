@@ -1,5 +1,5 @@
 import type { FeedbackState, FieldDefinition, GuessResult, Locale } from "@fireflydle/contracts";
-import { contentManifest } from "@fireflydle/game-data";
+import { contentManifest } from "@fireflydle/game-data/playable";
 import QRCode from "qrcode";
 
 export const SHARE_IMAGE_WIDTH = 1080;

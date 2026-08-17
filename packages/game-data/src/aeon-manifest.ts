@@ -339,4 +339,15 @@ export const aeonManifest: ContentManifest = ContentManifestSchema.parse({
   entities,
 });
 
+export const aeonEntities = Object.freeze(
+  aeonManifest.entities
+    .filter((entity) => entity.kind === "aeon")
+    .map((entity) => ({
+      id: entity.id,
+      names: entity.names,
+      aliases: entity.aliases,
+      assets: entity.payload.assets,
+    })),
+);
+
 export type AeonEntity = (typeof entities)[number];

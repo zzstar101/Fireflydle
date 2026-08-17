@@ -8,8 +8,26 @@ import { getDefaultMode, type ModeNavigationItem } from "../features/modes/mode-
 import { usePreferences } from "../state/preferences";
 import { useNetworkStatus } from "../offline/network-status";
 
-const GamePage = lazy(() => import("../features/game/GamePage"));
-const EndlessPage = lazy(() => import("../features/game/EndlessPage"));
+const PlayableGamePage = lazy(() => import("../features/game/PlayableModePages"));
+const PlayableEndlessPage = lazy(() =>
+  import("../features/game/PlayableModePages").then((module) => ({
+    default: module.PlayableEndlessPage,
+  })),
+);
+const NpcGamePage = lazy(() => import("../features/game/NpcModePages"));
+const NpcEndlessPage = lazy(() =>
+  import("../features/game/NpcModePages").then((module) => ({ default: module.NpcEndlessPage })),
+);
+const CurrencyWarsGamePage = lazy(() => import("../features/game/CurrencyWarsModePages"));
+const CurrencyWarsEndlessPage = lazy(() =>
+  import("../features/game/CurrencyWarsModePages").then((module) => ({
+    default: module.CurrencyWarsEndlessPage,
+  })),
+);
+const AeonGamePage = lazy(() => import("../features/game/AeonModePages"));
+const AeonEndlessPage = lazy(() =>
+  import("../features/game/AeonModePages").then((module) => ({ default: module.AeonEndlessPage })),
+);
 const HubPage = lazy(() => import("../features/hub/HubPage"));
 const DuelPage = lazy(() => import("../features/multiplayer/DuelPage"));
 const RoomPage = lazy(() => import("../features/multiplayer/RoomPage"));
@@ -78,14 +96,14 @@ function activityPage(activity: ModeNavigationItem) {
   if (activity.id === "daily")
     return (
       <OnlineActivity>
-        <GamePage key="daily" activityId="daily" />
+        <PlayableGamePage key="daily" activityId="daily" />
       </OnlineActivity>
     );
-  if (activity.id === "practice") return <GamePage key="practice" activityId="practice" />;
+  if (activity.id === "practice") return <PlayableGamePage key="practice" activityId="practice" />;
   if (activity.id === "endless")
     return (
       <OnlineActivity>
-        <EndlessPage key="endless" contentModeId="playable" />
+        <PlayableEndlessPage key="endless" />
       </OnlineActivity>
     );
   return (
@@ -121,45 +139,33 @@ function RouteContent() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/replay/:replayId" element={<ReplayPage />} />
         <Route path="/challenge/:challengeId" element={<FriendChallengePage />} />
-        <Route
-          path="/npc/practice"
-          element={<GamePage key="npc-practice" activityId="practice" contentModeId="npc" />}
-        />
+        <Route path="/npc/practice" element={<NpcGamePage key="npc-practice" />} />
         <Route
           path="/npc/endless"
           element={
             <OnlineActivity>
-              <EndlessPage key="npc-endless" contentModeId="npc" />
+              <NpcEndlessPage key="npc-endless" />
             </OnlineActivity>
           }
         />
         <Route
           path="/currency-wars/practice"
-          element={
-            <GamePage
-              key="currency-wars-practice"
-              activityId="practice"
-              contentModeId="currency-wars"
-            />
-          }
+          element={<CurrencyWarsGamePage key="currency-wars-practice" />}
         />
         <Route
           path="/currency-wars/endless"
           element={
             <OnlineActivity>
-              <EndlessPage key="currency-wars-endless" contentModeId="currency-wars" />
+              <CurrencyWarsEndlessPage key="currency-wars-endless" />
             </OnlineActivity>
           }
         />
-        <Route
-          path="/aeon/practice"
-          element={<GamePage key="aeon-practice" activityId="practice" contentModeId="aeon" />}
-        />
+        <Route path="/aeon/practice" element={<AeonGamePage key="aeon-practice" />} />
         <Route
           path="/aeon/endless"
           element={
             <OnlineActivity>
-              <EndlessPage key="aeon-endless" contentModeId="aeon" />
+              <AeonEndlessPage key="aeon-endless" />
             </OnlineActivity>
           }
         />

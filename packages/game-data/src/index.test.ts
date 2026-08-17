@@ -19,6 +19,7 @@ import {
   aeonAssetAudit,
   aeonManifest,
 } from "./index.ts";
+import { playableShell } from "./playable-shell.ts";
 
 function matchingIds(query: string): string[] {
   return searchEntities(query, "zh-CN", characters, contentManifest.searchIndex).map(
@@ -189,6 +190,14 @@ describe("角色版本", () => {
 });
 
 describe("普通角色内容兼容入口", () => {
+  test("首屏模式壳与完整发布 manifest 保持同步", () => {
+    expect(playableShell).toEqual({
+      manifestVersion: contentManifest.manifestVersion,
+      modes: contentManifest.modes,
+      activities: contentManifest.activities,
+    });
+  });
+
   test("旧角色导出与版本化 manifest 来自同一份发布数据", () => {
     expect(contentManifest).toEqual(buildPlayableManifest(characters));
     const mode = contentManifest.modes.find((entry) => entry.id === "playable");

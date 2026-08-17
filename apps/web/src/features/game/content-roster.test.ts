@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { characters, contentManifest } from "@fireflydle/game-data";
+import { characters, contentManifest } from "@fireflydle/game-data/playable";
 import {
   contentRosterQueryKey,
   contentRosterQueryOptions,
@@ -25,15 +25,15 @@ describe("manifest 版本化题库缓存", () => {
     const client = new QueryClient();
     const version = contentManifest.manifestVersion;
 
-    const first = await loadContentRoster(client, "playable", version);
-    const second = await loadContentRoster(client, "playable", version);
+    const first = await loadContentRoster(client, "playable", version, characters);
+    const second = await loadContentRoster(client, "playable", version, characters);
 
     expect(first).toBe(second);
     expect(request).toHaveBeenCalledTimes(1);
     expect(String(request.mock.calls[0]?.[0])).toContain(
       `/api/characters?manifestVersion=${encodeURIComponent(version)}`,
     );
-    expect(contentRosterQueryOptions("playable", version)).toMatchObject({
+    expect(contentRosterQueryOptions("playable", version, characters)).toMatchObject({
       staleTime: Infinity,
       gcTime: Infinity,
     });
@@ -49,6 +49,7 @@ describe("manifest 版本化题库缓存", () => {
       refreshedClient,
       "playable",
       contentManifest.manifestVersion,
+      characters,
     );
 
     expect(roster).toBe(characters);
@@ -65,8 +66,8 @@ describe("manifest 版本化题库缓存", () => {
     vi.stubGlobal("fetch", request);
     const client = new QueryClient();
 
-    const startedGameRoster = await loadContentRoster(client, "playable", "1.0.1");
-    const nextReleaseRoster = await loadContentRoster(client, "playable", "1.0.2");
+    const startedGameRoster = await loadContentRoster(client, "playable", "1.0.1", characters);
+    const nextReleaseRoster = await loadContentRoster(client, "playable", "1.0.2", characters);
 
     expect(startedGameRoster).toEqual([{ id: "roster-1.0.1" }]);
     expect(nextReleaseRoster).toEqual([{ id: "roster-1.0.2" }]);

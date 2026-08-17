@@ -18,14 +18,14 @@ import {
 } from "lucide-react";
 import { GUESS_FIELDS, ServerRoomMessageSchema, type RoomSnapshot } from "@fireflydle/contracts";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { contentManifest } from "@fireflydle/game-data";
+import { characters, contentManifest } from "@fireflydle/game-data/playable";
 import { apiRequest, getWebSocketUrl } from "../../api/client";
 import { CharacterCombobox } from "../game/CharacterCombobox";
 import { GuessBoard } from "../game/GuessBoard";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
-import { bundledRosterFor, contentRosterQueryOptions } from "../game/content-roster";
+import { contentRosterQueryOptions } from "../game/content-roster";
 import { getDefaultMode, getDefaultModeNavigation } from "../modes/mode-registry";
 import "../game/game.css";
 import "./multiplayer.css";
@@ -67,9 +67,9 @@ export default function RoomPage() {
   const acknowledgedRef = useRef(false);
   const matchTicket = getMatchTicket(location.state);
   const rosterQuery = useQuery(
-    contentRosterQueryOptions("playable", contentManifest.manifestVersion),
+    contentRosterQueryOptions("playable", contentManifest.manifestVersion, characters),
   );
-  const roster = rosterQuery.data ?? bundledRosterFor("playable");
+  const roster = rosterQuery.data ?? characters;
 
   const acknowledgeMatchTicket = useCallback(async () => {
     if (!matchTicket || acknowledgedRef.current) return true;

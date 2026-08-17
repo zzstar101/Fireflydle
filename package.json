@@ -25,6 +25,7 @@
     "validate:npc-manifest": "bun scripts/validate-npc-manifest.ts",
     "generate:assets": "bun scripts/generate-responsive-assets.ts",
     "test:assets": "bunx vitest run scripts/responsive-assets.test.ts",
+    "test:web-budget": "bun scripts/verify-web-bundle.ts",
     "deploy:api": "bun --cwd apps/api deploy"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import type {
   ContentModeId,
   LocalizedText,
 } from "@fireflydle/contracts";
-import { contentManifest } from "@fireflydle/game-data";
+import { playableShell } from "@fireflydle/game-data/playable-shell";
 
 export type ModeNavigationId = "daily" | "practice" | "endless" | "duel";
 export type ModeNavigationIcon = "calendar" | "shuffle" | "infinity" | "swords";
@@ -33,10 +33,10 @@ const duelLabel = {
 } satisfies LocalizedText;
 
 function buildPlayableMode(): RegisteredContentMode {
-  const definition = contentManifest.modes.find((mode) => mode.id === "playable");
+  const definition = playableShell.modes.find((mode) => mode.id === "playable");
   if (!definition) throw new Error("内容 manifest 未注册普通角色模式");
 
-  const activities = contentManifest.activities.filter(
+  const activities = playableShell.activities.filter(
     (activity) =>
       activity.enabled &&
       activity.modeIds.includes(definition.id) &&
@@ -106,7 +106,7 @@ function buildPlayableMode(): RegisteredContentMode {
 const playableMode = buildPlayableMode();
 
 export const contentModeRegistry = {
-  manifestVersion: contentManifest.manifestVersion,
+  manifestVersion: playableShell.manifestVersion,
   defaultModeId: playableMode.definition.id,
   modes: [playableMode] as const,
 };

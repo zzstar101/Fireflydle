@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Search, Send } from "lucide-react";
 import type { GameEntitySummary, Locale, SearchIndexEntry } from "@fireflydle/contracts";
-import { buildSearchIndexEntry, searchEntities } from "@fireflydle/game-data";
+import { buildSearchIndexEntry, searchEntities } from "@fireflydle/game-data/search";
 import { useTranslation } from "react-i18next";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 

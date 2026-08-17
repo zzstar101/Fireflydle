@@ -143,9 +143,9 @@ export default function HubPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const online = useNetworkStatus();
-  const npcPack = useSpecialModePack("npc", false);
-  const currencyWarsPack = useSpecialModePack("currency-wars", false);
-  const aeonPack = useSpecialModePack("aeon", false);
+  const npcPack = useSpecialModePack("npc");
+  const currencyWarsPack = useSpecialModePack("currency-wars");
+  const aeonPack = useSpecialModePack("aeon");
   const [now, setNow] = useState(Date.now());
   const currentGames = useCurrentGames(online);
   const session = useSession(online);

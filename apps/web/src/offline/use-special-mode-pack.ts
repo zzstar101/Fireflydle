@@ -9,7 +9,7 @@ import {
 export type SpecialModePackState =
   "checking" | "downloading" | "ready" | "missing" | "unsupported" | "error";
 
-export function useSpecialModePack(modeId: SpecialModeId | null, prepareOnEntry: boolean) {
+export function useSpecialModePack(modeId: SpecialModeId | null, prepareOnEntry = false) {
   const online = useNetworkStatus();
   const [state, setState] = useState<SpecialModePackState>("checking");
 
