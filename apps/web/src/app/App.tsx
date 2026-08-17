@@ -9,6 +9,7 @@ import { getLegacyActivityRedirect } from "../features/modes/mode-routing";
 import { usePreferences } from "../state/preferences";
 
 const GamePage = lazy(() => import("../features/game/GamePage"));
+const EndlessPage = lazy(() => import("../features/game/EndlessPage"));
 const HubPage = lazy(() => import("../features/hub/HubPage"));
 const DuelPage = lazy(() => import("../features/multiplayer/DuelPage"));
 const RoomPage = lazy(() => import("../features/multiplayer/RoomPage"));
@@ -80,6 +81,7 @@ function DefaultModeLayout() {
 function activityPage(activity: ModeNavigationItem) {
   if (activity.id === "daily") return <GamePage key="daily" mode="daily" />;
   if (activity.id === "practice") return <GamePage key="random" mode="random" />;
+  if (activity.id === "endless") return <EndlessPage key="endless" />;
   return <DuelPage activityIds={activity.activityIds} />;
 }
 

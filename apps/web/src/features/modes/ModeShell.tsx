@@ -1,4 +1,4 @@
-import { CalendarDays, Shuffle, Swords, UserRound, type LucideIcon } from "lucide-react";
+import { CalendarDays, Infinity, Shuffle, Swords, UserRound, type LucideIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import type { ReactNode } from "react";
 import type { Locale } from "@fireflydle/contracts";
@@ -12,6 +12,7 @@ import "./mode-shell.css";
 const navigationIcons: Record<ModeNavigationIcon, LucideIcon> = {
   calendar: CalendarDays,
   shuffle: Shuffle,
+  infinity: Infinity,
   swords: Swords,
 };
 

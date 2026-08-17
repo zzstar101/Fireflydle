@@ -89,7 +89,7 @@ const ACTIVITIES = [
   {
     id: "endless" as const,
     label: { "zh-CN": "无尽", en: "Endless", ja: "エンドレス" },
-    enabled: false,
+    enabled: true,
   },
   {
     id: "friend-challenge" as const,

@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.0.3567088195",
+  "manifestVersion": "1.0.3344413066",
   "generatedAt": "2026-07-18T17:08:44.000Z",
   "modes": [
     {
@@ -132,7 +132,7 @@
         "ja": "エンドレス"
       },
       "modeIds": ["playable"],
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "friend-challenge",

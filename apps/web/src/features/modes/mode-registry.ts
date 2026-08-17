@@ -7,8 +7,8 @@ import type {
 } from "@fireflydle/contracts";
 import { contentManifest } from "@fireflydle/game-data";
 
-export type ModeNavigationId = "daily" | "practice" | "duel";
-export type ModeNavigationIcon = "calendar" | "shuffle" | "swords";
+export type ModeNavigationId = "daily" | "practice" | "endless" | "duel";
+export type ModeNavigationIcon = "calendar" | "shuffle" | "infinity" | "swords";
 
 export interface ModeNavigationItem {
   id: ModeNavigationId;
@@ -69,6 +69,19 @@ function buildPlayableMode(): RegisteredContentMode {
       legacyPath: "/random",
       icon: "shuffle",
       activityIds: [practice.id],
+    });
+  }
+
+  const endless = activities.find((activity) => activity.id === "endless");
+  if (endless) {
+    navigation.push({
+      id: "endless",
+      label: endless.label,
+      segment: "endless",
+      path: `${modePath}/endless`,
+      legacyPath: "/endless",
+      icon: "infinity",
+      activityIds: [endless.id],
     });
   }
 

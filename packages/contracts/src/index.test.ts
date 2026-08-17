@@ -9,6 +9,7 @@ import {
   GuessCellSchema,
   ManifestVersionSchema,
   SearchIndexEntrySchema,
+  PublicEndlessRunSchema,
 } from "./index";
 
 const labels = { "zh-CN": "普通角色", en: "Characters", ja: "キャラクター" };
@@ -154,5 +155,30 @@ describe("字段定义", () => {
   test("必需字段必须声明可比较规则", () => {
     expect(() => FieldDefinitionSchema.parse({ ...field, required: false })).not.toThrow();
     expect(() => FieldDefinitionSchema.parse({ ...field, comparison: "not-a-rule" })).toThrow();
+  });
+});
+
+describe("无尽玩法契约", () => {
+  test("公开状态固定表达生命、题次、跳过和当前六猜", () => {
+    const run = PublicEndlessRunSchema.parse({
+      id: "f4f64434-e8b5-4ba1-9094-d11b9252de29",
+      modeId: "playable",
+      activityId: "endless",
+      lives: 5,
+      clears: 0,
+      totalGuesses: 0,
+      skipAvailable: true,
+      status: "active",
+      roundNumber: 1,
+      maxAttempts: 6,
+      guesses: [],
+      startedAt: "2026-08-17T00:00:00.000Z",
+      completedAt: null,
+      elapsedMs: 0,
+      answer: null,
+      lastRound: null,
+      fieldDefinitions: [field],
+    });
+    expect(run).toMatchObject({ lives: 5, maxAttempts: 6, skipAvailable: true });
   });
 });

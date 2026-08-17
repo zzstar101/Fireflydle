@@ -65,6 +65,7 @@ describe("普通角色内容 manifest 迁移", () => {
     expect(candidatePool?.candidateIds).toEqual(["firefly", "zeta"]);
     expect(manifest.activities.find((activity) => activity.id === "daily")?.enabled).toBeTrue();
     expect(manifest.activities.find((activity) => activity.id === "weekly")?.enabled).toBeTrue();
+    expect(manifest.activities.find((activity) => activity.id === "endless")?.enabled).toBeTrue();
     expect(
       manifest.activities.find((activity) => activity.id === "ranked-match")?.enabled,
     ).toBeFalse();

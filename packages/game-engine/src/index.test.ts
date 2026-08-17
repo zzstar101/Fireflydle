@@ -17,6 +17,9 @@ import {
   compareNpcEntities,
   compareCurrencyWarsUnits,
   createCurrencyWarsGuessResult,
+  applyEndlessRoundOutcome,
+  compareEndlessLeaderboardEntries,
+  ENDLESS_INITIAL_LIVES,
 } from "./index";
 
 const asset = {
@@ -324,6 +327,40 @@ describe("游戏规则", () => {
     const second = pickFromShuffleBag(["a", "b", "c"], new Set([first.index]), 0.5);
     expect(second.item).not.toBe(first.item);
     expect(second.exhausted).toBe(false);
+  });
+
+  test("洗牌袋重洗后不会立即重复上一题", () => {
+    const next = pickFromShuffleBag(["a", "b", "c"], new Set([0, 1, 2]), 0, 0);
+    expect(next.item).not.toBe("a");
+    expect(next.exhausted).toBe(true);
+  });
+
+  test("无尽局以五条命开始，胜负与跳过分别更新计分", () => {
+    expect(ENDLESS_INITIAL_LIVES).toBe(5);
+    const cleared = applyEndlessRoundOutcome(
+      { lives: 5, clears: 0, totalGuesses: 0 },
+      { outcome: "won", guessesUsed: 3 },
+    );
+    const failed = applyEndlessRoundOutcome(cleared, { outcome: "lost", guessesUsed: 6 });
+    const skipped = applyEndlessRoundOutcome(failed, { outcome: "skipped", guessesUsed: 0 });
+    expect(cleared).toEqual({ lives: 5, clears: 1, totalGuesses: 3 });
+    expect(failed).toEqual({ lives: 4, clears: 1, totalGuesses: 9 });
+    expect(skipped).toEqual({ lives: 3, clears: 1, totalGuesses: 9 });
+  });
+
+  test("无尽排行依次比较通关数、总猜测次数和总耗时", () => {
+    const entries = [
+      { clears: 4, totalGuesses: 12, elapsedMs: 90_000 },
+      { clears: 5, totalGuesses: 20, elapsedMs: 80_000 },
+      { clears: 5, totalGuesses: 18, elapsedMs: 100_000 },
+      { clears: 5, totalGuesses: 18, elapsedMs: 70_000 },
+    ];
+    expect(entries.toSorted(compareEndlessLeaderboardEntries)).toEqual([
+      entries[3]!,
+      entries[2]!,
+      entries[1]!,
+      entries[0]!,
+    ]);
   });
 
   test("Elo 对低分击败高分给予更大增量", () => {

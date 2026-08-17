@@ -5,6 +5,8 @@ import {
   type Character,
   type ReplayResponse,
   type PublicGame,
+  type PublicEndlessRun,
+  type EndlessLeaderboardEntry,
   type RoomSnapshot,
 } from "@fireflydle/contracts";
 import { SELF } from "cloudflare:test";
@@ -667,6 +669,157 @@ describe("服务端游戏裁决", () => {
       .first<{ status: string; result: string; guess_count: number }>();
     expect(stored?.result).toBe(stored?.status);
     expect(stored?.guess_count).toBe(stored?.status === "won" ? 1 : 0);
+  });
+});
+
+describe("普通角色无尽玩法", () => {
+  async function seedEndlessWrongCandidates(): Promise<string[]> {
+    const ids = Array.from({ length: 6 }, (_, index) => `endless-wrong-${index + 1}`);
+    const now = Date.now();
+    for (const [index, id] of ids.entries()) {
+      const candidate: Character = {
+        ...character,
+        id,
+        officialId: `endless-${index + 1}`,
+        baseCharacterId: id,
+        names: {
+          "zh-CN": `无尽错误${index + 1}`,
+          en: `Wrong ${index + 1}`,
+          ja: `不正解${index + 1}`,
+        },
+        targetEligible: false,
+      };
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO characters
+           (id, official_id, base_character_id, element, path, rarity, faction_id,
+            faction_group_id, release_version_id, release_order, enabled, target_eligible,
+            source_revision, payload_json, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
+      )
+        .bind(
+          candidate.id,
+          candidate.officialId,
+          candidate.baseCharacterId,
+          candidate.element,
+          candidate.path,
+          candidate.rarity,
+          candidate.factionId,
+          candidate.factionGroupId,
+          candidate.releaseVersionId,
+          candidate.releaseOrder,
+          candidate.sourceRevision,
+          JSON.stringify(candidate),
+          now,
+          now,
+        )
+        .run();
+    }
+    return ids;
+  }
+
+  it("恢复同一局，跳过只可使用一次，四次后续失败令生命归零", async () => {
+    const wrongIds = await seedEndlessWrongCandidates();
+    const { cookie } = await createSession();
+    const create = () =>
+      SELF.fetch("https://fireflydle.games/api/endless", {
+        method: "POST",
+        headers: { cookie },
+      });
+    const started = await dataOf<PublicEndlessRun>(await create());
+    expect(started).toMatchObject({ lives: 5, clears: 0, maxAttempts: 6, skipAvailable: true });
+    expect(started.answer).toBeNull();
+    expect((await dataOf<PublicEndlessRun>(await create())).id).toBe(started.id);
+
+    const skipped = await dataOf<PublicEndlessRun>(
+      await SELF.fetch(`https://fireflydle.games/api/endless/${started.id}/skip`, {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    expect(skipped).toMatchObject({ lives: 4, clears: 0, skipAvailable: false, roundNumber: 2 });
+    expect(skipped.lastRound).toMatchObject({ result: "skipped", answer: { id: character.id } });
+    expect(
+      (
+        await SELF.fetch(`https://fireflydle.games/api/endless/${started.id}/skip`, {
+          method: "POST",
+          headers: { cookie },
+        })
+      ).status,
+    ).toBe(409);
+
+    let run = skipped;
+    for (let round = 0; round < 4; round += 1) {
+      for (const characterId of wrongIds) {
+        run = await dataOf<PublicEndlessRun>(
+          await SELF.fetch(`https://fireflydle.games/api/endless/${started.id}/guesses`, {
+            method: "POST",
+            headers: { cookie, "content-type": "application/json" },
+            body: JSON.stringify({ characterId }),
+          }),
+        );
+      }
+    }
+    expect(run).toMatchObject({ status: "finished", lives: 0, clears: 0, totalGuesses: 24 });
+    expect(run.answer?.id).toBe(character.id);
+    expect(run.lastRound).toMatchObject({ result: "lost", guessCount: 6 });
+  });
+
+  it("猜中后不消耗生命并立即开始下一道六猜题", async () => {
+    const { cookie } = await createSession();
+    const run = await dataOf<PublicEndlessRun>(
+      await SELF.fetch("https://fireflydle.games/api/endless", {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    const next = await dataOf<PublicEndlessRun>(
+      await SELF.fetch(`https://fireflydle.games/api/endless/${run.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: character.id }),
+      }),
+    );
+    expect(next).toMatchObject({ lives: 5, clears: 1, totalGuesses: 1, roundNumber: 2 });
+    expect(next.guesses).toEqual([]);
+    expect(next.answer).toBeNull();
+    expect(next.lastRound).toMatchObject({ result: "won", answer: { id: character.id } });
+  });
+
+  it("排行榜按通关数、总猜测次数和总耗时排序", async () => {
+    const sessions = await Promise.all(
+      ["board_a", "board_b", "board_c"].map((suffix) => createRegisteredSession(suffix)),
+    );
+    const scores = [
+      { clears: 7, guesses: 20, elapsed: 90_000 },
+      { clears: 7, guesses: 18, elapsed: 100_000 },
+      { clears: 7, guesses: 18, elapsed: 70_000 },
+    ];
+    for (const [index, session] of sessions.entries()) {
+      const run = await dataOf<PublicEndlessRun>(
+        await SELF.fetch("https://fireflydle.games/api/endless", {
+          method: "POST",
+          headers: { cookie: session.cookie },
+        }),
+      );
+      const score = scores[index];
+      if (!score) throw new Error("缺少排行测试分数");
+      const startedAt = Date.now() - score.elapsed;
+      await env.DB.prepare(
+        `UPDATE endless_runs SET status = 'finished', lives = 0, clears = ?, total_guesses = ?,
+         started_at = ?, completed_at = ?, updated_at = ? WHERE id = ?`,
+      )
+        .bind(score.clears, score.guesses, startedAt, Date.now(), Date.now(), run.id)
+        .run();
+    }
+    const board = await dataOf<EndlessLeaderboardEntry[]>(
+      await SELF.fetch("https://fireflydle.games/api/leaderboards/endless"),
+    );
+    const entries = board.filter((entry) => entry.displayName.startsWith("Reg board_"));
+    expect(entries.map((entry) => entry.displayName)).toEqual([
+      "Reg board_c",
+      "Reg board_b",
+      "Reg board_a",
+    ]);
   });
 });
 

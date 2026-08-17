@@ -285,6 +285,7 @@ export function pickFromShuffleBag<T>(
   items: readonly T[],
   consumedIndexes: ReadonlySet<number>,
   randomValue: number,
+  previousIndex?: number,
 ): { item: T; index: number; exhausted: boolean } {
   if (items.length === 0) {
     throw new Error("题库不能为空");
@@ -297,7 +298,11 @@ export function pickFromShuffleBag<T>(
     }
   }
 
-  const pool = available.length > 0 ? available : items.map((_, index) => index);
+  const exhausted = available.length === 0;
+  const resetPool = items
+    .map((_, index) => index)
+    .filter((index) => items.length === 1 || index !== previousIndex);
+  const pool = exhausted ? resetPool : available;
   const normalized = Math.min(Math.max(randomValue, 0), 0.999999999999);
   const selectedIndex = pool[Math.floor(normalized * pool.length)];
 
@@ -313,8 +318,39 @@ export function pickFromShuffleBag<T>(
   return {
     item: selected,
     index: selectedIndex,
-    exhausted: available.length === 0,
+    exhausted,
   };
+}
+
+export const ENDLESS_INITIAL_LIVES = 5;
+export const ENDLESS_MAX_ATTEMPTS = 6;
+
+export interface EndlessScore {
+  lives: number;
+  clears: number;
+  totalGuesses: number;
+}
+
+export function applyEndlessRoundOutcome(
+  score: EndlessScore,
+  round: { outcome: "won" | "lost" | "skipped"; guessesUsed: number },
+): EndlessScore {
+  return {
+    lives: Math.max(0, score.lives - (round.outcome === "won" ? 0 : 1)),
+    clears: score.clears + (round.outcome === "won" ? 1 : 0),
+    totalGuesses: score.totalGuesses + Math.max(0, round.guessesUsed),
+  };
+}
+
+export function compareEndlessLeaderboardEntries(
+  left: Pick<EndlessScore, "clears" | "totalGuesses"> & { elapsedMs: number },
+  right: Pick<EndlessScore, "clears" | "totalGuesses"> & { elapsedMs: number },
+): number {
+  return (
+    right.clears - left.clears ||
+    left.totalGuesses - right.totalGuesses ||
+    left.elapsedMs - right.elapsedMs
+  );
 }
 
 export interface EloResult {

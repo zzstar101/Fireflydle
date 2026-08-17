@@ -26,7 +26,7 @@ describe("内容模式注册表", () => {
       modes: [
         {
           definitionIsPublished: true,
-          activities: ["daily", "practice", "weekly", "private-room"],
+          activities: ["daily", "practice", "weekly", "endless", "private-room"],
           navigation: [
             {
               id: "daily",
@@ -39,6 +39,12 @@ describe("内容模式注册表", () => {
               segment: "practice",
               path: "/playable/practice",
               activityIds: ["practice"],
+            },
+            {
+              id: "endless",
+              segment: "endless",
+              path: "/playable/endless",
+              activityIds: ["endless"],
             },
             {
               id: "duel",

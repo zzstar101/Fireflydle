@@ -305,6 +305,50 @@ export type WeeklyLeaderboardEntry = z.infer<typeof WeeklyLeaderboardEntrySchema
 export const WeeklyShareSchema = WeeklyRunSchema.omit({ currentGame: true });
 export type WeeklyShare = z.infer<typeof WeeklyShareSchema>;
 
+export const EndlessRoundResultSchema = z.enum(["won", "lost", "skipped"]);
+export type EndlessRoundResult = z.infer<typeof EndlessRoundResultSchema>;
+
+export const EndlessLastRoundSchema = z.object({
+  roundNumber: z.number().int().positive(),
+  result: EndlessRoundResultSchema,
+  answer: CharacterSummarySchema,
+  guessCount: z.number().int().nonnegative(),
+  completedAt: z.string().datetime(),
+});
+export type EndlessLastRound = z.infer<typeof EndlessLastRoundSchema>;
+
+export const PublicEndlessRunSchema = z.object({
+  id: z.string().uuid(),
+  modeId: z.literal("playable"),
+  activityId: z.literal("endless"),
+  lives: z.number().int().min(0).max(5),
+  clears: z.number().int().nonnegative(),
+  totalGuesses: z.number().int().nonnegative(),
+  skipAvailable: z.boolean(),
+  status: z.enum(["active", "finished"]),
+  roundNumber: z.number().int().positive(),
+  maxAttempts: z.literal(6),
+  guesses: z.array(GuessResultSchema).max(6),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime().nullable(),
+  elapsedMs: z.number().int().nonnegative(),
+  answer: CharacterSummarySchema.nullable(),
+  lastRound: EndlessLastRoundSchema.nullable(),
+  fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)),
+});
+export type PublicEndlessRun = z.infer<typeof PublicEndlessRunSchema>;
+
+export const EndlessLeaderboardEntrySchema = z.object({
+  rank: z.number().int().positive(),
+  displayName: z.string().min(1),
+  isGuest: z.boolean(),
+  clears: z.number().int().nonnegative(),
+  totalGuesses: z.number().int().nonnegative(),
+  elapsedMs: z.number().int().nonnegative(),
+  completedAt: z.string().datetime(),
+});
+export type EndlessLeaderboardEntry = z.infer<typeof EndlessLeaderboardEntrySchema>;
+
 export const FriendChallengeScoreSchema = z.object({
   status: z.enum(["won", "lost"]),
   guessCount: z.number().int().positive(),
@@ -1159,6 +1203,7 @@ export const ERROR_CODES = [
   "GAME_ALREADY_FINISHED",
   "GAME_DUPLICATE_GUESS",
   "GAME_ATTEMPTS_EXHAUSTED",
+  "ENDLESS_SKIP_USED",
   "DAILY_ALREADY_COMPLETED",
   "ROOM_NOT_FOUND",
   "ROOM_FULL",
