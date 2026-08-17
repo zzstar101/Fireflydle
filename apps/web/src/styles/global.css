@@ -326,6 +326,10 @@ textarea:focus-visible,
   width: 100%;
 }
 
+.route-transition {
+  animation: route-arrive var(--motion-page) var(--motion-ease) both;
+}
+
 .announcement-trigger {
   position: relative;
 }
@@ -993,6 +997,29 @@ textarea:focus-visible,
   }
 }
 
+@keyframes route-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes reduced-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+:root[data-motion-paused="true"] *,
+:root[data-motion-paused="true"] *::before,
+:root[data-motion-paused="true"] *::after {
+  animation-play-state: paused !important;
+}
+
+:root[data-motion="reduced"] .route-transition {
+  animation: reduced-fade 80ms ease-out both;
+}
+
 @media (max-width: 1100px) {
   .desktop-nav {
     margin-left: 24px;
@@ -1107,5 +1134,16 @@ textarea:focus-visible,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .hub-particles,
+  .mode-board.is-active::after {
+    display: none;
+  }
+
+  .route-transition,
+  .hub-page,
+  .mode-board:hover {
+    transform: none !important;
   }
 }

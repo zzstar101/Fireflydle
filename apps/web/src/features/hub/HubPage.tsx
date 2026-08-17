@@ -146,6 +146,11 @@ export default function HubPage() {
   return (
     <main className="hub-page">
       <section className="hub-intro" aria-labelledby="hub-title">
+        <div className="hub-particles" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, index) => (
+            <i key={index} style={{ ["--particle-index" as string]: index }} />
+          ))}
+        </div>
         <div className="hub-orbit" aria-hidden="true">
           <span />
           <i />

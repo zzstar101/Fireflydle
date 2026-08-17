@@ -8,6 +8,7 @@ import { useSession } from "../features/account/useSession";
 import { BrandMark } from "./BrandMark";
 import { AnnouncementCenter } from "./AnnouncementCenter";
 import { getDefaultMode } from "../features/modes/mode-registry";
+import { motionModeFromPreference, motionPausedForPage } from "./motion";
 
 const mainNavigation = [
   { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
@@ -21,6 +22,40 @@ export function AppShell({ children }: { children: ReactNode }) {
   const drawerCloseRef = useRef<HTMLButtonElement>(null);
   const { theme, language, setTheme, setLanguage } = usePreferences();
   const session = useSession();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let hasFocus = document.hasFocus();
+    const sync = () => {
+      root.dataset.motion = motionModeFromPreference(media.matches);
+      root.dataset.motionPaused = String(
+        motionPausedForPage(document.visibilityState === "visible", hasFocus),
+      );
+    };
+    const onVisibilityChange = () => sync();
+    const onFocus = () => {
+      hasFocus = true;
+      sync();
+    };
+    const onBlur = () => {
+      hasFocus = false;
+      sync();
+    };
+    sync();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("blur", onBlur);
+    media.addEventListener("change", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("blur", onBlur);
+      media.removeEventListener("change", sync);
+      delete root.dataset.motion;
+      delete root.dataset.motionPaused;
+    };
+  }, []);
 
   const toggleTheme = () =>
     setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark");
@@ -106,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [menuOpen]);
 
   return (
-    <div className="app-frame">
+    <div className="app-frame" data-motion-scope="app">
       <a className="skip-link" href="#main-content">
         {language === "zh-CN"
           ? "跳到主要内容"

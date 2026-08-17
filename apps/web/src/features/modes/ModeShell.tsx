@@ -34,7 +34,7 @@ export function ModeShell({
 
   return (
     <>
-      <section className="mode-shell-navigation">
+      <section className="mode-shell-navigation" data-motion-scope="mode-navigation">
         <div className="mode-shell-navigation-inner">
           <nav className="mode-switcher" aria-label={labels.modes}>
             {contentModeRegistry.modes.map((registeredMode) => (

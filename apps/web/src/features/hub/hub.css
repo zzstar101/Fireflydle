@@ -2,7 +2,7 @@
   width: min(calc(100% - 40px), var(--content));
   margin: 0 auto;
   padding: clamp(56px, 7vw, 94px) 0 84px;
-  animation: hub-arrive 320ms cubic-bezier(0.2, 0.72, 0.25, 1) both;
+  animation: hub-arrive var(--motion-page) var(--motion-ease) both;
 }
 
 .hub-intro {
@@ -11,6 +11,28 @@
   padding: 0 clamp(0px, 2vw, 30px) 44px;
   overflow: hidden;
   border-bottom: 1px solid var(--border);
+}
+
+.hub-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hub-particles i {
+  position: absolute;
+  top: calc(18% + (var(--particle-index) * 11%));
+  left: calc(48% + (var(--particle-index) * 7%));
+  width: 3px;
+  height: 3px;
+  opacity: 0.26;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+  animation: particle-drift calc(5s + (var(--particle-index) * 0.7s)) var(--motion-ease) infinite
+    alternate;
+  animation-delay: calc(var(--particle-index) * -0.8s);
 }
 
 .hub-intro h1 {
@@ -135,7 +157,7 @@
 
 .mode-board.is-active::after {
   opacity: 1;
-  animation: board-signal 3.4s linear infinite;
+  animation: board-signal var(--motion-signal) linear infinite;
 }
 
 .mode-board.is-disabled {
@@ -340,6 +362,17 @@
 @keyframes board-signal {
   to {
     transform: translateX(470%);
+  }
+}
+
+@keyframes particle-drift {
+  from {
+    opacity: 0.12;
+    transform: translate3d(-12px, 5px, 0);
+  }
+  to {
+    opacity: 0.34;
+    transform: translate3d(18px, -9px, 0);
   }
 }
 

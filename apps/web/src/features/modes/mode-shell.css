@@ -4,6 +4,14 @@
   background: color-mix(in srgb, var(--canvas) 92%, var(--surface-soft));
 }
 
+.mode-shell-navigation,
+.mode-switcher a,
+.activity-switcher a {
+  transition:
+    opacity var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+
 .mode-shell-navigation-inner {
   display: flex;
   align-items: stretch;

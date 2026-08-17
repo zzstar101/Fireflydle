@@ -29,11 +29,13 @@ describe("模式页面外壳", () => {
           markup.includes(`href="/playable/${activity}"`),
         ),
         activeActivity: markup.includes('aria-current="page"'),
+        motionScope: markup.includes('data-motion-scope="mode-navigation"'),
         unavailableModes: ["NPC", "Currency Wars", "Aeons"].some((label) => markup.includes(label)),
       }).toEqual({
         labels: [true, true, true, true],
         paths: [true, true, true],
         activeActivity: true,
+        motionScope: true,
         unavailableModes: false,
       });
     },

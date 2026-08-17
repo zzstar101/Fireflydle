@@ -82,6 +82,44 @@ function activityPage(activity: ModeNavigationItem) {
   return <DuelPage activityIds={activity.activityIds} />;
 }
 
+function RouteContent() {
+  const { pathname } = useLocation();
+  return (
+    <div className="route-transition" key={pathname} data-route={pathname}>
+      <Routes>
+        <Route path="/" element={<DefaultModeRedirect />} />
+        <Route path={defaultMode.path} element={<DefaultModeLayout />}>
+          <Route index element={<HubPage />} />
+          {defaultMode.navigation.map((activity) => (
+            <Route key={activity.id} path={activity.segment} element={activityPage(activity)} />
+          ))}
+        </Route>
+        {defaultMode.navigation.map((activity) => (
+          <Route
+            key={activity.legacyPath}
+            path={activity.legacyPath}
+            element={<LegacyActivityRedirect />}
+          />
+        ))}
+        <Route path="/room/:roomId" element={<RoomPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/stats" element={<StatsPage />} />
+        <Route path="/account" element={<AccountPage />} />
+        <Route path="/recover" element={<RecoveryPage />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/replay/:replayId" element={<ReplayPage />} />
+        <Route
+          path="/npc/practice"
+          element={<GamePage key="npc-practice" mode="random" contentModeId="npc" />}
+        />
+        <Route path="/legal" element={<LegalPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </div>
+  );
+}
+
 export function App() {
   return (
     <BrowserRouter>
@@ -89,36 +127,7 @@ export function App() {
       <RouteScrollReset />
       <AppShell>
         <Suspense fallback={<LoadingScreen />}>
-          <Routes>
-            <Route path="/" element={<DefaultModeRedirect />} />
-            <Route path={defaultMode.path} element={<DefaultModeLayout />}>
-              <Route index element={<HubPage />} />
-              {defaultMode.navigation.map((activity) => (
-                <Route key={activity.id} path={activity.segment} element={activityPage(activity)} />
-              ))}
-            </Route>
-            {defaultMode.navigation.map((activity) => (
-              <Route
-                key={activity.legacyPath}
-                path={activity.legacyPath}
-                element={<LegacyActivityRedirect />}
-              />
-            ))}
-            <Route path="/room/:roomId" element={<RoomPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/stats" element={<StatsPage />} />
-            <Route path="/account" element={<AccountPage />} />
-            <Route path="/recover" element={<RecoveryPage />} />
-            <Route path="/verify-email" element={<EmailVerificationPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/replay/:replayId" element={<ReplayPage />} />
-            <Route
-              path="/npc/practice"
-              element={<GamePage key="npc-practice" mode="random" contentModeId="npc" />}
-            />
-            <Route path="/legal" element={<LegalPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+          <RouteContent />
         </Suspense>
       </AppShell>
     </BrowserRouter>
