@@ -5,7 +5,7 @@ import { z } from "zod";
 import { randomToken, sha256 } from "../lib/crypto";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import { requireAuth } from "../services/auth";
-import { submitGameGuess } from "../services/games";
+import { forfeitWeeklyGame, submitGameGuess } from "../services/games";
 import { enforceRateLimit } from "../services/rate-limit";
 import {
   getCurrentWeeklyRun,
@@ -59,6 +59,16 @@ weeklyRoutes.post("/weekly/runs/:runId/guesses", async (context) => {
   const run = await getWeeklyRun(context.env.DB, runId.data, auth.user.id);
   if (!run.currentGame) throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
   await submitGameGuess(context.env.DB, run.currentGame.id, auth.user.id, guess.data.characterId);
+  return ok(context, await getWeeklyRun(context.env.DB, run.id, auth.user.id));
+});
+
+weeklyRoutes.post("/weekly/runs/:runId/forfeit", async (context) => {
+  const auth = requireAuth(context);
+  const runId = IdentifierSchema.safeParse(context.req.param("runId"));
+  if (!runId.success) throw new ApiProblem("NOT_FOUND", 404);
+  const run = await getWeeklyRun(context.env.DB, runId.data, auth.user.id);
+  if (!run.currentGame) throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
+  await forfeitWeeklyGame(context.env.DB, run.currentGame.id, auth.user.id);
   return ok(context, await getWeeklyRun(context.env.DB, run.id, auth.user.id));
 });
 

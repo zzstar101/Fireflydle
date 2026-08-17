@@ -12,8 +12,10 @@ import {
   Shuffle,
   Sparkles,
   Swords,
+  Trophy,
 } from "lucide-react";
 import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
+import { getWeeklyModeId } from "@fireflydle/game-engine";
 import { apiRequest } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { useCurrentGames } from "../game/useCurrentGames";
@@ -23,7 +25,7 @@ import { useNetworkStatus } from "../../offline/network-status";
 import { useSpecialModePack, type SpecialModePackState } from "../../offline/use-special-mode-pack";
 import "./hub.css";
 
-type HubMode = "daily" | "practice" | "duel" | "npc" | "currency-wars" | "aeon";
+type HubMode = "daily" | "practice" | "duel" | "npc" | "currency-wars" | "aeon" | "weekly";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
@@ -160,6 +162,25 @@ export default function HubPage() {
 
   const daily = currentGames.data?.daily ?? null;
   const practice = currentGames.data?.practice ?? null;
+  const weeklyModeId = getWeeklyModeId(now);
+  const weeklyModeLabel =
+    weeklyModeId === "playable"
+      ? locale === "en"
+        ? "Characters"
+        : locale === "ja"
+          ? "キャラクター"
+          : "普通角色"
+      : weeklyModeId === "npc"
+        ? "NPC"
+        : weeklyModeId === "currency-wars"
+          ? locale === "en"
+            ? "Currency Wars"
+            : locale === "ja"
+              ? "コイン戦争"
+              : "货币战争"
+          : locale === "en"
+            ? "Aeons"
+            : "星神";
   const serviceOnline = online && currentGames.isSuccess;
   const serviceChecking = online && currentGames.isPending;
   const dailyStatus = serviceChecking
@@ -203,6 +224,24 @@ export default function HubPage() {
       </section>
 
       <section className="mode-board-grid" aria-label={t("hub.modesLabel")}>
+        <ModeBoard
+          mode="weekly"
+          to={`/${weeklyModeId}/weekly`}
+          icon={<Trophy size={30} />}
+          status={locale === "en" ? "THIS WEEK" : locale === "ja" ? "今週" : "本周开放"}
+          title={`${weeklyModeLabel} · ${locale === "en" ? "Weekly" : locale === "ja" ? "ウィークリー" : "周赛"}`}
+          description={
+            locale === "en"
+              ? "Five questions share one frozen manifest and rules snapshot."
+              : locale === "ja"
+                ? "5問すべてが同じマニフェストとルールのスナップショットを使用します。"
+                : "五题共用同一份题库与规则快照，完成后进入统一排名。"
+          }
+          metricLabel={locale === "en" ? "QUESTIONS" : locale === "ja" ? "問題数" : "题目"}
+          metricValue="5"
+          action={locale === "en" ? "Enter weekly" : locale === "ja" ? "参加する" : "进入周赛"}
+          active
+        />
         {dailyActivity ? (
           <ModeBoard
             mode="daily"

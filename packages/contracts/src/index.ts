@@ -288,6 +288,8 @@ export type PublicGame = z.infer<typeof PublicGameSchema>;
 
 export const WeeklyRunSchema = z.object({
   id: z.string().uuid(),
+  modeId: ContentModeIdSchema,
+  activityId: z.literal("weekly"),
   weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   weekEndsAt: z.string().datetime(),
   manifestVersion: ManifestVersionSchema,
@@ -296,6 +298,7 @@ export const WeeklyRunSchema = z.object({
   status: z.enum(["active", "completed"]),
   questionCount: z.literal(5),
   correctCount: z.number().int().min(0).max(5),
+  failedCount: z.number().int().min(0).max(5),
   totalGuesses: z.number().int().nonnegative(),
   elapsedMs: z.number().int().nonnegative(),
   startedAt: z.string().datetime(),

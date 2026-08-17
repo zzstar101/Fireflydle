@@ -8,6 +8,7 @@ import {
   getBeijingDateKey,
   getBeijingWeekEnd,
   getBeijingWeekKey,
+  getWeeklyModeId,
   hasDuplicateGuess,
   pickFromShuffleBag,
   compareFieldValues,
@@ -342,6 +343,16 @@ describe("游戏规则", () => {
     expect(getBeijingWeekEnd(Date.parse("2026-08-16T16:00:00.000Z"))).toBe(
       Date.parse("2026-08-23T16:00:00.000Z"),
     );
+  });
+
+  test("周赛按 playable、NPC、货币战争、星神固定循环", () => {
+    expect([
+      getWeeklyModeId(Date.parse("2026-08-17T00:00:00+08:00")),
+      getWeeklyModeId(Date.parse("2026-08-24T00:00:00+08:00")),
+      getWeeklyModeId(Date.parse("2026-08-31T00:00:00+08:00")),
+      getWeeklyModeId(Date.parse("2026-09-07T00:00:00+08:00")),
+      getWeeklyModeId(Date.parse("2026-09-14T00:00:00+08:00")),
+    ]).toEqual(["playable", "npc", "currency-wars", "aeon", "playable"]);
   });
 
   test("洗牌袋用尽前不重复", () => {

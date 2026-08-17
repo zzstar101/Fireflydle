@@ -1,5 +1,7 @@
 import type { Character, WeeklyRun } from "@fireflydle/contracts";
 import { getBeijingWeekKey } from "@fireflydle/game-engine";
+import { forfeitWeeklyGame, submitGameGuess } from "../src/services/games";
+import { getWeeklyRun, startWeeklyRun } from "../src/services/weekly";
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
@@ -49,7 +51,8 @@ async function seedCharacters(): Promise<void> {
          (id, official_id, base_character_id, element, path, rarity, faction_id,
           faction_group_id, release_version_id, release_order, enabled, target_eligible,
           source_revision, payload_json, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?, ?, ?, ?)
+       ON CONFLICT(id) DO NOTHING`,
     )
       .bind(
         character.id,
@@ -71,12 +74,12 @@ async function seedCharacters(): Promise<void> {
   }
 }
 
-async function createGuest(): Promise<{ cookie: string; displayName: string }> {
+async function createGuest(): Promise<{ cookie: string; id: string; displayName: string }> {
   const response = await SELF.fetch("https://fireflydle.games/api/session", { method: "POST" });
   const cookie = response.headers.get("set-cookie");
   if (!cookie) throw new Error("缺少访客 cookie");
-  const session = await dataOf<{ user: { displayName: string } }>(response);
-  return { cookie, displayName: session.user.displayName };
+  const session = await dataOf<{ user: { id: string; displayName: string } }>(response);
+  return { cookie, id: session.user.id, displayName: session.user.displayName };
 }
 
 async function createAccount(): Promise<{ cookie: string; displayName: string }> {
@@ -200,5 +203,56 @@ describe("普通角色周赛核心", () => {
       .bind(getBeijingWeekKey())
       .first<{ run_id: string }>();
     expect(score?.run_id).toBe(officialRunId);
+  });
+
+  it("四模式逐周轮换并共用各自 manifest 快照，失败、猜测和耗时统一累计", async () => {
+    await seedCharacters();
+    const user = await createGuest();
+
+    const weeks = [
+      ["playable", "2026-08-17T00:00:00+08:00"],
+      ["npc", "2026-08-24T00:00:00+08:00"],
+      ["currency-wars", "2026-08-31T00:00:00+08:00"],
+      ["aeon", "2026-09-07T00:00:00+08:00"],
+    ] as const;
+
+    for (const [modeId, startAt] of weeks) {
+      let now = Date.parse(startAt);
+      let run = await startWeeklyRun(env.DB, user.id, true, false, now);
+      expect(run).toMatchObject({ modeId, activityId: "weekly", questionCount: 5 });
+      if (!run.currentGame) throw new Error(`${modeId} 缺少首题`);
+
+      now += 1_000;
+      await forfeitWeeklyGame(env.DB, run.currentGame.id, user.id, now);
+      run = await getWeeklyRun(env.DB, run.id, user.id, now);
+
+      for (let ordinal = 1; ordinal < 5; ordinal += 1) {
+        const game = run.currentGame;
+        if (!game) throw new Error(`${modeId} 第 ${ordinal + 1} 题未创建`);
+        const target = await targetId(game.id);
+        now += 1_000;
+        await submitGameGuess(env.DB, game.id, user.id, target, now);
+        run = await getWeeklyRun(env.DB, run.id, user.id, now);
+      }
+
+      expect(run).toMatchObject({
+        modeId,
+        activityId: "weekly",
+        status: "completed",
+        correctCount: 4,
+        failedCount: 1,
+        totalGuesses: 4,
+        elapsedMs: 5_000,
+      });
+      expect(run.games).toHaveLength(5);
+      expect(new Set(run.games.map((game) => game.modeId))).toEqual(new Set([modeId]));
+      expect(new Set(run.games.map((game) => game.activityId))).toEqual(new Set(["weekly"]));
+      expect(new Set(run.games.map((game) => game.manifestVersion))).toEqual(
+        new Set([run.manifestVersion]),
+      );
+      expect(new Set(run.games.map((game) => game.poolRuleVersion))).toEqual(
+        new Set([run.rulesVersion]),
+      );
+    }
   });
 });

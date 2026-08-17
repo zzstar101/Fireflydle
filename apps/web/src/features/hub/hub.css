@@ -194,6 +194,10 @@
   --mode-signal: #a98ed1;
 }
 
+.mode-weekly {
+  --mode-signal: var(--gold);
+}
+
 .mode-board-head {
   display: flex;
   align-items: center;

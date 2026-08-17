@@ -18,6 +18,7 @@ import type {
   CurrencyWarsUnitSummary,
   AeonSummary,
 } from "@fireflydle/contracts";
+import type { ContentModeId } from "@fireflydle/contracts";
 
 export const MULTIPLAYER_ATTEMPTS = 6;
 export const MULTIPLAYER_ROUND_MS = 90_000;
@@ -381,6 +382,19 @@ export function getBeijingWeekEnd(timestamp = Date.now()): number {
   return (
     Date.parse(`${getBeijingWeekKey(timestamp)}T00:00:00.000+08:00`) + 7 * 24 * 60 * 60 * 1_000
   );
+}
+
+export const WEEKLY_MODE_ROTATION = ["playable", "npc", "currency-wars", "aeon"] as const;
+
+/** 以 2026-08-17 北京时间周一为普通角色周，按固定顺序逐周循环。 */
+export function getWeeklyModeId(timestamp = Date.now()): ContentModeId {
+  const anchor = Date.parse("2026-08-17T00:00:00.000+08:00");
+  const weekStart = Date.parse(`${getBeijingWeekKey(timestamp)}T00:00:00.000+08:00`);
+  const weekOffset = Math.floor((weekStart - anchor) / (7 * 24 * 60 * 60 * 1_000));
+  const index =
+    ((weekOffset % WEEKLY_MODE_ROTATION.length) + WEEKLY_MODE_ROTATION.length) %
+    WEEKLY_MODE_ROTATION.length;
+  return WEEKLY_MODE_ROTATION[index]!;
 }
 
 export function pickFromShuffleBag<T>(

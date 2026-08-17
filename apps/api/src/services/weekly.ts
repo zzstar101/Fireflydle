@@ -1,16 +1,32 @@
 import {
   CharacterSchema,
-  type Character,
+  GameEntitySummarySchema,
+  type ContentModeId,
+  type FieldDefinition,
+  type GameEntitySummary,
   type PublicGame,
   type WeeklyRun,
 } from "@fireflydle/contracts";
 import {
+  CURRENCY_WARS_FIELD_RULES,
   getBeijingWeekEnd,
   getBeijingWeekKey,
+  getWeeklyModeId,
+  NPC_SNAPSHOT_FIELD_RULES,
   selectSnapshotFieldDefinitions,
   snapshotRulesFromFieldDefinitions,
+  type SnapshotFieldRule,
 } from "@fireflydle/game-engine";
-import { contentManifest } from "@fireflydle/game-data";
+import {
+  aeonEntities,
+  aeonManifest,
+  contentManifest,
+  currencyWarsManifest,
+  currencyWarsUnitSummaries,
+  npcEntities,
+  npcManifest,
+  npcSummary,
+} from "@fireflydle/game-data";
 import { getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
 import { getPublicGame, getReplayGame } from "./games";
@@ -19,6 +35,7 @@ const WEEKLY_QUESTION_COUNT = 5;
 
 interface WeeklyScheduleRow {
   week_key: string;
+  mode_id: ContentModeId;
   manifest_version: string;
   rules_version: string;
   targets_json: string;
@@ -44,21 +61,80 @@ interface WeeklyRoundRow {
   status: PublicGame["status"];
 }
 
-const playableMode =
-  contentManifest.modes.find((mode) => mode.id === "playable") ??
-  (() => {
-    throw new Error("普通角色模式未注册");
-  })();
-const weeklyRules = snapshotRulesFromFieldDefinitions(playableMode.fields);
-const weeklyFieldSnapshot = JSON.stringify({
-  rules: weeklyRules,
-  definitions: selectSnapshotFieldDefinitions(playableMode.fields),
-});
+interface WeeklyModeSnapshot {
+  modeId: ContentModeId;
+  manifestVersion: string;
+  rulesVersion: string;
+  maxAttempts: number;
+  fields: readonly FieldDefinition[];
+  rules: readonly SnapshotFieldRule[];
+  targets: readonly GameEntitySummary[];
+  candidates: readonly GameEntitySummary[];
+}
+
+function manifestMode(modeId: ContentModeId) {
+  const manifest =
+    modeId === "npc"
+      ? npcManifest
+      : modeId === "currency-wars"
+        ? currencyWarsManifest
+        : modeId === "aeon"
+          ? aeonManifest
+          : contentManifest;
+  const mode = manifest.modes.find((entry) => entry.id === modeId);
+  if (!mode) throw new Error(`周赛模式未注册：${modeId}`);
+  return { manifest, mode };
+}
+
+function rulesFor(modeId: ContentModeId, fields: readonly FieldDefinition[]) {
+  if (modeId === "npc") return NPC_SNAPSHOT_FIELD_RULES;
+  if (modeId === "currency-wars") return CURRENCY_WARS_FIELD_RULES;
+  if (modeId === "aeon") return [{ field: "image", comparison: "exact" }] as const;
+  return snapshotRulesFromFieldDefinitions(fields);
+}
+
+async function modeSnapshot(db: D1Database, modeId: ContentModeId): Promise<WeeklyModeSnapshot> {
+  const { manifest, mode } = manifestMode(modeId);
+  if (modeId === "playable") {
+    const [targets, candidates] = await Promise.all([getTargetPool(db), getEnabledCharacters(db)]);
+    return {
+      modeId,
+      manifestVersion: manifest.manifestVersion,
+      rulesVersion: mode.rulesVersion,
+      maxAttempts: mode.maxAttempts,
+      fields: mode.fields,
+      rules: rulesFor(modeId, mode.fields),
+      targets,
+      candidates,
+    };
+  }
+  const all =
+    modeId === "npc"
+      ? npcEntities.map(npcSummary)
+      : modeId === "currency-wars"
+        ? currencyWarsUnitSummaries
+        : aeonEntities;
+  const byId = new Map(all.map((entity) => [entity.id, entity]));
+  const targetPool = manifest.pools.find((pool) => pool.id === mode.targetPoolId);
+  const candidatePool = manifest.pools.find((pool) => pool.id === mode.candidatePoolId);
+  if (!targetPool || !candidatePool) throw new Error(`周赛题池未注册：${modeId}`);
+  return {
+    modeId,
+    manifestVersion: manifest.manifestVersion,
+    rulesVersion: mode.rulesVersion,
+    maxAttempts: mode.maxAttempts,
+    fields: mode.fields,
+    rules: rulesFor(modeId, mode.fields),
+    targets: targetPool.targetIds.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : [])),
+    candidates: candidatePool.candidateIds.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : [])),
+  };
+}
 
 async function deterministicTargets(
-  pool: readonly Character[],
+  pool: readonly GameEntitySummary[],
   weekKey: string,
-): Promise<Character[]> {
+  modeId: ContentModeId,
+): Promise<GameEntitySummary[]> {
   const ranked = await Promise.all(
     pool.map(async (character) => ({
       character,
@@ -66,7 +142,7 @@ async function deterministicTargets(
         new Uint8Array(
           await crypto.subtle.digest(
             "SHA-256",
-            new TextEncoder().encode(`${weekKey}\0${character.id}`),
+            new TextEncoder().encode(`${weekKey}\0${modeId}\0${character.id}`),
           ),
         ),
       )
@@ -74,10 +150,13 @@ async function deterministicTargets(
         .join(""),
     })),
   );
-  return ranked
+  const ordered = ranked
     .toSorted((left, right) => left.digest.localeCompare(right.digest))
-    .slice(0, WEEKLY_QUESTION_COUNT)
     .map((entry) => entry.character);
+  return Array.from(
+    { length: WEEKLY_QUESTION_COUNT },
+    (_, index) => ordered[index % ordered.length]!,
+  );
 }
 
 async function ensureSchedule(
@@ -91,31 +170,33 @@ async function ensureSchedule(
     .first<WeeklyScheduleRow>();
   if (existing) return existing;
 
-  const [targetPool, candidatePool] = await Promise.all([
-    getTargetPool(db),
-    getEnabledCharacters(db),
-  ]);
-  if (targetPool.length < WEEKLY_QUESTION_COUNT) {
+  const modeId = getWeeklyModeId(Date.parse(`${weekKey}T00:00:00+08:00`));
+  const snapshot = await modeSnapshot(db, modeId);
+  if (snapshot.targets.length === 0 || snapshot.candidates.length === 0) {
     throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "weekly-pool-too-small" });
   }
-  const targets = await deterministicTargets(targetPool, weekKey);
-  const candidates = Object.fromEntries(
-    candidatePool.map((character) => [character.id, character]),
-  );
+  const targets = await deterministicTargets(snapshot.targets, weekKey, modeId);
+  const candidates = Object.fromEntries(snapshot.candidates.map((entity) => [entity.id, entity]));
   await db
     .prepare(
       `INSERT OR IGNORE INTO weekly_schedules
-         (week_key, manifest_version, rules_version, targets_json,
+         (week_key, mode_id, manifest_version, rules_version, targets_json,
           candidate_pool_json, field_rules_json, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       weekKey,
-      contentManifest.manifestVersion,
-      playableMode.rulesVersion,
+      modeId,
+      snapshot.manifestVersion,
+      snapshot.rulesVersion,
       JSON.stringify(targets),
       JSON.stringify(candidates),
-      weeklyFieldSnapshot,
+      JSON.stringify({
+        rules: snapshot.rules,
+        definitions: selectSnapshotFieldDefinitions(snapshot.fields).length
+          ? selectSnapshotFieldDefinitions(snapshot.fields)
+          : snapshot.fields,
+      }),
       now,
     )
     .run();
@@ -150,7 +231,10 @@ async function ensureNextRound(
   if (latest?.status === "active" || rounds.results.length >= WEEKLY_QUESTION_COUNT) return;
 
   const ordinal = rounds.results.length + 1;
-  const targets = CharacterSchema.array().parse(JSON.parse(schedule.targets_json));
+  const targets =
+    schedule.mode_id === "playable"
+      ? CharacterSchema.array().parse(JSON.parse(schedule.targets_json))
+      : GameEntitySummarySchema.array().parse(JSON.parse(schedule.targets_json));
   const target = targets[ordinal - 1];
   if (!target) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "weekly-target" });
   const gameId = crypto.randomUUID();
@@ -162,12 +246,13 @@ async function ensureNextRound(
              (id, user_id, mode, mode_id, activity_id, pool_rule_version, manifest_version,
               difficulty, date_key, target_character_id, target_payload_json,
               candidate_pool_json, field_rules_json, max_attempts, status, started_at, updated_at)
-           VALUES (?, ?, 'random', 'playable', 'weekly', ?, ?, 'standard', ?, ?, ?, ?, ?, ?,
+           VALUES (?, ?, 'random', ?, 'weekly', ?, ?, 'standard', ?, ?, ?, ?, ?, ?,
                    'active', ?, ?)`,
         )
         .bind(
           gameId,
           run.user_id,
+          schedule.mode_id,
           schedule.rules_version,
           schedule.manifest_version,
           run.week_key,
@@ -175,7 +260,7 @@ async function ensureNextRound(
           JSON.stringify(target),
           schedule.candidate_pool_json,
           schedule.field_rules_json,
-          playableMode.maxAttempts,
+          manifestMode(schedule.mode_id).mode.maxAttempts,
           now,
           now,
         ),
@@ -210,8 +295,11 @@ async function publicRun(
         : getPublicGame(db, round.game_id, run.user_id, now),
     ),
   );
+  const finishedGames = games.filter((game) => game.status !== "active");
   return {
     id: run.id,
+    modeId: schedule.mode_id,
+    activityId: "weekly",
     weekKey: run.week_key,
     weekEndsAt: new Date(
       getBeijingWeekEnd(Date.parse(`${run.week_key}T00:00:00+08:00`)),
@@ -222,8 +310,9 @@ async function publicRun(
     status: run.status,
     questionCount: WEEKLY_QUESTION_COUNT,
     correctCount: run.correct_count,
+    failedCount: finishedGames.filter((game) => game.status === "lost").length,
     totalGuesses: run.total_guesses,
-    elapsedMs: Math.max(0, (run.completed_at ?? now) - run.started_at),
+    elapsedMs: games.reduce((total, game) => total + game.elapsedMs, 0),
     startedAt: new Date(run.started_at).toISOString(),
     completedAt: run.completed_at === null ? null : new Date(run.completed_at).toISOString(),
     games,

@@ -22,6 +22,7 @@ const AdminPage = lazy(() => import("../features/admin/AdminPage"));
 const ReplayPage = lazy(() => import("../features/game/ReplayPage"));
 const FriendChallengePage = lazy(() => import("../features/game/FriendChallengePage"));
 const LegalPage = lazy(() => import("../features/account/LegalPage"));
+const WeeklyPage = lazy(() => import("../features/weekly/WeeklyPage"));
 const NotFoundPage = lazy(() => import("./NotFoundPage"));
 
 function ThemeAndLocaleSync() {
@@ -162,6 +163,10 @@ function RouteContent() {
             </OnlineActivity>
           }
         />
+        <Route path="/playable/weekly" element={<WeeklyPage routeModeId="playable" />} />
+        <Route path="/npc/weekly" element={<WeeklyPage routeModeId="npc" />} />
+        <Route path="/currency-wars/weekly" element={<WeeklyPage routeModeId="currency-wars" />} />
+        <Route path="/aeon/weekly" element={<WeeklyPage routeModeId="aeon" />} />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

@@ -801,17 +801,24 @@ async function settleWeeklyRun(db: D1Database, gameId: string, now: number): Pro
     .prepare(
       `SELECT COUNT(*) AS finished_count,
               SUM(CASE WHEN games.status = 'won' THEN 1 ELSE 0 END) AS correct_count,
-              SUM(game_results.guess_count) AS total_guesses
+              SUM(game_results.guess_count) AS total_guesses,
+              SUM(game_results.elapsed_ms) AS elapsed_ms
        FROM weekly_rounds
        JOIN games ON games.id = weekly_rounds.game_id
        JOIN game_results ON game_results.game_id = games.id
        WHERE weekly_rounds.run_id = ? AND games.status IN ('won', 'lost')`,
     )
     .bind(run.id)
-    .first<{ finished_count: number; correct_count: number; total_guesses: number }>();
+    .first<{
+      finished_count: number;
+      correct_count: number;
+      total_guesses: number;
+      elapsed_ms: number;
+    }>();
   const finishedCount = aggregate?.finished_count ?? 0;
   const correctCount = aggregate?.correct_count ?? 0;
   const totalGuesses = aggregate?.total_guesses ?? 0;
+  const elapsedMs = aggregate?.elapsed_ms ?? 0;
   const completed = finishedCount === 5;
   await db.batch([
     db
@@ -836,13 +843,48 @@ async function settleWeeklyRun(db: D1Database, gameId: string, now: number): Pro
         run.week_key,
         correctCount,
         totalGuesses,
-        now,
-        run.started_at,
+        elapsedMs,
+        0,
         now,
         completed ? 1 : 0,
         run.official,
       ),
   ]);
+}
+
+/** 周赛允许主动结束当前题，按实际猜测与题内耗时记录失败。 */
+export async function forfeitWeeklyGame(
+  db: D1Database,
+  gameId: string,
+  userId: string,
+  now = Date.now(),
+): Promise<void> {
+  const row = await readGameRow(db, gameId);
+  if (!row || row.user_id !== userId || row.activity_id !== "weekly") {
+    throw new ApiProblem("NOT_FOUND", 404);
+  }
+  if (row.status !== "active") throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
+  const guesses = await readGuessResults(db, gameId);
+  const [write] = await db.batch([
+    db
+      .prepare(
+        `UPDATE games SET status = 'lost', completed_at = ?, updated_at = ?
+         WHERE id = ? AND user_id = ? AND activity_id = 'weekly' AND status = 'active'`,
+      )
+      .bind(now, now, gameId, userId),
+    db
+      .prepare(
+        `INSERT OR IGNORE INTO game_results
+           (game_id, user_id, mode, mode_id, activity_id, difficulty, date_key, result,
+            guess_count, elapsed_ms, completed_at, replay_expires_at)
+         SELECT id, user_id, mode, mode_id, activity_id, difficulty, date_key, 'lost',
+                ?, MAX(0, ? - started_at), ?, ?
+         FROM games WHERE id = ? AND user_id = ? AND activity_id = 'weekly'`,
+      )
+      .bind(guesses.length, now, now, now + REPLAY_RETENTION_MS, gameId, userId),
+  ]);
+  if ((write?.meta.changes ?? 0) !== 1) throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
+  await settleWeeklyRun(db, gameId, now);
 }
 
 export async function concedeGame(
