@@ -17,6 +17,7 @@ import {
 } from "@fireflydle/game-engine";
 import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
 import { createPlayableMultiplayerContentSnapshot } from "../src/services/multiplayer-content";
+import { contentManifest, npcManifest } from "@fireflydle/game-data";
 
 const character: Character = {
   id: "firefly-test",
@@ -456,6 +457,25 @@ describe("账号密码边界", () => {
 });
 
 describe("服务端游戏裁决", () => {
+  it("题库摘要只为匹配的 manifest 版本提供不可变响应", async () => {
+    const playable = await SELF.fetch(
+      `https://fireflydle.games/api/characters?manifestVersion=${contentManifest.manifestVersion}`,
+    );
+    expect(playable.status).toBe(200);
+    expect(playable.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+
+    const npc = await SELF.fetch(
+      `https://fireflydle.games/api/npcs?manifestVersion=${npcManifest.manifestVersion}`,
+    );
+    expect(npc.status).toBe(200);
+    expect(npc.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+
+    const unavailable = await SELF.fetch(
+      "https://fireflydle.games/api/characters?manifestVersion=0.0.0",
+    );
+    expect(unavailable.status).toBe(409);
+  });
+
   it("NPC 使用独立四猜快照，创建和恢复不泄露答案", async () => {
     const { cookie } = await createSession();
     const roster = await dataOf<Array<Record<string, unknown> & { id: string }>>(

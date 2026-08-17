@@ -15,20 +15,16 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import {
-  GUESS_FIELDS,
-  ServerRoomMessageSchema,
-  type Character,
-  type RoomSnapshot,
-} from "@fireflydle/contracts";
+import { GUESS_FIELDS, ServerRoomMessageSchema, type RoomSnapshot } from "@fireflydle/contracts";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { characters, contentManifest } from "@fireflydle/game-data";
+import { contentManifest } from "@fireflydle/game-data";
 import { apiRequest, getWebSocketUrl } from "../../api/client";
 import { CharacterCombobox } from "../game/CharacterCombobox";
 import { GuessBoard } from "../game/GuessBoard";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
+import { bundledRosterFor, contentRosterQueryOptions } from "../game/content-roster";
 import { getDefaultMode, getDefaultModeNavigation } from "../modes/mode-registry";
 import "../game/game.css";
 import "./multiplayer.css";
@@ -68,12 +64,10 @@ export default function RoomPage() {
   const leavingRef = useRef(false);
   const acknowledgedRef = useRef(false);
   const matchTicket = getMatchTicket(location.state);
-  const rosterQuery = useQuery({
-    queryKey: ["characters", "multiplayer"],
-    queryFn: () => apiRequest<Character[]>("/characters"),
-    retry: false,
-  });
-  const roster = rosterQuery.data ?? characters;
+  const rosterQuery = useQuery(
+    contentRosterQueryOptions("playable", contentManifest.manifestVersion),
+  );
+  const roster = rosterQuery.data ?? bundledRosterFor("playable");
 
   const acknowledgeMatchTicket = useCallback(async () => {
     if (!matchTicket || acknowledgedRef.current) return true;
