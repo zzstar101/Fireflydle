@@ -1,0 +1,13 @@
+{
+  "name": "萤一把 · Fireflydle",
+  "short_name": "萤一把",
+  "description": "崩坏：星穹铁道角色猜谜",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07101d",
+  "theme_color": "#07101d",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "168x168", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

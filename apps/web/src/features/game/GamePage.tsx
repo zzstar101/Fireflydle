@@ -184,7 +184,7 @@ function GamePreparation({
           </button>
         </div>
 
-        {connectionFailed && (
+        {connectionFailed && mode === "random" && contentModeId === "playable" && (
           <section className="connection-choice" role="alert" aria-labelledby="connection-title">
             <WifiOff size={22} aria-hidden="true" />
             <div>
