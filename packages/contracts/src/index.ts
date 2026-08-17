@@ -502,12 +502,16 @@ export type RoomRoundTimeSeconds = z.infer<typeof RoomRoundTimeSecondsSchema>;
 export const RoomMaxAttemptsSchema = z.union([z.literal(4), z.literal(6), z.literal(8)]);
 export type RoomMaxAttempts = z.infer<typeof RoomMaxAttemptsSchema>;
 
+export const RoomModifierSchema = z.literal("speed");
+export type RoomModifier = z.infer<typeof RoomModifierSchema>;
+
 export const RoomConfigurationSchema = z.object({
   modeId: ContentModeIdSchema,
   activityId: ActivityIdSchema,
   format: MatchFormatSchema,
   roundTimeSeconds: RoomRoundTimeSecondsSchema,
   maxAttempts: RoomMaxAttemptsSchema,
+  modifiers: z.array(RoomModifierSchema).max(1).optional(),
 });
 export type RoomConfiguration = z.infer<typeof RoomConfigurationSchema>;
 
@@ -651,6 +655,7 @@ export const CreateRoomRequestSchema = z.object({
   format: MatchFormatSchema.optional().default(3),
   roundTimeSeconds: RoomRoundTimeSecondsSchema.optional().default(90),
   maxAttempts: RoomMaxAttemptsSchema.optional().default(6),
+  modifiers: z.array(RoomModifierSchema).max(1).optional(),
 });
 
 export const JoinRoomRequestSchema = z.object({

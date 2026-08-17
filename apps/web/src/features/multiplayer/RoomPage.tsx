@@ -350,6 +350,11 @@ export default function RoomPage() {
             <span>
               {snapshot.configuration.maxAttempts} {tr("猜", "回", "guesses")}
             </span>
+            {snapshot.configuration.modifiers?.includes("speed") ? (
+              <span>
+                {tr("极速：错误 -5 秒", "スピード：ミスごとに -5 秒", "Speed: -5s per miss")}
+              </span>
+            ) : null}
             <small>
               {snapshot.state === "waiting"
                 ? tr("等待对手加入", "対戦相手を待機", "Waiting for opponent")

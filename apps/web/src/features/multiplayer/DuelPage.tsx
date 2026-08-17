@@ -36,6 +36,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
   const [format, setFormat] = useState<MatchFormat>(3);
   const [roundTimeSeconds, setRoundTimeSeconds] = useState<RoomRoundTimeSeconds>(90);
   const [maxAttempts, setMaxAttempts] = useState<RoomMaxAttempts>(6);
+  const [speedModifier, setSpeedModifier] = useState(false);
   const [roomCode, setRoomCode] = useState("");
   const [roomPreview, setRoomPreview] = useState<RoomPreviewResponse | null>(null);
   const [busy, setBusy] = useState<"match" | "create" | "join" | null>(null);
@@ -86,6 +87,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                 format,
                 roundTimeSeconds,
                 maxAttempts,
+                modifiers: speedModifier ? ["speed"] : [],
               }),
             })
           : roomPreview
@@ -344,7 +346,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                     )
                   }
                 >
-                  <option value="unlimited">
+                  <option value="unlimited" disabled={speedModifier}>
                     {locale === "zh-CN" ? "不限时" : locale === "ja" ? "無制限" : "Unlimited"}
                   </option>
                   {[30, 60, 90].map((seconds) => (
@@ -352,6 +354,23 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                       {seconds} {locale === "zh-CN" ? "秒" : locale === "ja" ? "秒" : "seconds"}
                     </option>
                   ))}
+                </select>
+              </label>
+              <label>
+                <span>{locale === "zh-CN" ? "极速" : locale === "ja" ? "スピード" : "Speed"}</span>
+                <select
+                  value={speedModifier ? "speed" : "none"}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) => {
+                    const enabled = event.target.value === "speed";
+                    setSpeedModifier(enabled);
+                    if (enabled && roundTimeSeconds === null) setRoundTimeSeconds(90);
+                  }}
+                >
+                  <option value="none">{locale === "zh-CN" ? "关闭" : "Off"}</option>
+                  <option value="speed">
+                    {locale === "zh-CN" ? "每错一次 -5 秒" : "-5s per miss"}
+                  </option>
                 </select>
               </label>
               <label>
