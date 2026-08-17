@@ -4,6 +4,7 @@ import type {
   ErrorCode,
   FieldDefinition,
   MatchFormat,
+  RoomConfiguration,
   RoomSnapshot,
 } from "@fireflydle/contracts";
 import type { SnapshotFieldRule } from "@fireflydle/game-engine";
@@ -32,6 +33,7 @@ export interface InitializeRoomInput {
   roomId: string;
   code: string;
   format: MatchFormat;
+  configuration?: RoomConfiguration;
   ranked: boolean;
   owner: RoomParticipant;
   opponent?: RoomParticipant;

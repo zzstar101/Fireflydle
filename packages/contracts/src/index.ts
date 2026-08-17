@@ -491,6 +491,26 @@ export type AccountDeletionStatus = z.infer<typeof AccountDeletionStatusSchema>;
 export const MatchFormatSchema = z.union([z.literal(1), z.literal(3), z.literal(5), z.literal(7)]);
 export type MatchFormat = z.infer<typeof MatchFormatSchema>;
 
+export const RoomRoundTimeSecondsSchema = z.union([
+  z.null(),
+  z.literal(30),
+  z.literal(60),
+  z.literal(90),
+]);
+export type RoomRoundTimeSeconds = z.infer<typeof RoomRoundTimeSecondsSchema>;
+
+export const RoomMaxAttemptsSchema = z.union([z.literal(4), z.literal(6), z.literal(8)]);
+export type RoomMaxAttempts = z.infer<typeof RoomMaxAttemptsSchema>;
+
+export const RoomConfigurationSchema = z.object({
+  modeId: ContentModeIdSchema,
+  activityId: ActivityIdSchema,
+  format: MatchFormatSchema,
+  roundTimeSeconds: RoomRoundTimeSecondsSchema,
+  maxAttempts: RoomMaxAttemptsSchema,
+});
+export type RoomConfiguration = z.infer<typeof RoomConfigurationSchema>;
+
 export const RoomPlayerSchema = z.object({
   playerId: z.string().uuid(),
   displayName: z.string(),
@@ -544,6 +564,7 @@ export const RoomSnapshotSchema = z.object({
   roomId: z.string().uuid(),
   code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
   format: MatchFormatSchema,
+  configuration: RoomConfigurationSchema,
   ranked: z.boolean(),
   state: z.enum(["waiting", "countdown", "playing", "paused", "round-ended", "finished"]),
   round: z.number().int().positive(),
@@ -588,7 +609,11 @@ export const ServerRoomMessageSchema = z.discriminatedUnion("type", [
 export type ServerRoomMessage = z.infer<typeof ServerRoomMessageSchema>;
 
 export const CreateRoomRequestSchema = z.object({
-  format: MatchFormatSchema,
+  modeId: z.literal("playable").optional().default("playable"),
+  activityId: z.literal("private-room").optional().default("private-room"),
+  format: MatchFormatSchema.optional().default(3),
+  roundTimeSeconds: RoomRoundTimeSecondsSchema.optional().default(90),
+  maxAttempts: RoomMaxAttemptsSchema.optional().default(6),
 });
 
 export const JoinRoomRequestSchema = z.object({
@@ -605,6 +630,13 @@ export const RoomApiResponseSchema = z.object({
   snapshot: RoomSnapshotSchema.optional(),
 });
 export type RoomApiResponse = z.infer<typeof RoomApiResponseSchema>;
+
+export const RoomPreviewResponseSchema = z.object({
+  roomId: z.string().uuid(),
+  code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
+  configuration: RoomConfigurationSchema,
+});
+export type RoomPreviewResponse = z.infer<typeof RoomPreviewResponseSchema>;
 
 export const MatchmakingResultSchema = z.discriminatedUnion("status", [
   z.object({ status: z.literal("waiting"), ticketId: z.string().uuid() }),

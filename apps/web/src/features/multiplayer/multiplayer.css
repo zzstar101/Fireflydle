@@ -163,6 +163,51 @@
   color: #111a27;
   background: var(--gold-bright);
 }
+.room-config-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  margin: -10px 0 24px;
+  gap: 10px;
+}
+.room-config-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+}
+.room-config-fields select {
+  width: 100%;
+  height: 42px;
+  padding: 0 10px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--canvas-deep);
+  font: inherit;
+}
+.room-config-fields select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.room-preview {
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr repeat(3, auto);
+  align-items: center;
+  width: 100%;
+  padding: 11px 12px;
+  margin: -12px 0 16px;
+  gap: 8px;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+}
+.room-preview strong {
+  color: var(--text);
+}
 .room-code-input {
   display: block;
   width: 100%;
@@ -345,6 +390,25 @@
 .room-waiting p {
   max-width: 520px;
   color: var(--text-muted);
+}
+.locked-room-config {
+  display: flex;
+  align-items: center;
+  padding: 11px 16px;
+  gap: 14px;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+.locked-room-config strong {
+  color: var(--gold-bright);
+}
+.locked-room-config small {
+  margin-left: auto;
+  color: var(--text-faint);
 }
 .room-radar {
   position: relative;
@@ -855,6 +919,15 @@
   .match-card {
     min-height: 360px;
   }
+  .room-config-fields {
+    grid-template-columns: 1fr;
+  }
+  .room-preview {
+    grid-template-columns: 1fr 1fr;
+  }
+  .room-preview strong {
+    grid-column: 1 / -1;
+  }
   .duel-signal {
     width: 80%;
   }
@@ -899,6 +972,14 @@
   }
   .invite-strip {
     flex-wrap: wrap;
+  }
+  .locked-room-config {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .locked-room-config small {
+    width: 100%;
+    margin-left: 0;
   }
   .invite-strip strong {
     order: 2;

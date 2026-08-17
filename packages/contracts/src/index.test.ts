@@ -5,6 +5,7 @@ import {
   ContentModeDefinitionSchema,
   ContentEntitySchema,
   CreateGameRequestSchema,
+  CreateRoomRequestSchema,
   FeedbackStateSchema,
   FieldDefinitionSchema,
   GuessCellSchema,
@@ -13,6 +14,7 @@ import {
   PublicEndlessRunSchema,
   ClientRoomMessageSchema,
   RoundSkipStateSchema,
+  RoomConfigurationSchema,
 } from "./index";
 
 const labels = { "zh-CN": "普通角色", en: "Characters", ja: "キャラクター" };
@@ -216,5 +218,43 @@ describe("实时房间跳过契约", () => {
       }),
     ).toMatchObject({ status: "pending", round: 2 });
     expect(() => RoundSkipStateSchema.parse({ status: "executed", round: 2 })).toThrow();
+  });
+});
+
+describe("私人房配置契约", () => {
+  test("保留内容与活动标识，并为普通角色私人房提供稳定默认值", () => {
+    expect(CreateRoomRequestSchema.parse({})).toEqual({
+      modeId: "playable",
+      activityId: "private-room",
+      format: 3,
+      roundTimeSeconds: 90,
+      maxAttempts: 6,
+    });
+    expect(
+      RoomConfigurationSchema.parse({
+        modeId: "playable",
+        activityId: "private-room",
+        format: 7,
+        roundTimeSeconds: null,
+        maxAttempts: 8,
+      }),
+    ).toMatchObject({ format: 7, roundTimeSeconds: null, maxAttempts: 8 });
+  });
+
+  test("拒绝私人房范围外的计时和猜测次数", () => {
+    for (const format of [1, 3, 5, 7] as const) {
+      expect(CreateRoomRequestSchema.parse({ format }).format).toBe(format);
+    }
+    for (const roundTimeSeconds of [null, 30, 60, 90] as const) {
+      expect(CreateRoomRequestSchema.parse({ roundTimeSeconds }).roundTimeSeconds).toBe(
+        roundTimeSeconds,
+      );
+    }
+    for (const maxAttempts of [4, 6, 8] as const) {
+      expect(CreateRoomRequestSchema.parse({ maxAttempts }).maxAttempts).toBe(maxAttempts);
+    }
+    expect(() => CreateRoomRequestSchema.parse({ roundTimeSeconds: 45 })).toThrow();
+    expect(() => CreateRoomRequestSchema.parse({ maxAttempts: 5 })).toThrow();
+    expect(() => CreateRoomRequestSchema.parse({ modeId: "npc" })).toThrow();
   });
 });

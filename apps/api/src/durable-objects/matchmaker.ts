@@ -198,6 +198,13 @@ export class Matchmaker extends DurableObject<Env> {
         roomId: pair.roomId,
         code: roomCode,
         format: waitingInput.format,
+        configuration: {
+          modeId: "playable",
+          activityId: "ranked-match",
+          format: waitingInput.format,
+          roundTimeSeconds: 90,
+          maxAttempts: 6,
+        },
         ranked: waitingInput.ranked,
         owner: waitingInput.participant,
         opponent: creatingInput.participant,

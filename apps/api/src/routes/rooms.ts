@@ -1,4 +1,4 @@
-import { JoinRoomRequestSchema, MatchFormatSchema } from "@fireflydle/contracts";
+import { CreateRoomRequestSchema, JoinRoomRequestSchema } from "@fireflydle/contracts";
 import { Hono } from "hono";
 import { z } from "zod";
 import { ApiProblem, ok, readJson, readOptionalJson } from "../lib/http";
@@ -10,9 +10,6 @@ import type { AppContext, AuthUser } from "../types";
 const ROOM_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const ROOM_TTL_MS = 24 * 60 * 60 * 1_000;
 const RoomIdSchema = z.string().uuid();
-const CreatePrivateRoomSchema = z.object({
-  format: MatchFormatSchema.optional().default(3),
-});
 
 interface RoomDirectoryRow {
   room_id: string;
@@ -111,7 +108,7 @@ roomRoutes.post("/rooms", async (context) => {
     limit: 10,
     windowMs: 60 * 1_000,
   });
-  const parsed = CreatePrivateRoomSchema.safeParse(await readOptionalJson(context));
+  const parsed = CreateRoomRequestSchema.safeParse(await readOptionalJson(context));
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
   const contentSnapshot = await loadPlayableMultiplayerContentSnapshot(context.env.DB);
   if (!contentSnapshot) {
@@ -132,6 +129,7 @@ roomRoutes.post("/rooms", async (context) => {
       roomId,
       code,
       format: parsed.data.format,
+      configuration: parsed.data,
       ranked: false,
       owner: participant(auth.user),
       contentSnapshot,
@@ -142,6 +140,24 @@ roomRoutes.post("/rooms", async (context) => {
     await context.env.DB.prepare("DELETE FROM room_directory WHERE room_id = ?").bind(roomId).run();
     throw error;
   }
+});
+
+roomRoutes.get("/rooms/preview", async (context) => {
+  const auth = requireAuth(context);
+  await enforceRateLimit(context.env.DB, "rooms:preview:user", auth.user.id, {
+    limit: 20,
+    windowMs: 60 * 1_000,
+  });
+  const parsed = JoinRoomRequestSchema.safeParse({ code: context.req.query("code") });
+  if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  const room = await roomByCode(context.env.DB, parsed.data.code);
+  const preview = await context.env.GAME_ROOM.getByName(room.durable_object_name).preview();
+  if (preview.state !== "waiting") throw new ApiProblem("ROOM_FULL", 409);
+  return ok(context, {
+    roomId: room.room_id,
+    code: room.room_code,
+    configuration: preview.configuration,
+  });
 });
 
 roomRoutes.post("/rooms/join", async (context) => {

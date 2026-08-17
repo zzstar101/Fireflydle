@@ -17,6 +17,9 @@ import {
   type MatchFormat,
   type MatchmakingResult,
   type RoomApiResponse,
+  type RoomMaxAttempts,
+  type RoomPreviewResponse,
+  type RoomRoundTimeSeconds,
 } from "@fireflydle/contracts";
 import { Link, useNavigate } from "react-router-dom";
 import { apiRequest, ensureSession, getWebSocketUrl } from "../../api/client";
@@ -31,7 +34,10 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
   const session = useSession();
   const navigate = useNavigate();
   const [format, setFormat] = useState<MatchFormat>(3);
+  const [roundTimeSeconds, setRoundTimeSeconds] = useState<RoomRoundTimeSeconds>(90);
+  const [maxAttempts, setMaxAttempts] = useState<RoomMaxAttempts>(6);
   const [roomCode, setRoomCode] = useState("");
+  const [roomPreview, setRoomPreview] = useState<RoomPreviewResponse | null>(null);
   const [busy, setBusy] = useState<"match" | "create" | "join" | null>(null);
   const [matchTicket, setMatchTicket] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,12 +80,26 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
         kind === "create"
           ? await apiRequest<RoomApiResponse>("/rooms", {
               method: "POST",
-              body: JSON.stringify({ format }),
+              body: JSON.stringify({
+                modeId: "playable",
+                activityId: "private-room",
+                format,
+                roundTimeSeconds,
+                maxAttempts,
+              }),
             })
-          : await apiRequest<RoomApiResponse>("/rooms/join", {
-              method: "POST",
-              body: JSON.stringify({ code: roomCode }),
-            });
+          : roomPreview
+            ? await apiRequest<RoomApiResponse>("/rooms/join", {
+                method: "POST",
+                body: JSON.stringify({ code: roomCode }),
+              })
+            : await apiRequest<RoomPreviewResponse>(
+                `/rooms/preview?code=${encodeURIComponent(roomCode)}`,
+              );
+      if (kind === "join" && !roomPreview) {
+        setRoomPreview(response as RoomPreviewResponse);
+        return;
+      }
       navigate(`/room/${response.roomId}`, { state: { roomCode: response.code } });
     } catch {
       setError(
@@ -308,6 +328,51 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                 </button>
               ))}
             </div>
+            <div className="room-config-fields">
+              <label>
+                <span>
+                  {locale === "zh-CN" ? "每题计时" : locale === "ja" ? "制限時間" : "Round time"}
+                </span>
+                <select
+                  value={roundTimeSeconds ?? "unlimited"}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) =>
+                    setRoundTimeSeconds(
+                      event.target.value === "unlimited"
+                        ? null
+                        : (Number(event.target.value) as RoomRoundTimeSeconds),
+                    )
+                  }
+                >
+                  <option value="unlimited">
+                    {locale === "zh-CN" ? "不限时" : locale === "ja" ? "無制限" : "Unlimited"}
+                  </option>
+                  {[30, 60, 90].map((seconds) => (
+                    <option key={seconds} value={seconds}>
+                      {seconds} {locale === "zh-CN" ? "秒" : locale === "ja" ? "秒" : "seconds"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>
+                  {locale === "zh-CN" ? "每题猜测" : locale === "ja" ? "推測回数" : "Guesses"}
+                </span>
+                <select
+                  value={maxAttempts}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) =>
+                    setMaxAttempts(Number(event.target.value) as RoomMaxAttempts)
+                  }
+                >
+                  {[4, 6, 8].map((attempts) => (
+                    <option key={attempts} value={attempts}>
+                      {attempts} {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             <button
               className="ticket-button-secondary"
               type="button"
@@ -339,11 +404,37 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                 maxLength={5}
                 placeholder="A7K9P"
                 disabled={Boolean(matchTicket)}
-                onChange={(event) =>
-                  setRoomCode(event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, ""))
-                }
+                onChange={(event) => {
+                  setRoomCode(event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, ""));
+                  setRoomPreview(null);
+                }}
               />
             </label>
+            {roomPreview ? (
+              <div className="room-preview" role="status">
+                <strong>
+                  {locale === "zh-CN"
+                    ? "加入前确认"
+                    : locale === "ja"
+                      ? "参加前の確認"
+                      : "Confirm settings"}
+                </strong>
+                <span>BO{roomPreview.configuration.format}</span>
+                <span>
+                  {roomPreview.configuration.roundTimeSeconds === null
+                    ? locale === "zh-CN"
+                      ? "不限时"
+                      : locale === "ja"
+                        ? "無制限"
+                        : "Unlimited"
+                    : `${roomPreview.configuration.roundTimeSeconds}s`}
+                </span>
+                <span>
+                  {roomPreview.configuration.maxAttempts}{" "}
+                  {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
+                </span>
+              </div>
+            ) : null}
             <button
               className="ticket-button-secondary"
               type="button"
@@ -351,7 +442,13 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
               onClick={() => void action("join")}
             >
               {busy === "join" ? <span className="button-spinner" /> : <DoorOpen size={17} />}{" "}
-              {t("duel.join")}
+              {roomPreview
+                ? t("duel.join")
+                : locale === "zh-CN"
+                  ? "查看房间配置"
+                  : locale === "ja"
+                    ? "設定を確認"
+                    : "Review room"}
             </button>
           </article>
         ) : null}

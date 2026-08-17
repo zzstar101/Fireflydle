@@ -5,6 +5,7 @@ import type {
   GuessResult,
   MatchFinishReason,
   RoundSkipState,
+  RoomConfiguration,
   RoomPlayer,
   RoomSnapshot,
 } from "@fireflydle/contracts";
@@ -51,6 +52,9 @@ interface MetaRow extends Record<string, SqlStorageValue> {
   pool_json: string;
   target_ids_json: string;
   mode_id: string;
+  activity_id: string;
+  round_time_seconds: 30 | 60 | 90 | null;
+  max_attempts: 4 | 6 | 8;
   pool_rule_version: string;
   manifest_version: string;
   field_rules_json: string;
@@ -151,6 +155,9 @@ export class GameRoom extends DurableObject<Env> {
           pool_json TEXT NOT NULL,
           target_ids_json TEXT NOT NULL,
           mode_id TEXT NOT NULL DEFAULT 'playable',
+          activity_id TEXT NOT NULL DEFAULT 'private-room',
+          round_time_seconds INTEGER,
+          max_attempts INTEGER NOT NULL DEFAULT 6,
           pool_rule_version TEXT NOT NULL DEFAULT '1.0.0',
           manifest_version TEXT NOT NULL DEFAULT '1.0.0',
           field_rules_json TEXT NOT NULL DEFAULT '{}',
@@ -231,6 +238,18 @@ export class GameRoom extends DurableObject<Env> {
       }
       if (!metaColumns.some((column) => column.name === "mode_id")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN mode_id TEXT NOT NULL DEFAULT 'playable'");
+      }
+      if (!metaColumns.some((column) => column.name === "activity_id")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN activity_id TEXT NOT NULL DEFAULT 'private-room'",
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "round_time_seconds")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN round_time_seconds INTEGER");
+        this.sql.exec("UPDATE room_meta SET round_time_seconds = 90");
+      }
+      if (!metaColumns.some((column) => column.name === "max_attempts")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN max_attempts INTEGER NOT NULL DEFAULT 6");
       }
       if (!metaColumns.some((column) => column.name === "pool_rule_version")) {
         this.sql.exec(
@@ -319,6 +338,16 @@ export class GameRoom extends DurableObject<Env> {
     return JSON.parse(meta.round_skip_json) as RoundSkipState;
   }
 
+  private configuration(meta = this.meta()): RoomConfiguration {
+    return {
+      modeId: meta.mode_id as RoomConfiguration["modeId"],
+      activityId: meta.activity_id as RoomConfiguration["activityId"],
+      format: meta.match_format,
+      roundTimeSeconds: meta.round_time_seconds,
+      maxAttempts: meta.max_attempts,
+    };
+  }
+
   private selectTarget(meta: MetaRow): Character {
     const pool = this.candidateSnapshots(meta);
     const targetIds = JSON.parse(meta.target_ids_json) as string[];
@@ -353,7 +382,7 @@ export class GameRoom extends DurableObject<Env> {
     const target = this.selectTarget(meta);
     const roundNumber = meta.round_number + 1;
     const revision = meta.revision + 1;
-    const endsAt = now + MULTIPLAYER_ROUND_MS;
+    const endsAt = meta.round_time_seconds === null ? null : now + meta.round_time_seconds * 1_000;
     this.sql.exec(
       `UPDATE room_meta SET
          state = 'playing', round_number = ?, round_ends_at = ?, reconnect_deadline = NULL,
@@ -374,11 +403,22 @@ export class GameRoom extends DurableObject<Env> {
       target.id,
       now,
     );
-    this.enqueueTask("round", "round-timeout", endsAt, revision, { roundNumber });
+    if (endsAt === null) {
+      this.deleteTask("round");
+    } else {
+      this.enqueueTask("round", "round-timeout", endsAt, revision, { roundNumber });
+    }
     this.deleteTask("next-round");
     this.deleteTask("skip-request");
     meta = this.meta();
-    if (disconnected) this.pauseForSeat(disconnected.seat, now, MULTIPLAYER_ROUND_MS, meta);
+    if (disconnected) {
+      this.pauseForSeat(
+        disconnected.seat,
+        now,
+        meta.round_time_seconds === null ? null : meta.round_time_seconds * 1_000,
+        meta,
+      );
+    }
   }
 
   private finish(
@@ -443,7 +483,12 @@ export class GameRoom extends DurableObject<Env> {
     this.enqueueTask("next-round", "next-round", now + INTERMISSION_MS, revision);
   }
 
-  private pauseForSeat(seat: number, now: number, remainingMs: number, meta = this.meta()): void {
+  private pauseForSeat(
+    seat: number,
+    now: number,
+    remainingMs: number | null,
+    meta = this.meta(),
+  ): void {
     const deadline = now + RECONNECT_GRACE_MS;
     const revision = meta.revision + 1;
     this.sql.exec(
@@ -453,7 +498,7 @@ export class GameRoom extends DurableObject<Env> {
        WHERE singleton = 1`,
       deadline,
       seat,
-      Math.max(0, remainingMs),
+      remainingMs === null ? null : Math.max(0, remainingMs),
       revision,
     );
     this.sql.exec("UPDATE players SET reconnect_pause_used = 1 WHERE seat = ?", seat);
@@ -544,6 +589,7 @@ export class GameRoom extends DurableObject<Env> {
       roomId: meta.room_id,
       code: meta.code,
       format: meta.match_format,
+      configuration: this.configuration(meta),
       ranked: meta.ranked === 1,
       state: meta.state,
       round: Math.max(1, meta.round_number),
@@ -601,6 +647,19 @@ export class GameRoom extends DurableObject<Env> {
 
   public async initialize(input: InitializeRoomInput): Promise<RoomSnapshot> {
     const now = input.now ?? Date.now();
+    const configuration: RoomConfiguration = input.configuration ?? {
+      modeId: input.contentSnapshot.modeId,
+      activityId: input.ranked ? "ranked-match" : "private-room",
+      format: input.format,
+      roundTimeSeconds: (MULTIPLAYER_ROUND_MS / 1_000) as 90,
+      maxAttempts: MULTIPLAYER_ATTEMPTS as 6,
+    };
+    if (
+      configuration.format !== input.format ||
+      configuration.modeId !== input.contentSnapshot.modeId
+    ) {
+      throw new Error("房间配置与内容快照不一致");
+    }
     if (
       Object.keys(input.contentSnapshot.candidateSnapshots).length === 0 ||
       input.contentSnapshot.targetIds.length === 0 ||
@@ -614,17 +673,21 @@ export class GameRoom extends DurableObject<Env> {
       this.sql.exec(
         `INSERT INTO room_meta
            (singleton, room_id, code, match_format, ranked, state, round_number,
-            consecutive_draws, pool_json, target_ids_json, mode_id, pool_rule_version,
+            consecutive_draws, pool_json, target_ids_json, mode_id, activity_id,
+            round_time_seconds, max_attempts, pool_rule_version,
             manifest_version, field_rules_json, revision, created_at, archive_status,
             archive_attempts)
-         VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, ?, ?, ?, ?, 0, ?, 'none', 0)`,
+         VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 'none', 0)`,
         input.roomId,
         input.code,
         input.format,
         input.ranked ? 1 : 0,
         JSON.stringify(input.contentSnapshot.candidateSnapshots),
         JSON.stringify(input.contentSnapshot.targetIds),
-        input.contentSnapshot.modeId,
+        configuration.modeId,
+        configuration.activityId,
+        configuration.roundTimeSeconds,
+        configuration.maxAttempts,
         input.contentSnapshot.poolRuleVersion,
         input.contentSnapshot.manifestVersion,
         JSON.stringify(input.contentSnapshot.fieldRules),
@@ -726,6 +789,11 @@ export class GameRoom extends DurableObject<Env> {
     return { ok: true, snapshot: this.snapshotSync(input.participant.userId) };
   }
 
+  public preview(): { configuration: RoomConfiguration; state: RoomState } {
+    const meta = this.meta();
+    return { configuration: this.configuration(meta), state: meta.state };
+  }
+
   public async snapshot(playerId: string, now = Date.now()): Promise<RoomCommandResult> {
     let isMember = false;
     const changed = this.ctx.storage.transactionSync(() => {
@@ -795,7 +863,7 @@ export class GameRoom extends DurableObject<Env> {
       const meta = this.meta();
       if (meta.state !== "playing") {
         code = "ROOM_NOT_PLAYING";
-      } else if (player.guesses_used >= MULTIPLAYER_ATTEMPTS) {
+      } else if (player.guesses_used >= meta.max_attempts) {
         code = "GAME_ATTEMPTS_EXHAUSTED";
       } else {
         const duplicate = this.sql
@@ -840,9 +908,9 @@ export class GameRoom extends DurableObject<Env> {
             );
             if (result.isCorrect) {
               this.settleRound(player.seat, now);
-            } else if (ordinal >= MULTIPLAYER_ATTEMPTS) {
+            } else if (ordinal >= meta.max_attempts) {
               const opponent = this.players().find((entry) => entry.seat !== player.seat);
-              if (opponent && opponent.guesses_used >= MULTIPLAYER_ATTEMPTS) {
+              if (opponent && opponent.guesses_used >= meta.max_attempts) {
                 this.settleRound(null, now);
               }
             }
@@ -893,7 +961,12 @@ export class GameRoom extends DurableObject<Env> {
         this.finish(opponent?.player_id ?? null, "disconnect", now);
         return;
       }
-      this.pauseForSeat(player.seat, now, Math.max(0, (meta.round_ends_at ?? now) - now), meta);
+      this.pauseForSeat(
+        player.seat,
+        now,
+        meta.round_ends_at === null ? null : Math.max(0, meta.round_ends_at - now),
+        meta,
+      );
     });
     await this.rearmAlarm();
     await this.broadcastSnapshots();
@@ -915,7 +988,7 @@ export class GameRoom extends DurableObject<Env> {
       }
       this.sql.exec("UPDATE players SET connected = 1 WHERE player_id = ?", playerId);
       if (meta.state === "paused" && meta.paused_seat === player.seat) {
-        const endsAt = now + (meta.paused_remaining_ms ?? 0);
+        const endsAt = meta.paused_remaining_ms === null ? null : now + meta.paused_remaining_ms;
         const revision = meta.revision + 1;
         this.sql.exec(
           `UPDATE room_meta SET
@@ -926,9 +999,11 @@ export class GameRoom extends DurableObject<Env> {
           revision,
         );
         this.deleteTask("reconnect");
-        this.enqueueTask("round", "round-timeout", endsAt, revision, {
-          roundNumber: meta.round_number,
-        });
+        if (endsAt !== null) {
+          this.enqueueTask("round", "round-timeout", endsAt, revision, {
+            roundNumber: meta.round_number,
+          });
+        }
         const otherDisconnected = this.players().find(
           (entry) => entry.player_id !== playerId && entry.connected === 0,
         );
@@ -940,7 +1015,7 @@ export class GameRoom extends DurableObject<Env> {
             this.pauseForSeat(
               otherDisconnected.seat,
               now,
-              Math.max(0, (resumed.round_ends_at ?? now) - now),
+              resumed.round_ends_at === null ? null : Math.max(0, resumed.round_ends_at - now),
               resumed,
             );
           }

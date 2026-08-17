@@ -171,6 +171,10 @@ export default function RoomPage() {
       : snapshot?.nextRoundAt
         ? snapshot.nextRoundAt - now
         : 0;
+  const clockLabel =
+    snapshot?.configuration.roundTimeSeconds === null && snapshot.state === "playing"
+      ? "∞"
+      : formatSeconds(timeLeft);
   const canGuess = connection === "open" && snapshot?.state === "playing";
   const roomStateLabel = snapshot
     ? snapshot.state === "waiting"
@@ -327,9 +331,30 @@ export default function RoomPage() {
             ))}
             <div className={`round-clock state-${snapshot.state}`}>
               <Clock3 size={18} />
-              <strong>{formatSeconds(timeLeft)}</strong>
+              <strong>{clockLabel}</strong>
               <small>{roomStateLabel}</small>
             </div>
+          </section>
+
+          <section
+            className="locked-room-config"
+            aria-label={tr("已锁定的房间配置", "固定されたルーム設定", "Locked room settings")}
+          >
+            <span>{tr("普通角色", "通常キャラクター", "Characters")}</span>
+            <strong>BO{snapshot.configuration.format}</strong>
+            <span>
+              {snapshot.configuration.roundTimeSeconds === null
+                ? tr("不限时", "無制限", "Unlimited")
+                : `${snapshot.configuration.roundTimeSeconds}s`}
+            </span>
+            <span>
+              {snapshot.configuration.maxAttempts} {tr("猜", "回", "guesses")}
+            </span>
+            <small>
+              {snapshot.state === "waiting"
+                ? tr("等待对手加入", "対戦相手を待機", "Waiting for opponent")
+                : tr("开局后已锁定", "開始後は固定", "Locked after start")}
+            </small>
           </section>
 
           {snapshot.state === "waiting" && (
@@ -529,7 +554,11 @@ export default function RoomPage() {
               locale={locale}
               searchIndex={contentManifest.searchIndex}
               excludedIds={ownGuessedIds}
-              disabled={!canGuess || guessPending || snapshot.ownGuesses.length >= 6}
+              disabled={
+                !canGuess ||
+                guessPending ||
+                snapshot.ownGuesses.length >= snapshot.configuration.maxAttempts
+              }
               onSubmit={submit}
             />
           )}
@@ -552,14 +581,18 @@ export default function RoomPage() {
             <section>
               <header>
                 <span>{tr("你的猜测", "あなたの回答", "YOUR GUESSES")}</span>
-                <strong>{snapshot.ownGuesses.length} / 6</strong>
+                <strong>
+                  {snapshot.ownGuesses.length} / {snapshot.configuration.maxAttempts}
+                </strong>
               </header>
               <GuessBoard guesses={snapshot.ownGuesses} locale={locale} />
             </section>
             <section className="opponent-board">
               <header>
                 <span>{tr("对手反馈", "相手のフィードバック", "RIVAL SIGNALS")}</span>
-                <strong>{snapshot.opponentFeedback.length} / 6</strong>
+                <strong>
+                  {snapshot.opponentFeedback.length} / {snapshot.configuration.maxAttempts}
+                </strong>
               </header>
               <div className="opponent-feedback-head" aria-hidden="true">
                 <span />
