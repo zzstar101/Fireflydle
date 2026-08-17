@@ -84,7 +84,7 @@ const ACTIVITIES = [
   {
     id: "weekly" as const,
     label: { "zh-CN": "周赛", en: "Weekly", ja: "ウィークリー" },
-    enabled: false,
+    enabled: true,
   },
   {
     id: "endless" as const,

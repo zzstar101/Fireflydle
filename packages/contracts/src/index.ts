@@ -246,6 +246,43 @@ export const PublicGameSchema = z.object({
 });
 export type PublicGame = z.infer<typeof PublicGameSchema>;
 
+export const WeeklyRunSchema = z.object({
+  id: z.string().uuid(),
+  weekKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  weekEndsAt: z.string().datetime(),
+  manifestVersion: ManifestVersionSchema,
+  rulesVersion: RuleVersionSchema,
+  official: z.boolean(),
+  status: z.enum(["active", "completed"]),
+  questionCount: z.literal(5),
+  correctCount: z.number().int().min(0).max(5),
+  totalGuesses: z.number().int().nonnegative(),
+  elapsedMs: z.number().int().nonnegative(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime().nullable(),
+  games: z.array(PublicGameSchema).max(5),
+  currentGame: PublicGameSchema.nullable(),
+});
+export type WeeklyRun = z.infer<typeof WeeklyRunSchema>;
+
+export const StartWeeklyRunRequestSchema = z.object({
+  practice: z.boolean().optional().default(false),
+});
+export type StartWeeklyRunRequest = z.infer<typeof StartWeeklyRunRequestSchema>;
+
+export const WeeklyLeaderboardEntrySchema = z.object({
+  rank: z.number().int().positive(),
+  displayName: z.string().min(1),
+  correctCount: z.number().int().min(0).max(5),
+  totalGuesses: z.number().int().nonnegative(),
+  elapsedMs: z.number().int().nonnegative(),
+  completedAt: z.string().datetime(),
+});
+export type WeeklyLeaderboardEntry = z.infer<typeof WeeklyLeaderboardEntrySchema>;
+
+export const WeeklyShareSchema = WeeklyRunSchema.omit({ currentGame: true });
+export type WeeklyShare = z.infer<typeof WeeklyShareSchema>;
+
 export const CurrentGamesSchema = z.object({
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   serverNow: z.string().datetime(),

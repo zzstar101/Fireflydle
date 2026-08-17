@@ -83,7 +83,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
          SUM(CASE WHEN mode = 'random' THEN 1 ELSE 0 END) AS random_played,
          SUM(CASE WHEN mode = 'random' AND result = 'won' THEN 1 ELSE 0 END) AS random_won,
          AVG(CASE WHEN result IN ('won', 'lost') THEN guess_count END) AS average_guesses
-       FROM game_results WHERE user_id = ? AND mode_id = 'playable'`,
+       FROM game_results WHERE user_id = ? AND mode_id = 'playable'
+         AND activity_id IN ('daily', 'practice')`,
     )
       .bind(auth.user.id)
       .first<AggregateRow>(),
@@ -101,6 +102,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
     context.env.DB.prepare(
       `SELECT game_id, mode, result, guess_count, elapsed_ms, completed_at
        FROM game_results WHERE user_id = ? AND mode_id = 'playable'
+         AND activity_id IN ('daily', 'practice')
        ORDER BY completed_at DESC LIMIT 20`,
     )
       .bind(auth.user.id)
@@ -188,7 +190,7 @@ analyticsRoutes.get("/leaderboards/daily", async (context) => {
      JOIN users u ON u.id = gr.user_id
      WHERE gr.mode = 'daily' AND gr.result = 'won' AND gr.date_key = ?
        AND u.merged_into_user_id IS NULL
-       AND gr.leaderboard_hidden_at IS NULL
+       AND gr.leaderboard_hidden_at IS NULL AND gr.activity_id = 'daily'
      ORDER BY gr.completed_at ASC, gr.game_id ASC
      LIMIT 100`,
   )

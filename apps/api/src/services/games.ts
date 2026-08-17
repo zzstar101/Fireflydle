@@ -97,7 +97,8 @@ async function readCurrentGameId(
       : await db
           .prepare(
             `SELECT id FROM games
-             WHERE user_id = ? AND mode = 'random' AND status = 'active' AND mode_id = ?
+             WHERE user_id = ? AND mode = 'random' AND status = 'active'
+               AND mode_id = ? AND activity_id = 'practice'
              ORDER BY started_at DESC, id DESC
              LIMIT 1`,
           )
@@ -554,9 +555,10 @@ export async function submitGameGuess(
       db
         .prepare(
           `INSERT OR IGNORE INTO game_results
-             (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
+             (game_id, user_id, mode, mode_id, activity_id, difficulty, date_key, result, guess_count,
               elapsed_ms, completed_at, replay_expires_at)
-           SELECT game.id, game.user_id, game.mode, game.mode_id, game.difficulty, game.date_key,
+           SELECT game.id, game.user_id, game.mode, game.mode_id, game.activity_id,
+             game.difficulty, game.date_key,
              game.status,
              (SELECT COUNT(*) FROM game_guesses WHERE game_id = game.id),
              MAX(0, ? - game.started_at), ?, ?
@@ -573,7 +575,77 @@ export async function submitGameGuess(
     }
     throw error;
   }
+  const completed = await readGameRow(db, gameId);
+  if (completed?.activity_id === "weekly" && completed.status !== "active") {
+    await settleWeeklyRun(db, gameId, now);
+  }
   return getPublicGame(db, gameId, userId, now);
+}
+
+async function settleWeeklyRun(db: D1Database, gameId: string, now: number): Promise<void> {
+  const run = await db
+    .prepare(
+      `SELECT weekly_runs.id, weekly_runs.user_id, weekly_runs.week_key,
+              weekly_runs.official, weekly_runs.started_at
+       FROM weekly_rounds
+       JOIN weekly_runs ON weekly_runs.id = weekly_rounds.run_id
+       WHERE weekly_rounds.game_id = ?`,
+    )
+    .bind(gameId)
+    .first<{
+      id: string;
+      user_id: string;
+      week_key: string;
+      official: number;
+      started_at: number;
+    }>();
+  if (!run) return;
+  const aggregate = await db
+    .prepare(
+      `SELECT COUNT(*) AS finished_count,
+              SUM(CASE WHEN games.status = 'won' THEN 1 ELSE 0 END) AS correct_count,
+              SUM(game_results.guess_count) AS total_guesses
+       FROM weekly_rounds
+       JOIN games ON games.id = weekly_rounds.game_id
+       JOIN game_results ON game_results.game_id = games.id
+       WHERE weekly_rounds.run_id = ? AND games.status IN ('won', 'lost')`,
+    )
+    .bind(run.id)
+    .first<{ finished_count: number; correct_count: number; total_guesses: number }>();
+  const finishedCount = aggregate?.finished_count ?? 0;
+  const correctCount = aggregate?.correct_count ?? 0;
+  const totalGuesses = aggregate?.total_guesses ?? 0;
+  const completed = finishedCount === 5;
+  await db.batch([
+    db
+      .prepare(
+        `UPDATE weekly_runs SET correct_count = ?, total_guesses = ?,
+           status = CASE WHEN ? = 1 THEN 'completed' ELSE status END,
+           completed_at = CASE WHEN ? = 1 THEN COALESCE(completed_at, ?) ELSE completed_at END,
+           updated_at = ?
+         WHERE id = ?`,
+      )
+      .bind(correctCount, totalGuesses, completed ? 1 : 0, completed ? 1 : 0, now, now, run.id),
+    db
+      .prepare(
+        `INSERT OR IGNORE INTO weekly_scores
+           (run_id, user_id, week_key, correct_count, total_guesses, elapsed_ms, completed_at)
+         SELECT ?, ?, ?, ?, ?, MAX(0, ? - ?), ?
+         WHERE ? = 1 AND ? = 1`,
+      )
+      .bind(
+        run.id,
+        run.user_id,
+        run.week_key,
+        correctCount,
+        totalGuesses,
+        now,
+        run.started_at,
+        now,
+        completed ? 1 : 0,
+        run.official,
+      ),
+  ]);
 }
 
 export async function concedeGame(
@@ -585,8 +657,8 @@ export async function concedeGame(
   const row = await readGameRow(db, gameId);
   if (!row || row.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
   if (row.status !== "active") throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
-  if (row.mode === "daily") {
-    throw new ApiProblem("FORBIDDEN", 403, { reason: "daily-cannot-concede" });
+  if (row.mode === "daily" || row.activity_id === "weekly") {
+    throw new ApiProblem("FORBIDDEN", 403, { reason: "challenge-cannot-concede" });
   }
   const [statusWrite] = await db.batch([
     db
@@ -598,9 +670,10 @@ export async function concedeGame(
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, mode_id, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, activity_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at)
-         SELECT game.id, game.user_id, game.mode, game.mode_id, game.difficulty, game.date_key,
+         SELECT game.id, game.user_id, game.mode, game.mode_id, game.activity_id,
+           game.difficulty, game.date_key,
            'conceded',
            (SELECT COUNT(*) FROM game_guesses WHERE game_id = game.id),
            MAX(0, ? - game.started_at), ?, ?

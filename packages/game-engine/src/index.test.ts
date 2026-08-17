@@ -7,6 +7,8 @@ import {
   createGuessResult,
   createSpoilerFreeShareText,
   getBeijingDateKey,
+  getBeijingWeekEnd,
+  getBeijingWeekKey,
   hasDuplicateGuess,
   pickFromShuffleBag,
   compareFieldValues,
@@ -266,6 +268,14 @@ describe("游戏规则", () => {
   test("北京时间午夜划分每日日期", () => {
     expect(getBeijingDateKey(Date.parse("2026-07-31T15:59:59.999Z"))).toBe("2026-07-31");
     expect(getBeijingDateKey(Date.parse("2026-07-31T16:00:00.000Z"))).toBe("2026-08-01");
+  });
+
+  test("北京时间周一零点划分周赛", () => {
+    expect(getBeijingWeekKey(Date.parse("2026-08-16T15:59:59.999Z"))).toBe("2026-08-10");
+    expect(getBeijingWeekKey(Date.parse("2026-08-16T16:00:00.000Z"))).toBe("2026-08-17");
+    expect(getBeijingWeekEnd(Date.parse("2026-08-16T16:00:00.000Z"))).toBe(
+      Date.parse("2026-08-23T16:00:00.000Z"),
+    );
   });
 
   test("洗牌袋用尽前不重复", () => {

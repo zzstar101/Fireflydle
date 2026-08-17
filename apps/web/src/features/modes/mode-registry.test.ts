@@ -26,7 +26,7 @@ describe("内容模式注册表", () => {
       modes: [
         {
           definitionIsPublished: true,
-          activities: ["daily", "practice", "private-room"],
+          activities: ["daily", "practice", "weekly", "private-room"],
           navigation: [
             {
               id: "daily",

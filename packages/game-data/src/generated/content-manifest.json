@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.0.904127142",
+  "manifestVersion": "1.0.3567088195",
   "generatedAt": "2026-07-18T17:08:44.000Z",
   "modes": [
     {
@@ -122,7 +122,7 @@
         "ja": "ウィークリー"
       },
       "modeIds": ["playable"],
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "endless",

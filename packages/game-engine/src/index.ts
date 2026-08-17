@@ -214,6 +214,21 @@ export function getBeijingDateKey(timestamp = Date.now()): string {
   return new Date(timestamp + BEIJING_OFFSET_MS).toISOString().slice(0, 10);
 }
 
+/** 返回包含给定时刻的北京时间周一，作为周赛稳定键。 */
+export function getBeijingWeekKey(timestamp = Date.now()): string {
+  const beijing = new Date(timestamp + 8 * 60 * 60 * 1_000);
+  const daysSinceMonday = (beijing.getUTCDay() + 6) % 7;
+  beijing.setUTCDate(beijing.getUTCDate() - daysSinceMonday);
+  return beijing.toISOString().slice(0, 10);
+}
+
+/** 返回北京时间下一个周一 00:00 对应的 UTC 时间戳。 */
+export function getBeijingWeekEnd(timestamp = Date.now()): number {
+  return (
+    Date.parse(`${getBeijingWeekKey(timestamp)}T00:00:00.000+08:00`) + 7 * 24 * 60 * 60 * 1_000
+  );
+}
+
 export function pickFromShuffleBag<T>(
   items: readonly T[],
   consumedIndexes: ReadonlySet<number>,
