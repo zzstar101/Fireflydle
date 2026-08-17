@@ -182,7 +182,29 @@ export const NpcSummarySchema = z.object({
   }),
 });
 export type NpcSummary = z.infer<typeof NpcSummarySchema>;
-export const GameEntitySummarySchema = z.union([CharacterSummarySchema, NpcSummarySchema]);
+
+const CurrencyWarsAssetSchema = z.strictObject({
+  avatarPath: z.string().min(1),
+  portraitPath: z.string().min(1),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  rightsNotice: z.string().min(1),
+});
+
+export const CurrencyWarsUnitSummarySchema = z.strictObject({
+  id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  names: LocalizedTextSchema,
+  aliases: LocalizedAliasesSchema,
+  cost: z.number().int().min(1).max(5),
+  position: z.enum(["front", "back", "front-back"]),
+  assets: CurrencyWarsAssetSchema,
+});
+export type CurrencyWarsUnitSummary = z.infer<typeof CurrencyWarsUnitSummarySchema>;
+
+export const GameEntitySummarySchema = z.union([
+  CharacterSummarySchema,
+  NpcSummarySchema,
+  CurrencyWarsUnitSummarySchema,
+]);
 export type GameEntitySummary = z.infer<typeof GameEntitySummarySchema>;
 
 export const FactionSchema = z.object({
@@ -293,7 +315,7 @@ export type CurrentGames = z.infer<typeof CurrentGamesSchema>;
 
 export const CreateGameRequestSchema = z.object({
   mode: z.enum(["daily", "random"]),
-  modeId: z.enum(["playable", "npc"]).optional(),
+  modeId: z.enum(["playable", "npc", "currency-wars"]).optional(),
   difficulty: DifficultySchema,
 });
 export type CreateGameRequest = z.infer<typeof CreateGameRequestSchema>;
@@ -837,6 +859,7 @@ export const CurrencyWarsUnitSchema = z
     aliases: StrictLocalizedAliasesSchema,
     source: EntitySourceSchema,
     reviewStatus: EntityReviewStatusSchema,
+    assets: CurrencyWarsAssetSchema,
     cost: z.number().int().min(1).max(5),
     position: z.enum(["front", "back", "front-back"]),
     synergies: z.array(ContentIdSchema),
@@ -858,6 +881,15 @@ export const CurrencyWarsRulesetSchema = z
     capturedAt: z.string().datetime(),
     source: EntitySourceSchema,
     units: z.array(CurrencyWarsUnitSchema).min(1),
+    synergyDefinitions: z
+      .array(
+        z.strictObject({
+          id: ContentIdSchema,
+          names: StrictLocalizedTextSchema,
+          type: z.string().min(1),
+        }),
+      )
+      .min(1),
     rulesVersion: RuleVersionSchema,
   })
   .superRefine((ruleset, context) => {
@@ -872,9 +904,17 @@ export const CurrencyWarsRulesetSchema = z
       }
       ids.add(unit.id);
     }
+    const synergyIds = new Set(ruleset.synergyDefinitions.map((synergy) => synergy.id));
+    if (synergyIds.size !== ruleset.synergyDefinitions.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["synergyDefinitions"],
+        message: "羁绊 ID 不能重复",
+      });
+    }
     for (const [index, unit] of ruleset.units.entries()) {
       for (const synergy of unit.synergies) {
-        if (!ids.has(synergy)) {
+        if (!synergyIds.has(synergy)) {
           context.addIssue({
             code: "custom",
             path: ["units", index, "synergies"],

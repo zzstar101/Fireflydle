@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { Character } from "@fireflydle/contracts";
+import type { Character, CurrencyWarsUnit } from "@fireflydle/contracts";
 import {
   ATTEMPTS_BY_DIFFICULTY,
   calculateElo,
@@ -15,6 +15,8 @@ import {
   compareCharactersWithRules,
   snapshotRulesFromFieldDefinitions,
   compareNpcEntities,
+  compareCurrencyWarsUnits,
+  createCurrencyWarsGuessResult,
 } from "./index";
 
 const asset = {
@@ -86,6 +88,45 @@ describe("NPC 三列黄金判题", () => {
       state: "close",
       direction: "higher",
     });
+  });
+});
+
+describe("货币战争三列黄金判题", () => {
+  const unit = (overrides: Partial<CurrencyWarsUnit> = {}): CurrencyWarsUnit => ({
+    id: "cw-alpha",
+    names: { "zh-CN": "单位甲", en: "Unit Alpha", ja: "ユニット甲" },
+    aliases: { "zh-CN": [], en: [], ja: [] },
+    source: { url: "https://example.com/currency-wars", revision: "test" },
+    reviewStatus: "approved",
+    cost: 3,
+    position: "front",
+    synergies: ["ipc", "merchant"],
+    assets: {
+      avatarPath: "/unit.png",
+      portraitPath: "/unit.png",
+      sha256: "a".repeat(64),
+      rightsNotice: "测试数据",
+    },
+    ...overrides,
+  });
+
+  test("费用相同 exact、不同只给高低方向，站位二值，羁绊集合三态", () => {
+    const cells = compareCurrencyWarsUnits(
+      unit(),
+      unit({ id: "cw-beta", cost: 4, position: "back", synergies: ["merchant", "herta"] }),
+    );
+    expect(cells).toEqual([
+      { field: "cost", state: "miss", direction: "lower" },
+      { field: "position", state: "miss", direction: "none" },
+      { field: "synergies", state: "close", direction: "none" },
+    ]);
+  });
+
+  test("公开结果不含羁绊名称、数量或关系 ID", () => {
+    const result = createCurrencyWarsGuessResult(unit(), unit({ id: "cw-beta" }));
+    expect(result.character).not.toHaveProperty("synergies");
+    expect(JSON.stringify(result)).not.toContain("merchant");
+    expect(JSON.stringify(result)).not.toContain("ipc");
   });
 });
 

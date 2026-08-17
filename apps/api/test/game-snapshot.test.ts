@@ -132,6 +132,42 @@ async function createSession(): Promise<string> {
 }
 
 describe("单人模式快照迁移", () => {
+  it("货币战争使用独立单位子池并且公开响应不泄露羁绊关系", async () => {
+    const cookie = await createSession();
+    const created = await dataOf<PublicGame>(
+      await SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ mode: "random", difficulty: "standard", modeId: "currency-wars" }),
+      }),
+    );
+    expect(created).toMatchObject({
+      modeId: "currency-wars",
+      maxAttempts: 6,
+      fieldDefinitions: [
+        expect.objectContaining({ id: "cost" }),
+        expect.objectContaining({ id: "position" }),
+        expect.objectContaining({ id: "synergies" }),
+      ],
+      answer: null,
+    });
+    expect(JSON.stringify(created)).not.toContain("stellaron-hunters");
+    const guessed = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${created.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: "cw-firefly" }),
+      }),
+    );
+    expect(guessed.guesses[0]?.cells.map((cell) => cell.field)).toEqual([
+      "cost",
+      "position",
+      "synergies",
+    ]);
+    expect(JSON.stringify(guessed)).not.toContain("stellaron-hunters");
+    expect(guessed.guesses[0]?.character).not.toHaveProperty("synergies");
+  });
+
   it("创建和恢复返回统一模式活动元数据且进行中不泄露答案", async () => {
     await seedCharacters();
     const cookie = await createSession();

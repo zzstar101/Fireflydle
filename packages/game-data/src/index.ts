@@ -11,6 +11,10 @@ import {
   type Path,
   type Version,
   type NpcSummary,
+  CurrencyWarsRulesetSchema,
+  CurrencyWarsUnitSummarySchema,
+  type CurrencyWarsUnit,
+  type CurrencyWarsUnitSummary,
 } from "@fireflydle/contracts";
 
 import characterData from "./generated/characters.json";
@@ -19,6 +23,7 @@ import factionData from "./generated/factions.json";
 import versionData from "./generated/versions.json";
 import { buildPlayableManifest } from "./content-manifest";
 import npcManifestData from "./data/npc-manifest.json";
+import currencyWarsManifestData from "./data/currency-wars-manifest.json";
 
 /**
  * 发布数据由 scripts/sync-characters.ts 从已审核来源生成。
@@ -40,6 +45,36 @@ export const contentManifest = Object.freeze(publishedContentManifest);
 
 /** T13 已审核 NPC 小池；与普通角色 manifest 和运行时实体完全分离。 */
 export const npcManifest = Object.freeze(ContentManifestSchema.parse(npcManifestData));
+
+/** T14 独立币战规则快照；单位不进入普通内容实体联合。 */
+export const currencyWarsManifest = Object.freeze(
+  ContentManifestSchema.parse(currencyWarsManifestData),
+);
+export const currencyWarsRuleset = Object.freeze(
+  CurrencyWarsRulesetSchema.parse(currencyWarsManifest.currencyWars),
+);
+export const currencyWarsUnits: readonly CurrencyWarsUnit[] = Object.freeze(
+  currencyWarsRuleset.units,
+);
+export function currencyWarsSummary(unit: CurrencyWarsUnit): CurrencyWarsUnitSummary {
+  return CurrencyWarsUnitSummarySchema.parse({
+    id: unit.id,
+    names: unit.names,
+    aliases: unit.aliases,
+    cost: unit.cost,
+    position: unit.position,
+    assets: unit.assets,
+  });
+}
+export const currencyWarsUnitSummaries: readonly CurrencyWarsUnitSummary[] = Object.freeze(
+  currencyWarsUnits.map(currencyWarsSummary),
+);
+
+export function getCurrencyWarsSearchText(
+  unit: Pick<CurrencyWarsUnit, "names" | "aliases">,
+): string {
+  return getEntitySearchText(unit);
+}
 
 export type NpcEntity = Extract<ContentEntity, { kind: "npc" }>;
 export const npcEntities = Object.freeze(

@@ -1,0 +1,285 @@
+{
+  "manifestVersion": "1.0.1",
+  "generatedAt": "2026-08-17T00:00:00.000Z",
+  "modes": [
+    {
+      "id": "currency-wars",
+      "label": { "zh-CN": "货币战争", "en": "Currency Wars", "ja": "コイン戦争" },
+      "targetPoolId": "currency-wars-targets",
+      "candidatePoolId": "currency-wars-candidates",
+      "fields": [
+        {
+          "id": "cost",
+          "label": { "zh-CN": "费用", "en": "Cost", "ja": "コスト" },
+          "valueType": "number",
+          "comparison": "direction",
+          "required": true,
+          "directional": true
+        },
+        {
+          "id": "position",
+          "label": { "zh-CN": "站位", "en": "Position", "ja": "配置" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "synergies",
+          "label": { "zh-CN": "原生羁绊", "en": "Native Synergies", "ja": "固有シナジー" },
+          "valueType": "set",
+          "comparison": "set",
+          "required": true
+        }
+      ],
+      "maxAttempts": 6,
+      "rulesVersion": "1.0.0",
+      "activities": ["practice"]
+    }
+  ],
+  "activities": [
+    {
+      "id": "practice",
+      "label": { "zh-CN": "练习", "en": "Practice", "ja": "練習" },
+      "modeIds": ["currency-wars"],
+      "enabled": true
+    }
+  ],
+  "pools": [
+    {
+      "id": "currency-wars-targets",
+      "modeId": "currency-wars",
+      "targetIds": [
+        "cw-firefly",
+        "cw-acheron",
+        "cw-aventurine",
+        "cw-kafka",
+        "cw-sparkle",
+        "cw-silver-wolf"
+      ],
+      "candidateIds": [
+        "cw-firefly",
+        "cw-acheron",
+        "cw-aventurine",
+        "cw-kafka",
+        "cw-sparkle",
+        "cw-silver-wolf",
+        "cw-herta",
+        "cw-blade"
+      ]
+    },
+    {
+      "id": "currency-wars-candidates",
+      "modeId": "currency-wars",
+      "targetIds": [
+        "cw-firefly",
+        "cw-acheron",
+        "cw-aventurine",
+        "cw-kafka",
+        "cw-sparkle",
+        "cw-silver-wolf"
+      ],
+      "candidateIds": [
+        "cw-firefly",
+        "cw-acheron",
+        "cw-aventurine",
+        "cw-kafka",
+        "cw-sparkle",
+        "cw-silver-wolf",
+        "cw-herta",
+        "cw-blade"
+      ]
+    }
+  ],
+  "entities": [],
+  "currencyWars": {
+    "id": "currency-wars-37",
+    "gameVersion": "3.7",
+    "capturedAt": "2026-08-17T00:00:00.000Z",
+    "source": {
+      "url": "https://www.hoyolab.com/article/41520535",
+      "revision": "currency-wars-3.7"
+    },
+    "rulesVersion": "1.0.0",
+    "synergyDefinitions": [
+      {
+        "id": "astral-express",
+        "names": { "zh-CN": "星穹列车", "en": "Astral Express", "ja": "星穹列車" },
+        "type": "faction"
+      },
+      {
+        "id": "stellaron-hunters",
+        "names": { "zh-CN": "星核猎手", "en": "Stellaron Hunters", "ja": "星核ハンター" },
+        "type": "faction"
+      },
+      {
+        "id": "ipc",
+        "names": { "zh-CN": "星际和平公司", "en": "IPC", "ja": "スターピースカンパニー" },
+        "type": "faction"
+      },
+      {
+        "id": "genius-society",
+        "names": { "zh-CN": "天才俱乐部", "en": "Genius Society", "ja": "天才クラブ" },
+        "type": "faction"
+      },
+      {
+        "id": "masked-fools",
+        "names": { "zh-CN": "假面愚者", "en": "Masked Fools", "ja": "仮面の愚者" },
+        "type": "faction"
+      }
+    ],
+    "units": [
+      {
+        "id": "cw-firefly",
+        "names": { "zh-CN": "流萤", "en": "Firefly", "ja": "ホタル" },
+        "aliases": { "zh-CN": ["liu ying"], "en": ["firefly"], "ja": ["hotaru"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front-back",
+        "synergies": ["astral-express"],
+        "assets": {
+          "avatarPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
+          "portraitPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-acheron",
+        "names": { "zh-CN": "黄泉", "en": "Acheron", "ja": "アベンチュリン" },
+        "aliases": { "zh-CN": ["huang quan"], "en": ["acheron"], "ja": ["アケロン"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "back",
+        "synergies": ["stellaron-hunters"],
+        "assets": {
+          "avatarPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
+          "portraitPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-aventurine",
+        "names": { "zh-CN": "砂金", "en": "Aventurine", "ja": "アベンチュリン" },
+        "aliases": { "zh-CN": ["sha jin"], "en": ["aventurine"], "ja": ["アベンチュリン"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front",
+        "synergies": ["ipc"],
+        "assets": {
+          "avatarPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
+          "portraitPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-kafka",
+        "names": { "zh-CN": "卡芙卡", "en": "Kafka", "ja": "カフカ" },
+        "aliases": { "zh-CN": ["ka fu ka"], "en": ["kafka"], "ja": ["カフカ"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "back",
+        "synergies": ["stellaron-hunters"],
+        "assets": {
+          "avatarPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
+          "portraitPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-sparkle",
+        "names": { "zh-CN": "花火", "en": "Sparkle", "ja": "花火" },
+        "aliases": { "zh-CN": ["hua huo"], "en": ["sparkle"], "ja": ["スパークル"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "back",
+        "synergies": ["masked-fools"],
+        "assets": {
+          "avatarPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
+          "portraitPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-silver-wolf",
+        "names": { "zh-CN": "银狼", "en": "Silver Wolf", "ja": "銀狼" },
+        "aliases": { "zh-CN": ["yin lang"], "en": ["silver wolf"], "ja": ["ぎんろう"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "back",
+        "synergies": ["stellaron-hunters"],
+        "assets": {
+          "avatarPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
+          "portraitPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-herta",
+        "names": { "zh-CN": "黑塔", "en": "Herta", "ja": "ヘルタ" },
+        "aliases": { "zh-CN": ["hei ta"], "en": ["herta"], "ja": ["ヘルタ"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["genius-society"],
+        "assets": {
+          "avatarPath": "/assets/characters/herta-avatar-fe1944cd8443.png",
+          "portraitPath": "/assets/characters/herta-avatar-fe1944cd8443.png",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-blade",
+        "names": { "zh-CN": "刃", "en": "Blade", "ja": "刃" },
+        "aliases": { "zh-CN": ["ren"], "en": ["blade"], "ja": ["ブレード"] },
+        "source": {
+          "url": "https://www.hoyolab.com/article/41520535",
+          "revision": "currency-wars-3.7"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front",
+        "synergies": ["stellaron-hunters"],
+        "assets": {
+          "avatarPath": "/assets/characters/blade-avatar-2e40055896d6.png",
+          "portraitPath": "/assets/characters/blade-avatar-2e40055896d6.png",
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      }
+    ]
+  }
+}

@@ -1,14 +1,21 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import type { GameEntitySummary } from "@fireflydle/contracts";
-import { characters, npcEntities, npcSummary } from "@fireflydle/game-data";
+import {
+  characters,
+  currencyWarsUnitSummaries,
+  npcEntities,
+  npcSummary,
+} from "@fireflydle/game-data";
 import { apiRequest } from "../../api/client";
 
-export type RosterContentMode = "playable" | "npc";
+export type RosterContentMode = "playable" | "npc" | "currency-wars";
 
 const bundledNpcRoster = npcEntities.map(npcSummary);
 
 export function bundledRosterFor(contentModeId: RosterContentMode): readonly GameEntitySummary[] {
-  return contentModeId === "npc" ? bundledNpcRoster : characters;
+  if (contentModeId === "npc") return bundledNpcRoster;
+  if (contentModeId === "currency-wars") return currencyWarsUnitSummaries;
+  return characters;
 }
 
 export function contentRosterQueryKey(contentModeId: RosterContentMode, manifestVersion: string) {
@@ -19,7 +26,12 @@ export function contentRosterRequestPath(
   contentModeId: RosterContentMode,
   manifestVersion: string,
 ): string {
-  const resource = contentModeId === "npc" ? "/npcs" : "/characters";
+  const resource =
+    contentModeId === "npc"
+      ? "/npcs"
+      : contentModeId === "currency-wars"
+        ? "/currency-wars/units"
+        : "/characters";
   return `${resource}?manifestVersion=${encodeURIComponent(manifestVersion)}`;
 }
 

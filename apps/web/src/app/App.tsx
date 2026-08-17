@@ -113,6 +113,16 @@ function RouteContent() {
           path="/npc/practice"
           element={<GamePage key="npc-practice" mode="random" contentModeId="npc" />}
         />
+        <Route
+          path="/currency-wars/practice"
+          element={
+            <GamePage
+              key="currency-wars-practice"
+              mode="random"
+              contentModeId="currency-wars"
+            />
+          }
+        />
         <Route path="/legal" element={<LegalPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

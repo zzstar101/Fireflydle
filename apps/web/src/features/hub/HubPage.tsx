@@ -2,15 +2,24 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, CalendarDays, Clock3, RadioTower, Shuffle, Swords } from "lucide-react";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  Clock3,
+  Coins,
+  RadioTower,
+  Shuffle,
+  Swords,
+} from "lucide-react";
 import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { apiRequest } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { useCurrentGames } from "../game/useCurrentGames";
 import { getDefaultModeNavigation } from "../modes/mode-registry";
+import { usePreferences } from "../../state/preferences";
 import "./hub.css";
 
-type HubMode = "daily" | "random" | "duel" | "npc";
+type HubMode = "daily" | "random" | "duel" | "npc" | "currency-wars";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
@@ -103,6 +112,7 @@ function ModeBoard({
 
 export default function HubPage() {
   const { t } = useTranslation();
+  const locale = usePreferences((state) => state.language);
   const [now, setNow] = useState(Date.now());
   const currentGames = useCurrentGames();
   const session = useSession();
@@ -227,6 +237,23 @@ export default function HubPage() {
           })}
           metricLabel={t("game.attempts")}
           metricValue="4"
+          action={t("hub.startRandom")}
+        />
+        <ModeBoard
+          mode="currency-wars"
+          to="/currency-wars/practice"
+          icon={<Coins size={30} />}
+          status={t("hub.statusReady")}
+          title={locale === "en" ? "Currency Wars" : locale === "ja" ? "コイン戦争" : "货币战争"}
+          description={
+            locale === "en"
+              ? "Guess an independent unit ruleset by cost, position and synergy feedback."
+              : locale === "ja"
+                ? "独立ルールセットのコスト、配置、シナジーでユニットを絞り込みます。"
+                : "使用独立规则集，通过费用、站位和羁绊反馈锁定单位。"
+          }
+          metricLabel={t("game.attempts")}
+          metricValue="6"
           action={t("hub.startRandom")}
         />
       </section>

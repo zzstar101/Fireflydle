@@ -1,5 +1,6 @@
 import {
   CharacterSchema,
+  CurrencyWarsUnitSummarySchema,
   GameEntitySummarySchema,
   NpcSummarySchema,
   FieldDefinitionSchema,
@@ -15,13 +16,23 @@ import {
 import {
   createGuessResultWithRules,
   createNpcGuessResult,
+  createCurrencyWarsGuessResult,
+  CURRENCY_WARS_FIELD_RULES,
   getBeijingDateKey,
   NPC_SNAPSHOT_FIELD_RULES,
   selectSnapshotFieldDefinitions,
   snapshotRulesFromFieldDefinitions,
   type SnapshotFieldRule,
 } from "@fireflydle/game-engine";
-import { contentManifest, npcEntities, npcManifest, npcSummary } from "@fireflydle/game-data";
+import {
+  contentManifest,
+  currencyWarsManifest,
+  currencyWarsRuleset,
+  currencyWarsUnitSummaries,
+  npcEntities,
+  npcManifest,
+  npcSummary,
+} from "@fireflydle/game-data";
 import { getCharacterSnapshot, getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
 
@@ -80,7 +91,7 @@ async function readCurrentGameId(
   userId: string,
   mode: "daily" | "random",
   dateKey?: string,
-  modeId: "playable" | "npc" = "playable",
+  modeId: PublicGame["modeId"] = "playable",
 ): Promise<string | null> {
   const row =
     mode === "daily"
@@ -112,7 +123,12 @@ function fieldDefinitionsForRules(
   modeId: PublicGame["modeId"] = "playable",
 ): FieldDefinition[] {
   const seen = new Set<string>();
-  const definitions = modeId === "npc" ? npcMode.fields : playableMode!.fields;
+  const definitions =
+    modeId === "npc"
+      ? npcMode.fields
+      : modeId === "currency-wars"
+        ? currencyWarsMode.fields
+        : playableMode!.fields;
   return rules.flatMap((rule) => {
     if (seen.has(rule.field)) return [];
     seen.add(rule.field);
@@ -271,6 +287,24 @@ async function selectTarget(
   dateKey: string | null;
   candidateSnapshots: Record<string, GameEntitySummary>;
 }> {
+  if (input.modeId === "currency-wars") {
+    if (input.mode !== "random")
+      throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "currency-wars-practice-only" });
+    const targets = currencyWarsTargetPool.targetIds.flatMap((id) => {
+      const unit = currencyWarsById.get(id);
+      return unit ? [unit] : [];
+    });
+    const candidateSnapshots = Object.fromEntries(
+      currencyWarsCandidatePool.candidateIds.flatMap((id) => {
+        const unit = currencyWarsById.get(id);
+        return unit ? [[id, unit] as const] : [];
+      }),
+    );
+    const target = targets[secureRandomIndex(targets.length)];
+    if (!target)
+      throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-currency-wars-pool" });
+    return { targetId: target.id, dateKey: null, candidateSnapshots };
+  }
   if (input.modeId === "npc") {
     if (input.mode !== "random") {
       throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "npc-practice-only" });
@@ -324,6 +358,18 @@ const npcCandidatePool =
     throw new Error("NPC 候选池未注册");
   })();
 const npcById = new Map(npcEntities.map((entity) => [entity.id, npcSummary(entity)]));
+const currencyWarsMode =
+  currencyWarsManifest.modes.find((mode) => mode.id === "currency-wars") ??
+  (() => {
+    throw new Error("货币战争模式未注册");
+  })();
+const currencyWarsTargetPool = currencyWarsManifest.pools.find(
+  (pool) => pool.id === currencyWarsMode.targetPoolId,
+)!;
+const currencyWarsCandidatePool = currencyWarsManifest.pools.find(
+  (pool) => pool.id === currencyWarsMode.candidatePoolId,
+)!;
+const currencyWarsById = new Map(currencyWarsUnitSummaries.map((unit) => [unit.id, unit]));
 
 const snapshotFieldRules: readonly SnapshotFieldRule[] = snapshotRulesFromFieldDefinitions(
   playableMode.fields,
@@ -337,7 +383,9 @@ function readCandidateSnapshot(row: GameRow, characterId: string): GameEntitySum
   const parsed =
     row.mode_id === "npc"
       ? NpcSummarySchema.safeParse(payload)
-      : CharacterSchema.safeParse(payload);
+      : row.mode_id === "currency-wars"
+        ? CurrencyWarsUnitSummarySchema.safeParse(payload)
+        : CharacterSchema.safeParse(payload);
   return parsed.success ? parsed.data : null;
 }
 
@@ -353,17 +401,28 @@ function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {
     : typeof parsed === "object" && parsed !== null
       ? (parsed as { rules?: unknown }).rules
       : null;
-  const fallbackRules = row.mode_id === "npc" ? NPC_SNAPSHOT_FIELD_RULES : snapshotFieldRules;
-  const definitions = row.mode_id === "npc" ? npcMode.fields : playableMode!.fields;
+  const fallbackRules =
+    row.mode_id === "npc"
+      ? NPC_SNAPSHOT_FIELD_RULES
+      : row.mode_id === "currency-wars"
+        ? CURRENCY_WARS_FIELD_RULES
+        : snapshotFieldRules;
+  const definitions =
+    row.mode_id === "npc"
+      ? npcMode.fields
+      : row.mode_id === "currency-wars"
+        ? currencyWarsMode.fields
+        : playableMode!.fields;
   if (!Array.isArray(encodedRules)) return fallbackRules;
   const rules = encodedRules.filter((rule): rule is SnapshotFieldRule => {
     if (typeof rule !== "object" || rule === null) return false;
     const value = rule as { field?: unknown; comparison?: unknown };
     const definition = definitions.find((field) => field.id === value.field);
     if (!definition) return false;
-    if (value.comparison === "faction") return value.field === "faction";
+    if (value.comparison === "faction")
+      return value.field === "faction" || value.field === "synergies";
     if (value.comparison === "version") {
-      return value.field === "version" || value.field === "debut-version";
+      return value.field === "version" || value.field === "debut-version" || value.field === "cost";
     }
     return value.comparison === "exact" && definition.comparison === "exact";
   });
@@ -409,15 +468,21 @@ export async function createGame(
         normalizedInput.mode,
         normalizedInput.modeId,
         normalizedInput.mode === "daily" ? "daily" : "practice",
-        normalizedInput.modeId === "npc" ? npcMode.rulesVersion : playableMode!.rulesVersion,
+        normalizedInput.modeId === "npc"
+          ? npcMode.rulesVersion
+          : normalizedInput.modeId === "currency-wars"
+            ? currencyWarsMode.rulesVersion
+            : playableMode!.rulesVersion,
         normalizedInput.modeId === "npc"
           ? npcManifest.manifestVersion
-          : contentManifest.manifestVersion,
+          : normalizedInput.modeId === "currency-wars"
+            ? currencyWarsManifest.manifestVersion
+            : contentManifest.manifestVersion,
         normalizedInput.difficulty,
         target.dateKey,
         target.targetId,
         JSON.stringify(
-          (normalizedInput.modeId === "npc"
+          (normalizedInput.modeId === "npc" || normalizedInput.modeId === "currency-wars"
             ? target.candidateSnapshots[target.targetId]
             : await getCharacterSnapshot(db, target.targetId)) ??
             (() => {
@@ -426,13 +491,24 @@ export async function createGame(
         ),
         JSON.stringify(target.candidateSnapshots),
         JSON.stringify({
-          rules: normalizedInput.modeId === "npc" ? NPC_SNAPSHOT_FIELD_RULES : snapshotFieldRules,
+          rules:
+            normalizedInput.modeId === "npc"
+              ? NPC_SNAPSHOT_FIELD_RULES
+              : normalizedInput.modeId === "currency-wars"
+                ? CURRENCY_WARS_FIELD_RULES
+                : snapshotFieldRules,
           definitions:
             normalizedInput.modeId === "npc"
               ? npcMode.fields
-              : selectSnapshotFieldDefinitions(playableMode!.fields),
+              : normalizedInput.modeId === "currency-wars"
+                ? currencyWarsMode.fields
+                : selectSnapshotFieldDefinitions(playableMode!.fields),
         }),
-        normalizedInput.modeId === "npc" ? npcMode.maxAttempts : playableMode!.maxAttempts,
+        normalizedInput.modeId === "npc"
+          ? npcMode.maxAttempts
+          : normalizedInput.modeId === "currency-wars"
+            ? currencyWarsMode.maxAttempts
+            : playableMode!.maxAttempts,
         now,
         now,
       )
@@ -487,12 +563,26 @@ export async function submitGameGuess(
           NpcSummarySchema.parse(guess),
           new Date(now),
         )
-      : createGuessResultWithRules(
-          CharacterSchema.parse(targetPayload),
-          CharacterSchema.parse(guess),
-          readFieldRules(row),
-          new Date(now),
-        );
+      : row.mode_id === "currency-wars"
+        ? createCurrencyWarsGuessResult(
+            currencyWarsRuleset.units.find(
+              (unit) => unit.id === JSON.parse(row.target_payload_json).id,
+            ) ??
+              (() => {
+                throw new ApiProblem("INTERNAL_ERROR", 500);
+              })(),
+            currencyWarsRuleset.units.find((unit) => unit.id === characterId) ??
+              (() => {
+                throw new ApiProblem("NOT_FOUND", 404);
+              })(),
+            new Date(now),
+          )
+        : createGuessResultWithRules(
+            CharacterSchema.parse(targetPayload),
+            CharacterSchema.parse(guess),
+            readFieldRules(row),
+            new Date(now),
+          );
   const guessId = crypto.randomUUID();
   const correct = result.isCorrect ? 1 : 0;
 

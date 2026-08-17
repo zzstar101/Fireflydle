@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
-import { contentManifest, npcManifest } from "@fireflydle/game-data";
+import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
@@ -42,8 +42,18 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: "playable" | "npc"): string {
-  const manifest = contentModeId === "npc" ? npcManifest : contentManifest;
+type SoloContentMode = "playable" | "npc" | "currency-wars";
+
+function manifestFor(contentModeId: SoloContentMode) {
+  return contentModeId === "npc"
+    ? npcManifest
+    : contentModeId === "currency-wars"
+      ? currencyWarsManifest
+      : contentManifest;
+}
+
+function fieldSummary(locale: "zh-CN" | "en" | "ja", contentModeId: SoloContentMode): string {
+  const manifest = manifestFor(contentModeId);
   const mode = manifest.modes.find((entry) => entry.id === contentModeId);
   const fields = (
     contentModeId === "playable"
@@ -84,7 +94,7 @@ function GamePreparation({
   onOffline,
 }: {
   mode: "daily" | "random";
-  contentModeId: "playable" | "npc";
+  contentModeId: SoloContentMode;
   checking: boolean;
   busy: boolean;
   connectionFailed: boolean;
@@ -94,7 +104,7 @@ function GamePreparation({
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
-  const modeDefinition = (contentModeId === "npc" ? npcManifest : contentManifest).modes.find(
+  const modeDefinition = manifestFor(contentModeId).modes.find(
     (entry) => entry.id === contentModeId,
   );
   const maxAttempts = modeDefinition?.maxAttempts ?? 6;
@@ -117,12 +127,18 @@ function GamePreparation({
           <h1>
             {contentModeId === "npc"
               ? "NPC"
-              : mode === "daily"
-                ? t("game.daily")
-                : t("game.random")}
+              : contentModeId === "currency-wars"
+                ? locale === "zh-CN"
+                  ? "货币战争"
+                  : locale === "ja"
+                    ? "コイン戦争"
+                    : "Currency Wars"
+                : mode === "daily"
+                  ? t("game.daily")
+                  : t("game.random")}
           </h1>
           <p>
-            {contentModeId === "npc"
+            {contentModeId === "npc" || contentModeId === "currency-wars"
               ? fieldSummary(locale, contentModeId)
               : mode === "daily"
                 ? t("prep.dailyIntro")
@@ -154,10 +170,10 @@ function GamePreparation({
             </h2>
             <p>
               {locale === "zh-CN"
-                ? `${contentModeId === "npc" ? "NPC 练习" : mode === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${mode === "daily" ? "，每位玩家每天只有一局。" : "。"}`
+                ? `${contentModeId === "npc" ? "NPC 练习" : contentModeId === "currency-wars" ? "货币战争练习" : mode === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${mode === "daily" ? "，每位玩家每天只有一局。" : "。"}`
                 : locale === "ja"
-                  ? `${contentModeId === "npc" ? "NPC練習" : mode === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${mode === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
-                  : `${contentModeId === "npc" ? "NPC practice" : mode === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${mode === "daily" ? " and one run per player." : "."}`}
+                  ? `${contentModeId === "npc" ? "NPC練習" : contentModeId === "currency-wars" ? "コイン戦争練習" : mode === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${mode === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
+                  : `${contentModeId === "npc" ? "NPC practice" : contentModeId === "currency-wars" ? "Currency Wars practice" : mode === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${mode === "daily" ? " and one run per player." : "."}`}
             </p>
           </div>
         </div>
@@ -175,14 +191,20 @@ function GamePreparation({
               {locale === "zh-CN"
                 ? contentModeId === "npc"
                   ? "NPC 练习使用独立四猜规则"
-                  : "所有普通角色活动使用相同次数规则"
+                  : contentModeId === "currency-wars"
+                    ? "货币战争使用独立六猜规则"
+                    : "所有普通角色活动使用相同次数规则"
                 : locale === "ja"
                   ? contentModeId === "npc"
                     ? "NPC練習専用の4回ルール"
-                    : "通常キャラクターの全アクティビティで同じルール"
+                    : contentModeId === "currency-wars"
+                      ? "コイン戦争専用の6回ルール"
+                      : "通常キャラクターの全アクティビティで同じルール"
                   : contentModeId === "npc"
                     ? "Four attempts for NPC practice"
-                    : "The same limit for every playable-character activity"}
+                    : contentModeId === "currency-wars"
+                      ? "Six attempts for Currency Wars practice"
+                      : "The same limit for every playable-character activity"}
             </small>
           </span>
           <b>{maxAttempts}</b>
@@ -256,7 +278,7 @@ function ActiveGame({
   session,
 }: {
   mode: "daily" | "random";
-  contentModeId: "playable" | "npc";
+  contentModeId: SoloContentMode;
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
 }) {
   const { t } = useTranslation();
@@ -375,16 +397,24 @@ function ActiveGame({
           <p className="eyebrow">
             {contentModeId === "npc"
               ? "NPC · TRACER"
-              : mode === "daily"
-                ? t("prep.dailyEyebrow")
-                : t("prep.randomEyebrow")}
+              : contentModeId === "currency-wars"
+                ? "CURRENCY WARS · TRACER"
+                : mode === "daily"
+                  ? t("prep.dailyEyebrow")
+                  : t("prep.randomEyebrow")}
           </p>
           <h1 ref={gameHeadingRef} tabIndex={-1}>
             {contentModeId === "npc"
               ? "NPC"
-              : mode === "daily"
-                ? t("game.daily")
-                : t("game.random")}
+              : contentModeId === "currency-wars"
+                ? locale === "zh-CN"
+                  ? "货币战争"
+                  : locale === "ja"
+                    ? "コイン戦争"
+                    : "Currency Wars"
+                : mode === "daily"
+                  ? t("game.daily")
+                  : t("game.random")}
           </h1>
           <p>{t("prep.activeIntro")}</p>
         </div>
@@ -628,7 +658,7 @@ export default function GamePage({
   contentModeId = "playable",
 }: {
   mode: "daily" | "random";
-  contentModeId?: "playable" | "npc";
+  contentModeId?: SoloContentMode;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedGameId = searchParams.get("game");

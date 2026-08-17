@@ -1,4 +1,8 @@
-import { CharacterSummarySchema, NpcSummarySchema } from "@fireflydle/contracts";
+import {
+  CharacterSummarySchema,
+  CurrencyWarsUnitSummarySchema,
+  NpcSummarySchema,
+} from "@fireflydle/contracts";
 import type {
   Character,
   Difficulty,
@@ -9,6 +13,8 @@ import type {
   GuessResult,
   Locale,
   NpcSummary,
+  CurrencyWarsUnit,
+  CurrencyWarsUnitSummary,
 } from "@fireflydle/contracts";
 
 export const ATTEMPTS_BY_DIFFICULTY: Readonly<Record<Difficulty, number>> = {
@@ -93,6 +99,52 @@ export function createNpcGuessResult(
   return {
     character: NpcSummarySchema.parse(guess),
     cells: compareNpcEntities(target, guess),
+    isCorrect: target.id === guess.id,
+    guessedAt: guessedAt.toISOString(),
+  };
+}
+
+export const CURRENCY_WARS_FIELD_RULES: readonly SnapshotFieldRule[] = [
+  { field: "cost", comparison: "version" },
+  { field: "position", comparison: "exact" },
+  { field: "synergies", comparison: "faction" },
+];
+
+/** 币战专用判题：费用只给方向，站位 exact/miss，羁绊集合只给三态。 */
+export function compareCurrencyWarsUnits(
+  target: CurrencyWarsUnit,
+  guess: CurrencyWarsUnit,
+): GuessCell[] {
+  const costDirection =
+    target.cost === guess.cost ? "none" : target.cost > guess.cost ? "higher" : "lower";
+  const targetSynergies = new Set(target.synergies);
+  const sharesSynergy = guess.synergies.some((synergy) => targetSynergies.has(synergy));
+  const sameSynergies =
+    target.synergies.length === guess.synergies.length &&
+    guess.synergies.every((synergy) => targetSynergies.has(synergy));
+  return [
+    cell("cost", target.cost === guess.cost ? "exact" : "miss", costDirection),
+    cell("position", target.position === guess.position ? "exact" : "miss"),
+    cell("synergies", sameSynergies ? "exact" : sharesSynergy ? "close" : "miss"),
+  ];
+}
+
+export function createCurrencyWarsGuessResult(
+  target: CurrencyWarsUnit,
+  guess: CurrencyWarsUnit,
+  guessedAt = new Date(),
+): GuessResult {
+  const summary: CurrencyWarsUnitSummary = CurrencyWarsUnitSummarySchema.parse({
+    id: guess.id,
+    names: guess.names,
+    aliases: guess.aliases,
+    cost: guess.cost,
+    position: guess.position,
+    assets: guess.assets,
+  });
+  return {
+    character: summary,
+    cells: compareCurrencyWarsUnits(target, guess),
     isCorrect: target.id === guess.id,
     guessedAt: guessedAt.toISOString(),
   };

@@ -10,6 +10,9 @@ import {
   npcManifest,
   searchEntities,
   versions,
+  currencyWarsManifest,
+  currencyWarsRuleset,
+  currencyWarsUnitSummaries,
 } from "./index.ts";
 
 function matchingIds(query: string): string[] {
@@ -78,6 +81,25 @@ describe("NPC 正式题池", () => {
     const pomPom = npcEntities.find((entity) => entity.id === "npc-pom-pom");
     expect(pomPom).toBeDefined();
     expect(getNpcSearchText(pomPom!)).toContain("pamu");
+  });
+});
+
+describe("货币战争独立规则集", () => {
+  test("候选与目标只来自完整币战单位子池", () => {
+    const mode = currencyWarsManifest.modes.find((entry) => entry.id === "currency-wars");
+    const targetPool = currencyWarsManifest.pools.find((pool) => pool.id === mode?.targetPoolId);
+    const candidatePool = currencyWarsManifest.pools.find(
+      (pool) => pool.id === mode?.candidatePoolId,
+    );
+    expect(mode?.maxAttempts).toBe(6);
+    expect(mode?.fields.map((field) => field.id)).toEqual(["cost", "position", "synergies"]);
+    expect(candidatePool?.candidateIds.length).toBeGreaterThan(targetPool?.targetIds.length ?? 0);
+    expect(
+      currencyWarsRuleset.units.every(
+        (unit) => unit.assets.avatarPath && unit.synergies.length > 0,
+      ),
+    ).toBeTrue();
+    expect(currencyWarsUnitSummaries.every((unit) => !("synergies" in unit))).toBeTrue();
   });
 });
 

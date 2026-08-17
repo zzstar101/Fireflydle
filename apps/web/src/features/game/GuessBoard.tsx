@@ -25,6 +25,18 @@ function StatusIcon({ cell }: { cell: GuessCell }) {
 
 function cellValue(guess: GuessResult, field: string, locale: Locale): string {
   switch (field) {
+    case "cost":
+      return "cost" in guess.character ? String(guess.character.cost) : "—";
+    case "position": {
+      if (!("position" in guess.character)) return "—";
+      return {
+        front: locale === "zh-CN" ? "前台" : locale === "ja" ? "前衛" : "Front",
+        back: locale === "zh-CN" ? "后台" : locale === "ja" ? "後衛" : "Back",
+        "front-back": locale === "zh-CN" ? "前后台" : locale === "ja" ? "前後" : "Front / back",
+      }[guess.character.position];
+    }
+    case "synergies":
+      return "—";
     case "element":
       return "element" in guess.character ? elementLabels[guess.character.element][locale] : "—";
     case "path":
@@ -32,9 +44,11 @@ function cellValue(guess: GuessResult, field: string, locale: Locale): string {
     case "rarity":
       return "rarity" in guess.character ? `${guess.character.rarity} ★` : "—";
     case "faction":
-      return getFactionName(guess.character.factionId, locale);
+      return "factionId" in guess.character
+        ? getFactionName(guess.character.factionId, locale)
+        : "—";
     case "region":
-      return getRegionName(guess.character.regionId, locale);
+      return "regionId" in guess.character ? getRegionName(guess.character.regionId, locale) : "—";
     case "version":
       return "releaseVersionId" in guess.character ? `V${guess.character.releaseVersionId}` : "—";
     case "debut-version":

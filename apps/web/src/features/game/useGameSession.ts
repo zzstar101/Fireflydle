@@ -9,11 +9,18 @@ import type {
   NpcSummary,
   PublicGame,
 } from "@fireflydle/contracts";
-import { characters, contentManifest, npcManifest } from "@fireflydle/game-data";
+import {
+  characters,
+  contentManifest,
+  currencyWarsManifest,
+  currencyWarsRuleset,
+  npcManifest,
+} from "@fireflydle/game-data";
 import {
   ATTEMPTS_BY_DIFFICULTY,
   createGuessResultWithRules,
   createNpcGuessResult,
+  createCurrencyWarsGuessResult,
   getBeijingDateKey,
   hasDuplicateGuess,
   selectSnapshotFieldDefinitions,
@@ -24,7 +31,7 @@ import { bundledRosterFor, loadContentRoster } from "./content-roster";
 import { currentGamesQueryKey } from "./useCurrentGames";
 
 type PlayableMode = Extract<GameMode, "daily" | "random">;
-type SoloContentMode = "playable" | "npc";
+type SoloContentMode = "playable" | "npc" | "currency-wars";
 type SessionSource = "server" | "local" | null;
 const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
 const playableMode =
@@ -39,6 +46,8 @@ const npcMode =
   (() => {
     throw new Error("NPC 模式未注册");
   })();
+const currencyWarsMode = currencyWarsManifest.modes.find((item) => item.id === "currency-wars")!;
+
 function rosterFor(contentModeId: SoloContentMode): readonly GameEntitySummary[] {
   return bundledRosterFor(contentModeId);
 }
@@ -110,7 +119,9 @@ function targetFor(
   const eligible =
     contentModeId === "npc"
       ? rosterFor("npc")
-      : characters.filter((character) => character.enabled && character.targetEligible);
+      : contentModeId === "currency-wars"
+        ? rosterFor("currency-wars")
+        : characters.filter((character) => character.enabled && character.targetEligible);
   const seed =
     mode === "daily"
       ? `${getBeijingDateKey()}-${localPlayerSeed()}`
@@ -131,12 +142,26 @@ function createLocalGame(
     mode,
     modeId: contentModeId,
     activityId: mode === "daily" ? "daily" : "practice",
-    poolRuleVersion: contentModeId === "npc" ? npcMode.rulesVersion : playableMode.rulesVersion,
+    poolRuleVersion:
+      contentModeId === "npc"
+        ? npcMode.rulesVersion
+        : contentModeId === "currency-wars"
+          ? currencyWarsMode.rulesVersion
+          : playableMode.rulesVersion,
     manifestVersion:
-      contentModeId === "npc" ? npcManifest.manifestVersion : contentManifest.manifestVersion,
+      contentModeId === "npc"
+        ? npcManifest.manifestVersion
+        : contentModeId === "currency-wars"
+          ? currencyWarsManifest.manifestVersion
+          : contentManifest.manifestVersion,
     difficulty,
     dateKey: mode === "daily" ? getBeijingDateKey() : null,
-    maxAttempts: contentModeId === "npc" ? npcMode.maxAttempts : ATTEMPTS_BY_DIFFICULTY[difficulty],
+    maxAttempts:
+      contentModeId === "npc"
+        ? npcMode.maxAttempts
+        : contentModeId === "currency-wars"
+          ? currencyWarsMode.maxAttempts
+          : ATTEMPTS_BY_DIFFICULTY[difficulty],
     guesses: [],
     status: "active",
     startedAt: now,
@@ -146,7 +171,9 @@ function createLocalGame(
     fieldDefinitions:
       contentModeId === "npc"
         ? npcMode.fields
-        : selectSnapshotFieldDefinitions(playableFieldDefinitions),
+        : contentModeId === "currency-wars"
+          ? currencyWarsMode.fields
+          : selectSnapshotFieldDefinitions(playableFieldDefinitions),
   };
 }
 
@@ -313,7 +340,16 @@ export function useGameSession(
       const result =
         contentModeId === "npc"
           ? createNpcGuessResult(target as NpcSummary, guess as NpcSummary)
-          : createGuessResultWithRules(target as Character, guess as Character, snapshotFieldRules);
+          : contentModeId === "currency-wars"
+            ? createCurrencyWarsGuessResult(
+                currencyWarsRuleset.units.find((unit) => unit.id === target.id)!,
+                currencyWarsRuleset.units.find((unit) => unit.id === guess.id)!,
+              )
+            : createGuessResultWithRules(
+                target as Character,
+                guess as Character,
+                snapshotFieldRules,
+              );
       const guesses = [...game.guesses, result];
       const ended = result.isCorrect || guesses.length >= game.maxAttempts;
       const completedAt = ended ? new Date().toISOString() : null;
