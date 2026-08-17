@@ -13,13 +13,18 @@ import {
   type GuessResult,
   type GameEntitySummary,
   type PublicGame,
+  type NpcSummary,
+  type CurrencyWarsUnit,
 } from "@fireflydle/contracts";
 import {
   createGuessResultWithRules,
   createInferenceReview,
+  createInferenceReviewForEntities,
   createNpcGuessResult,
   createCurrencyWarsGuessResult,
   createAeonGuessResult,
+  compareNpcEntities,
+  compareCurrencyWarsUnits,
   CURRENCY_WARS_FIELD_RULES,
   getBeijingDateKey,
   NPC_SNAPSHOT_FIELD_RULES,
@@ -167,8 +172,7 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
   const finished = row.status !== "active";
   const rules = readFieldRules(row);
   const target = GameEntitySummarySchema.parse(JSON.parse(row.target_payload_json));
-  const candidatePool =
-    finished && row.mode_id === "playable" ? readPlayableCandidatePool(row) : null;
+  const inferenceReview = finished ? createModeInferenceReview(row, guesses) : null;
   return {
     id: row.id,
     modeId: row.mode_id,
@@ -187,9 +191,7 @@ function toPublicGame(row: GameRow, guesses: GuessResult[], now: number): Public
       ? { aeonImagePath: target.assets.imagePath, aeonImageFocus: target.assets.focus }
       : {}),
     fieldDefinitions: readFieldDefinitions(row, rules),
-    ...(candidatePool
-      ? { inferenceReview: createInferenceReview(candidatePool, guesses, rules) }
-      : {}),
+    ...(inferenceReview ? { inferenceReview } : {}),
   };
 }
 
@@ -439,6 +441,51 @@ function readPlayableCandidatePool(row: GameRow): Character[] | null {
   if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
   const parsed = CharacterSchema.array().safeParse(Object.values(encoded));
   return parsed.success && parsed.data.length > 0 ? parsed.data : null;
+}
+
+function readModeCandidatePool(
+  row: GameRow,
+): Character[] | NpcSummary[] | CurrencyWarsUnit[] | null {
+  const encoded = JSON.parse(row.candidate_pool_json) as unknown;
+  if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
+  const values = Object.values(encoded);
+  if (row.mode_id === "npc") {
+    const parsed = NpcSummarySchema.array().safeParse(values);
+    return parsed.success && parsed.data.length > 0 ? parsed.data : null;
+  }
+  if (row.mode_id === "currency-wars") {
+    const ids = values.flatMap((value) => {
+      const parsed = CurrencyWarsUnitSummarySchema.shape.id.safeParse(
+        (value as { id?: unknown }).id,
+      );
+      return parsed.success ? [parsed.data] : [];
+    });
+    const units = ids.flatMap((id) => {
+      const unit = currencyWarsRuleset.units.find((entry) => entry.id === id);
+      return unit ? [unit] : [];
+    });
+    return units.length > 0 ? units : null;
+  }
+  if (row.mode_id === "playable") return readPlayableCandidatePool(row);
+  return null;
+}
+
+function createModeInferenceReview(row: GameRow, guesses: GuessResult[]) {
+  const candidates = readModeCandidatePool(row);
+  if (!candidates) return null;
+  if (row.mode_id === "npc") {
+    const npcCandidates = candidates as NpcSummary[];
+    return createInferenceReviewForEntities(npcCandidates, guesses, (target, guess) =>
+      compareNpcEntities(target, guess),
+    );
+  }
+  if (row.mode_id === "currency-wars") {
+    const currencyCandidates = candidates as CurrencyWarsUnit[];
+    return createInferenceReviewForEntities(currencyCandidates, guesses, (target, guess) =>
+      compareCurrencyWarsUnits(target, guess),
+    );
+  }
+  return createInferenceReview(candidates as Character[], guesses, readFieldRules(row));
 }
 
 function readFieldRules(row: GameRow): readonly SnapshotFieldRule[] {

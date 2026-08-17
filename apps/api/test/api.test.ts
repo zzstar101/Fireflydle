@@ -16,7 +16,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MULTIPLAYER_ROUND_MS, RECONNECT_GRACE_MS } from "@fireflydle/game-engine";
 import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
 import { createPlayableMultiplayerContentSnapshot } from "../src/services/multiplayer-content";
-import { contentManifest, npcManifest } from "@fireflydle/game-data";
+import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
 
 const character: Character = {
   id: "firefly-test",
@@ -521,6 +521,8 @@ describe("服务端游戏裁决", () => {
       "faction",
       "debut-version",
     ]);
+    expect(finished.inferenceReview?.initialCandidates).toBe(3);
+    expect(finished.inferenceReview?.steps[0]?.remainingCandidates).toBe(1);
 
     const replay = await dataOf<{ kind: string; game: PublicGame }>(
       await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, {
@@ -530,6 +532,7 @@ describe("服务端游戏裁决", () => {
     expect(replay.kind).toBe("solo");
     expect(replay.game.modeId).toBe("npc");
     expect(replay.game.guesses).toEqual(finished.guesses);
+    expect(replay.game.inferenceReview).toEqual(finished.inferenceReview);
 
     const lossFixture = await dataOf<PublicGame>(await create());
     const base = roster[0];
@@ -561,6 +564,42 @@ describe("服务端游戏裁决", () => {
     );
     expect(stats.practicePlayed).toBe(0);
     expect(stats).not.toHaveProperty("randomPlayed");
+  });
+
+  it("币战复盘使用绑定候选池精确计数，且不泄露羁绊名称", async () => {
+    const { cookie } = await createSession();
+    const game = await dataOf<PublicGame>(
+      await SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId: "currency-wars", activityId: "practice" }),
+      }),
+    );
+    const stored = await env.DB.prepare(
+      "SELECT target_character_id, candidate_pool_json FROM games WHERE id = ?",
+    )
+      .bind(game.id)
+      .first<{ target_character_id: string; candidate_pool_json: string }>();
+    if (!stored) throw new Error("币战 fixture 缺少目标");
+    const candidateCount = Object.keys(JSON.parse(stored.candidate_pool_json) as object).length;
+    const finished = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: stored.target_character_id }),
+      }),
+    );
+    expect(finished.status).toBe("won");
+    expect(finished.inferenceReview?.initialCandidates).toBe(candidateCount);
+    expect(finished.inferenceReview?.steps[0]?.remainingCandidates).toBe(1);
+    expect(JSON.stringify(finished)).not.toMatch(/ipc|merchant|herta/);
+    const replay = await dataOf<{ game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, { headers: { cookie } }),
+    );
+    expect(replay.game.inferenceReview).toEqual(finished.inferenceReview);
+    expect(
+      currencyWarsManifest.modes.find((mode) => mode.id === "currency-wars")?.maxAttempts,
+    ).toBe(game.maxAttempts);
   });
 
   it("星神题池在恢复、结算、回放和分享中保持同一无剧透图片快照", async () => {
@@ -632,6 +671,7 @@ describe("服务端游戏裁决", () => {
     expect(finished.status).toBe("won");
     expect(finished.answer?.id).toBe(stored.target_character_id);
     expect(finished.aeonImagePath).toBe(game.aeonImagePath);
+    expect(finished).not.toHaveProperty("inferenceReview");
 
     const replay = await dataOf<{ kind: string; game: PublicGame }>(
       await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, {
@@ -643,6 +683,7 @@ describe("服务端游戏裁决", () => {
     expect(replay.game.aeonImagePath).toBe(game.aeonImagePath);
     expect(replay.game.aeonImageFocus).toEqual(game.aeonImageFocus);
     expect(replay.game.guesses).toEqual(finished.guesses);
+    expect(replay.game).not.toHaveProperty("inferenceReview");
 
     const shared = await dataOf<{ url: string }>(
       await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}/share`, {

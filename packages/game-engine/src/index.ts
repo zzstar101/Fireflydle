@@ -316,6 +316,17 @@ export function createInferenceReview(
   guesses: readonly GuessResult[],
   rules: readonly SnapshotFieldRule[],
 ): InferenceReview {
+  return createInferenceReviewForEntities(candidates, guesses, (target, guess) =>
+    compareCharactersWithRules(target, guess, rules),
+  );
+}
+
+/** 按模式专用判题器重放结算反馈，候选实体本身不会进入公开复盘。 */
+export function createInferenceReviewForEntities<T extends { id: string }>(
+  candidates: readonly T[],
+  guesses: readonly GuessResult[],
+  compare: (target: T, guess: T) => GuessCell[],
+): InferenceReview {
   let remaining = [...candidates];
   let bestGuessNumber: number | null = null;
   let largestReduction = -1;
@@ -326,7 +337,7 @@ export function createInferenceReview(
       ? remaining.filter(
           (candidate) =>
             (candidate.id === guess.id) === result.isCorrect &&
-            sameFeedback(compareCharactersWithRules(candidate, guess, rules), result.cells),
+            sameFeedback(compare(candidate, guess), result.cells),
         )
       : [];
     const eliminatedCandidates = before - remaining.length;
