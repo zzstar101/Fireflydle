@@ -77,7 +77,7 @@ async function dataOf<T>(response: Response): Promise<T> {
 async function createSession(ipAddress?: string): Promise<{ cookie: string; data: SessionData }> {
   const response = await SELF.fetch("https://fireflydle.games/api/session", {
     method: "POST",
-    ...(ipAddress ? { headers: { "cf-connecting-ip": ipAddress } } : {}),
+    headers: { "cf-connecting-ip": ipAddress ?? `test:session:${crypto.randomUUID()}` },
   });
   expect(response.status).toBe(201);
   const cookie = response.headers.get("set-cookie");
