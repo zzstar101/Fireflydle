@@ -1540,7 +1540,8 @@ async function writePublishedOutputs(
         try {
           const existing = await readFile(variantPath);
           if (sha256(existing) !== digest) {
-            throw new Error(`内容寻址响应式素材已存在但哈希不匹配：${variantPath}`);
+            // AVIF 编码器在 Windows 与 Linux 之间可能产生不同字节，源图一致时重新写入派生素材。
+            await writeAtomicBytes(variantPath, bytes);
           }
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
