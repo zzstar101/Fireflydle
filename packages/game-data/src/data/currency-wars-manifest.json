@@ -1,16 +1,24 @@
 {
-  "manifestVersion": "1.0.2",
-  "generatedAt": "2026-08-17T00:00:00.000Z",
+  "manifestVersion": "1.1.0",
+  "generatedAt": "2026-08-18T00:00:00.000Z",
   "modes": [
     {
       "id": "currency-wars",
-      "label": { "zh-CN": "货币战争", "en": "Currency Wars", "ja": "コイン戦争" },
+      "label": {
+        "zh-CN": "货币战争",
+        "en": "Currency Wars",
+        "ja": "コイン戦争"
+      },
       "targetPoolId": "currency-wars-targets",
       "candidatePoolId": "currency-wars-candidates",
       "fields": [
         {
           "id": "cost",
-          "label": { "zh-CN": "费用", "en": "Cost", "ja": "コスト" },
+          "label": {
+            "zh-CN": "费用",
+            "en": "Cost",
+            "ja": "コスト"
+          },
           "valueType": "number",
           "comparison": "direction",
           "required": true,
@@ -18,34 +26,50 @@
         },
         {
           "id": "position",
-          "label": { "zh-CN": "站位", "en": "Position", "ja": "配置" },
+          "label": {
+            "zh-CN": "站位",
+            "en": "Position",
+            "ja": "配置"
+          },
           "valueType": "enum",
           "comparison": "exact",
           "required": true
         },
         {
           "id": "synergies",
-          "label": { "zh-CN": "原生羁绊", "en": "Native Synergies", "ja": "固有シナジー" },
+          "label": {
+            "zh-CN": "原生羁绊",
+            "en": "Native Synergies",
+            "ja": "固有シナジー"
+          },
           "valueType": "set",
           "comparison": "set",
           "required": true
         }
       ],
       "maxAttempts": 6,
-      "rulesVersion": "1.0.0",
+      "rulesVersion": "1.1.0",
       "activities": ["practice", "endless"]
     }
   ],
   "activities": [
     {
       "id": "practice",
-      "label": { "zh-CN": "练习", "en": "Practice", "ja": "練習" },
+      "label": {
+        "zh-CN": "练习",
+        "en": "Practice",
+        "ja": "練習"
+      },
       "modeIds": ["currency-wars"],
       "enabled": true
     },
     {
       "id": "endless",
-      "label": { "zh-CN": "无尽", "en": "Endless", "ja": "エンドレス" },
+      "label": {
+        "zh-CN": "无尽",
+        "en": "Endless",
+        "ja": "エンドレス"
+      },
       "modeIds": ["currency-wars"],
       "enabled": true
     }
@@ -55,234 +79,2628 @@
       "id": "currency-wars-targets",
       "modeId": "currency-wars",
       "targetIds": [
+        "cw-himeko-nova",
+        "cw-mortenax-blade",
+        "cw-gilgamesh",
+        "cw-rin-tohsaka",
+        "cw-silver-wolf-lv-999",
+        "cw-trailblazer-elation",
+        "cw-evanescia",
+        "cw-ashveil",
+        "cw-sparxie",
+        "cw-yao-guang",
+        "cw-the-dahlia",
+        "cw-bronya",
+        "cw-jing-yuan",
+        "cw-archer",
+        "cw-yunli",
+        "cw-topaz-and-numby",
+        "cw-black-swan",
         "cw-firefly",
+        "cw-cyrene",
+        "cw-welt",
+        "cw-the-herta",
+        "cw-evernight",
+        "cw-fu-xuan",
+        "cw-castorice",
+        "cw-yanqing",
+        "cw-hysilens",
+        "cw-silver-wolf",
+        "cw-trailblazer-remembrance",
+        "cw-robin",
+        "cw-gepard",
+        "cw-boothill",
+        "cw-luocha",
+        "cw-saber",
         "cw-acheron",
-        "cw-aventurine",
+        "cw-seele",
+        "cw-sunday",
+        "cw-natasha",
+        "cw-anaxa",
+        "cw-jingliu",
+        "cw-phainon",
+        "cw-fugue",
+        "cw-himeko",
+        "cw-cerydra",
+        "cw-dr-ratio",
+        "cw-argenti",
         "cw-kafka",
+        "cw-hyacine",
+        "cw-ruan-mei",
+        "cw-pela",
+        "cw-lingsha",
+        "cw-dan-heng-permansor-terrae",
+        "cw-aventurine",
+        "cw-dan-heng-il",
         "cw-sparkle",
-        "cw-silver-wolf"
+        "cw-tribbie",
+        "cw-jiaoqiu",
+        "cw-feixiao",
+        "cw-herta",
+        "cw-cipher",
+        "cw-mydei",
+        "cw-moze",
+        "cw-sampo",
+        "cw-gallagher",
+        "cw-qingque",
+        "cw-jade",
+        "cw-tingyun",
+        "cw-march-7th",
+        "cw-rappa",
+        "cw-blade",
+        "cw-huohuo",
+        "cw-asta",
+        "cw-aglaea"
       ],
       "candidateIds": [
+        "cw-himeko-nova",
+        "cw-mortenax-blade",
+        "cw-gilgamesh",
+        "cw-rin-tohsaka",
+        "cw-silver-wolf-lv-999",
+        "cw-trailblazer-elation",
+        "cw-evanescia",
+        "cw-ashveil",
+        "cw-sparxie",
+        "cw-yao-guang",
+        "cw-the-dahlia",
+        "cw-bronya",
+        "cw-jing-yuan",
+        "cw-archer",
+        "cw-yunli",
+        "cw-topaz-and-numby",
+        "cw-black-swan",
         "cw-firefly",
-        "cw-acheron",
-        "cw-aventurine",
-        "cw-kafka",
-        "cw-sparkle",
+        "cw-cyrene",
+        "cw-welt",
+        "cw-the-herta",
+        "cw-evernight",
+        "cw-fu-xuan",
+        "cw-castorice",
+        "cw-yanqing",
+        "cw-hysilens",
         "cw-silver-wolf",
+        "cw-trailblazer-remembrance",
+        "cw-robin",
+        "cw-gepard",
+        "cw-boothill",
+        "cw-luocha",
+        "cw-saber",
+        "cw-acheron",
+        "cw-seele",
+        "cw-sunday",
+        "cw-natasha",
+        "cw-anaxa",
+        "cw-jingliu",
+        "cw-phainon",
+        "cw-fugue",
+        "cw-himeko",
+        "cw-cerydra",
+        "cw-dr-ratio",
+        "cw-argenti",
+        "cw-kafka",
+        "cw-hyacine",
+        "cw-ruan-mei",
+        "cw-pela",
+        "cw-lingsha",
+        "cw-dan-heng-permansor-terrae",
+        "cw-aventurine",
+        "cw-dan-heng-il",
+        "cw-sparkle",
+        "cw-tribbie",
+        "cw-jiaoqiu",
+        "cw-feixiao",
         "cw-herta",
-        "cw-blade"
+        "cw-cipher",
+        "cw-mydei",
+        "cw-moze",
+        "cw-sampo",
+        "cw-gallagher",
+        "cw-qingque",
+        "cw-jade",
+        "cw-tingyun",
+        "cw-march-7th",
+        "cw-rappa",
+        "cw-blade",
+        "cw-huohuo",
+        "cw-asta",
+        "cw-aglaea"
       ]
     },
     {
       "id": "currency-wars-candidates",
       "modeId": "currency-wars",
       "targetIds": [
+        "cw-himeko-nova",
+        "cw-mortenax-blade",
+        "cw-gilgamesh",
+        "cw-rin-tohsaka",
+        "cw-silver-wolf-lv-999",
+        "cw-trailblazer-elation",
+        "cw-evanescia",
+        "cw-ashveil",
+        "cw-sparxie",
+        "cw-yao-guang",
+        "cw-the-dahlia",
+        "cw-bronya",
+        "cw-jing-yuan",
+        "cw-archer",
+        "cw-yunli",
+        "cw-topaz-and-numby",
+        "cw-black-swan",
         "cw-firefly",
+        "cw-cyrene",
+        "cw-welt",
+        "cw-the-herta",
+        "cw-evernight",
+        "cw-fu-xuan",
+        "cw-castorice",
+        "cw-yanqing",
+        "cw-hysilens",
+        "cw-silver-wolf",
+        "cw-trailblazer-remembrance",
+        "cw-robin",
+        "cw-gepard",
+        "cw-boothill",
+        "cw-luocha",
+        "cw-saber",
         "cw-acheron",
-        "cw-aventurine",
+        "cw-seele",
+        "cw-sunday",
+        "cw-natasha",
+        "cw-anaxa",
+        "cw-jingliu",
+        "cw-phainon",
+        "cw-fugue",
+        "cw-himeko",
+        "cw-cerydra",
+        "cw-dr-ratio",
+        "cw-argenti",
         "cw-kafka",
+        "cw-hyacine",
+        "cw-ruan-mei",
+        "cw-pela",
+        "cw-lingsha",
+        "cw-dan-heng-permansor-terrae",
+        "cw-aventurine",
+        "cw-dan-heng-il",
         "cw-sparkle",
-        "cw-silver-wolf"
+        "cw-tribbie",
+        "cw-jiaoqiu",
+        "cw-feixiao",
+        "cw-herta",
+        "cw-cipher",
+        "cw-mydei",
+        "cw-moze",
+        "cw-sampo",
+        "cw-gallagher",
+        "cw-qingque",
+        "cw-jade",
+        "cw-tingyun",
+        "cw-march-7th",
+        "cw-rappa",
+        "cw-blade",
+        "cw-huohuo",
+        "cw-asta",
+        "cw-aglaea"
       ],
       "candidateIds": [
+        "cw-himeko-nova",
+        "cw-mortenax-blade",
+        "cw-gilgamesh",
+        "cw-rin-tohsaka",
+        "cw-silver-wolf-lv-999",
+        "cw-trailblazer-elation",
+        "cw-evanescia",
+        "cw-ashveil",
+        "cw-sparxie",
+        "cw-yao-guang",
+        "cw-the-dahlia",
+        "cw-bronya",
+        "cw-jing-yuan",
+        "cw-archer",
+        "cw-yunli",
+        "cw-topaz-and-numby",
+        "cw-black-swan",
         "cw-firefly",
-        "cw-acheron",
-        "cw-aventurine",
-        "cw-kafka",
-        "cw-sparkle",
+        "cw-cyrene",
+        "cw-welt",
+        "cw-the-herta",
+        "cw-evernight",
+        "cw-fu-xuan",
+        "cw-castorice",
+        "cw-yanqing",
+        "cw-hysilens",
         "cw-silver-wolf",
+        "cw-trailblazer-remembrance",
+        "cw-robin",
+        "cw-gepard",
+        "cw-boothill",
+        "cw-luocha",
+        "cw-saber",
+        "cw-acheron",
+        "cw-seele",
+        "cw-sunday",
+        "cw-natasha",
+        "cw-anaxa",
+        "cw-jingliu",
+        "cw-phainon",
+        "cw-fugue",
+        "cw-himeko",
+        "cw-cerydra",
+        "cw-dr-ratio",
+        "cw-argenti",
+        "cw-kafka",
+        "cw-hyacine",
+        "cw-ruan-mei",
+        "cw-pela",
+        "cw-lingsha",
+        "cw-dan-heng-permansor-terrae",
+        "cw-aventurine",
+        "cw-dan-heng-il",
+        "cw-sparkle",
+        "cw-tribbie",
+        "cw-jiaoqiu",
+        "cw-feixiao",
         "cw-herta",
-        "cw-blade"
+        "cw-cipher",
+        "cw-mydei",
+        "cw-moze",
+        "cw-sampo",
+        "cw-gallagher",
+        "cw-qingque",
+        "cw-jade",
+        "cw-tingyun",
+        "cw-march-7th",
+        "cw-rappa",
+        "cw-blade",
+        "cw-huohuo",
+        "cw-asta",
+        "cw-aglaea"
       ]
     }
   ],
   "entities": [],
+  "searchIndex": [],
   "currencyWars": {
-    "id": "currency-wars-37",
-    "gameVersion": "3.7",
-    "capturedAt": "2026-08-17T00:00:00.000Z",
+    "id": "currency-wars-bwiki-2026-08-18",
+    "gameVersion": "3.7-4.4",
+    "capturedAt": "2026-08-18T00:00:00.000Z",
     "source": {
-      "url": "https://www.hoyolab.com/article/41520535",
-      "revision": "currency-wars-3.7"
+      "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+      "revision": "bwiki-currency-roster-2026-08-18"
     },
-    "rulesVersion": "1.0.0",
+    "rulesVersion": "1.1.0",
     "synergyDefinitions": [
       {
         "id": "astral-express",
-        "names": { "zh-CN": "星穹列车", "en": "Astral Express", "ja": "星穹列車" },
+        "names": {
+          "zh-CN": "列车同行",
+          "en": "Astral Express",
+          "ja": "星穹列車"
+        },
         "type": "faction"
       },
       {
+        "id": "navigator",
+        "names": {
+          "zh-CN": "领航员",
+          "en": "Navigator",
+          "ja": "ナビゲーター"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "debuff",
+        "names": {
+          "zh-CN": "减益",
+          "en": "Debuff",
+          "ja": "デバフ"
+        },
+        "type": "school"
+      },
+      {
         "id": "stellaron-hunters",
-        "names": { "zh-CN": "星核猎手", "en": "Stellaron Hunters", "ja": "星核ハンター" },
+        "names": {
+          "zh-CN": "星核猎手",
+          "en": "Stellaron Hunter",
+          "ja": "星核ハンター"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "bloodlust",
+        "names": {
+          "zh-CN": "燃血",
+          "en": "Bloodlust",
+          "ja": "燃血"
+        },
+        "type": "school"
+      },
+      {
+        "id": "holy-grail",
+        "names": {
+          "zh-CN": "命运圣杯",
+          "en": "Holy Grail",
+          "ja": "聖杯"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "energy",
+        "names": {
+          "zh-CN": "能量",
+          "en": "Energy",
+          "ja": "エネルギー"
+        },
+        "type": "school"
+      },
+      {
+        "names": {
+          "zh-CN": "战技点",
+          "en": "战技点",
+          "ja": "战技点"
+        },
+        "type": "school",
+        "id": "skill-points"
+      },
+      {
+        "id": "top-player",
+        "names": {
+          "zh-CN": "头号玩家",
+          "en": "Top Player",
+          "ja": "トッププレイヤー"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "elation",
+        "names": {
+          "zh-CN": "欢愉",
+          "en": "Elation",
+          "ja": "愉悦"
+        },
+        "type": "school"
+      },
+      {
+        "id": "interastral-traveler",
+        "names": {
+          "zh-CN": "星间旅人",
+          "en": "Interastral Traveler",
+          "ja": "星間の旅人"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "galaxy-rangers",
+        "names": {
+          "zh-CN": "巡海游侠",
+          "en": "Galaxy Ranger",
+          "ja": "銀河レンジャー"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "follow-up",
+        "names": {
+          "zh-CN": "追击",
+          "en": "Follow-up Attack",
+          "ja": "追加攻撃"
+        },
+        "type": "school"
+      },
+      {
+        "id": "xianzhou",
+        "names": {
+          "zh-CN": "仙舟",
+          "en": "Xianzhou",
+          "ja": "仙舟"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "break",
+        "names": {
+          "zh-CN": "击破",
+          "en": "Break Effect",
+          "ja": "撃破"
+        },
+        "type": "school"
+      },
+      {
+        "id": "stars-of-gala",
+        "names": {
+          "zh-CN": "盛会之星",
+          "en": "Stars of the Gala",
+          "ja": "祝宴の星"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "guardian",
+        "names": {
+          "zh-CN": "大守护者",
+          "en": "Guardian",
+          "ja": "大守護者"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "belobog",
+        "names": {
+          "zh-CN": "贝洛伯格",
+          "en": "Belobog",
+          "ja": "ベロブルグ"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "aoe",
+        "names": {
+          "zh-CN": "群攻",
+          "en": "Area Attack",
+          "ja": "全体攻撃"
+        },
+        "type": "school"
+      },
+      {
+        "id": "magician",
+        "names": {
+          "zh-CN": "魔术师",
+          "en": "Magician",
+          "ja": "魔術師"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "wolf-hunt",
+        "names": {
+          "zh-CN": "狼狩",
+          "en": "Wolf Hunt",
+          "ja": "狼狩"
+        },
         "type": "faction"
       },
       {
         "id": "ipc",
-        "names": { "zh-CN": "星际和平公司", "en": "IPC", "ja": "スターピースカンパニー" },
+        "names": {
+          "zh-CN": "公司",
+          "en": "The Company",
+          "ja": "会社"
+        },
         "type": "faction"
       },
       {
-        "id": "genius-society",
-        "names": { "zh-CN": "天才俱乐部", "en": "Genius Society", "ja": "天才クラブ" },
+        "id": "fortune-teller",
+        "names": {
+          "zh-CN": "命运卜者",
+          "en": "Fortune Teller",
+          "ja": "運命の占い師"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "damage-over-time",
+        "names": {
+          "zh-CN": "持续伤害",
+          "en": "Damage over Time",
+          "ja": "持続ダメージ"
+        },
+        "type": "school"
+      },
+      {
+        "id": "demigod-night",
+        "names": {
+          "zh-CN": "夜之半神",
+          "en": "Demigod of Night",
+          "ja": "夜の半神"
+        },
         "type": "faction"
       },
       {
-        "id": "masked-fools",
-        "names": { "zh-CN": "假面愚者", "en": "Masked Fools", "ja": "仮面の愚者" },
+        "id": "beloved",
+        "names": {
+          "zh-CN": "挚爱之人",
+          "en": "Beloved",
+          "ja": "愛する人"
+        },
+        "type": "independent"
+      },
+      {
+        "id": "demigod-day",
+        "names": {
+          "zh-CN": "昼之半神",
+          "en": "Demigod of Day",
+          "ja": "昼の半神"
+        },
         "type": "faction"
+      },
+      {
+        "id": "galactic-scholars",
+        "names": {
+          "zh-CN": "银河学者",
+          "en": "Galactic Scholar",
+          "ja": "銀河学者"
+        },
+        "type": "faction"
+      },
+      {
+        "id": "healing",
+        "names": {
+          "zh-CN": "治疗",
+          "en": "Healing",
+          "ja": "治療"
+        },
+        "type": "school"
+      },
+      {
+        "id": "quantum-resonance",
+        "names": {
+          "zh-CN": "量子同频",
+          "en": "Quantum Resonance",
+          "ja": "量子共鳴"
+        },
+        "type": "school"
+      },
+      {
+        "id": "shield",
+        "names": {
+          "zh-CN": "护盾",
+          "en": "Shield",
+          "ja": "シールド"
+        },
+        "type": "school"
+      },
+      {
+        "id": "savior",
+        "names": {
+          "zh-CN": "救世主",
+          "en": "Savior",
+          "ja": "救世主"
+        },
+        "type": "independent"
       }
     ],
     "units": [
       {
-        "id": "cw-firefly",
-        "names": { "zh-CN": "流萤", "en": "Firefly", "ja": "ホタル" },
-        "aliases": { "zh-CN": ["liu ying"], "en": ["firefly"], "ja": ["hotaru"] },
+        "id": "cw-himeko-nova",
+        "names": {
+          "zh-CN": "姬子•启行",
+          "en": "Himeko • Nova",
+          "ja": "姫子・旅立ち"
+        },
+        "aliases": {
+          "zh-CN": ["ji zi qi xing", "jiziqixing"],
+          "en": ["himeko nova", "himekonova"],
+          "ja": ["chi"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
-        "cost": 5,
-        "position": "front-back",
-        "synergies": ["astral-express"],
+        "cost": 3,
+        "position": "front",
+        "synergies": ["astral-express", "navigator"],
         "assets": {
-          "avatarPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
-          "portraitPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
-          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "avatarPath": "/assets/characters/himeko-nova-avatar-21948f59b870.png",
+          "portraitPath": "/assets/characters/himeko-nova-avatar-21948f59b870.png",
+          "sha256": "21948f59b8701f0130e396698867a90bebbb77668f2a65221925b03545c1e85d",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
-        "id": "cw-acheron",
-        "names": { "zh-CN": "黄泉", "en": "Acheron", "ja": "アベンチュリン" },
-        "aliases": { "zh-CN": ["huang quan"], "en": ["acheron"], "ja": ["アケロン"] },
+        "id": "cw-mortenax-blade",
+        "names": {
+          "zh-CN": "千冶•刃",
+          "en": "Mortenax Blade",
+          "ja": "千冶・刃"
+        },
+        "aliases": {
+          "zh-CN": ["qian ye ren", "qianyeren"],
+          "en": ["mortenax blade", "mortenaxblade"],
+          "ja": ["mortenax blade", "mortenaxblade"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
-        "cost": 5,
+        "cost": 2,
         "position": "back",
-        "synergies": ["stellaron-hunters"],
+        "synergies": ["debuff", "stellaron-hunters", "bloodlust"],
         "assets": {
-          "avatarPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
-          "portraitPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
-          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "avatarPath": "/assets/characters/mortenax-blade-avatar-2e609e325d48.png",
+          "portraitPath": "/assets/characters/mortenax-blade-avatar-2e609e325d48.png",
+          "sha256": "2e609e325d48365db245a3e83e38cd7e34de6ac994bd545d6b547ab1657f2795",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
-        "id": "cw-aventurine",
-        "names": { "zh-CN": "砂金", "en": "Aventurine", "ja": "アベンチュリン" },
-        "aliases": { "zh-CN": ["sha jin"], "en": ["aventurine"], "ja": ["アベンチュリン"] },
+        "id": "cw-gilgamesh",
+        "names": {
+          "zh-CN": "吉尔伽美什",
+          "en": "Gilgamesh",
+          "ja": "ギルガメッシュ"
+        },
+        "aliases": {
+          "zh-CN": ["ji er jia mei shen", "jierjiameishen"],
+          "en": ["gilgamesh"],
+          "ja": ["girugamesshu"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["holy-grail", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/gilgamesh-avatar-0f2e8e491b3a.png",
+          "portraitPath": "/assets/characters/gilgamesh-avatar-0f2e8e491b3a.png",
+          "sha256": "0f2e8e491b3a8151429a8c066fdeb4c21e4bd2206d9ac26d70a46c739845b109",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-rin-tohsaka",
+        "names": {
+          "zh-CN": "远坂凛",
+          "en": "Rin Tohsaka",
+          "ja": "遠坂凛"
+        },
+        "aliases": {
+          "zh-CN": ["yuan ban lin", "yuanbanlin"],
+          "en": ["rin tohsaka", "rintohsaka"],
+          "ja": ["rin tohsaka", "rintohsaka"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["holy-grail", "skill-points"],
+        "assets": {
+          "avatarPath": "/assets/characters/rin-tohsaka-avatar-f7505f0f22a6.png",
+          "portraitPath": "/assets/characters/rin-tohsaka-avatar-f7505f0f22a6.png",
+          "sha256": "f7505f0f22a6296e400d5ad5dd2a6deeeecce09df4324c64c14fdf39266cf0ad",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-silver-wolf-lv-999",
+        "names": {
+          "zh-CN": "银狼LV.999",
+          "en": "Silver Wolf LV.999",
+          "ja": "銀狼LV.999"
+        },
+        "aliases": {
+          "zh-CN": ["yin lang", "yinlang"],
+          "en": ["silver wolf lv 999", "silverwolflv999"],
+          "ja": ["silver wolf lv 999", "silverwolflv999"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": [3, 4, 5],
+        "position": "front",
+        "synergies": ["top-player", "stellaron-hunters", "elation"],
+        "assets": {
+          "avatarPath": "/assets/characters/silver-wolf-lv-999-avatar-d86eec550297.png",
+          "portraitPath": "/assets/characters/silver-wolf-lv-999-avatar-d86eec550297.png",
+          "sha256": "d86eec550297ddf5fc1dc5cae9d7d43e6963179c833fee31bbe909af1ae9001f",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-trailblazer-elation",
+        "names": {
+          "zh-CN": "开拓者·欢愉",
+          "en": "Trailblazer · Elation",
+          "ja": "開拓者・愉悦"
+        },
+        "aliases": {
+          "zh-CN": [
+            "开拓者",
+            "欢愉主角",
+            "kai tuo zhe huan yu",
+            "kaituozhehuanyu",
+            "kai tuo zhe",
+            "kaituozhe",
+            "huan yu zhu jue",
+            "huanyuzhujue"
+          ],
+          "en": [
+            "Trailblazer",
+            "Elation Trailblazer",
+            "trailblazer elation",
+            "trailblazerelation",
+            "elationtrailblazer"
+          ],
+          "ja": [
+            "開拓者",
+            "愉悦開拓者",
+            "trailblazer elation",
+            "trailblazerelation",
+            "kaitakusha yuetsu",
+            "kaitakushayuetsu"
+          ]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "back",
+        "synergies": ["astral-express", "elation", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
+          "portraitPath": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
+          "sha256": "5e5432f4e42a39993153381252360518e0ec62ef6f93b4f493122b27b3d0e6d2",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-evanescia",
+        "names": {
+          "zh-CN": "绯英",
+          "en": "Evanescia",
+          "ja": "緋英"
+        },
+        "aliases": {
+          "zh-CN": ["fei ying", "feiying"],
+          "en": ["evanescia"],
+          "ja": ["evanescia"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["interastral-traveler", "elation"],
+        "assets": {
+          "avatarPath": "/assets/characters/evanescia-avatar-e4446664c7bb.png",
+          "portraitPath": "/assets/characters/evanescia-avatar-e4446664c7bb.png",
+          "sha256": "e4446664c7bba60c44a65c34f2a2ecf389d4d9ff4e1282fdb8d28d6e6b5e93d8",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-ashveil",
+        "names": {
+          "zh-CN": "不死途",
+          "en": "Ashveil",
+          "ja": "不死途"
+        },
+        "aliases": {
+          "zh-CN": ["bu si tu", "busitu"],
+          "en": ["ashveil"],
+          "ja": ["ashveil"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["galaxy-rangers", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/ashveil-avatar-796c6588d0c1.png",
+          "portraitPath": "/assets/characters/ashveil-avatar-796c6588d0c1.png",
+          "sha256": "796c6588d0c12c063443c80b15f7d16b59282540c4c7e6c9c4b17d4cbfe8fcdc",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-sparxie",
+        "names": {
+          "zh-CN": "火花",
+          "en": "Sparxie",
+          "ja": "火花"
+        },
+        "aliases": {
+          "zh-CN": ["huo hua", "huohua"],
+          "en": ["sparxie"],
+          "ja": ["sparxie"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": ["ipc"],
+        "synergies": ["skill-points", "interastral-traveler", "elation"],
         "assets": {
-          "avatarPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
-          "portraitPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
-          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "avatarPath": "/assets/characters/sparxie-avatar-59851d4b7fcc.png",
+          "portraitPath": "/assets/characters/sparxie-avatar-59851d4b7fcc.png",
+          "sha256": "59851d4b7fccfb6939bcf4efaad8c15a4077eac3382dd22b10b5b5198ee75f99",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
-        "id": "cw-kafka",
-        "names": { "zh-CN": "卡芙卡", "en": "Kafka", "ja": "カフカ" },
-        "aliases": { "zh-CN": ["ka fu ka"], "en": ["kafka"], "ja": ["カフカ"] },
+        "id": "cw-yao-guang",
+        "names": {
+          "zh-CN": "爻光",
+          "en": "Yao Guang",
+          "ja": "爻光"
+        },
+        "aliases": {
+          "zh-CN": ["yao guang", "yaoguang"],
+          "en": ["yao guang", "yaoguang"],
+          "ja": ["yao guang", "yaoguang"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["xianzhou", "elation"],
+        "assets": {
+          "avatarPath": "/assets/characters/yao-guang-avatar-3c09d56ce7ae.png",
+          "portraitPath": "/assets/characters/yao-guang-avatar-3c09d56ce7ae.png",
+          "sha256": "3c09d56ce7ae452e74ce7d4e092375e3b4809b094c401cff7fcc39c260e9e158",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-the-dahlia",
+        "names": {
+          "zh-CN": "大丽花",
+          "en": "The Dahlia",
+          "ja": "ダリア"
+        },
+        "aliases": {
+          "zh-CN": ["da li hua", "dalihua"],
+          "en": ["the dahlia", "thedahlia"],
+          "ja": ["daria"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["break", "stars-of-gala"],
+        "assets": {
+          "avatarPath": "/assets/characters/the-dahlia-avatar-516cf749fd35.png",
+          "portraitPath": "/assets/characters/the-dahlia-avatar-516cf749fd35.png",
+          "sha256": "516cf749fd358772ca7f9f74a69db6d14735a785352713eb514a48bb8bfab369",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-bronya",
+        "names": {
+          "zh-CN": "布洛妮娅",
+          "en": "Bronya",
+          "ja": "ブローニャ"
+        },
+        "aliases": {
+          "zh-CN": ["bu luo ni ya", "buluoniya"],
+          "en": ["bronya"],
+          "ja": ["buroonya", "buronya"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front",
+        "synergies": ["guardian", "bloodlust", "belobog"],
+        "assets": {
+          "avatarPath": "/assets/characters/bronya-avatar-849f365d21d2.png",
+          "portraitPath": "/assets/characters/bronya-avatar-849f365d21d2.png",
+          "sha256": "849f365d21d22b14dbc7184f61846c1cdb6539f6ee5ab37a5b3e4f5d07d80024",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-jing-yuan",
+        "names": {
+          "zh-CN": "景元",
+          "en": "Jing Yuan",
+          "ja": "景元"
+        },
+        "aliases": {
+          "zh-CN": ["jing yuan", "jingyuan"],
+          "en": ["jing yuan", "jingyuan"],
+          "ja": ["keigen"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front",
+        "synergies": ["xianzhou", "aoe"],
+        "assets": {
+          "avatarPath": "/assets/characters/jing-yuan-avatar-c32a3e9ca445.png",
+          "portraitPath": "/assets/characters/jing-yuan-avatar-c32a3e9ca445.png",
+          "sha256": "c32a3e9ca445d33b15959b21521e8411528455bc80225f8c185234ae9e0045e4",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-archer",
+        "names": {
+          "zh-CN": "Archer",
+          "en": "Archer",
+          "ja": "アーチャー"
+        },
+        "aliases": {
+          "zh-CN": ["archer"],
+          "en": ["archer"],
+          "ja": ["aachaa", "acha"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front",
+        "synergies": ["holy-grail", "skill-points", "magician"],
+        "assets": {
+          "avatarPath": "/assets/characters/archer-avatar-0ed79ec7f8fa.png",
+          "portraitPath": "/assets/characters/archer-avatar-0ed79ec7f8fa.png",
+          "sha256": "0ed79ec7f8fa570f98717abf6bb65d5ba22f1f54ca2f4bb50954a12d2b547195",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-yunli",
+        "names": {
+          "zh-CN": "云璃",
+          "en": "Yunli",
+          "ja": "雲璃"
+        },
+        "aliases": {
+          "zh-CN": ["yun li", "yunli"],
+          "en": ["yunli"],
+          "ja": ["unri"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "back",
+        "synergies": ["wolf-hunt", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/yunli-avatar-8a2e54b49880.png",
+          "portraitPath": "/assets/characters/yunli-avatar-8a2e54b49880.png",
+          "sha256": "8a2e54b49880d5678bd699e4602a4a4e462babbbb957c74bf77e585febc3cf95",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-topaz-and-numby",
+        "names": {
+          "zh-CN": "托帕&账账",
+          "en": "Topaz & Numby",
+          "ja": "トパーズ&カブ"
+        },
+        "aliases": {
+          "zh-CN": [
+            "托帕",
+            "账账",
+            "tuo pa zhang zhang",
+            "tuopazhangzhang",
+            "tuo pa",
+            "tuopa",
+            "zhang zhang",
+            "zhangzhang"
+          ],
+          "en": ["Topaz", "Numby", "topaz numby", "topaznumby"],
+          "ja": [
+            "トパーズ",
+            "カブ",
+            "topaazu kabu",
+            "topaazukabu",
+            "topazu kabu",
+            "topazukabu",
+            "topaazu",
+            "topazu",
+            "kabu"
+          ]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "back",
+        "synergies": ["ipc", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff.png",
+          "portraitPath": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff.png",
+          "sha256": "a67a6106a0ff7b3ba68d9c1e65cac7780cf6584ea5fe4cee154c51ab9dc577ec",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-black-swan",
+        "names": {
+          "zh-CN": "黑天鹅",
+          "en": "Black Swan",
+          "ja": "ブラックスワン"
+        },
+        "aliases": {
+          "zh-CN": ["hei tian e", "heitiane"],
+          "en": ["black swan", "blackswan"],
+          "ja": ["burakkusuwan"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "back",
+        "synergies": ["fortune-teller", "damage-over-time", "stars-of-gala"],
+        "assets": {
+          "avatarPath": "/assets/characters/black-swan-avatar-59452a1c84d4.png",
+          "portraitPath": "/assets/characters/black-swan-avatar-59452a1c84d4.png",
+          "sha256": "59452a1c84d4b26a54d72dd77483ed5c5f5c147689ee36f14e4227731739ec5a",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-firefly",
+        "names": {
+          "zh-CN": "流萤",
+          "en": "Firefly",
+          "ja": "ホタル"
+        },
+        "aliases": {
+          "zh-CN": ["萤宝", "萨姆", "liu ying", "liuying", "ying bao", "yingbao", "sa mu", "samu"],
+          "en": ["SAM", "firefly"],
+          "ja": ["サム", "hotaru", "samu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front",
+        "synergies": ["break", "stellaron-hunters"],
+        "assets": {
+          "avatarPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
+          "portraitPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
+          "sha256": "95f3c017e4905557ebdf38a7bcfc7346956f561fefc678c367bb6cbc9f6a61c2",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-cyrene",
+        "names": {
+          "zh-CN": "昔涟",
+          "en": "Cyrene",
+          "ja": "キュレネ"
+        },
+        "aliases": {
+          "zh-CN": ["xi lian", "xilian"],
+          "en": ["cyrene"],
+          "ja": ["kyurene"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front",
+        "synergies": ["demigod-night", "beloved", "demigod-day"],
+        "assets": {
+          "avatarPath": "/assets/characters/cyrene-avatar-ba047a95195b.png",
+          "portraitPath": "/assets/characters/cyrene-avatar-ba047a95195b.png",
+          "sha256": "ba047a95195beb45a53f20a940dcc5131717e2368fc804ee54657d79378011e2",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-welt",
+        "names": {
+          "zh-CN": "瓦尔特",
+          "en": "Welt",
+          "ja": "ヴェルト"
+        },
+        "aliases": {
+          "zh-CN": ["wa er te", "waerte"],
+          "en": ["welt"],
+          "ja": ["vyeruto"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 5,
+        "position": "front",
+        "synergies": ["debuff", "astral-express", "interastral-traveler"],
+        "assets": {
+          "avatarPath": "/assets/characters/welt-avatar-b5fce1546a68.png",
+          "portraitPath": "/assets/characters/welt-avatar-b5fce1546a68.png",
+          "sha256": "b5fce1546a68488f7d563594a6cc6f6edb8b4926eac38bc2d0afd1b868270a86",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-the-herta",
+        "names": {
+          "zh-CN": "大黑塔",
+          "en": "The Herta",
+          "ja": "マダム・ヘルタ"
+        },
+        "aliases": {
+          "zh-CN": ["黑塔", "da hei ta", "daheita", "hei ta", "heita"],
+          "en": ["Herta", "Madam Herta", "the herta", "theherta", "madamherta"],
+          "ja": ["ヘルタ", "madamu heruta", "madamuheruta", "heruta"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front",
+        "synergies": ["aoe", "galactic-scholars"],
+        "assets": {
+          "avatarPath": "/assets/characters/the-herta-avatar-306da87b6817.png",
+          "portraitPath": "/assets/characters/the-herta-avatar-306da87b6817.png",
+          "sha256": "306da87b6817d93328a9b60fdca506e1f00e5f293f35a12f0c5c3f93cc0962cd",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-evernight",
+        "names": {
+          "zh-CN": "长夜月",
+          "en": "Evernight",
+          "ja": "長夜月"
+        },
+        "aliases": {
+          "zh-CN": ["chang ye yue", "changyeyue"],
+          "en": ["evernight"],
+          "ja": ["nagayozuki"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front-back",
+        "synergies": ["demigod-night", "bloodlust"],
+        "assets": {
+          "avatarPath": "/assets/characters/evernight-avatar-f387ff953a14.png",
+          "portraitPath": "/assets/characters/evernight-avatar-f387ff953a14.png",
+          "sha256": "f387ff953a142e54364e1d478f4471716ca77970cc273a4c017b71f0d981388e",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-fu-xuan",
+        "names": {
+          "zh-CN": "符玄",
+          "en": "Fu Xuan",
+          "ja": "符玄"
+        },
+        "aliases": {
+          "zh-CN": ["fu xuan", "fuxuan"],
+          "en": ["fu xuan", "fuxuan"],
+          "ja": ["fugen"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
         "cost": 4,
         "position": "back",
-        "synergies": ["stellaron-hunters"],
+        "synergies": ["xianzhou", "healing", "quantum-resonance"],
         "assets": {
-          "avatarPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
-          "portraitPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
-          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "avatarPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e.png",
+          "portraitPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e.png",
+          "sha256": "0eaf018b940e079cbe8377e6e3b384ab9e44b5b26a54c0acb49bd42f9fb4c288",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
-        "id": "cw-sparkle",
-        "names": { "zh-CN": "花火", "en": "Sparkle", "ja": "花火" },
-        "aliases": { "zh-CN": ["hua huo"], "en": ["sparkle"], "ja": ["スパークル"] },
+        "id": "cw-castorice",
+        "names": {
+          "zh-CN": "遐蝶",
+          "en": "Castorice",
+          "ja": "キャストリス"
+        },
+        "aliases": {
+          "zh-CN": ["xia die", "xiadie"],
+          "en": ["castorice"],
+          "ja": ["kyasutorisu"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
-        "cost": 3,
-        "position": "back",
-        "synergies": ["masked-fools"],
+        "cost": 4,
+        "position": "front",
+        "synergies": ["demigod-night", "bloodlust"],
         "assets": {
-          "avatarPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
-          "portraitPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
-          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "avatarPath": "/assets/characters/castorice-avatar-a05fc9e97efb.png",
+          "portraitPath": "/assets/characters/castorice-avatar-a05fc9e97efb.png",
+          "sha256": "a05fc9e97efb03510c0e7fbe27afe6cbcfb485f4c3b3e02044b82fb9a2f4af4a",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-yanqing",
+        "names": {
+          "zh-CN": "彦卿",
+          "en": "Yanqing",
+          "ja": "彦卿"
+        },
+        "aliases": {
+          "zh-CN": ["yan qing", "yanqing"],
+          "en": ["yanqing"],
+          "ja": ["genkyou"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "back",
+        "synergies": ["xianzhou", "debuff", "wolf-hunt"],
+        "assets": {
+          "avatarPath": "/assets/characters/yanqing-avatar-48a950b171f5.png",
+          "portraitPath": "/assets/characters/yanqing-avatar-48a950b171f5.png",
+          "sha256": "48a950b171f54a9bd5917dfe6b377d4dfa9e065d7966dc9af6dbaa48cc970be3",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-hysilens",
+        "names": {
+          "zh-CN": "海瑟音",
+          "en": "Hysilens",
+          "ja": "セイレンス"
+        },
+        "aliases": {
+          "zh-CN": ["hai se yin", "haiseyin"],
+          "en": ["hysilens"],
+          "ja": ["seirensu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front",
+        "synergies": ["damage-over-time", "demigod-day"],
+        "assets": {
+          "avatarPath": "/assets/characters/hysilens-avatar-24551611879f.png",
+          "portraitPath": "/assets/characters/hysilens-avatar-24551611879f.png",
+          "sha256": "24551611879f84c4cda96638f6ad6475afd49d06efbaaa80598e2baff0f06795",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
         "id": "cw-silver-wolf",
-        "names": { "zh-CN": "银狼", "en": "Silver Wolf", "ja": "銀狼" },
-        "aliases": { "zh-CN": ["yin lang"], "en": ["silver wolf"], "ja": ["ぎんろう"] },
+        "names": {
+          "zh-CN": "银狼",
+          "en": "Silver Wolf",
+          "ja": "銀狼"
+        },
+        "aliases": {
+          "zh-CN": ["yin lang", "yinlang"],
+          "en": ["SW", "silver wolf", "silverwolf"],
+          "ja": ["ginrou"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front-back",
+        "synergies": ["stellaron-hunters", "quantum-resonance"],
+        "assets": {
+          "avatarPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
+          "portraitPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
+          "sha256": "a0f6dba430cf3ad238ded70ca661f91fda77fdfd1d9ea97563bf79ab24522283",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-trailblazer-remembrance",
+        "names": {
+          "zh-CN": "开拓者·记忆",
+          "en": "Trailblazer · Remembrance",
+          "ja": "開拓者・記憶"
+        },
+        "aliases": {
+          "zh-CN": [
+            "开拓者",
+            "记忆主角",
+            "kai tuo zhe ji yi",
+            "kaituozhejiyi",
+            "kai tuo zhe",
+            "kaituozhe",
+            "ji yi zhu jue",
+            "jiyizhujue"
+          ],
+          "en": [
+            "Trailblazer",
+            "Remembrance Trailblazer",
+            "trailblazer remembrance",
+            "trailblazerremembrance",
+            "remembrancetrailblazer"
+          ],
+          "ja": [
+            "開拓者",
+            "記憶開拓者",
+            "trailblazer remembrance",
+            "trailblazerremembrance",
+            "kaitakusha kioku",
+            "kaitakushakioku"
+          ]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front",
+        "synergies": ["astral-express", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
+          "portraitPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
+          "sha256": "38ba6a863c7dcce077ec6b02f84d994ae88c9aba526881460028a8ec99eb1831",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-robin",
+        "names": {
+          "zh-CN": "知更鸟",
+          "en": "Robin",
+          "ja": "ロビン"
+        },
+        "aliases": {
+          "zh-CN": ["zhi geng niao", "zhigengniao"],
+          "en": ["robin"],
+          "ja": ["robin"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "back",
+        "synergies": ["stars-of-gala", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/robin-avatar-831c516c3714.png",
+          "portraitPath": "/assets/characters/robin-avatar-831c516c3714.png",
+          "sha256": "831c516c3714b59179d3d5297420243f48295c9d309a46e5cea6a94ac6ace14c",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-gepard",
+        "names": {
+          "zh-CN": "杰帕德",
+          "en": "Gepard",
+          "ja": "ジェパード"
+        },
+        "aliases": {
+          "zh-CN": ["jie pa de", "jiepade"],
+          "en": ["gepard"],
+          "ja": ["jepaado", "jepado"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front",
+        "synergies": ["shield", "belobog"],
+        "assets": {
+          "avatarPath": "/assets/characters/gepard-avatar-0d99b1ad9c7d.png",
+          "portraitPath": "/assets/characters/gepard-avatar-0d99b1ad9c7d.png",
+          "sha256": "0d99b1ad9c7d5c5386778fde68a4eb627852999c773e5169add647588de10c62",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-boothill",
+        "names": {
+          "zh-CN": "波提欧",
+          "en": "Boothill",
+          "ja": "ブートヒル"
+        },
+        "aliases": {
+          "zh-CN": ["bo ti ou", "botiou"],
+          "en": ["boothill"],
+          "ja": ["buutohiru", "butohiru"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "front",
+        "synergies": ["break", "galaxy-rangers"],
+        "assets": {
+          "avatarPath": "/assets/characters/boothill-avatar-039177ccda71.png",
+          "portraitPath": "/assets/characters/boothill-avatar-039177ccda71.png",
+          "sha256": "039177ccda71245838a53c821dc72131173cb44e3f0cb4f736b84e2a533f85d7",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-luocha",
+        "names": {
+          "zh-CN": "罗刹",
+          "en": "Luocha",
+          "ja": "羅刹"
+        },
+        "aliases": {
+          "zh-CN": ["luo cha", "luocha"],
+          "en": ["luocha"],
+          "ja": ["rasetsu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 4,
+        "position": "back",
+        "synergies": ["interastral-traveler", "healing"],
+        "assets": {
+          "avatarPath": "/assets/characters/luocha-avatar-30c268081c6e.png",
+          "portraitPath": "/assets/characters/luocha-avatar-30c268081c6e.png",
+          "sha256": "30c268081c6e22e8781c630019051433b29cfc041f2a068f55e2bc242ef7ae33",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-saber",
+        "names": {
+          "zh-CN": "Saber",
+          "en": "Saber",
+          "ja": "セイバー"
+        },
+        "aliases": {
+          "zh-CN": ["saber"],
+          "en": ["saber"],
+          "ja": ["seibaa", "seiba"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front-back",
+        "synergies": ["holy-grail", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/saber-avatar-7dde152ddf96.png",
+          "portraitPath": "/assets/characters/saber-avatar-7dde152ddf96.png",
+          "sha256": "7dde152ddf963a9ba180e4ebdd5c28cd95e3aea11f2562ce1f65af6a2d59e6c1",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-acheron",
+        "names": {
+          "zh-CN": "黄泉",
+          "en": "Acheron",
+          "ja": "黄泉"
+        },
+        "aliases": {
+          "zh-CN": ["huang quan", "huangquan"],
+          "en": ["acheron"],
+          "ja": ["yomi"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front",
+        "synergies": ["debuff", "galaxy-rangers"],
+        "assets": {
+          "avatarPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
+          "portraitPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
+          "sha256": "7676548cd1fdb7cf3b53888c138bbbbdcbd703baeb8f884ba24bfcbe1dcb0919",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-seele",
+        "names": {
+          "zh-CN": "希儿",
+          "en": "Seele",
+          "ja": "ゼーレ"
+        },
+        "aliases": {
+          "zh-CN": ["xi er", "xier"],
+          "en": ["seele"],
+          "ja": ["zeere", "zere"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front",
+        "synergies": ["belobog", "quantum-resonance"],
+        "assets": {
+          "avatarPath": "/assets/characters/seele-avatar-878809ffa01c.png",
+          "portraitPath": "/assets/characters/seele-avatar-878809ffa01c.png",
+          "sha256": "878809ffa01c1b77b2796fd03e7083694a645d993dca1ce48464cddfae098e3b",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-sunday",
+        "names": {
+          "zh-CN": "星期日",
+          "en": "Sunday",
+          "ja": "サンデー"
+        },
+        "aliases": {
+          "zh-CN": ["xing qi ri", "xingqiri"],
+          "en": ["sunday"],
+          "ja": ["sandee", "sande"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front-back",
+        "synergies": ["astral-express", "stars-of-gala", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/sunday-avatar-6419f26d34d2.png",
+          "portraitPath": "/assets/characters/sunday-avatar-6419f26d34d2.png",
+          "sha256": "6419f26d34d20fd166167d8e708086d8133de1c674e0347b741eed961f8c78ac",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-natasha",
+        "names": {
+          "zh-CN": "娜塔莎",
+          "en": "Natasha",
+          "ja": "ナターシャ"
+        },
+        "aliases": {
+          "zh-CN": ["na ta sha", "natasha"],
+          "en": ["natasha"],
+          "ja": ["nataasha", "natasha"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front-back",
+        "synergies": ["healing", "belobog"],
+        "assets": {
+          "avatarPath": "/assets/characters/natasha-avatar-332835502261.png",
+          "portraitPath": "/assets/characters/natasha-avatar-332835502261.png",
+          "sha256": "332835502261c8218fc199b4520dc6079afde32fedf7ec81086ebd783f46d9b7",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-anaxa",
+        "names": {
+          "zh-CN": "那刻夏",
+          "en": "Anaxa",
+          "ja": "アナイクス"
+        },
+        "aliases": {
+          "zh-CN": ["na ke xia", "nakexia"],
+          "en": ["anaxa"],
+          "ja": ["anaikusu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
         "cost": 3,
         "position": "back",
-        "synergies": ["stellaron-hunters"],
+        "synergies": ["demigod-day", "aoe"],
         "assets": {
-          "avatarPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
-          "portraitPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
-          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "avatarPath": "/assets/characters/anaxa-avatar-6d50f51d5cf0.png",
+          "portraitPath": "/assets/characters/anaxa-avatar-6d50f51d5cf0.png",
+          "sha256": "6d50f51d5cf0d5be0dafc43cd64abde4c0eee690b2aadc26a51fe9c03a33df3a",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-jingliu",
+        "names": {
+          "zh-CN": "镜流",
+          "en": "Jingliu",
+          "ja": "鏡流"
+        },
+        "aliases": {
+          "zh-CN": ["jing liu", "jingliu"],
+          "en": ["jingliu"],
+          "ja": ["keiryuu", "keiryu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "back",
+        "synergies": ["bloodlust", "wolf-hunt"],
+        "assets": {
+          "avatarPath": "/assets/characters/jingliu-avatar-1798d3ee3663.png",
+          "portraitPath": "/assets/characters/jingliu-avatar-1798d3ee3663.png",
+          "sha256": "1798d3ee36632fb5778c850fe7dc1f39f32b610136b2c6985f1c7b66886c06a4",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-phainon",
+        "names": {
+          "zh-CN": "白厄",
+          "en": "Phainon",
+          "ja": "ファイノン"
+        },
+        "aliases": {
+          "zh-CN": ["bai e", "baie"],
+          "en": ["phainon"],
+          "ja": ["fuainon"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front",
+        "synergies": ["savior"],
+        "assets": {
+          "avatarPath": "/assets/characters/phainon-avatar-0b70600027a3.png",
+          "portraitPath": "/assets/characters/phainon-avatar-0b70600027a3.png",
+          "sha256": "0b70600027a3696f6c99949d0e6b39d3e00762c6c4da447d029f2161957e1fb3",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-fugue",
+        "names": {
+          "zh-CN": "忘归人",
+          "en": "Fugue",
+          "ja": "帰忘の流離人"
+        },
+        "aliases": {
+          "zh-CN": ["wang gui ren", "wangguiren"],
+          "en": ["fugue"],
+          "ja": ["kibounosasuraibito"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "back",
+        "synergies": ["xianzhou", "break"],
+        "assets": {
+          "avatarPath": "/assets/characters/fugue-avatar-4fc575471981.png",
+          "portraitPath": "/assets/characters/fugue-avatar-4fc575471981.png",
+          "sha256": "4fc575471981431de1738f0c309780f09b73ead0f09e9e546d120ed9e9c4c2a5",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-himeko",
+        "names": {
+          "zh-CN": "姬子",
+          "en": "Himeko",
+          "ja": "姫子"
+        },
+        "aliases": {
+          "zh-CN": ["ji zi", "jizi"],
+          "en": ["himeko"],
+          "ja": ["himeko"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "back",
+        "synergies": ["break", "astral-express"],
+        "assets": {
+          "avatarPath": "/assets/characters/himeko-avatar-e301ca0969fd.png",
+          "portraitPath": "/assets/characters/himeko-avatar-e301ca0969fd.png",
+          "sha256": "e301ca0969fde976e1640abeaa4e95dd74017fbf3957ecb74610c98fd9860cbe",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-cerydra",
+        "names": {
+          "zh-CN": "刻律德菈",
+          "en": "Cerydra",
+          "ja": "ケリュドラ"
+        },
+        "aliases": {
+          "zh-CN": ["ke lu de la", "keludela"],
+          "en": ["cerydra"],
+          "ja": ["keryudora"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front-back",
+        "synergies": ["demigod-night", "skill-points"],
+        "assets": {
+          "avatarPath": "/assets/characters/cerydra-avatar-7936a8ec3c37.png",
+          "portraitPath": "/assets/characters/cerydra-avatar-7936a8ec3c37.png",
+          "sha256": "7936a8ec3c37611bbaa7aec82bacfd67d43c317b59fb9f1cbca691955145b8ef",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-dr-ratio",
+        "names": {
+          "zh-CN": "真理医生",
+          "en": "Dr. Ratio",
+          "ja": "Dr.レイシオ"
+        },
+        "aliases": {
+          "zh-CN": ["真理", "zhen li yi sheng", "zhenliyisheng", "zhen li", "zhenli"],
+          "en": ["Ratio", "Dr Ratio", "drratio"],
+          "ja": ["レイシオ", "reishio"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 3,
+        "position": "front",
+        "synergies": ["interastral-traveler", "follow-up", "galactic-scholars"],
+        "assets": {
+          "avatarPath": "/assets/characters/dr-ratio-avatar-8e8cc1c26b98.png",
+          "portraitPath": "/assets/characters/dr-ratio-avatar-8e8cc1c26b98.png",
+          "sha256": "8e8cc1c26b981aab57286cda860c14900704dea265b5062a6a3fecac8b34f602",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-argenti",
+        "names": {
+          "zh-CN": "银枝",
+          "en": "Argenti",
+          "ja": "アルジェンティ"
+        },
+        "aliases": {
+          "zh-CN": ["yin zhi", "yinzhi"],
+          "en": ["argenti"],
+          "ja": ["arujentei"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["interastral-traveler", "aoe"],
+        "assets": {
+          "avatarPath": "/assets/characters/argenti-avatar-6e67ada6f633.png",
+          "portraitPath": "/assets/characters/argenti-avatar-6e67ada6f633.png",
+          "sha256": "6e67ada6f6338de28e21d2dd185834a60f6e791ca950119332d093c47b6c3aa4",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-kafka",
+        "names": {
+          "zh-CN": "卡芙卡",
+          "en": "Kafka",
+          "ja": "カフカ"
+        },
+        "aliases": {
+          "zh-CN": ["ka fu ka", "kafuka"],
+          "en": ["kafka"],
+          "ja": ["kafuka"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["damage-over-time", "stellaron-hunters"],
+        "assets": {
+          "avatarPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
+          "portraitPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
+          "sha256": "0d83f3fa9f98fecd8604eaf70d5dedcad85ee09e45f5e300c75f94b3bf3ffe44",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-hyacine",
+        "names": {
+          "zh-CN": "风堇",
+          "en": "Hyacine",
+          "ja": "ヒアンシー"
+        },
+        "aliases": {
+          "zh-CN": ["feng jin", "fengjin"],
+          "en": ["hyacine"],
+          "ja": ["hianshii", "hianshi"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front",
+        "synergies": ["demigod-day", "healing", "bloodlust"],
+        "assets": {
+          "avatarPath": "/assets/characters/hyacine-avatar-23ff80766bcb.png",
+          "portraitPath": "/assets/characters/hyacine-avatar-23ff80766bcb.png",
+          "sha256": "23ff80766bcbf90e77424486e13ea8a010083a05f31a496dbae1ead75d12c19b",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-ruan-mei",
+        "names": {
+          "zh-CN": "阮•梅",
+          "en": "Ruan Mei",
+          "ja": "ルアン・メェイ"
+        },
+        "aliases": {
+          "zh-CN": ["ruan mei", "ruanmei"],
+          "en": ["ruan mei", "ruanmei"],
+          "ja": ["ruan meei", "ruanmeei", "ruan mei", "ruanmei"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "back",
+        "synergies": ["break", "galactic-scholars"],
+        "assets": {
+          "avatarPath": "/assets/characters/ruan-mei-avatar-a1e997242931.png",
+          "portraitPath": "/assets/characters/ruan-mei-avatar-a1e997242931.png",
+          "sha256": "a1e997242931e61940134e51ba9fef72908bf34a8865108b1ec299dd5598c898",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-pela",
+        "names": {
+          "zh-CN": "佩拉",
+          "en": "Pela",
+          "ja": "ペラ"
+        },
+        "aliases": {
+          "zh-CN": ["pei la", "peila"],
+          "en": ["pela"],
+          "ja": ["pera"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "back",
+        "synergies": ["debuff", "belobog"],
+        "assets": {
+          "avatarPath": "/assets/characters/pela-avatar-4edf90ea2af8.png",
+          "portraitPath": "/assets/characters/pela-avatar-4edf90ea2af8.png",
+          "sha256": "4edf90ea2af8ad26e56c4d0287a8b8a40f781a2b508ca9e86adec52ec4a6a12b",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-lingsha",
+        "names": {
+          "zh-CN": "灵砂",
+          "en": "Lingsha",
+          "ja": "霊砂"
+        },
+        "aliases": {
+          "zh-CN": ["ling sha", "lingsha"],
+          "en": ["lingsha"],
+          "ja": ["reisa"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front",
+        "synergies": ["break", "healing", "wolf-hunt"],
+        "assets": {
+          "avatarPath": "/assets/characters/lingsha-avatar-e67420fda0c0.png",
+          "portraitPath": "/assets/characters/lingsha-avatar-e67420fda0c0.png",
+          "sha256": "e67420fda0c0b97e5255780303d57de810d06ce3617a42748adf53e878b1b1bd",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-dan-heng-permansor-terrae",
+        "names": {
+          "zh-CN": "丹恒•腾荒",
+          "en": "Dan Heng • Permansor Terrae",
+          "ja": "丹恒・騰荒"
+        },
+        "aliases": {
+          "zh-CN": ["dan heng teng huang", "danhengtenghuang"],
+          "en": ["dan heng permansor terrae", "danhengpermansorterrae"],
+          "ja": ["tankou toukou", "tankoutoukou"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "back",
+        "synergies": ["demigod-night", "shield"],
+        "assets": {
+          "avatarPath": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1.png",
+          "portraitPath": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1.png",
+          "sha256": "33cdba88f3c108ecdce56ee56c0a86ab7a7bab0549643dc3e22005e2a693a16b",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-aventurine",
+        "names": {
+          "zh-CN": "砂金",
+          "en": "Aventurine",
+          "ja": "アベンチュリン"
+        },
+        "aliases": {
+          "zh-CN": ["sha jin", "shajin"],
+          "en": ["aventurine"],
+          "ja": ["abenchurin"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front",
+        "synergies": ["ipc", "shield", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
+          "portraitPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
+          "sha256": "0ff97f4299729f5311a6acf81d3250d58e6d1fbb07e9397bc91994528772af26",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-dan-heng-il",
+        "names": {
+          "zh-CN": "丹恒•饮月",
+          "en": "Dan Heng • Imbibitor Lunae",
+          "ja": "丹恒・飲月"
+        },
+        "aliases": {
+          "zh-CN": [
+            "饮月",
+            "龙丹",
+            "dan heng yin yue",
+            "danhengyinyue",
+            "yin yue",
+            "yinyue",
+            "long dan",
+            "longdan"
+          ],
+          "en": [
+            "DHIL",
+            "Imbibitor Lunae",
+            "dan heng imbibitor lunae",
+            "danhengimbibitorlunae",
+            "imbibitorlunae"
+          ],
+          "ja": ["飲月", "tankou ingetsu", "tankouingetsu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front",
+        "synergies": ["xianzhou", "astral-express", "skill-points"],
+        "assets": {
+          "avatarPath": "/assets/characters/dan-heng-il-avatar-2cf07d2fcb26.png",
+          "portraitPath": "/assets/characters/dan-heng-il-avatar-2cf07d2fcb26.png",
+          "sha256": "2cf07d2fcb264b0265a407846d2472b50f1d8bee9b0f314a3f2bf74573f3e92f",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-sparkle",
+        "names": {
+          "zh-CN": "花火",
+          "en": "Sparkle",
+          "ja": "花火"
+        },
+        "aliases": {
+          "zh-CN": ["hua huo", "huahuo"],
+          "en": ["sparkle"],
+          "ja": ["hanabi"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "back",
+        "synergies": ["skill-points", "stars-of-gala", "quantum-resonance"],
+        "assets": {
+          "avatarPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
+          "portraitPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
+          "sha256": "d4e241c4b49b068f9719cf94768389f86e3eac8941a197e02108af34e61788ca",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-tribbie",
+        "names": {
+          "zh-CN": "缇宝",
+          "en": "Tribbie",
+          "ja": "トリビー"
+        },
+        "aliases": {
+          "zh-CN": ["ti bao", "tibao"],
+          "en": ["tribbie"],
+          "ja": ["toribii", "toribi"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 2,
+        "position": "front-back",
+        "synergies": ["demigod-day", "aoe", "quantum-resonance"],
+        "assets": {
+          "avatarPath": "/assets/characters/tribbie-avatar-296b1a123c22.png",
+          "portraitPath": "/assets/characters/tribbie-avatar-296b1a123c22.png",
+          "sha256": "296b1a123c221162acb1ee40cc7279a24907ba7141737b26e2ba01e79e15e273",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-jiaoqiu",
+        "names": {
+          "zh-CN": "椒丘",
+          "en": "Jiaoqiu",
+          "ja": "椒丘"
+        },
+        "aliases": {
+          "zh-CN": ["jiao qiu", "jiaoqiu"],
+          "en": ["jiaoqiu"],
+          "ja": ["shoukyuu", "shoukyu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["debuff", "damage-over-time", "wolf-hunt"],
+        "assets": {
+          "avatarPath": "/assets/characters/jiaoqiu-avatar-4c8d9c1ba0e0.png",
+          "portraitPath": "/assets/characters/jiaoqiu-avatar-4c8d9c1ba0e0.png",
+          "sha256": "4c8d9c1ba0e05ee31b86de89676a19f175365577516eec0ae930d84b0779e12c",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-feixiao",
+        "names": {
+          "zh-CN": "飞霄",
+          "en": "Feixiao",
+          "ja": "飛霄"
+        },
+        "aliases": {
+          "zh-CN": ["fei xiao", "feixiao"],
+          "en": ["feixiao"],
+          "ja": ["hishou"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["wolf-hunt", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/feixiao-avatar-3979450d3733.png",
+          "portraitPath": "/assets/characters/feixiao-avatar-3979450d3733.png",
+          "sha256": "3979450d37330b5b2b46dc8c60c1f62f8504acf150fff416ceed949e139044db",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
         "id": "cw-herta",
-        "names": { "zh-CN": "黑塔", "en": "Herta", "ja": "ヘルタ" },
-        "aliases": { "zh-CN": ["hei ta"], "en": ["herta"], "ja": ["ヘルタ"] },
+        "names": {
+          "zh-CN": "黑塔",
+          "en": "Herta",
+          "ja": "ヘルタ"
+        },
+        "aliases": {
+          "zh-CN": ["hei ta", "heita"],
+          "en": ["herta"],
+          "ja": ["heruta"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
-        "cost": 2,
+        "cost": 1,
         "position": "front-back",
-        "synergies": ["genius-society"],
+        "synergies": ["aoe", "galactic-scholars"],
         "assets": {
           "avatarPath": "/assets/characters/herta-avatar-fe1944cd8443.png",
           "portraitPath": "/assets/characters/herta-avatar-fe1944cd8443.png",
-          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "sha256": "fe1944cd844368d7899b753d4fb1c0b777b1aa76eb7fa00fb92af3a9b3c5ce55",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-cipher",
+        "names": {
+          "zh-CN": "赛飞儿",
+          "en": "Cipher",
+          "ja": "サフェル"
+        },
+        "aliases": {
+          "zh-CN": ["sai fei er", "saifeier"],
+          "en": ["cipher"],
+          "ja": ["safyeru"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["debuff", "demigod-night", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/cipher-avatar-7a3884a7ac08.png",
+          "portraitPath": "/assets/characters/cipher-avatar-7a3884a7ac08.png",
+          "sha256": "7a3884a7ac0874c30e648aaaa13612ebbeeb2b3656ebe56f9e087a50a83a1f41",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-mydei",
+        "names": {
+          "zh-CN": "万敌",
+          "en": "Mydei",
+          "ja": "モーディス"
+        },
+        "aliases": {
+          "zh-CN": ["wan di", "wandi"],
+          "en": ["mydei"],
+          "ja": ["moodeisu", "modeisu"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["demigod-night", "bloodlust"],
+        "assets": {
+          "avatarPath": "/assets/characters/mydei-avatar-567729274be4.png",
+          "portraitPath": "/assets/characters/mydei-avatar-567729274be4.png",
+          "sha256": "567729274be429b4874cab8eeb1fe09b917810a908ecb162d5be636f80e37592",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-moze",
+        "names": {
+          "zh-CN": "貊泽",
+          "en": "Moze",
+          "ja": "モゼ"
+        },
+        "aliases": {
+          "zh-CN": ["mo ze", "moze"],
+          "en": ["moze"],
+          "ja": ["moze"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "back",
+        "synergies": ["wolf-hunt", "follow-up"],
+        "assets": {
+          "avatarPath": "/assets/characters/moze-avatar-00139b2fba69.png",
+          "portraitPath": "/assets/characters/moze-avatar-00139b2fba69.png",
+          "sha256": "00139b2fba69aa1051f46b1095db5b40f53da071c180ca2d9004138f53ecb803",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-sampo",
+        "names": {
+          "zh-CN": "桑博",
+          "en": "Sampo",
+          "ja": "サンポ"
+        },
+        "aliases": {
+          "zh-CN": ["sang bo", "sangbo"],
+          "en": ["sampo"],
+          "ja": ["sanpo"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["damage-over-time", "interastral-traveler", "belobog"],
+        "assets": {
+          "avatarPath": "/assets/characters/sampo-avatar-c86d956e648f.png",
+          "portraitPath": "/assets/characters/sampo-avatar-c86d956e648f.png",
+          "sha256": "c86d956e648f2f65c837cb21474f2e5514c2d9434ec88aaf22d38a7bca837564",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-gallagher",
+        "names": {
+          "zh-CN": "加拉赫",
+          "en": "Gallagher",
+          "ja": "ギャラガー"
+        },
+        "aliases": {
+          "zh-CN": ["jia la he", "jialahe"],
+          "en": ["gallagher"],
+          "ja": ["gyaragaa", "gyaraga"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["break", "healing", "stars-of-gala"],
+        "assets": {
+          "avatarPath": "/assets/characters/gallagher-avatar-56e22ff2e836.png",
+          "portraitPath": "/assets/characters/gallagher-avatar-56e22ff2e836.png",
+          "sha256": "56e22ff2e83657e96f1bd3826c178f16cc8d3b2e2286720825caeaafbb2afafd",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-qingque",
+        "names": {
+          "zh-CN": "青雀",
+          "en": "Qingque",
+          "ja": "青雀"
+        },
+        "aliases": {
+          "zh-CN": ["qing que", "qingque"],
+          "en": ["qingque"],
+          "ja": ["seijaku"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["xianzhou", "skill-points"],
+        "assets": {
+          "avatarPath": "/assets/characters/qingque-avatar-fe0137247376.png",
+          "portraitPath": "/assets/characters/qingque-avatar-fe0137247376.png",
+          "sha256": "fe013724737673f32f89e552345841b9a9bdf0828a2ebdbd65b0fc52390e518b",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-jade",
+        "names": {
+          "zh-CN": "翡翠",
+          "en": "Jade",
+          "ja": "ジェイド"
+        },
+        "aliases": {
+          "zh-CN": ["fei cui", "feicui"],
+          "en": ["jade"],
+          "ja": ["jeido"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "back",
+        "synergies": ["ipc", "aoe"],
+        "assets": {
+          "avatarPath": "/assets/characters/jade-avatar-deea45c1dd61.png",
+          "portraitPath": "/assets/characters/jade-avatar-deea45c1dd61.png",
+          "sha256": "deea45c1dd618cc93c17037de0d60c4bd622529fc64a84fb59d0aaf216e57ae4",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-tingyun",
+        "names": {
+          "zh-CN": "停云",
+          "en": "Tingyun",
+          "ja": "停雲"
+        },
+        "aliases": {
+          "zh-CN": ["ting yun", "tingyun"],
+          "en": ["tingyun"],
+          "ja": ["teiun"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "back",
+        "synergies": ["xianzhou", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/tingyun-avatar-11cf39c039a2.png",
+          "portraitPath": "/assets/characters/tingyun-avatar-11cf39c039a2.png",
+          "sha256": "11cf39c039a21250c4d009f0d8adb1e7674cd2dc3acb466a462a0b0570b4bbe2",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-march-7th",
+        "names": {
+          "zh-CN": "三月七",
+          "en": "March 7th",
+          "ja": "三月なのか"
+        },
+        "aliases": {
+          "zh-CN": ["三月", "san yue qi", "sanyueqi", "san yue", "sanyue"],
+          "en": ["March", "M7", "march 7th", "march7th"],
+          "ja": ["なのか", "mitsukinanoka", "nanoka", "mitsuki nanoka"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "back",
+        "synergies": ["astral-express", "shield"],
+        "assets": {
+          "avatarPath": "/assets/characters/march-7th-avatar-9d4e246bc19e.png",
+          "portraitPath": "/assets/characters/march-7th-avatar-9d4e246bc19e.png",
+          "sha256": "9d4e246bc19e99dd5eb0dd534562c1f26e6588b97740db25a42280140e071e95",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-rappa",
+        "names": {
+          "zh-CN": "乱破",
+          "en": "Rappa",
+          "ja": "乱破"
+        },
+        "aliases": {
+          "zh-CN": ["luan po", "luanpo"],
+          "en": ["rappa"],
+          "ja": ["ranha"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["break", "galaxy-rangers"],
+        "assets": {
+          "avatarPath": "/assets/characters/rappa-avatar-86a21eaf73a3.png",
+          "portraitPath": "/assets/characters/rappa-avatar-86a21eaf73a3.png",
+          "sha256": "86a21eaf73a34a1485aa1c69c0a0962e8e62f5f0fc9f3d5da43bd1fa5a482a0d",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       },
       {
         "id": "cw-blade",
-        "names": { "zh-CN": "刃", "en": "Blade", "ja": "刃" },
-        "aliases": { "zh-CN": ["ren"], "en": ["blade"], "ja": ["ブレード"] },
+        "names": {
+          "zh-CN": "刃",
+          "en": "Blade",
+          "ja": "刃"
+        },
+        "aliases": {
+          "zh-CN": ["ren"],
+          "en": ["blade"],
+          "ja": ["jin"]
+        },
         "source": {
-          "url": "https://www.hoyolab.com/article/41520535",
-          "revision": "currency-wars-3.7"
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
-        "cost": 2,
-        "position": "front",
-        "synergies": ["stellaron-hunters"],
+        "cost": 1,
+        "position": "back",
+        "synergies": ["stellaron-hunters", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/blade-avatar-2e40055896d6.png",
           "portraitPath": "/assets/characters/blade-avatar-2e40055896d6.png",
-          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+          "sha256": "2e40055896d6e6d9738808077d18dbfee57782890306d76b774e46b4c336a2bc",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-huohuo",
+        "names": {
+          "zh-CN": "藿藿",
+          "en": "Huohuo",
+          "ja": "フォフォ"
+        },
+        "aliases": {
+          "zh-CN": ["huo huo", "huohuo"],
+          "en": ["huohuo"],
+          "ja": ["fuofuo"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front-back",
+        "synergies": ["xianzhou", "healing", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/huohuo-avatar-3a8f2742bd7a.png",
+          "portraitPath": "/assets/characters/huohuo-avatar-3a8f2742bd7a.png",
+          "sha256": "3a8f2742bd7a4b8eac3aeedb4370dba26a26ad054738903d835e59163aaf4730",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-asta",
+        "names": {
+          "zh-CN": "艾丝妲",
+          "en": "Asta",
+          "ja": "アスター"
+        },
+        "aliases": {
+          "zh-CN": ["ai si da", "aisida"],
+          "en": ["asta"],
+          "ja": ["asutaa", "asuta"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["damage-over-time", "galactic-scholars"],
+        "assets": {
+          "avatarPath": "/assets/characters/asta-avatar-1f9e66fd19bc.png",
+          "portraitPath": "/assets/characters/asta-avatar-1f9e66fd19bc.png",
+          "sha256": "1f9e66fd19bc20189006cb76bb53b8101bef93ba8ba1ddb0511dbdd141437dc5",
+          "rightsNotice": "仅用于游戏内题目展示"
+        }
+      },
+      {
+        "id": "cw-aglaea",
+        "names": {
+          "zh-CN": "阿格莱雅",
+          "en": "Aglaea",
+          "ja": "アグライア"
+        },
+        "aliases": {
+          "zh-CN": ["a ge lai ya", "agelaiya"],
+          "en": ["aglaea"],
+          "ja": ["aguraia"]
+        },
+        "source": {
+          "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
+          "revision": "bwiki-currency-roster-2026-08-18"
+        },
+        "reviewStatus": "approved",
+        "cost": 1,
+        "position": "front",
+        "synergies": ["demigod-day", "energy"],
+        "assets": {
+          "avatarPath": "/assets/characters/aglaea-avatar-1bbe277dab6e.png",
+          "portraitPath": "/assets/characters/aglaea-avatar-1bbe277dab6e.png",
+          "sha256": "1bbe277dab6e6442afef81cd8cafe560d70754594e851532845904e9d0627fbe",
           "rightsNotice": "仅用于游戏内题目展示"
         }
       }

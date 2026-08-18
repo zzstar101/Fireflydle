@@ -25,7 +25,7 @@ import { useNetworkStatus } from "../../offline/network-status";
 import { useSpecialModePack, type SpecialModePackState } from "../../offline/use-special-mode-pack";
 import "./hub.css";
 
-type HubMode = "daily" | "practice" | "duel" | "npc" | "currency-wars" | "aeon" | "weekly";
+type HubMode = "daily" | "practice" | "duel" | "currency-wars" | "aeon" | "weekly";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
@@ -102,11 +102,9 @@ function ModeBoard({
               ? 2
               : mode === "duel"
                 ? 3
-                : mode === "npc"
+                : mode === "currency-wars"
                   ? 4
-                  : mode === "currency-wars"
-                    ? 5
-                    : 6}
+                  : 5}
         </span>
         <span className="mode-status">
           <i /> {status}
@@ -143,7 +141,6 @@ export default function HubPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const online = useNetworkStatus();
-  const npcPack = useSpecialModePack("npc");
   const currencyWarsPack = useSpecialModePack("currency-wars");
   const aeonPack = useSpecialModePack("aeon");
   const [now, setNow] = useState(Date.now());
@@ -170,17 +167,15 @@ export default function HubPage() {
         : locale === "ja"
           ? "キャラクター"
           : "普通角色"
-      : weeklyModeId === "npc"
-        ? "NPC"
-        : weeklyModeId === "currency-wars"
-          ? locale === "en"
-            ? "Currency Wars"
-            : locale === "ja"
-              ? "コイン戦争"
-              : "货币战争"
-          : locale === "en"
-            ? "Aeons"
-            : "星神";
+      : weeklyModeId === "currency-wars"
+        ? locale === "en"
+          ? "Currency Wars"
+          : locale === "ja"
+            ? "コイン戦争"
+            : "货币战争"
+        : locale === "en"
+          ? "Aeons"
+          : "星神";
   const serviceOnline = online && currentGames.isSuccess;
   const serviceChecking = online && currentGames.isPending;
   const dailyStatus = serviceChecking
@@ -304,20 +299,6 @@ export default function HubPage() {
           />
         ) : null}
         <ModeBoard
-          mode="npc"
-          to="/npc/practice"
-          icon={<RadioTower size={30} />}
-          status={packStatus(locale, npcPack.state)}
-          title="NPC"
-          description={t("game.npcDescription", {
-            defaultValue: "通过主叙事地区、主派系与首次剧情登场版本锁定 NPC。",
-          })}
-          metricLabel={t("game.attempts")}
-          metricValue="4"
-          action={t("hub.startRandom")}
-          disabled={!online && npcPack.state !== "ready"}
-        />
-        <ModeBoard
           mode="currency-wars"
           to="/currency-wars/practice"
           icon={<Coins size={30} />}
@@ -363,7 +344,6 @@ export default function HubPage() {
         {(
           [
             ["/playable/endless", locale === "zh-CN" ? "角色无尽" : "Characters"],
-            ["/npc/endless", "NPC"],
             ["/currency-wars/endless", locale === "zh-CN" ? "币战" : "Currency Wars"],
             ["/aeon/endless", locale === "zh-CN" ? "星神" : "Aeons"],
           ] as const

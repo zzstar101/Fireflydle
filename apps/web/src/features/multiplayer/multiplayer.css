@@ -175,7 +175,7 @@
   gap: 6px;
   color: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.8rem;
 }
 .room-config-fields select {
   width: 100%;

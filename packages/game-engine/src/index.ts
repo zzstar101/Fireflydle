@@ -112,15 +112,27 @@ export function compareCurrencyWarsUnits(
   target: CurrencyWarsUnit,
   guess: CurrencyWarsUnit,
 ): GuessCell[] {
-  const costDirection =
-    target.cost === guess.cost ? "none" : target.cost > guess.cost ? "higher" : "lower";
+  const targetCosts = Array.isArray(target.cost) ? target.cost : [target.cost];
+  const guessCosts = Array.isArray(guess.cost) ? guess.cost : [guess.cost];
+  const costExact = guessCosts.some((cost) => targetCosts.includes(cost));
+  const targetMin = Math.min(...targetCosts);
+  const targetMax = Math.max(...targetCosts);
+  const guessMin = Math.min(...guessCosts);
+  const guessMax = Math.max(...guessCosts);
+  const costDirection = costExact
+    ? "none"
+    : guessMax < targetMin
+      ? "higher"
+      : guessMin > targetMax
+        ? "lower"
+        : "none";
   const targetSynergies = new Set(target.synergies);
   const sharesSynergy = guess.synergies.some((synergy) => targetSynergies.has(synergy));
   const sameSynergies =
     target.synergies.length === guess.synergies.length &&
     guess.synergies.every((synergy) => targetSynergies.has(synergy));
   return [
-    cell("cost", target.cost === guess.cost ? "exact" : "miss", costDirection),
+    cell("cost", costExact ? "exact" : "miss", costDirection),
     cell("position", target.position === guess.position ? "exact" : "miss"),
     cell("synergies", sameSynergies ? "exact" : sharesSynergy ? "close" : "miss"),
   ];
@@ -384,7 +396,7 @@ export function getBeijingWeekEnd(timestamp = Date.now()): number {
   );
 }
 
-export const WEEKLY_MODE_ROTATION = ["playable", "npc", "currency-wars", "aeon"] as const;
+export const WEEKLY_MODE_ROTATION = ["playable", "currency-wars", "aeon"] as const;
 
 /** 以 2026-08-17 北京时间周一为普通角色周，按固定顺序逐周循环。 */
 export function getWeeklyModeId(timestamp = Date.now()): ContentModeId {

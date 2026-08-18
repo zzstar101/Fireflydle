@@ -22,6 +22,9 @@ endlessRoutes.post("/endless", async (context) => {
   });
   const mode = ContentModeIdSchema.safeParse(context.req.query("modeId") ?? "playable");
   if (!mode.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  if (mode.data === "npc") {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "npc-mode-disabled" });
+  }
   return ok(context, await createOrResumeEndlessRun(context.env.DB, auth.user.id, mode.data), 201);
 });
 
@@ -60,5 +63,8 @@ endlessRoutes.post("/endless/:runId/skip", async (context) => {
 endlessRoutes.get("/leaderboards/endless", async (context) => {
   const mode = ContentModeIdSchema.safeParse(context.req.query("modeId") ?? "playable");
   if (!mode.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  if (mode.data === "npc") {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "npc-mode-disabled" });
+  }
   return ok(context, await getEndlessLeaderboard(context.env.DB, mode.data));
 });
