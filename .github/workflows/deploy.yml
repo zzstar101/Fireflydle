@@ -113,7 +113,12 @@ jobs:
             apps/web/public/assets/manifest.json
              apps/web/public/assets/manifest.sha256
              packages/game-data/generated/characters.sql
+             packages/game-data/src/generated/characters.json
              packages/game-data/src/generated/content-manifest.json
+             packages/game-data/src/generated/factions.json
+             packages/game-data/src/generated/versions.json
+             packages/game-data/src/generated/sync-metadata.json
+             packages/game-data/src/data/playable-shell.json
              release-announcement.json
           if-no-files-found: error
           retention-days: 30
