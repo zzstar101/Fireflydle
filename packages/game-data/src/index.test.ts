@@ -102,11 +102,9 @@ describe("货币战争独立规则集", () => {
     expect(candidatePool?.candidateIds.length).toBe(targetPool?.targetIds.length ?? 0);
     expect(candidatePool?.candidateIds.length).toBe(72);
     expect(currencyWarsRuleset.units.every((unit) => unit.id.startsWith("cw-"))).toBeTrue();
-    expect(currencyWarsRuleset.units.find((unit) => unit.id === "cw-silver-wolf-lv-999")?.cost).toEqual([
-      3,
-      4,
-      5,
-    ]);
+    expect(
+      currencyWarsRuleset.units.find((unit) => unit.id === "cw-silver-wolf-lv-999")?.cost,
+    ).toEqual([3, 4, 5]);
     expect(
       currencyWarsRuleset.units.every(
         (unit) => unit.assets.avatarPath && unit.synergies.length > 0,

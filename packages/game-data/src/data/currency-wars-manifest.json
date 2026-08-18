@@ -49,10 +49,7 @@
       ],
       "maxAttempts": 6,
       "rulesVersion": "1.1.0",
-      "activities": [
-        "practice",
-        "endless"
-      ]
+      "activities": ["practice", "endless"]
     }
   ],
   "activities": [
@@ -63,9 +60,7 @@
         "en": "Practice",
         "ja": "練習"
       },
-      "modeIds": [
-        "currency-wars"
-      ],
+      "modeIds": ["currency-wars"],
       "enabled": true
     },
     {
@@ -75,9 +70,7 @@
         "en": "Endless",
         "ja": "エンドレス"
       },
-      "modeIds": [
-        "currency-wars"
-      ],
+      "modeIds": ["currency-wars"],
       "enabled": true
     }
   ],
@@ -697,17 +690,9 @@
           "ja": "姫子・旅立ち"
         },
         "aliases": {
-          "zh-CN": [
-            "ji zi qi xing",
-            "jiziqixing"
-          ],
-          "en": [
-            "himeko nova",
-            "himekonova"
-          ],
-          "ja": [
-            "chi"
-          ]
+          "zh-CN": ["ji zi qi xing", "jiziqixing"],
+          "en": ["himeko nova", "himekonova"],
+          "ja": ["chi"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -716,10 +701,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front",
-        "synergies": [
-          "astral-express",
-          "navigator"
-        ],
+        "synergies": ["astral-express", "navigator"],
         "assets": {
           "avatarPath": "/assets/characters/himeko-nova-avatar-21948f59b870.png",
           "portraitPath": "/assets/characters/himeko-nova-avatar-21948f59b870.png",
@@ -735,18 +717,9 @@
           "ja": "千冶・刃"
         },
         "aliases": {
-          "zh-CN": [
-            "qian ye ren",
-            "qianyeren"
-          ],
-          "en": [
-            "mortenax blade",
-            "mortenaxblade"
-          ],
-          "ja": [
-            "mortenax blade",
-            "mortenaxblade"
-          ]
+          "zh-CN": ["qian ye ren", "qianyeren"],
+          "en": ["mortenax blade", "mortenaxblade"],
+          "ja": ["mortenax blade", "mortenaxblade"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -755,11 +728,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "back",
-        "synergies": [
-          "debuff",
-          "stellaron-hunters",
-          "bloodlust"
-        ],
+        "synergies": ["debuff", "stellaron-hunters", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/mortenax-blade-avatar-2e609e325d48.png",
           "portraitPath": "/assets/characters/mortenax-blade-avatar-2e609e325d48.png",
@@ -775,16 +744,9 @@
           "ja": "ギルガメッシュ"
         },
         "aliases": {
-          "zh-CN": [
-            "ji er jia mei shen",
-            "jierjiameishen"
-          ],
-          "en": [
-            "gilgamesh"
-          ],
-          "ja": [
-            "girugamesshu"
-          ]
+          "zh-CN": ["ji er jia mei shen", "jierjiameishen"],
+          "en": ["gilgamesh"],
+          "ja": ["girugamesshu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -793,10 +755,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front-back",
-        "synergies": [
-          "holy-grail",
-          "energy"
-        ],
+        "synergies": ["holy-grail", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/gilgamesh-avatar-0f2e8e491b3a.png",
           "portraitPath": "/assets/characters/gilgamesh-avatar-0f2e8e491b3a.png",
@@ -812,18 +771,9 @@
           "ja": "遠坂凛"
         },
         "aliases": {
-          "zh-CN": [
-            "yuan ban lin",
-            "yuanbanlin"
-          ],
-          "en": [
-            "rin tohsaka",
-            "rintohsaka"
-          ],
-          "ja": [
-            "rin tohsaka",
-            "rintohsaka"
-          ]
+          "zh-CN": ["yuan ban lin", "yuanbanlin"],
+          "en": ["rin tohsaka", "rintohsaka"],
+          "ja": ["rin tohsaka", "rintohsaka"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -832,10 +782,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "holy-grail",
-          "skill-points"
-        ],
+        "synergies": ["holy-grail", "skill-points"],
         "assets": {
           "avatarPath": "/assets/characters/rin-tohsaka-avatar-f7505f0f22a6.png",
           "portraitPath": "/assets/characters/rin-tohsaka-avatar-f7505f0f22a6.png",
@@ -851,35 +798,18 @@
           "ja": "銀狼LV.999"
         },
         "aliases": {
-          "zh-CN": [
-            "yin lang",
-            "yinlang"
-          ],
-          "en": [
-            "silver wolf lv 999",
-            "silverwolflv999"
-          ],
-          "ja": [
-            "silver wolf lv 999",
-            "silverwolflv999"
-          ]
+          "zh-CN": ["yin lang", "yinlang"],
+          "en": ["silver wolf lv 999", "silverwolflv999"],
+          "ja": ["silver wolf lv 999", "silverwolflv999"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
           "revision": "bwiki-currency-roster-2026-08-18"
         },
         "reviewStatus": "approved",
-        "cost": [
-          3,
-          4,
-          5
-        ],
+        "cost": [3, 4, 5],
         "position": "front",
-        "synergies": [
-          "top-player",
-          "stellaron-hunters",
-          "elation"
-        ],
+        "synergies": ["top-player", "stellaron-hunters", "elation"],
         "assets": {
           "avatarPath": "/assets/characters/silver-wolf-lv-999-avatar-d86eec550297.png",
           "portraitPath": "/assets/characters/silver-wolf-lv-999-avatar-d86eec550297.png",
@@ -928,11 +858,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "back",
-        "synergies": [
-          "astral-express",
-          "elation",
-          "energy"
-        ],
+        "synergies": ["astral-express", "elation", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
           "portraitPath": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
@@ -948,16 +874,9 @@
           "ja": "緋英"
         },
         "aliases": {
-          "zh-CN": [
-            "fei ying",
-            "feiying"
-          ],
-          "en": [
-            "evanescia"
-          ],
-          "ja": [
-            "evanescia"
-          ]
+          "zh-CN": ["fei ying", "feiying"],
+          "en": ["evanescia"],
+          "ja": ["evanescia"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -966,10 +885,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front-back",
-        "synergies": [
-          "interastral-traveler",
-          "elation"
-        ],
+        "synergies": ["interastral-traveler", "elation"],
         "assets": {
           "avatarPath": "/assets/characters/evanescia-avatar-e4446664c7bb.png",
           "portraitPath": "/assets/characters/evanescia-avatar-e4446664c7bb.png",
@@ -985,16 +901,9 @@
           "ja": "不死途"
         },
         "aliases": {
-          "zh-CN": [
-            "bu si tu",
-            "busitu"
-          ],
-          "en": [
-            "ashveil"
-          ],
-          "ja": [
-            "ashveil"
-          ]
+          "zh-CN": ["bu si tu", "busitu"],
+          "en": ["ashveil"],
+          "ja": ["ashveil"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1003,10 +912,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front-back",
-        "synergies": [
-          "galaxy-rangers",
-          "follow-up"
-        ],
+        "synergies": ["galaxy-rangers", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/ashveil-avatar-796c6588d0c1.png",
           "portraitPath": "/assets/characters/ashveil-avatar-796c6588d0c1.png",
@@ -1022,16 +928,9 @@
           "ja": "火花"
         },
         "aliases": {
-          "zh-CN": [
-            "huo hua",
-            "huohua"
-          ],
-          "en": [
-            "sparxie"
-          ],
-          "ja": [
-            "sparxie"
-          ]
+          "zh-CN": ["huo hua", "huohua"],
+          "en": ["sparxie"],
+          "ja": ["sparxie"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1040,11 +939,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "skill-points",
-          "interastral-traveler",
-          "elation"
-        ],
+        "synergies": ["skill-points", "interastral-traveler", "elation"],
         "assets": {
           "avatarPath": "/assets/characters/sparxie-avatar-59851d4b7fcc.png",
           "portraitPath": "/assets/characters/sparxie-avatar-59851d4b7fcc.png",
@@ -1060,18 +955,9 @@
           "ja": "爻光"
         },
         "aliases": {
-          "zh-CN": [
-            "yao guang",
-            "yaoguang"
-          ],
-          "en": [
-            "yao guang",
-            "yaoguang"
-          ],
-          "ja": [
-            "yao guang",
-            "yaoguang"
-          ]
+          "zh-CN": ["yao guang", "yaoguang"],
+          "en": ["yao guang", "yaoguang"],
+          "ja": ["yao guang", "yaoguang"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1080,10 +966,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "xianzhou",
-          "elation"
-        ],
+        "synergies": ["xianzhou", "elation"],
         "assets": {
           "avatarPath": "/assets/characters/yao-guang-avatar-3c09d56ce7ae.png",
           "portraitPath": "/assets/characters/yao-guang-avatar-3c09d56ce7ae.png",
@@ -1099,17 +982,9 @@
           "ja": "ダリア"
         },
         "aliases": {
-          "zh-CN": [
-            "da li hua",
-            "dalihua"
-          ],
-          "en": [
-            "the dahlia",
-            "thedahlia"
-          ],
-          "ja": [
-            "daria"
-          ]
+          "zh-CN": ["da li hua", "dalihua"],
+          "en": ["the dahlia", "thedahlia"],
+          "ja": ["daria"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1118,10 +993,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "break",
-          "stars-of-gala"
-        ],
+        "synergies": ["break", "stars-of-gala"],
         "assets": {
           "avatarPath": "/assets/characters/the-dahlia-avatar-516cf749fd35.png",
           "portraitPath": "/assets/characters/the-dahlia-avatar-516cf749fd35.png",
@@ -1137,17 +1009,9 @@
           "ja": "ブローニャ"
         },
         "aliases": {
-          "zh-CN": [
-            "bu luo ni ya",
-            "buluoniya"
-          ],
-          "en": [
-            "bronya"
-          ],
-          "ja": [
-            "buroonya",
-            "buronya"
-          ]
+          "zh-CN": ["bu luo ni ya", "buluoniya"],
+          "en": ["bronya"],
+          "ja": ["buroonya", "buronya"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1156,11 +1020,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "front",
-        "synergies": [
-          "guardian",
-          "bloodlust",
-          "belobog"
-        ],
+        "synergies": ["guardian", "bloodlust", "belobog"],
         "assets": {
           "avatarPath": "/assets/characters/bronya-avatar-849f365d21d2.png",
           "portraitPath": "/assets/characters/bronya-avatar-849f365d21d2.png",
@@ -1176,17 +1036,9 @@
           "ja": "景元"
         },
         "aliases": {
-          "zh-CN": [
-            "jing yuan",
-            "jingyuan"
-          ],
-          "en": [
-            "jing yuan",
-            "jingyuan"
-          ],
-          "ja": [
-            "keigen"
-          ]
+          "zh-CN": ["jing yuan", "jingyuan"],
+          "en": ["jing yuan", "jingyuan"],
+          "ja": ["keigen"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1195,10 +1047,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "front",
-        "synergies": [
-          "xianzhou",
-          "aoe"
-        ],
+        "synergies": ["xianzhou", "aoe"],
         "assets": {
           "avatarPath": "/assets/characters/jing-yuan-avatar-c32a3e9ca445.png",
           "portraitPath": "/assets/characters/jing-yuan-avatar-c32a3e9ca445.png",
@@ -1214,16 +1063,9 @@
           "ja": "アーチャー"
         },
         "aliases": {
-          "zh-CN": [
-            "archer"
-          ],
-          "en": [
-            "archer"
-          ],
-          "ja": [
-            "aachaa",
-            "acha"
-          ]
+          "zh-CN": ["archer"],
+          "en": ["archer"],
+          "ja": ["aachaa", "acha"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1232,11 +1074,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "front",
-        "synergies": [
-          "holy-grail",
-          "skill-points",
-          "magician"
-        ],
+        "synergies": ["holy-grail", "skill-points", "magician"],
         "assets": {
           "avatarPath": "/assets/characters/archer-avatar-0ed79ec7f8fa.png",
           "portraitPath": "/assets/characters/archer-avatar-0ed79ec7f8fa.png",
@@ -1252,16 +1090,9 @@
           "ja": "雲璃"
         },
         "aliases": {
-          "zh-CN": [
-            "yun li",
-            "yunli"
-          ],
-          "en": [
-            "yunli"
-          ],
-          "ja": [
-            "unri"
-          ]
+          "zh-CN": ["yun li", "yunli"],
+          "en": ["yunli"],
+          "ja": ["unri"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1270,10 +1101,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "back",
-        "synergies": [
-          "wolf-hunt",
-          "energy"
-        ],
+        "synergies": ["wolf-hunt", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/yunli-avatar-8a2e54b49880.png",
           "portraitPath": "/assets/characters/yunli-avatar-8a2e54b49880.png",
@@ -1299,12 +1127,7 @@
             "zhang zhang",
             "zhangzhang"
           ],
-          "en": [
-            "Topaz",
-            "Numby",
-            "topaz numby",
-            "topaznumby"
-          ],
+          "en": ["Topaz", "Numby", "topaz numby", "topaznumby"],
           "ja": [
             "トパーズ",
             "カブ",
@@ -1324,10 +1147,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "back",
-        "synergies": [
-          "ipc",
-          "follow-up"
-        ],
+        "synergies": ["ipc", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff.png",
           "portraitPath": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff.png",
@@ -1343,17 +1163,9 @@
           "ja": "ブラックスワン"
         },
         "aliases": {
-          "zh-CN": [
-            "hei tian e",
-            "heitiane"
-          ],
-          "en": [
-            "black swan",
-            "blackswan"
-          ],
-          "ja": [
-            "burakkusuwan"
-          ]
+          "zh-CN": ["hei tian e", "heitiane"],
+          "en": ["black swan", "blackswan"],
+          "ja": ["burakkusuwan"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1362,11 +1174,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "back",
-        "synergies": [
-          "fortune-teller",
-          "damage-over-time",
-          "stars-of-gala"
-        ],
+        "synergies": ["fortune-teller", "damage-over-time", "stars-of-gala"],
         "assets": {
           "avatarPath": "/assets/characters/black-swan-avatar-59452a1c84d4.png",
           "portraitPath": "/assets/characters/black-swan-avatar-59452a1c84d4.png",
@@ -1382,25 +1190,9 @@
           "ja": "ホタル"
         },
         "aliases": {
-          "zh-CN": [
-            "萤宝",
-            "萨姆",
-            "liu ying",
-            "liuying",
-            "ying bao",
-            "yingbao",
-            "sa mu",
-            "samu"
-          ],
-          "en": [
-            "SAM",
-            "firefly"
-          ],
-          "ja": [
-            "サム",
-            "hotaru",
-            "samu"
-          ]
+          "zh-CN": ["萤宝", "萨姆", "liu ying", "liuying", "ying bao", "yingbao", "sa mu", "samu"],
+          "en": ["SAM", "firefly"],
+          "ja": ["サム", "hotaru", "samu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1409,10 +1201,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "front",
-        "synergies": [
-          "break",
-          "stellaron-hunters"
-        ],
+        "synergies": ["break", "stellaron-hunters"],
         "assets": {
           "avatarPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
           "portraitPath": "/assets/characters/firefly-avatar-95f3c017e490.png",
@@ -1428,16 +1217,9 @@
           "ja": "キュレネ"
         },
         "aliases": {
-          "zh-CN": [
-            "xi lian",
-            "xilian"
-          ],
-          "en": [
-            "cyrene"
-          ],
-          "ja": [
-            "kyurene"
-          ]
+          "zh-CN": ["xi lian", "xilian"],
+          "en": ["cyrene"],
+          "ja": ["kyurene"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1446,11 +1228,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "front",
-        "synergies": [
-          "demigod-night",
-          "beloved",
-          "demigod-day"
-        ],
+        "synergies": ["demigod-night", "beloved", "demigod-day"],
         "assets": {
           "avatarPath": "/assets/characters/cyrene-avatar-ba047a95195b.png",
           "portraitPath": "/assets/characters/cyrene-avatar-ba047a95195b.png",
@@ -1466,16 +1244,9 @@
           "ja": "ヴェルト"
         },
         "aliases": {
-          "zh-CN": [
-            "wa er te",
-            "waerte"
-          ],
-          "en": [
-            "welt"
-          ],
-          "ja": [
-            "vyeruto"
-          ]
+          "zh-CN": ["wa er te", "waerte"],
+          "en": ["welt"],
+          "ja": ["vyeruto"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1484,11 +1255,7 @@
         "reviewStatus": "approved",
         "cost": 5,
         "position": "front",
-        "synergies": [
-          "debuff",
-          "astral-express",
-          "interastral-traveler"
-        ],
+        "synergies": ["debuff", "astral-express", "interastral-traveler"],
         "assets": {
           "avatarPath": "/assets/characters/welt-avatar-b5fce1546a68.png",
           "portraitPath": "/assets/characters/welt-avatar-b5fce1546a68.png",
@@ -1504,26 +1271,9 @@
           "ja": "マダム・ヘルタ"
         },
         "aliases": {
-          "zh-CN": [
-            "黑塔",
-            "da hei ta",
-            "daheita",
-            "hei ta",
-            "heita"
-          ],
-          "en": [
-            "Herta",
-            "Madam Herta",
-            "the herta",
-            "theherta",
-            "madamherta"
-          ],
-          "ja": [
-            "ヘルタ",
-            "madamu heruta",
-            "madamuheruta",
-            "heruta"
-          ]
+          "zh-CN": ["黑塔", "da hei ta", "daheita", "hei ta", "heita"],
+          "en": ["Herta", "Madam Herta", "the herta", "theherta", "madamherta"],
+          "ja": ["ヘルタ", "madamu heruta", "madamuheruta", "heruta"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1532,10 +1282,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "aoe",
-          "galactic-scholars"
-        ],
+        "synergies": ["aoe", "galactic-scholars"],
         "assets": {
           "avatarPath": "/assets/characters/the-herta-avatar-306da87b6817.png",
           "portraitPath": "/assets/characters/the-herta-avatar-306da87b6817.png",
@@ -1551,16 +1298,9 @@
           "ja": "長夜月"
         },
         "aliases": {
-          "zh-CN": [
-            "chang ye yue",
-            "changyeyue"
-          ],
-          "en": [
-            "evernight"
-          ],
-          "ja": [
-            "nagayozuki"
-          ]
+          "zh-CN": ["chang ye yue", "changyeyue"],
+          "en": ["evernight"],
+          "ja": ["nagayozuki"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1569,10 +1309,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front-back",
-        "synergies": [
-          "demigod-night",
-          "bloodlust"
-        ],
+        "synergies": ["demigod-night", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/evernight-avatar-f387ff953a14.png",
           "portraitPath": "/assets/characters/evernight-avatar-f387ff953a14.png",
@@ -1588,17 +1325,9 @@
           "ja": "符玄"
         },
         "aliases": {
-          "zh-CN": [
-            "fu xuan",
-            "fuxuan"
-          ],
-          "en": [
-            "fu xuan",
-            "fuxuan"
-          ],
-          "ja": [
-            "fugen"
-          ]
+          "zh-CN": ["fu xuan", "fuxuan"],
+          "en": ["fu xuan", "fuxuan"],
+          "ja": ["fugen"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1607,11 +1336,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "back",
-        "synergies": [
-          "xianzhou",
-          "healing",
-          "quantum-resonance"
-        ],
+        "synergies": ["xianzhou", "healing", "quantum-resonance"],
         "assets": {
           "avatarPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e.png",
           "portraitPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e.png",
@@ -1627,16 +1352,9 @@
           "ja": "キャストリス"
         },
         "aliases": {
-          "zh-CN": [
-            "xia die",
-            "xiadie"
-          ],
-          "en": [
-            "castorice"
-          ],
-          "ja": [
-            "kyasutorisu"
-          ]
+          "zh-CN": ["xia die", "xiadie"],
+          "en": ["castorice"],
+          "ja": ["kyasutorisu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1645,10 +1363,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "demigod-night",
-          "bloodlust"
-        ],
+        "synergies": ["demigod-night", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/castorice-avatar-a05fc9e97efb.png",
           "portraitPath": "/assets/characters/castorice-avatar-a05fc9e97efb.png",
@@ -1664,16 +1379,9 @@
           "ja": "彦卿"
         },
         "aliases": {
-          "zh-CN": [
-            "yan qing",
-            "yanqing"
-          ],
-          "en": [
-            "yanqing"
-          ],
-          "ja": [
-            "genkyou"
-          ]
+          "zh-CN": ["yan qing", "yanqing"],
+          "en": ["yanqing"],
+          "ja": ["genkyou"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1682,11 +1390,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "back",
-        "synergies": [
-          "xianzhou",
-          "debuff",
-          "wolf-hunt"
-        ],
+        "synergies": ["xianzhou", "debuff", "wolf-hunt"],
         "assets": {
           "avatarPath": "/assets/characters/yanqing-avatar-48a950b171f5.png",
           "portraitPath": "/assets/characters/yanqing-avatar-48a950b171f5.png",
@@ -1702,16 +1406,9 @@
           "ja": "セイレンス"
         },
         "aliases": {
-          "zh-CN": [
-            "hai se yin",
-            "haiseyin"
-          ],
-          "en": [
-            "hysilens"
-          ],
-          "ja": [
-            "seirensu"
-          ]
+          "zh-CN": ["hai se yin", "haiseyin"],
+          "en": ["hysilens"],
+          "ja": ["seirensu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1720,10 +1417,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "damage-over-time",
-          "demigod-day"
-        ],
+        "synergies": ["damage-over-time", "demigod-day"],
         "assets": {
           "avatarPath": "/assets/characters/hysilens-avatar-24551611879f.png",
           "portraitPath": "/assets/characters/hysilens-avatar-24551611879f.png",
@@ -1739,18 +1433,9 @@
           "ja": "銀狼"
         },
         "aliases": {
-          "zh-CN": [
-            "yin lang",
-            "yinlang"
-          ],
-          "en": [
-            "SW",
-            "silver wolf",
-            "silverwolf"
-          ],
-          "ja": [
-            "ginrou"
-          ]
+          "zh-CN": ["yin lang", "yinlang"],
+          "en": ["SW", "silver wolf", "silverwolf"],
+          "ja": ["ginrou"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1759,10 +1444,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front-back",
-        "synergies": [
-          "stellaron-hunters",
-          "quantum-resonance"
-        ],
+        "synergies": ["stellaron-hunters", "quantum-resonance"],
         "assets": {
           "avatarPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
           "portraitPath": "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
@@ -1811,10 +1493,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "astral-express",
-          "energy"
-        ],
+        "synergies": ["astral-express", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
           "portraitPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
@@ -1830,16 +1509,9 @@
           "ja": "ロビン"
         },
         "aliases": {
-          "zh-CN": [
-            "zhi geng niao",
-            "zhigengniao"
-          ],
-          "en": [
-            "robin"
-          ],
-          "ja": [
-            "robin"
-          ]
+          "zh-CN": ["zhi geng niao", "zhigengniao"],
+          "en": ["robin"],
+          "ja": ["robin"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1848,10 +1520,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "back",
-        "synergies": [
-          "stars-of-gala",
-          "follow-up"
-        ],
+        "synergies": ["stars-of-gala", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/robin-avatar-831c516c3714.png",
           "portraitPath": "/assets/characters/robin-avatar-831c516c3714.png",
@@ -1867,17 +1536,9 @@
           "ja": "ジェパード"
         },
         "aliases": {
-          "zh-CN": [
-            "jie pa de",
-            "jiepade"
-          ],
-          "en": [
-            "gepard"
-          ],
-          "ja": [
-            "jepaado",
-            "jepado"
-          ]
+          "zh-CN": ["jie pa de", "jiepade"],
+          "en": ["gepard"],
+          "ja": ["jepaado", "jepado"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1886,10 +1547,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "shield",
-          "belobog"
-        ],
+        "synergies": ["shield", "belobog"],
         "assets": {
           "avatarPath": "/assets/characters/gepard-avatar-0d99b1ad9c7d.png",
           "portraitPath": "/assets/characters/gepard-avatar-0d99b1ad9c7d.png",
@@ -1905,17 +1563,9 @@
           "ja": "ブートヒル"
         },
         "aliases": {
-          "zh-CN": [
-            "bo ti ou",
-            "botiou"
-          ],
-          "en": [
-            "boothill"
-          ],
-          "ja": [
-            "buutohiru",
-            "butohiru"
-          ]
+          "zh-CN": ["bo ti ou", "botiou"],
+          "en": ["boothill"],
+          "ja": ["buutohiru", "butohiru"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1924,10 +1574,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "front",
-        "synergies": [
-          "break",
-          "galaxy-rangers"
-        ],
+        "synergies": ["break", "galaxy-rangers"],
         "assets": {
           "avatarPath": "/assets/characters/boothill-avatar-039177ccda71.png",
           "portraitPath": "/assets/characters/boothill-avatar-039177ccda71.png",
@@ -1943,16 +1590,9 @@
           "ja": "羅刹"
         },
         "aliases": {
-          "zh-CN": [
-            "luo cha",
-            "luocha"
-          ],
-          "en": [
-            "luocha"
-          ],
-          "ja": [
-            "rasetsu"
-          ]
+          "zh-CN": ["luo cha", "luocha"],
+          "en": ["luocha"],
+          "ja": ["rasetsu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1961,10 +1601,7 @@
         "reviewStatus": "approved",
         "cost": 4,
         "position": "back",
-        "synergies": [
-          "interastral-traveler",
-          "healing"
-        ],
+        "synergies": ["interastral-traveler", "healing"],
         "assets": {
           "avatarPath": "/assets/characters/luocha-avatar-30c268081c6e.png",
           "portraitPath": "/assets/characters/luocha-avatar-30c268081c6e.png",
@@ -1980,16 +1617,9 @@
           "ja": "セイバー"
         },
         "aliases": {
-          "zh-CN": [
-            "saber"
-          ],
-          "en": [
-            "saber"
-          ],
-          "ja": [
-            "seibaa",
-            "seiba"
-          ]
+          "zh-CN": ["saber"],
+          "en": ["saber"],
+          "ja": ["seibaa", "seiba"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -1998,10 +1628,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front-back",
-        "synergies": [
-          "holy-grail",
-          "energy"
-        ],
+        "synergies": ["holy-grail", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/saber-avatar-7dde152ddf96.png",
           "portraitPath": "/assets/characters/saber-avatar-7dde152ddf96.png",
@@ -2017,16 +1644,9 @@
           "ja": "黄泉"
         },
         "aliases": {
-          "zh-CN": [
-            "huang quan",
-            "huangquan"
-          ],
-          "en": [
-            "acheron"
-          ],
-          "ja": [
-            "yomi"
-          ]
+          "zh-CN": ["huang quan", "huangquan"],
+          "en": ["acheron"],
+          "ja": ["yomi"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2035,10 +1655,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front",
-        "synergies": [
-          "debuff",
-          "galaxy-rangers"
-        ],
+        "synergies": ["debuff", "galaxy-rangers"],
         "assets": {
           "avatarPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
           "portraitPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
@@ -2054,17 +1671,9 @@
           "ja": "ゼーレ"
         },
         "aliases": {
-          "zh-CN": [
-            "xi er",
-            "xier"
-          ],
-          "en": [
-            "seele"
-          ],
-          "ja": [
-            "zeere",
-            "zere"
-          ]
+          "zh-CN": ["xi er", "xier"],
+          "en": ["seele"],
+          "ja": ["zeere", "zere"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2073,10 +1682,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front",
-        "synergies": [
-          "belobog",
-          "quantum-resonance"
-        ],
+        "synergies": ["belobog", "quantum-resonance"],
         "assets": {
           "avatarPath": "/assets/characters/seele-avatar-878809ffa01c.png",
           "portraitPath": "/assets/characters/seele-avatar-878809ffa01c.png",
@@ -2092,17 +1698,9 @@
           "ja": "サンデー"
         },
         "aliases": {
-          "zh-CN": [
-            "xing qi ri",
-            "xingqiri"
-          ],
-          "en": [
-            "sunday"
-          ],
-          "ja": [
-            "sandee",
-            "sande"
-          ]
+          "zh-CN": ["xing qi ri", "xingqiri"],
+          "en": ["sunday"],
+          "ja": ["sandee", "sande"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2111,11 +1709,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front-back",
-        "synergies": [
-          "astral-express",
-          "stars-of-gala",
-          "energy"
-        ],
+        "synergies": ["astral-express", "stars-of-gala", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/sunday-avatar-6419f26d34d2.png",
           "portraitPath": "/assets/characters/sunday-avatar-6419f26d34d2.png",
@@ -2131,17 +1725,9 @@
           "ja": "ナターシャ"
         },
         "aliases": {
-          "zh-CN": [
-            "na ta sha",
-            "natasha"
-          ],
-          "en": [
-            "natasha"
-          ],
-          "ja": [
-            "nataasha",
-            "natasha"
-          ]
+          "zh-CN": ["na ta sha", "natasha"],
+          "en": ["natasha"],
+          "ja": ["nataasha", "natasha"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2150,10 +1736,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front-back",
-        "synergies": [
-          "healing",
-          "belobog"
-        ],
+        "synergies": ["healing", "belobog"],
         "assets": {
           "avatarPath": "/assets/characters/natasha-avatar-332835502261.png",
           "portraitPath": "/assets/characters/natasha-avatar-332835502261.png",
@@ -2169,16 +1752,9 @@
           "ja": "アナイクス"
         },
         "aliases": {
-          "zh-CN": [
-            "na ke xia",
-            "nakexia"
-          ],
-          "en": [
-            "anaxa"
-          ],
-          "ja": [
-            "anaikusu"
-          ]
+          "zh-CN": ["na ke xia", "nakexia"],
+          "en": ["anaxa"],
+          "ja": ["anaikusu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2187,10 +1763,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "back",
-        "synergies": [
-          "demigod-day",
-          "aoe"
-        ],
+        "synergies": ["demigod-day", "aoe"],
         "assets": {
           "avatarPath": "/assets/characters/anaxa-avatar-6d50f51d5cf0.png",
           "portraitPath": "/assets/characters/anaxa-avatar-6d50f51d5cf0.png",
@@ -2206,17 +1779,9 @@
           "ja": "鏡流"
         },
         "aliases": {
-          "zh-CN": [
-            "jing liu",
-            "jingliu"
-          ],
-          "en": [
-            "jingliu"
-          ],
-          "ja": [
-            "keiryuu",
-            "keiryu"
-          ]
+          "zh-CN": ["jing liu", "jingliu"],
+          "en": ["jingliu"],
+          "ja": ["keiryuu", "keiryu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2225,10 +1790,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "back",
-        "synergies": [
-          "bloodlust",
-          "wolf-hunt"
-        ],
+        "synergies": ["bloodlust", "wolf-hunt"],
         "assets": {
           "avatarPath": "/assets/characters/jingliu-avatar-1798d3ee3663.png",
           "portraitPath": "/assets/characters/jingliu-avatar-1798d3ee3663.png",
@@ -2244,16 +1806,9 @@
           "ja": "ファイノン"
         },
         "aliases": {
-          "zh-CN": [
-            "bai e",
-            "baie"
-          ],
-          "en": [
-            "phainon"
-          ],
-          "ja": [
-            "fuainon"
-          ]
+          "zh-CN": ["bai e", "baie"],
+          "en": ["phainon"],
+          "ja": ["fuainon"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2262,9 +1817,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front",
-        "synergies": [
-          "savior"
-        ],
+        "synergies": ["savior"],
         "assets": {
           "avatarPath": "/assets/characters/phainon-avatar-0b70600027a3.png",
           "portraitPath": "/assets/characters/phainon-avatar-0b70600027a3.png",
@@ -2280,16 +1833,9 @@
           "ja": "帰忘の流離人"
         },
         "aliases": {
-          "zh-CN": [
-            "wang gui ren",
-            "wangguiren"
-          ],
-          "en": [
-            "fugue"
-          ],
-          "ja": [
-            "kibounosasuraibito"
-          ]
+          "zh-CN": ["wang gui ren", "wangguiren"],
+          "en": ["fugue"],
+          "ja": ["kibounosasuraibito"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2298,10 +1844,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "back",
-        "synergies": [
-          "xianzhou",
-          "break"
-        ],
+        "synergies": ["xianzhou", "break"],
         "assets": {
           "avatarPath": "/assets/characters/fugue-avatar-4fc575471981.png",
           "portraitPath": "/assets/characters/fugue-avatar-4fc575471981.png",
@@ -2317,16 +1860,9 @@
           "ja": "姫子"
         },
         "aliases": {
-          "zh-CN": [
-            "ji zi",
-            "jizi"
-          ],
-          "en": [
-            "himeko"
-          ],
-          "ja": [
-            "himeko"
-          ]
+          "zh-CN": ["ji zi", "jizi"],
+          "en": ["himeko"],
+          "ja": ["himeko"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2335,10 +1871,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "back",
-        "synergies": [
-          "break",
-          "astral-express"
-        ],
+        "synergies": ["break", "astral-express"],
         "assets": {
           "avatarPath": "/assets/characters/himeko-avatar-e301ca0969fd.png",
           "portraitPath": "/assets/characters/himeko-avatar-e301ca0969fd.png",
@@ -2354,16 +1887,9 @@
           "ja": "ケリュドラ"
         },
         "aliases": {
-          "zh-CN": [
-            "ke lu de la",
-            "keludela"
-          ],
-          "en": [
-            "cerydra"
-          ],
-          "ja": [
-            "keryudora"
-          ]
+          "zh-CN": ["ke lu de la", "keludela"],
+          "en": ["cerydra"],
+          "ja": ["keryudora"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2372,10 +1898,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front-back",
-        "synergies": [
-          "demigod-night",
-          "skill-points"
-        ],
+        "synergies": ["demigod-night", "skill-points"],
         "assets": {
           "avatarPath": "/assets/characters/cerydra-avatar-7936a8ec3c37.png",
           "portraitPath": "/assets/characters/cerydra-avatar-7936a8ec3c37.png",
@@ -2391,22 +1914,9 @@
           "ja": "Dr.レイシオ"
         },
         "aliases": {
-          "zh-CN": [
-            "真理",
-            "zhen li yi sheng",
-            "zhenliyisheng",
-            "zhen li",
-            "zhenli"
-          ],
-          "en": [
-            "Ratio",
-            "Dr Ratio",
-            "drratio"
-          ],
-          "ja": [
-            "レイシオ",
-            "reishio"
-          ]
+          "zh-CN": ["真理", "zhen li yi sheng", "zhenliyisheng", "zhen li", "zhenli"],
+          "en": ["Ratio", "Dr Ratio", "drratio"],
+          "ja": ["レイシオ", "reishio"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2415,11 +1925,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front",
-        "synergies": [
-          "interastral-traveler",
-          "follow-up",
-          "galactic-scholars"
-        ],
+        "synergies": ["interastral-traveler", "follow-up", "galactic-scholars"],
         "assets": {
           "avatarPath": "/assets/characters/dr-ratio-avatar-8e8cc1c26b98.png",
           "portraitPath": "/assets/characters/dr-ratio-avatar-8e8cc1c26b98.png",
@@ -2435,16 +1941,9 @@
           "ja": "アルジェンティ"
         },
         "aliases": {
-          "zh-CN": [
-            "yin zhi",
-            "yinzhi"
-          ],
-          "en": [
-            "argenti"
-          ],
-          "ja": [
-            "arujentei"
-          ]
+          "zh-CN": ["yin zhi", "yinzhi"],
+          "en": ["argenti"],
+          "ja": ["arujentei"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2453,10 +1952,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front-back",
-        "synergies": [
-          "interastral-traveler",
-          "aoe"
-        ],
+        "synergies": ["interastral-traveler", "aoe"],
         "assets": {
           "avatarPath": "/assets/characters/argenti-avatar-6e67ada6f633.png",
           "portraitPath": "/assets/characters/argenti-avatar-6e67ada6f633.png",
@@ -2472,16 +1968,9 @@
           "ja": "カフカ"
         },
         "aliases": {
-          "zh-CN": [
-            "ka fu ka",
-            "kafuka"
-          ],
-          "en": [
-            "kafka"
-          ],
-          "ja": [
-            "kafuka"
-          ]
+          "zh-CN": ["ka fu ka", "kafuka"],
+          "en": ["kafka"],
+          "ja": ["kafuka"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2490,10 +1979,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front-back",
-        "synergies": [
-          "damage-over-time",
-          "stellaron-hunters"
-        ],
+        "synergies": ["damage-over-time", "stellaron-hunters"],
         "assets": {
           "avatarPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
           "portraitPath": "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
@@ -2509,17 +1995,9 @@
           "ja": "ヒアンシー"
         },
         "aliases": {
-          "zh-CN": [
-            "feng jin",
-            "fengjin"
-          ],
-          "en": [
-            "hyacine"
-          ],
-          "ja": [
-            "hianshii",
-            "hianshi"
-          ]
+          "zh-CN": ["feng jin", "fengjin"],
+          "en": ["hyacine"],
+          "ja": ["hianshii", "hianshi"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2528,11 +2006,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front",
-        "synergies": [
-          "demigod-day",
-          "healing",
-          "bloodlust"
-        ],
+        "synergies": ["demigod-day", "healing", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/hyacine-avatar-23ff80766bcb.png",
           "portraitPath": "/assets/characters/hyacine-avatar-23ff80766bcb.png",
@@ -2548,20 +2022,9 @@
           "ja": "ルアン・メェイ"
         },
         "aliases": {
-          "zh-CN": [
-            "ruan mei",
-            "ruanmei"
-          ],
-          "en": [
-            "ruan mei",
-            "ruanmei"
-          ],
-          "ja": [
-            "ruan meei",
-            "ruanmeei",
-            "ruan mei",
-            "ruanmei"
-          ]
+          "zh-CN": ["ruan mei", "ruanmei"],
+          "en": ["ruan mei", "ruanmei"],
+          "ja": ["ruan meei", "ruanmeei", "ruan mei", "ruanmei"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2570,10 +2033,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "back",
-        "synergies": [
-          "break",
-          "galactic-scholars"
-        ],
+        "synergies": ["break", "galactic-scholars"],
         "assets": {
           "avatarPath": "/assets/characters/ruan-mei-avatar-a1e997242931.png",
           "portraitPath": "/assets/characters/ruan-mei-avatar-a1e997242931.png",
@@ -2589,16 +2049,9 @@
           "ja": "ペラ"
         },
         "aliases": {
-          "zh-CN": [
-            "pei la",
-            "peila"
-          ],
-          "en": [
-            "pela"
-          ],
-          "ja": [
-            "pera"
-          ]
+          "zh-CN": ["pei la", "peila"],
+          "en": ["pela"],
+          "ja": ["pera"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2607,10 +2060,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "back",
-        "synergies": [
-          "debuff",
-          "belobog"
-        ],
+        "synergies": ["debuff", "belobog"],
         "assets": {
           "avatarPath": "/assets/characters/pela-avatar-4edf90ea2af8.png",
           "portraitPath": "/assets/characters/pela-avatar-4edf90ea2af8.png",
@@ -2626,16 +2076,9 @@
           "ja": "霊砂"
         },
         "aliases": {
-          "zh-CN": [
-            "ling sha",
-            "lingsha"
-          ],
-          "en": [
-            "lingsha"
-          ],
-          "ja": [
-            "reisa"
-          ]
+          "zh-CN": ["ling sha", "lingsha"],
+          "en": ["lingsha"],
+          "ja": ["reisa"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2644,11 +2087,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front",
-        "synergies": [
-          "break",
-          "healing",
-          "wolf-hunt"
-        ],
+        "synergies": ["break", "healing", "wolf-hunt"],
         "assets": {
           "avatarPath": "/assets/characters/lingsha-avatar-e67420fda0c0.png",
           "portraitPath": "/assets/characters/lingsha-avatar-e67420fda0c0.png",
@@ -2664,18 +2103,9 @@
           "ja": "丹恒・騰荒"
         },
         "aliases": {
-          "zh-CN": [
-            "dan heng teng huang",
-            "danhengtenghuang"
-          ],
-          "en": [
-            "dan heng permansor terrae",
-            "danhengpermansorterrae"
-          ],
-          "ja": [
-            "tankou toukou",
-            "tankoutoukou"
-          ]
+          "zh-CN": ["dan heng teng huang", "danhengtenghuang"],
+          "en": ["dan heng permansor terrae", "danhengpermansorterrae"],
+          "ja": ["tankou toukou", "tankoutoukou"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2684,10 +2114,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "back",
-        "synergies": [
-          "demigod-night",
-          "shield"
-        ],
+        "synergies": ["demigod-night", "shield"],
         "assets": {
           "avatarPath": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1.png",
           "portraitPath": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1.png",
@@ -2703,16 +2130,9 @@
           "ja": "アベンチュリン"
         },
         "aliases": {
-          "zh-CN": [
-            "sha jin",
-            "shajin"
-          ],
-          "en": [
-            "aventurine"
-          ],
-          "ja": [
-            "abenchurin"
-          ]
+          "zh-CN": ["sha jin", "shajin"],
+          "en": ["aventurine"],
+          "ja": ["abenchurin"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2721,11 +2141,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front",
-        "synergies": [
-          "ipc",
-          "shield",
-          "follow-up"
-        ],
+        "synergies": ["ipc", "shield", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
           "portraitPath": "/assets/characters/aventurine-avatar-0ff97f429972.png",
@@ -2758,11 +2174,7 @@
             "danhengimbibitorlunae",
             "imbibitorlunae"
           ],
-          "ja": [
-            "飲月",
-            "tankou ingetsu",
-            "tankouingetsu"
-          ]
+          "ja": ["飲月", "tankou ingetsu", "tankouingetsu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2771,11 +2183,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front",
-        "synergies": [
-          "xianzhou",
-          "astral-express",
-          "skill-points"
-        ],
+        "synergies": ["xianzhou", "astral-express", "skill-points"],
         "assets": {
           "avatarPath": "/assets/characters/dan-heng-il-avatar-2cf07d2fcb26.png",
           "portraitPath": "/assets/characters/dan-heng-il-avatar-2cf07d2fcb26.png",
@@ -2791,16 +2199,9 @@
           "ja": "花火"
         },
         "aliases": {
-          "zh-CN": [
-            "hua huo",
-            "huahuo"
-          ],
-          "en": [
-            "sparkle"
-          ],
-          "ja": [
-            "hanabi"
-          ]
+          "zh-CN": ["hua huo", "huahuo"],
+          "en": ["sparkle"],
+          "ja": ["hanabi"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2809,11 +2210,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "back",
-        "synergies": [
-          "skill-points",
-          "stars-of-gala",
-          "quantum-resonance"
-        ],
+        "synergies": ["skill-points", "stars-of-gala", "quantum-resonance"],
         "assets": {
           "avatarPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
           "portraitPath": "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
@@ -2829,17 +2226,9 @@
           "ja": "トリビー"
         },
         "aliases": {
-          "zh-CN": [
-            "ti bao",
-            "tibao"
-          ],
-          "en": [
-            "tribbie"
-          ],
-          "ja": [
-            "toribii",
-            "toribi"
-          ]
+          "zh-CN": ["ti bao", "tibao"],
+          "en": ["tribbie"],
+          "ja": ["toribii", "toribi"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2848,11 +2237,7 @@
         "reviewStatus": "approved",
         "cost": 2,
         "position": "front-back",
-        "synergies": [
-          "demigod-day",
-          "aoe",
-          "quantum-resonance"
-        ],
+        "synergies": ["demigod-day", "aoe", "quantum-resonance"],
         "assets": {
           "avatarPath": "/assets/characters/tribbie-avatar-296b1a123c22.png",
           "portraitPath": "/assets/characters/tribbie-avatar-296b1a123c22.png",
@@ -2868,17 +2253,9 @@
           "ja": "椒丘"
         },
         "aliases": {
-          "zh-CN": [
-            "jiao qiu",
-            "jiaoqiu"
-          ],
-          "en": [
-            "jiaoqiu"
-          ],
-          "ja": [
-            "shoukyuu",
-            "shoukyu"
-          ]
+          "zh-CN": ["jiao qiu", "jiaoqiu"],
+          "en": ["jiaoqiu"],
+          "ja": ["shoukyuu", "shoukyu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2887,11 +2264,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "debuff",
-          "damage-over-time",
-          "wolf-hunt"
-        ],
+        "synergies": ["debuff", "damage-over-time", "wolf-hunt"],
         "assets": {
           "avatarPath": "/assets/characters/jiaoqiu-avatar-4c8d9c1ba0e0.png",
           "portraitPath": "/assets/characters/jiaoqiu-avatar-4c8d9c1ba0e0.png",
@@ -2907,16 +2280,9 @@
           "ja": "飛霄"
         },
         "aliases": {
-          "zh-CN": [
-            "fei xiao",
-            "feixiao"
-          ],
-          "en": [
-            "feixiao"
-          ],
-          "ja": [
-            "hishou"
-          ]
+          "zh-CN": ["fei xiao", "feixiao"],
+          "en": ["feixiao"],
+          "ja": ["hishou"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2925,10 +2291,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "wolf-hunt",
-          "follow-up"
-        ],
+        "synergies": ["wolf-hunt", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/feixiao-avatar-3979450d3733.png",
           "portraitPath": "/assets/characters/feixiao-avatar-3979450d3733.png",
@@ -2944,16 +2307,9 @@
           "ja": "ヘルタ"
         },
         "aliases": {
-          "zh-CN": [
-            "hei ta",
-            "heita"
-          ],
-          "en": [
-            "herta"
-          ],
-          "ja": [
-            "heruta"
-          ]
+          "zh-CN": ["hei ta", "heita"],
+          "en": ["herta"],
+          "ja": ["heruta"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2962,10 +2318,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "aoe",
-          "galactic-scholars"
-        ],
+        "synergies": ["aoe", "galactic-scholars"],
         "assets": {
           "avatarPath": "/assets/characters/herta-avatar-fe1944cd8443.png",
           "portraitPath": "/assets/characters/herta-avatar-fe1944cd8443.png",
@@ -2981,16 +2334,9 @@
           "ja": "サフェル"
         },
         "aliases": {
-          "zh-CN": [
-            "sai fei er",
-            "saifeier"
-          ],
-          "en": [
-            "cipher"
-          ],
-          "ja": [
-            "safyeru"
-          ]
+          "zh-CN": ["sai fei er", "saifeier"],
+          "en": ["cipher"],
+          "ja": ["safyeru"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -2999,11 +2345,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "debuff",
-          "demigod-night",
-          "follow-up"
-        ],
+        "synergies": ["debuff", "demigod-night", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/cipher-avatar-7a3884a7ac08.png",
           "portraitPath": "/assets/characters/cipher-avatar-7a3884a7ac08.png",
@@ -3019,17 +2361,9 @@
           "ja": "モーディス"
         },
         "aliases": {
-          "zh-CN": [
-            "wan di",
-            "wandi"
-          ],
-          "en": [
-            "mydei"
-          ],
-          "ja": [
-            "moodeisu",
-            "modeisu"
-          ]
+          "zh-CN": ["wan di", "wandi"],
+          "en": ["mydei"],
+          "ja": ["moodeisu", "modeisu"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3038,10 +2372,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "demigod-night",
-          "bloodlust"
-        ],
+        "synergies": ["demigod-night", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/mydei-avatar-567729274be4.png",
           "portraitPath": "/assets/characters/mydei-avatar-567729274be4.png",
@@ -3057,16 +2388,9 @@
           "ja": "モゼ"
         },
         "aliases": {
-          "zh-CN": [
-            "mo ze",
-            "moze"
-          ],
-          "en": [
-            "moze"
-          ],
-          "ja": [
-            "moze"
-          ]
+          "zh-CN": ["mo ze", "moze"],
+          "en": ["moze"],
+          "ja": ["moze"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3075,10 +2399,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "back",
-        "synergies": [
-          "wolf-hunt",
-          "follow-up"
-        ],
+        "synergies": ["wolf-hunt", "follow-up"],
         "assets": {
           "avatarPath": "/assets/characters/moze-avatar-00139b2fba69.png",
           "portraitPath": "/assets/characters/moze-avatar-00139b2fba69.png",
@@ -3094,16 +2415,9 @@
           "ja": "サンポ"
         },
         "aliases": {
-          "zh-CN": [
-            "sang bo",
-            "sangbo"
-          ],
-          "en": [
-            "sampo"
-          ],
-          "ja": [
-            "sanpo"
-          ]
+          "zh-CN": ["sang bo", "sangbo"],
+          "en": ["sampo"],
+          "ja": ["sanpo"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3112,11 +2426,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "damage-over-time",
-          "interastral-traveler",
-          "belobog"
-        ],
+        "synergies": ["damage-over-time", "interastral-traveler", "belobog"],
         "assets": {
           "avatarPath": "/assets/characters/sampo-avatar-c86d956e648f.png",
           "portraitPath": "/assets/characters/sampo-avatar-c86d956e648f.png",
@@ -3132,17 +2442,9 @@
           "ja": "ギャラガー"
         },
         "aliases": {
-          "zh-CN": [
-            "jia la he",
-            "jialahe"
-          ],
-          "en": [
-            "gallagher"
-          ],
-          "ja": [
-            "gyaragaa",
-            "gyaraga"
-          ]
+          "zh-CN": ["jia la he", "jialahe"],
+          "en": ["gallagher"],
+          "ja": ["gyaragaa", "gyaraga"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3151,11 +2453,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "break",
-          "healing",
-          "stars-of-gala"
-        ],
+        "synergies": ["break", "healing", "stars-of-gala"],
         "assets": {
           "avatarPath": "/assets/characters/gallagher-avatar-56e22ff2e836.png",
           "portraitPath": "/assets/characters/gallagher-avatar-56e22ff2e836.png",
@@ -3171,16 +2469,9 @@
           "ja": "青雀"
         },
         "aliases": {
-          "zh-CN": [
-            "qing que",
-            "qingque"
-          ],
-          "en": [
-            "qingque"
-          ],
-          "ja": [
-            "seijaku"
-          ]
+          "zh-CN": ["qing que", "qingque"],
+          "en": ["qingque"],
+          "ja": ["seijaku"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3189,10 +2480,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "xianzhou",
-          "skill-points"
-        ],
+        "synergies": ["xianzhou", "skill-points"],
         "assets": {
           "avatarPath": "/assets/characters/qingque-avatar-fe0137247376.png",
           "portraitPath": "/assets/characters/qingque-avatar-fe0137247376.png",
@@ -3208,16 +2496,9 @@
           "ja": "ジェイド"
         },
         "aliases": {
-          "zh-CN": [
-            "fei cui",
-            "feicui"
-          ],
-          "en": [
-            "jade"
-          ],
-          "ja": [
-            "jeido"
-          ]
+          "zh-CN": ["fei cui", "feicui"],
+          "en": ["jade"],
+          "ja": ["jeido"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3226,10 +2507,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "back",
-        "synergies": [
-          "ipc",
-          "aoe"
-        ],
+        "synergies": ["ipc", "aoe"],
         "assets": {
           "avatarPath": "/assets/characters/jade-avatar-deea45c1dd61.png",
           "portraitPath": "/assets/characters/jade-avatar-deea45c1dd61.png",
@@ -3245,16 +2523,9 @@
           "ja": "停雲"
         },
         "aliases": {
-          "zh-CN": [
-            "ting yun",
-            "tingyun"
-          ],
-          "en": [
-            "tingyun"
-          ],
-          "ja": [
-            "teiun"
-          ]
+          "zh-CN": ["ting yun", "tingyun"],
+          "en": ["tingyun"],
+          "ja": ["teiun"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3263,10 +2534,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "back",
-        "synergies": [
-          "xianzhou",
-          "energy"
-        ],
+        "synergies": ["xianzhou", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/tingyun-avatar-11cf39c039a2.png",
           "portraitPath": "/assets/characters/tingyun-avatar-11cf39c039a2.png",
@@ -3282,25 +2550,9 @@
           "ja": "三月なのか"
         },
         "aliases": {
-          "zh-CN": [
-            "三月",
-            "san yue qi",
-            "sanyueqi",
-            "san yue",
-            "sanyue"
-          ],
-          "en": [
-            "March",
-            "M7",
-            "march 7th",
-            "march7th"
-          ],
-          "ja": [
-            "なのか",
-            "mitsukinanoka",
-            "nanoka",
-            "mitsuki nanoka"
-          ]
+          "zh-CN": ["三月", "san yue qi", "sanyueqi", "san yue", "sanyue"],
+          "en": ["March", "M7", "march 7th", "march7th"],
+          "ja": ["なのか", "mitsukinanoka", "nanoka", "mitsuki nanoka"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3309,10 +2561,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "back",
-        "synergies": [
-          "astral-express",
-          "shield"
-        ],
+        "synergies": ["astral-express", "shield"],
         "assets": {
           "avatarPath": "/assets/characters/march-7th-avatar-9d4e246bc19e.png",
           "portraitPath": "/assets/characters/march-7th-avatar-9d4e246bc19e.png",
@@ -3328,16 +2577,9 @@
           "ja": "乱破"
         },
         "aliases": {
-          "zh-CN": [
-            "luan po",
-            "luanpo"
-          ],
-          "en": [
-            "rappa"
-          ],
-          "ja": [
-            "ranha"
-          ]
+          "zh-CN": ["luan po", "luanpo"],
+          "en": ["rappa"],
+          "ja": ["ranha"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3346,10 +2588,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "break",
-          "galaxy-rangers"
-        ],
+        "synergies": ["break", "galaxy-rangers"],
         "assets": {
           "avatarPath": "/assets/characters/rappa-avatar-86a21eaf73a3.png",
           "portraitPath": "/assets/characters/rappa-avatar-86a21eaf73a3.png",
@@ -3365,15 +2604,9 @@
           "ja": "刃"
         },
         "aliases": {
-          "zh-CN": [
-            "ren"
-          ],
-          "en": [
-            "blade"
-          ],
-          "ja": [
-            "jin"
-          ]
+          "zh-CN": ["ren"],
+          "en": ["blade"],
+          "ja": ["jin"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3382,10 +2615,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "back",
-        "synergies": [
-          "stellaron-hunters",
-          "bloodlust"
-        ],
+        "synergies": ["stellaron-hunters", "bloodlust"],
         "assets": {
           "avatarPath": "/assets/characters/blade-avatar-2e40055896d6.png",
           "portraitPath": "/assets/characters/blade-avatar-2e40055896d6.png",
@@ -3401,16 +2631,9 @@
           "ja": "フォフォ"
         },
         "aliases": {
-          "zh-CN": [
-            "huo huo",
-            "huohuo"
-          ],
-          "en": [
-            "huohuo"
-          ],
-          "ja": [
-            "fuofuo"
-          ]
+          "zh-CN": ["huo huo", "huohuo"],
+          "en": ["huohuo"],
+          "ja": ["fuofuo"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3419,11 +2642,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front-back",
-        "synergies": [
-          "xianzhou",
-          "healing",
-          "energy"
-        ],
+        "synergies": ["xianzhou", "healing", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/huohuo-avatar-3a8f2742bd7a.png",
           "portraitPath": "/assets/characters/huohuo-avatar-3a8f2742bd7a.png",
@@ -3439,17 +2658,9 @@
           "ja": "アスター"
         },
         "aliases": {
-          "zh-CN": [
-            "ai si da",
-            "aisida"
-          ],
-          "en": [
-            "asta"
-          ],
-          "ja": [
-            "asutaa",
-            "asuta"
-          ]
+          "zh-CN": ["ai si da", "aisida"],
+          "en": ["asta"],
+          "ja": ["asutaa", "asuta"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3458,10 +2669,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "damage-over-time",
-          "galactic-scholars"
-        ],
+        "synergies": ["damage-over-time", "galactic-scholars"],
         "assets": {
           "avatarPath": "/assets/characters/asta-avatar-1f9e66fd19bc.png",
           "portraitPath": "/assets/characters/asta-avatar-1f9e66fd19bc.png",
@@ -3477,16 +2685,9 @@
           "ja": "アグライア"
         },
         "aliases": {
-          "zh-CN": [
-            "a ge lai ya",
-            "agelaiya"
-          ],
-          "en": [
-            "aglaea"
-          ],
-          "ja": [
-            "aguraia"
-          ]
+          "zh-CN": ["a ge lai ya", "agelaiya"],
+          "en": ["aglaea"],
+          "ja": ["aguraia"]
         },
         "source": {
           "url": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E4%B8%80%E8%A7%88%EF%BC%88%E8%B4%A7%E5%B8%81%EF%BC%89",
@@ -3495,10 +2696,7 @@
         "reviewStatus": "approved",
         "cost": 1,
         "position": "front",
-        "synergies": [
-          "demigod-day",
-          "energy"
-        ],
+        "synergies": ["demigod-day", "energy"],
         "assets": {
           "avatarPath": "/assets/characters/aglaea-avatar-1bbe277dab6e.png",
           "portraitPath": "/assets/characters/aglaea-avatar-1bbe277dab6e.png",
