@@ -129,10 +129,20 @@ describe("货币战争三列黄金判题", () => {
     ]);
   });
 
-  test("公开结果不含羁绊名称、数量或关系 ID", () => {
-    const result = createCurrencyWarsGuessResult(unit(), unit({ id: "cw-beta" }));
-    expect(result.character).not.toHaveProperty("synergies");
-    expect(JSON.stringify(result)).not.toContain("merchant");
+  test("公开结果只携带已猜单位的羁绊，不标记具体共享项", () => {
+    const result = createCurrencyWarsGuessResult(
+      unit(),
+      unit({ id: "cw-beta", synergies: ["merchant", "herta"] }),
+    );
+    expect(result.character).toHaveProperty("synergies", ["merchant", "herta"]);
+    expect(result.cells.find((cell) => cell.field === "synergies")).toEqual({
+      field: "synergies",
+      state: "close",
+      direction: "none",
+    });
+    expect(result.cells.find((cell) => cell.field === "synergies")).not.toHaveProperty(
+      "matchedSynergy",
+    );
     expect(JSON.stringify(result)).not.toContain("ipc");
   });
 

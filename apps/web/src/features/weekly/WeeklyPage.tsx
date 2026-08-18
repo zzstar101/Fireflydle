@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Flag, LoaderCircle, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Flag, LoaderCircle, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 import type {
   ContentModeId,
@@ -12,6 +12,7 @@ import {
   aeonEntities,
   characters,
   contentManifest,
+  currencyWarsRuleset,
   currencyWarsUnitSummaries,
   npcEntities,
   npcSummary,
@@ -41,6 +42,30 @@ export function weeklyModeLabel(modeId: ContentModeId, locale: Locale): string {
   return modeLabels[modeId][locale];
 }
 
+export interface WeeklyRoundTransition {
+  completedQuestion: number;
+  nextQuestion: number;
+}
+
+export function getWeeklyRoundTransition(
+  previous: WeeklyRun | null | undefined,
+  next: WeeklyRun,
+): WeeklyRoundTransition | null {
+  if (
+    previous?.status !== "active" ||
+    next.status !== "active" ||
+    !previous.currentGame ||
+    !next.currentGame ||
+    previous.currentGame.id === next.currentGame.id
+  ) {
+    return null;
+  }
+  return {
+    completedQuestion: previous.games.length,
+    nextQuestion: next.games.length,
+  };
+}
+
 function formatTime(milliseconds: number): string {
   const total = Math.max(0, Math.floor(milliseconds / 1000));
   const minutes = Math.floor(total / 60);
@@ -59,6 +84,8 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
   const session = useSession();
   const queryClient = useQueryClient();
   const [now, setNow] = useState(Date.now());
+  const [roundTransition, setRoundTransition] = useState<WeeklyRoundTransition | null>(null);
+  const roundHeadingRef = useRef<HTMLHeadingElement>(null);
   const currentModeId = getWeeklyModeId(now);
   const weekKey = getBeijingWeekKey(now);
   const current = useQuery({
@@ -81,7 +108,19 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (!roundTransition) return;
+    const timer = window.setTimeout(() => setRoundTransition(null), 900);
+    return () => window.clearTimeout(timer);
+  }, [roundTransition]);
+
+  useEffect(() => {
+    if (!roundTransition) roundHeadingRef.current?.focus();
+  }, [roundTransition]);
+
   const applyRun = (run: WeeklyRun) => {
+    const previous = queryClient.getQueryData<WeeklyRun>(["weekly", "current"]);
+    setRoundTransition(getWeeklyRoundTransition(previous, run));
     queryClient.setQueryData(["weekly", "current"], run);
     if (run.status === "completed") {
       void queryClient.invalidateQueries({ queryKey: ["leaderboard", "weekly", run.weekKey] });
@@ -132,7 +171,7 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
   const game = run?.currentGame ?? null;
   const roster = rosterFor(routeModeId);
   const guessedIds = new Set(game?.guesses.map((entry) => entry.character.id) ?? []);
-  const busy = start.isPending || guess.isPending || forfeit.isPending;
+  const busy = start.isPending || guess.isPending || forfeit.isPending || roundTransition !== null;
   const error = start.error ?? guess.error ?? forfeit.error ?? current.error;
   const errorCode = error instanceof ApiClientError ? error.code : error ? "INTERNAL_ERROR" : null;
   const elapsed = run
@@ -207,12 +246,24 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                 查看统一排名
               </a>
             </section>
+          ) : roundTransition ? (
+            <section className="weekly-round-transition" role="status" aria-live="assertive">
+              <span>QUESTION {roundTransition.completedQuestion} COMPLETE</span>
+              <h2>第 {roundTransition.completedQuestion} 题已记录</h2>
+              <div aria-hidden="true">
+                <ArrowRight size={20} />
+                <LoaderCircle className="weekly-spinner" size={22} />
+              </div>
+              <p>正在进入第 {roundTransition.nextQuestion} 题</p>
+            </section>
           ) : game ? (
-            <section className="weekly-game">
+            <section className="weekly-game" aria-labelledby="weekly-round-title">
               <div className="weekly-round-heading">
                 <div>
                   <span>QUESTION {run.games.length} / 5</span>
-                  <h2>锁定答案</h2>
+                  <h2 id="weekly-round-title" ref={roundHeadingRef} tabIndex={-1}>
+                    锁定答案
+                  </h2>
                 </div>
                 <button
                   className="weekly-forfeit"
@@ -248,7 +299,16 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                 onSubmit={(id) => guess.mutate(id)}
               />
               {routeModeId !== "aeon" ? (
-                <GuessBoard guesses={game.guesses} locale={locale} fields={game.fieldDefinitions} />
+                <GuessBoard
+                  guesses={game.guesses}
+                  locale={locale}
+                  fields={game.fieldDefinitions}
+                  synergyDefinitions={
+                    routeModeId === "currency-wars"
+                      ? currencyWarsRuleset.synergyDefinitions
+                      : undefined
+                  }
+                />
               ) : null}
             </section>
           ) : null}

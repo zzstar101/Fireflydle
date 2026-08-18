@@ -132,7 +132,7 @@ async function createSession(): Promise<string> {
 }
 
 describe("单人模式快照迁移", () => {
-  it("货币战争使用独立单位子池并且公开响应不泄露羁绊关系", async () => {
+  it("货币战争猜前隐藏羁绊，猜后只返回已猜单位自身羁绊", async () => {
     const cookie = await createSession();
     const created = await dataOf<PublicGame>(
       await SELF.fetch("https://fireflydle.games/api/games", {
@@ -164,8 +164,13 @@ describe("单人模式快照迁移", () => {
       "position",
       "synergies",
     ]);
-    expect(JSON.stringify(guessed)).not.toContain("stellaron-hunters");
-    expect(guessed.guesses[0]?.character).not.toHaveProperty("synergies");
+    expect(guessed.guesses[0]?.character).toHaveProperty("synergies", [
+      "break",
+      "stellaron-hunters",
+    ]);
+    expect(guessed.guesses[0]?.cells.find((cell) => cell.field === "synergies")).not.toHaveProperty(
+      "matchedSynergy",
+    );
   });
 
   it("创建和恢复返回统一模式活动元数据且进行中不泄露答案", async () => {

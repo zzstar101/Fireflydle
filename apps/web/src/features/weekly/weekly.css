@@ -82,6 +82,34 @@
 .weekly-game {
   padding-top: 34px;
 }
+.weekly-round-transition {
+  display: grid;
+  min-height: 320px;
+  place-content: center;
+  justify-items: center;
+  padding: 42px 20px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.weekly-round-transition > span {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+.weekly-round-transition h2 {
+  margin: 12px 0 20px;
+  font-size: 1.8rem;
+}
+.weekly-round-transition > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--gold);
+}
+.weekly-round-transition p {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+}
 .weekly-round-heading {
   display: flex;
   align-items: end;
@@ -190,6 +218,12 @@
 @keyframes weekly-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weekly-spinner {
+    animation: none;
   }
 }
 

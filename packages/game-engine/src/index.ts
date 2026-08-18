@@ -149,6 +149,7 @@ export function createCurrencyWarsGuessResult(
     aliases: guess.aliases,
     cost: guess.cost,
     position: guess.position,
+    synergies: guess.synergies,
     assets: guess.assets,
   });
   return {

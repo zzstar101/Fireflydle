@@ -100,7 +100,9 @@ describe("货币战争独立规则集", () => {
     expect(mode?.maxAttempts).toBe(6);
     expect(mode?.fields.map((field) => field.id)).toEqual(["cost", "position", "synergies"]);
     expect(candidatePool?.candidateIds.length).toBe(targetPool?.targetIds.length ?? 0);
-    expect(candidatePool?.candidateIds.length).toBe(72);
+    expect(candidatePool?.candidateIds.length).toBe(71);
+    expect(candidatePool?.candidateIds).not.toContain("cw-acheron");
+    expect(currencyWarsRuleset.units.some((unit) => unit.id === "cw-acheron")).toBeFalse();
     expect(currencyWarsRuleset.units.every((unit) => unit.id.startsWith("cw-"))).toBeTrue();
     expect(
       currencyWarsRuleset.units.find((unit) => unit.id === "cw-silver-wolf-lv-999")?.cost,

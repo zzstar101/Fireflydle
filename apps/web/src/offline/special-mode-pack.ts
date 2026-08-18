@@ -10,7 +10,7 @@ export interface SpecialModePackDefinition {
 
 const CACHE_PREFIX = "fireflydle-mode-";
 const PACK_VERSIONS: Record<SpecialModeId, string> = {
-  "currency-wars": "1.1.0",
+  "currency-wars": "1.1.1",
   aeon: "1.0.1",
 };
 

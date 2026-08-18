@@ -1,6 +1,12 @@
 import { ArrowDown, ArrowUp, Check, CircleDot, CloudFog, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { FieldDefinition, GuessCell, GuessResult, Locale } from "@fireflydle/contracts";
+import type {
+  FieldDefinition,
+  GuessCell,
+  GuessResult,
+  Locale,
+  LocalizedText,
+} from "@fireflydle/contracts";
 import {
   contentManifest,
   elementLabels,
@@ -24,7 +30,12 @@ function StatusIcon({ cell }: { cell: GuessCell }) {
   return <X size={16} aria-hidden="true" />;
 }
 
-function cellValue(guess: GuessResult, field: string, locale: Locale): string {
+function cellValue(
+  guess: GuessResult,
+  field: string,
+  locale: Locale,
+  synergyNames: ReadonlyMap<string, LocalizedText>,
+): string {
   switch (field) {
     case "cost":
       return "cost" in guess.character ? String(guess.character.cost) : "—";
@@ -36,8 +47,12 @@ function cellValue(guess: GuessResult, field: string, locale: Locale): string {
         "front-back": locale === "zh-CN" ? "前后台" : locale === "ja" ? "前後" : "Front / back",
       }[guess.character.position];
     }
-    case "synergies":
-      return "—";
+    case "synergies": {
+      if (!("synergies" in guess.character) || !guess.character.synergies) return "—";
+      return guess.character.synergies
+        .map((synergyId) => synergyNames.get(synergyId)?.[locale] ?? synergyId)
+        .join(" · ");
+    }
     case "element":
       return "element" in guess.character ? elementLabels[guess.character.element][locale] : "—";
     case "path":
@@ -71,14 +86,19 @@ export function GuessBoard({
   guesses,
   locale,
   fields,
+  synergyDefinitions = [],
   animateLatest = false,
 }: {
   guesses: readonly GuessResult[];
   locale: Locale;
   fields?: readonly FieldDefinition[] | undefined;
+  synergyDefinitions?: readonly { id: string; names: LocalizedText }[] | undefined;
   animateLatest?: boolean;
 }) {
   const { t } = useTranslation();
+  const synergyNames = new Map(
+    synergyDefinitions.map((definition) => [definition.id, definition.names]),
+  );
   const definitions = fields ?? legacyFields;
   const observedFields = new Set(guesses.flatMap((guess) => guess.cells.map((cell) => cell.field)));
   const visibleFields =
@@ -124,7 +144,10 @@ export function GuessBoard({
                         direction: "none",
                       } satisfies GuessCell);
                     const direction = directionLabel(status, t);
-                    const value = status.state === "fog" ? "?" : cellValue(guess, field.id, locale);
+                    const value =
+                      status.state === "fog"
+                        ? "?"
+                        : cellValue(guess, field.id, locale, synergyNames);
                     return (
                       <td
                         key={field.id}
