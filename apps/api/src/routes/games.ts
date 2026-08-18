@@ -27,9 +27,10 @@ const LegacyCreateGameRequestSchema = z.strictObject({
 
 function normalizeCreateGameRequest(input: unknown): CreateGameRequest | null {
   const current = CreateGameRequestSchema.safeParse(input);
-  if (current.success) return current.data;
+  if (current.success) return current.data.modeId === "npc" ? null : current.data;
   const legacy = LegacyCreateGameRequestSchema.safeParse(input);
   if (!legacy.success) return null;
+  if (legacy.data.modeId === "npc") return null;
   return {
     modeId: legacy.data.modeId ?? "playable",
     activityId: legacy.data.mode === "daily" ? "daily" : "practice",

@@ -205,15 +205,15 @@ describe("普通角色周赛核心", () => {
     expect(score?.run_id).toBe(officialRunId);
   });
 
-  it("四模式逐周轮换并共用各自 manifest 快照，失败、猜测和耗时统一累计", async () => {
+  it("三种模式逐周轮换并共用各自 manifest 快照，失败、猜测和耗时统一累计", async () => {
     await seedCharacters();
     const user = await createGuest();
 
     const weeks = [
       ["playable", "2026-08-17T00:00:00+08:00"],
-      ["npc", "2026-08-24T00:00:00+08:00"],
-      ["currency-wars", "2026-08-31T00:00:00+08:00"],
-      ["aeon", "2026-09-07T00:00:00+08:00"],
+      ["currency-wars", "2026-08-24T00:00:00+08:00"],
+      ["aeon", "2026-08-31T00:00:00+08:00"],
+      ["playable", "2026-09-07T00:00:00+08:00"],
     ] as const;
 
     for (const [modeId, startAt] of weeks) {

@@ -135,6 +135,20 @@ describe("货币战争三列黄金判题", () => {
     expect(JSON.stringify(result)).not.toContain("merchant");
     expect(JSON.stringify(result)).not.toContain("ipc");
   });
+
+  test("多值费用按可用费用命中，完全落在区间外才给方向", () => {
+    const target = unit({ cost: [3, 4, 5] });
+    expect(compareCurrencyWarsUnits(target, unit({ id: "cw-low", cost: 2 }))[0]).toEqual({
+      field: "cost",
+      state: "miss",
+      direction: "higher",
+    });
+    expect(compareCurrencyWarsUnits(target, unit({ id: "cw-hit", cost: 4 }))[0]).toEqual({
+      field: "cost",
+      state: "exact",
+      direction: "none",
+    });
+  });
 });
 
 describe("角色反馈", () => {
@@ -345,14 +359,14 @@ describe("游戏规则", () => {
     );
   });
 
-  test("周赛按 playable、NPC、货币战争、星神固定循环", () => {
+  test("周赛按 playable、货币战争、星神固定循环", () => {
     expect([
       getWeeklyModeId(Date.parse("2026-08-17T00:00:00+08:00")),
       getWeeklyModeId(Date.parse("2026-08-24T00:00:00+08:00")),
       getWeeklyModeId(Date.parse("2026-08-31T00:00:00+08:00")),
       getWeeklyModeId(Date.parse("2026-09-07T00:00:00+08:00")),
       getWeeklyModeId(Date.parse("2026-09-14T00:00:00+08:00")),
-    ]).toEqual(["playable", "npc", "currency-wars", "aeon", "playable"]);
+    ]).toEqual(["playable", "currency-wars", "aeon", "playable", "currency-wars"]);
   });
 
   test("洗牌袋用尽前不重复", () => {

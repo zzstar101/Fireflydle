@@ -6,7 +6,6 @@ import {
 } from "./special-mode-pack";
 import { aeonManifest } from "@fireflydle/game-data/aeon";
 import { currencyWarsManifest } from "@fireflydle/game-data/currency-wars";
-import { npcManifest } from "@fireflydle/game-data/npc";
 
 class MemoryCache {
   readonly entries = new Map<string, Response>();
@@ -61,14 +60,13 @@ describe("特殊模式离线包", () => {
   });
 
   it.each([
-    ["npc", npcManifest.manifestVersion],
     ["currency-wars", currencyWarsManifest.manifestVersion],
     ["aeon", aeonManifest.manifestVersion],
   ] as const)("%s 轻量包版本与完整 manifest 同步", (modeId, version) => {
     expect(specialModePackDefinition(modeId).version).toBe(version);
   });
 
-  it.each(["npc", "currency-wars", "aeon"] as const)(
+  it.each(["currency-wars", "aeon"] as const)(
     "%s 首次准备后完整可用，重复进入不重新获取",
     async (modeId) => {
       const storage = memoryCacheStorage();
@@ -87,10 +85,10 @@ describe("特殊模式离线包", () => {
   it("manifest 变化时建立新包并清除该模式旧版本", async () => {
     const storage = memoryCacheStorage();
     vi.stubGlobal("caches", storage.api);
-    const definition = specialModePackDefinition("npc");
-    storage.stores.set("fireflydle-mode-npc-0.9.0", new MemoryCache());
+    const definition = specialModePackDefinition("currency-wars");
+    storage.stores.set("fireflydle-mode-currency-wars-0.9.0", new MemoryCache());
 
-    await prepareSpecialModePack("npc");
+    await prepareSpecialModePack("currency-wars");
 
     expect([...storage.stores.keys()]).toEqual([definition.cacheName]);
   });
@@ -101,13 +99,13 @@ describe("特殊模式离线包", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (request: RequestInfo | URL) =>
-        String(request).includes("siobhan")
+        String(request).includes("firefly")
           ? new Response("missing", { status: 404 })
           : new Response("asset", { status: 200 }),
       ),
     );
 
-    await expect(prepareSpecialModePack("npc")).rejects.toThrow();
-    await expect(inspectSpecialModePack("npc")).resolves.toBe("missing");
+    await expect(prepareSpecialModePack("currency-wars")).rejects.toThrow();
+    await expect(inspectSpecialModePack("currency-wars")).resolves.toBe("missing");
   });
 });
