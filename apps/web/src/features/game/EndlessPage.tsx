@@ -329,6 +329,7 @@ export function EndlessPage({
             <CharacterCombobox
               characters={roster}
               locale={locale}
+              showImages={contentModeId !== "aeon"}
               excludedIds={guessedIds}
               disabled={busy}
               onSubmit={(id) => void submitGuess(id)}

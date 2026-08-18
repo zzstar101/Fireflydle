@@ -344,12 +344,11 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                   onChange={(event) => {
                     const next = event.target.value as ContentModeId;
                     setModeId(next);
-                    setMaxAttempts(next === "npc" ? 4 : next === "aeon" ? 8 : 6);
+                    setMaxAttempts(next === "aeon" ? 8 : 6);
                     if (next === "aeon" && modifier === "fog") setModifier(null);
                   }}
                 >
                   <option value="playable">{locale === "zh-CN" ? "普通角色" : "Playable"}</option>
-                  <option value="npc">NPC</option>
                   <option value="currency-wars">
                     {locale === "zh-CN" ? "货币战争" : "Currency Wars"}
                   </option>
@@ -416,7 +415,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                     setMaxAttempts(Number(event.target.value) as RoomMaxAttempts)
                   }
                 >
-                  {[modeId === "npc" ? 4 : modeId === "aeon" ? 8 : 6].map((attempts) => (
+                  {[modeId === "aeon" ? 8 : 6].map((attempts) => (
                     <option key={attempts} value={attempts}>
                       {attempts} {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
                     </option>

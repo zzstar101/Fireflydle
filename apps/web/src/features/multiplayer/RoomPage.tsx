@@ -561,6 +561,7 @@ export default function RoomPage() {
               characters={roster}
               locale={locale}
               searchIndex={contentManifest.searchIndex}
+              showImages={snapshot.configuration.modeId !== "aeon"}
               excludedIds={ownGuessedIds}
               disabled={
                 !canGuess ||

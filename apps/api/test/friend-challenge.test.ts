@@ -295,11 +295,7 @@ describe("普通角色好友挑战", () => {
 });
 
 describe("特殊模式好友挑战", () => {
-  for (const modeId of [
-    "npc",
-    "currency-wars",
-    "aeon",
-  ] as const satisfies readonly ContentModeId[]) {
+  for (const modeId of ["currency-wars", "aeon"] as const satisfies readonly ContentModeId[]) {
     it(`${modeId} 锁定快照并完成首次成绩比较`, async () => {
       const creatorCookie = await createSession();
       const challengerCookie = await createSession();

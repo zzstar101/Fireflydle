@@ -181,11 +181,16 @@ const CurrencyWarsAssetSchema = z.strictObject({
   rightsNotice: z.string().min(1),
 });
 
+const CurrencyWarsCostSchema = z.union([
+  z.number().int().min(1).max(5),
+  z.array(z.number().int().min(1).max(5)).min(2).max(5),
+]);
+
 export const CurrencyWarsUnitSummarySchema = z.strictObject({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
   names: LocalizedTextSchema,
   aliases: LocalizedAliasesSchema,
-  cost: z.number().int().min(1).max(5),
+  cost: CurrencyWarsCostSchema,
   position: z.enum(["front", "back", "front-back"]),
   assets: CurrencyWarsAssetSchema,
 });
@@ -1122,7 +1127,7 @@ export const CurrencyWarsUnitSchema = z
     source: EntitySourceSchema,
     reviewStatus: EntityReviewStatusSchema,
     assets: CurrencyWarsAssetSchema,
-    cost: z.number().int().min(1).max(5),
+    cost: CurrencyWarsCostSchema,
     position: z.enum(["front", "back", "front-back"]),
     synergies: z.array(ContentIdSchema),
   })

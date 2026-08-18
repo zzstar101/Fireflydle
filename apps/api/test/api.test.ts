@@ -478,7 +478,7 @@ describe("服务端游戏裁决", () => {
     expect(unavailable.status).toBe(409);
   });
 
-  it("NPC 使用独立四猜快照，创建和恢复不泄露答案", async () => {
+  it("NPC 题库仍可读取，但新对局入口已关闭", async () => {
     const { cookie } = await createSession();
     const roster = await dataOf<Array<Record<string, unknown> & { id: string }>>(
       await SELF.fetch("https://fireflydle.games/api/npcs", { headers: { cookie } }),
@@ -486,88 +486,23 @@ describe("服务端游戏裁决", () => {
     expect(roster.map((entry) => entry.id).sort()).toEqual(
       ["npc-pom-pom", "npc-siobhan", "npc-skott"].sort(),
     );
-
-    const create = () =>
-      SELF.fetch("https://fireflydle.games/api/games", {
-        method: "POST",
-        headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ modeId: "npc", activityId: "practice" }),
-      });
-    const game = await dataOf<PublicGame>(await create());
-    expect(game.modeId).toBe("npc");
-    expect(game.maxAttempts).toBe(4);
-    expect(game.answer).toBeNull();
-    expect(game.fieldDefinitions?.map((field) => field.id)).toEqual([
-      "region",
-      "faction",
-      "debut-version",
-    ]);
-    expect((await dataOf<PublicGame>(await create())).id).toBe(game.id);
-
-    const stored = await env.DB.prepare("SELECT target_character_id FROM games WHERE id = ?")
-      .bind(game.id)
-      .first<{ target_character_id: string }>();
-    const finished = await dataOf<PublicGame>(
-      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
-        method: "POST",
-        headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ characterId: stored?.target_character_id }),
-      }),
-    );
-    expect(finished.status).toBe("won");
-    expect(finished.answer?.id).toBe(stored?.target_character_id);
-    expect(finished.guesses[0]?.cells.map((cell) => cell.field)).toEqual([
-      "region",
-      "faction",
-      "debut-version",
-    ]);
-    expect(finished.inferenceReview?.initialCandidates).toBe(3);
-    expect(finished.inferenceReview?.steps[0]?.remainingCandidates).toBe(1);
-
-    const replay = await dataOf<{ kind: string; game: PublicGame }>(
-      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, {
-        headers: { cookie },
-      }),
-    );
-    expect(replay.kind).toBe("solo");
-    expect(replay.game.modeId).toBe("npc");
-    expect(replay.game.guesses).toEqual(finished.guesses);
-    expect(replay.game.inferenceReview).toEqual(finished.inferenceReview);
-
-    const lossFixture = await dataOf<PublicGame>(await create());
-    const base = roster[0];
-    if (!base) throw new Error("NPC fixture 缺少基础实体");
-    const fixtureCandidates = Object.fromEntries(
-      [1, 2, 3, 4].map((index) => [
-        `npc-candidate-fixture-${index}`,
-        { ...base, id: `npc-candidate-fixture-${index}` },
-      ]),
-    );
-    await env.DB.prepare("UPDATE games SET candidate_pool_json = ? WHERE id = ?")
-      .bind(JSON.stringify(fixtureCandidates), lossFixture.id)
-      .run();
-    let loss = lossFixture;
-    for (const id of Object.keys(fixtureCandidates)) {
-      loss = await dataOf<PublicGame>(
-        await SELF.fetch(`https://fireflydle.games/api/games/${lossFixture.id}/guesses`, {
-          method: "POST",
-          headers: { cookie, "content-type": "application/json" },
-          body: JSON.stringify({ characterId: id }),
-        }),
-      );
-    }
-    expect(loss.status).toBe("lost");
-    expect(loss.guesses).toHaveLength(4);
-    expect(loss.answer?.id).not.toMatch(/^npc-candidate-fixture-/);
-    const stats = await dataOf<{ practicePlayed: number }>(
-      await SELF.fetch("https://fireflydle.games/api/stats/me", { headers: { cookie } }),
-    );
-    expect(stats.practicePlayed).toBe(0);
-    expect(stats).not.toHaveProperty("randomPlayed");
+    const create = await SELF.fetch("https://fireflydle.games/api/games", {
+      method: "POST",
+      headers: { cookie, "content-type": "application/json" },
+      body: JSON.stringify({ modeId: "npc", activityId: "practice" }),
+    });
+    expect(create.status).toBe(400);
   });
 
   it("币战复盘使用绑定候选池精确计数，且不泄露羁绊名称", async () => {
     const { cookie } = await createSession();
+    const playable = await dataOf<PublicGame>(
+      await SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
+      }),
+    );
     const game = await dataOf<PublicGame>(
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
@@ -575,6 +510,8 @@ describe("服务端游戏裁决", () => {
         body: JSON.stringify({ modeId: "currency-wars", activityId: "practice" }),
       }),
     );
+    expect(game.modeId).toBe("currency-wars");
+    expect(game.id).not.toBe(playable.id);
     const stored = await env.DB.prepare(
       "SELECT target_character_id, candidate_pool_json FROM games WHERE id = ?",
     )
@@ -1000,9 +937,8 @@ describe("排行榜准入", () => {
 });
 
 describe("匹配、SQLite Durable Object 与 WebSocket", () => {
-  it("四种私人房模式通过真实 HTTP/WebSocket 保留配置与专用字段矩阵", async () => {
+  it("三种私人房模式通过真实 HTTP/WebSocket 保留配置与专用字段矩阵", async () => {
     for (const [modeId, maxAttempts, modifier] of [
-      ["npc", 4, "fog"],
       ["currency-wars", 6, "fog"],
       ["aeon", 8, "speed"],
     ] as const) {

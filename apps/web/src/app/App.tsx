@@ -14,10 +14,6 @@ const PlayableEndlessPage = lazy(() =>
     default: module.PlayableEndlessPage,
   })),
 );
-const NpcGamePage = lazy(() => import("../features/game/NpcModePages"));
-const NpcEndlessPage = lazy(() =>
-  import("../features/game/NpcModePages").then((module) => ({ default: module.NpcEndlessPage })),
-);
 const CurrencyWarsGamePage = lazy(() => import("../features/game/CurrencyWarsModePages"));
 const CurrencyWarsEndlessPage = lazy(() =>
   import("../features/game/CurrencyWarsModePages").then((module) => ({
@@ -139,15 +135,6 @@ function RouteContent() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/replay/:replayId" element={<ReplayPage />} />
         <Route path="/challenge/:challengeId" element={<FriendChallengePage />} />
-        <Route path="/npc/practice" element={<NpcGamePage key="npc-practice" />} />
-        <Route
-          path="/npc/endless"
-          element={
-            <OnlineActivity>
-              <NpcEndlessPage key="npc-endless" />
-            </OnlineActivity>
-          }
-        />
         <Route
           path="/currency-wars/practice"
           element={<CurrencyWarsGamePage key="currency-wars-practice" />}
@@ -170,7 +157,6 @@ function RouteContent() {
           }
         />
         <Route path="/playable/weekly" element={<WeeklyPage routeModeId="playable" />} />
-        <Route path="/npc/weekly" element={<WeeklyPage routeModeId="npc" />} />
         <Route path="/currency-wars/weekly" element={<WeeklyPage routeModeId="currency-wars" />} />
         <Route path="/aeon/weekly" element={<WeeklyPage routeModeId="aeon" />} />
         <Route path="/legal" element={<LegalPage />} />

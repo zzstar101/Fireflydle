@@ -1,4 +1,4 @@
-export type SpecialModeId = "npc" | "currency-wars" | "aeon";
+export type SpecialModeId = "currency-wars" | "aeon";
 export type SpecialModePackInspection = "ready" | "missing" | "unsupported";
 
 export interface SpecialModePackDefinition {
@@ -10,8 +10,7 @@ export interface SpecialModePackDefinition {
 
 const CACHE_PREFIX = "fireflydle-mode-";
 const PACK_VERSIONS: Record<SpecialModeId, string> = {
-  npc: "1.0.1",
-  "currency-wars": "1.0.2",
+  "currency-wars": "1.1.0",
   aeon: "1.0.1",
 };
 

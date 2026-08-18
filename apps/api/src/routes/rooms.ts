@@ -111,9 +111,12 @@ roomRoutes.post("/rooms", async (context) => {
   const raw = await readOptionalJson(context);
   const body = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
   const modeId = body.modeId ?? "playable";
+  if (modeId === "npc") {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "npc-mode-disabled" });
+  }
   const parsed = CreateRoomRequestSchema.safeParse({
     ...body,
-    maxAttempts: body.maxAttempts ?? (modeId === "npc" ? 4 : modeId === "aeon" ? 8 : 6),
+    maxAttempts: body.maxAttempts ?? (modeId === "aeon" ? 8 : 6),
   });
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
   if (parsed.data.modifier === "speed" && parsed.data.roundTimeSeconds === null) {

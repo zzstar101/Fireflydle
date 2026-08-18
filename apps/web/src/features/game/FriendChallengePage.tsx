@@ -260,7 +260,9 @@ export default function FriendChallengePage() {
               <CharacterCombobox
                 characters={rosterQuery.data ?? []}
                 locale={locale}
-                {...(challenge.modeId === "aeon" ? { entityLabel: modeLabel("aeon", locale) } : {})}
+                {...(challenge.modeId === "aeon"
+                  ? { entityLabel: modeLabel("aeon", locale), showImages: false }
+                  : {})}
                 excludedIds={guessedIds}
                 disabled={busy || rosterQuery.isPending}
                 onSubmit={(id) => void submitGuess(id)}

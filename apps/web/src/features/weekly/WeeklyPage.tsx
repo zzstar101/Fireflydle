@@ -241,7 +241,7 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                   ? { searchIndex: contentManifest.searchIndex }
                   : {})}
                 {...(routeModeId === "aeon"
-                  ? { entityLabel: locale === "en" ? "Aeon" : "星神" }
+                  ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
                   : {})}
                 excludedIds={guessedIds}
                 disabled={busy}

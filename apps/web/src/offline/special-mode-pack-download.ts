@@ -24,7 +24,6 @@ function assetPaths(manifest: ContentManifest): string[] {
 }
 
 async function loadManifest(modeId: SpecialModeId): Promise<ContentManifest> {
-  if (modeId === "npc") return (await import("@fireflydle/game-data/npc")).npcManifest;
   if (modeId === "currency-wars") {
     return (await import("@fireflydle/game-data/currency-wars")).currencyWarsManifest;
   }

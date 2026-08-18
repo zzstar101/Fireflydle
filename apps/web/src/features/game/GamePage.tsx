@@ -768,7 +768,7 @@ function ActiveGame({
                 ? { searchIndex: runtime.manifest.searchIndex }
                 : {})}
               {...(contentModeId === "aeon"
-                ? { entityLabel: locale === "en" ? "Aeon" : "星神" }
+                ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
                 : {})}
               excludedIds={guessedIds}
               disabled={busy}
@@ -965,7 +965,8 @@ export function ModeGamePage({
   const [tutorialBusy, setTutorialBusy] = useState(false);
   const [tutorialError, setTutorialError] = useState(false);
   const requestedGameId = searchParams.get("game");
-  const specialModeId = contentModeId === "playable" ? null : contentModeId;
+  const specialModeId =
+    contentModeId === "currency-wars" || contentModeId === "aeon" ? contentModeId : null;
   const offlinePack = useSpecialModePack(specialModeId, specialModeId !== null);
   const accountSession = useSession(offlinePack.online);
   const serverRequestedGameId = offlinePack.online ? requestedGameId : null;

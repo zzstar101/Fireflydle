@@ -13,6 +13,7 @@ export function CharacterCombobox({
   disabled,
   onSubmit,
   entityLabel,
+  showImages = true,
 }: {
   characters: readonly GameEntitySummary[];
   locale: Locale;
@@ -21,6 +22,7 @@ export function CharacterCombobox({
   disabled: boolean;
   onSubmit: (characterId: string) => void;
   entityLabel?: string;
+  showImages?: boolean;
 }) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
@@ -124,7 +126,7 @@ export function CharacterCombobox({
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => select(result.entity)}
                   >
-                    <CharacterAvatar character={result.entity} size="small" />
+                    {showImages ? <CharacterAvatar character={result.entity} size="small" /> : null}
                     <span className="combobox-result-copy">
                       <strong>{result.entity.names[locale]}</strong>
                       {result.matchedText !== result.entity.names[locale] && (
