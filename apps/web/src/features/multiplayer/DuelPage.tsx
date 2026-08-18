@@ -13,9 +13,15 @@ import {
 } from "lucide-react";
 import {
   MatchmakingResultSchema,
+  type ActivityId,
+  type ContentModeId,
   type MatchFormat,
   type MatchmakingResult,
   type RoomApiResponse,
+  type RoomMaxAttempts,
+  type RoomModifier,
+  type RoomPreviewResponse,
+  type RoomRoundTimeSeconds,
 } from "@fireflydle/contracts";
 import { Link, useNavigate } from "react-router-dom";
 import { apiRequest, ensureSession, getWebSocketUrl } from "../../api/client";
@@ -24,19 +30,26 @@ import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
 import "./multiplayer.css";
 
-export default function DuelPage() {
+export default function DuelPage({ activityIds }: { activityIds: readonly ActivityId[] }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const session = useSession();
   const navigate = useNavigate();
   const [format, setFormat] = useState<MatchFormat>(3);
+  const [modeId, setModeId] = useState<ContentModeId>("playable");
+  const [roundTimeSeconds, setRoundTimeSeconds] = useState<RoomRoundTimeSeconds>(90);
+  const [maxAttempts, setMaxAttempts] = useState<RoomMaxAttempts>(6);
+  const [modifier, setModifier] = useState<RoomModifier>(null);
   const [roomCode, setRoomCode] = useState("");
+  const [roomPreview, setRoomPreview] = useState<RoomPreviewResponse | null>(null);
   const [busy, setBusy] = useState<"match" | "create" | "join" | null>(null);
   const [matchTicket, setMatchTicket] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accountRequired, setAccountRequired] = useState(false);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
+  const rankedMatchEnabled = activityIds.includes("ranked-match");
+  const privateRoomEnabled = activityIds.includes("private-room");
 
   const openMatchedRoom = (result: Extract<MatchmakingResult, { status: "matched" }>) => {
     navigate(`/room/${result.roomId}`, {
@@ -45,6 +58,9 @@ export default function DuelPage() {
   };
 
   const action = async (kind: "match" | "create" | "join") => {
+    if ((kind === "match" && !rankedMatchEnabled) || (kind !== "match" && !privateRoomEnabled)) {
+      return;
+    }
     if (kind === "match" && session.data?.user.isGuest) {
       setAccountRequired(true);
       setError(null);
@@ -68,12 +84,27 @@ export default function DuelPage() {
         kind === "create"
           ? await apiRequest<RoomApiResponse>("/rooms", {
               method: "POST",
-              body: JSON.stringify({ format }),
+              body: JSON.stringify({
+                modeId,
+                activityId: "private-room",
+                format,
+                roundTimeSeconds,
+                maxAttempts,
+                modifier,
+              }),
             })
-          : await apiRequest<RoomApiResponse>("/rooms/join", {
-              method: "POST",
-              body: JSON.stringify({ code: roomCode }),
-            });
+          : roomPreview
+            ? await apiRequest<RoomApiResponse>("/rooms/join", {
+                method: "POST",
+                body: JSON.stringify({ code: roomCode }),
+              })
+            : await apiRequest<RoomPreviewResponse>(
+                `/rooms/preview?code=${encodeURIComponent(roomCode)}`,
+              );
+      if (kind === "join" && !roomPreview) {
+        setRoomPreview(response as RoomPreviewResponse);
+        return;
+      }
       navigate(`/room/${response.roomId}`, { state: { roomCode: response.code } });
     } catch {
       setError(
@@ -244,7 +275,10 @@ export default function DuelPage() {
         }
       />
 
-      <section className="duel-stage" inert={matchTicket ? true : undefined}>
+      <section
+        className={`duel-stage${rankedMatchEnabled ? " has-ranked" : ""}`}
+        inert={matchTicket ? true : undefined}
+      >
         <div className="duel-signal" aria-hidden="true">
           <span>{locale === "zh-CN" ? "你" : locale === "ja" ? "あなた" : "YOU"}</span>
           <i />
@@ -252,94 +286,236 @@ export default function DuelPage() {
           <i />
           <span>{locale === "zh-CN" ? "对手" : locale === "ja" ? "相手" : "RIVAL"}</span>
         </div>
-        <article className="match-card primary-match-card">
-          <div className="match-card-number">01 / RANKED</div>
-          <Swords size={34} aria-hidden="true" />
-          <h2>{t("duel.matchmaking")}</h2>
-          <p>{t("duel.ranked")}</p>
-          <div className="elo-band">
-            <span>ELO</span>
-            <strong>{session.data?.user.elo ?? 1000}</strong>
-            <small>±100 → ±600</small>
-          </div>
-          <button
-            className="ticket-button"
-            type="button"
-            disabled={busy !== null || Boolean(matchTicket) || session.isPending}
-            onClick={() => void action("match")}
-          >
-            {busy === "match" ? <span className="button-spinner" /> : <Radio size={17} />}{" "}
-            {t("duel.matchmaking")} <ArrowRight size={16} />
-          </button>
-        </article>
+        {rankedMatchEnabled ? (
+          <article className="match-card primary-match-card">
+            <div className="match-card-number">01 / RANKED</div>
+            <Swords size={34} aria-hidden="true" />
+            <h2>{t("duel.matchmaking")}</h2>
+            <p>{t("duel.ranked")}</p>
+            <div className="elo-band">
+              <span>ELO</span>
+              <strong>{session.data?.user.elo ?? 1000}</strong>
+              <small>±100 → ±600</small>
+            </div>
+            <button
+              className="ticket-button"
+              type="button"
+              disabled={busy !== null || Boolean(matchTicket) || session.isPending}
+              onClick={() => void action("match")}
+            >
+              {busy === "match" ? <span className="button-spinner" /> : <Radio size={17} />}{" "}
+              {t("duel.matchmaking")} <ArrowRight size={16} />
+            </button>
+          </article>
+        ) : null}
 
-        <article className="match-card">
-          <div className="match-card-number">02 / PRIVATE</div>
-          <DoorOpen size={32} aria-hidden="true" />
-          <h2>{t("duel.create")}</h2>
-          <p>{t("duel.unranked")}</p>
-          <div className="format-picker" role="radiogroup" aria-label={t("duel.format")}>
-            {formats.map((value) => (
-              <button
-                key={value}
-                data-format={value}
-                type="button"
-                role="radio"
-                aria-checked={format === value}
-                tabIndex={format === value ? 0 : -1}
+        {privateRoomEnabled ? (
+          <article className="match-card">
+            <div className="match-card-number">{rankedMatchEnabled ? "02" : "01"} / PRIVATE</div>
+            <DoorOpen size={32} aria-hidden="true" />
+            <h2>{t("duel.create")}</h2>
+            <p>{t("duel.unranked")}</p>
+            <div className="format-picker" role="radiogroup" aria-label={t("duel.format")}>
+              {formats.map((value) => (
+                <button
+                  key={value}
+                  data-format={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={format === value}
+                  tabIndex={format === value ? 0 : -1}
+                  disabled={Boolean(matchTicket)}
+                  className={format === value ? "active" : undefined}
+                  onClick={() => setFormat(value)}
+                  onKeyDown={(event) => moveFormatFocus(event, value)}
+                >
+                  BO{value}
+                </button>
+              ))}
+            </div>
+            <div className="room-config-fields">
+              <label>
+                <span>
+                  {locale === "zh-CN" ? "内容模式" : locale === "ja" ? "モード" : "Content mode"}
+                </span>
+                <select
+                  value={modeId}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) => {
+                    const next = event.target.value as ContentModeId;
+                    setModeId(next);
+                    setMaxAttempts(next === "npc" ? 4 : next === "aeon" ? 8 : 6);
+                    if (next === "aeon" && modifier === "fog") setModifier(null);
+                  }}
+                >
+                  <option value="playable">{locale === "zh-CN" ? "普通角色" : "Playable"}</option>
+                  <option value="npc">NPC</option>
+                  <option value="currency-wars">
+                    {locale === "zh-CN" ? "货币战争" : "Currency Wars"}
+                  </option>
+                  <option value="aeon">{locale === "zh-CN" ? "星神" : "Aeons"}</option>
+                </select>
+              </label>
+              <label>
+                <span>
+                  {locale === "zh-CN" ? "每题计时" : locale === "ja" ? "制限時間" : "Round time"}
+                </span>
+                <select
+                  value={roundTimeSeconds ?? "unlimited"}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) =>
+                    setRoundTimeSeconds(
+                      event.target.value === "unlimited"
+                        ? null
+                        : (Number(event.target.value) as RoomRoundTimeSeconds),
+                    )
+                  }
+                >
+                  <option value="unlimited" disabled={modifier === "speed"}>
+                    {locale === "zh-CN" ? "不限时" : locale === "ja" ? "無制限" : "Unlimited"}
+                  </option>
+                  {[30, 60, 90].map((seconds) => (
+                    <option key={seconds} value={seconds}>
+                      {seconds} {locale === "zh-CN" ? "秒" : locale === "ja" ? "秒" : "seconds"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>
+                  {locale === "zh-CN" ? "特殊规则" : locale === "ja" ? "特殊ルール" : "Modifier"}
+                </span>
+                <select
+                  value={modifier ?? "none"}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setModifier(value === "speed" || value === "fog" ? value : null);
+                    if (value === "speed" && roundTimeSeconds === null) setRoundTimeSeconds(90);
+                  }}
+                >
+                  <option value="none">
+                    {locale === "zh-CN" ? "无" : locale === "ja" ? "なし" : "None"}
+                  </option>
+                  <option value="fog" disabled={modeId === "aeon"}>
+                    {locale === "zh-CN" ? "迷雾" : locale === "ja" ? "霧" : "Fog"}
+                  </option>
+                  <option value="speed">
+                    {locale === "zh-CN" ? "极速：每错一次 -5 秒" : "Speed: -5s per miss"}
+                  </option>
+                </select>
+              </label>
+              <label>
+                <span>
+                  {locale === "zh-CN" ? "每题猜测" : locale === "ja" ? "推測回数" : "Guesses"}
+                </span>
+                <select
+                  value={maxAttempts}
+                  disabled={Boolean(matchTicket)}
+                  onChange={(event) =>
+                    setMaxAttempts(Number(event.target.value) as RoomMaxAttempts)
+                  }
+                >
+                  {[modeId === "npc" ? 4 : modeId === "aeon" ? 8 : 6].map((attempts) => (
+                    <option key={attempts} value={attempts}>
+                      {attempts} {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <button
+              className="ticket-button-secondary"
+              type="button"
+              disabled={busy !== null || Boolean(matchTicket)}
+              onClick={() => void action("create")}
+            >
+              {busy === "create" ? <span className="button-spinner" /> : <UsersRound size={17} />}{" "}
+              {t("duel.create")}
+            </button>
+          </article>
+        ) : null}
+
+        {privateRoomEnabled ? (
+          <article className="match-card">
+            <div className="match-card-number">{rankedMatchEnabled ? "03" : "02"} / INVITE</div>
+            <Hash size={32} aria-hidden="true" />
+            <h2>{t("duel.join")}</h2>
+            <p>
+              {locale === "zh-CN"
+                ? "输入好友分享的 5 位房间码。"
+                : locale === "ja"
+                  ? "友達から共有された5桁のコードを入力。"
+                  : "Enter the 5-character code shared by a friend."}
+            </p>
+            <label className="room-code-input">
+              <span className="sr-only">{t("duel.roomCode")}</span>
+              <input
+                value={roomCode}
+                maxLength={5}
+                placeholder="A7K9P"
                 disabled={Boolean(matchTicket)}
-                className={format === value ? "active" : undefined}
-                onClick={() => setFormat(value)}
-                onKeyDown={(event) => moveFormatFocus(event, value)}
-              >
-                BO{value}
-              </button>
-            ))}
-          </div>
-          <button
-            className="ticket-button-secondary"
-            type="button"
-            disabled={busy !== null || Boolean(matchTicket)}
-            onClick={() => void action("create")}
-          >
-            {busy === "create" ? <span className="button-spinner" /> : <UsersRound size={17} />}{" "}
-            {t("duel.create")}
-          </button>
-        </article>
-
-        <article className="match-card">
-          <div className="match-card-number">03 / INVITE</div>
-          <Hash size={32} aria-hidden="true" />
-          <h2>{t("duel.join")}</h2>
-          <p>
-            {locale === "zh-CN"
-              ? "输入好友分享的 5 位房间码。"
-              : locale === "ja"
-                ? "友達から共有された5桁のコードを入力。"
-                : "Enter the 5-character code shared by a friend."}
-          </p>
-          <label className="room-code-input">
-            <span className="sr-only">{t("duel.roomCode")}</span>
-            <input
-              value={roomCode}
-              maxLength={5}
-              placeholder="A7K9P"
-              disabled={Boolean(matchTicket)}
-              onChange={(event) =>
-                setRoomCode(event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, ""))
-              }
-            />
-          </label>
-          <button
-            className="ticket-button-secondary"
-            type="button"
-            disabled={busy !== null || Boolean(matchTicket) || roomCode.length !== 5}
-            onClick={() => void action("join")}
-          >
-            {busy === "join" ? <span className="button-spinner" /> : <DoorOpen size={17} />}{" "}
-            {t("duel.join")}
-          </button>
-        </article>
+                onChange={(event) => {
+                  setRoomCode(event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, ""));
+                  setRoomPreview(null);
+                }}
+              />
+            </label>
+            {roomPreview ? (
+              <div className="room-preview" role="status">
+                <strong>
+                  {locale === "zh-CN"
+                    ? "加入前确认"
+                    : locale === "ja"
+                      ? "参加前の確認"
+                      : "Confirm settings"}
+                </strong>
+                <span>BO{roomPreview.configuration.format}</span>
+                <span>
+                  {roomPreview.configuration.roundTimeSeconds === null
+                    ? locale === "zh-CN"
+                      ? "不限时"
+                      : locale === "ja"
+                        ? "無制限"
+                        : "Unlimited"
+                    : `${roomPreview.configuration.roundTimeSeconds}s`}
+                </span>
+                <span>
+                  {roomPreview.configuration.maxAttempts}{" "}
+                  {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
+                </span>
+                <span>
+                  {roomPreview.configuration.modifier === "fog"
+                    ? locale === "zh-CN"
+                      ? "迷雾"
+                      : locale === "ja"
+                        ? "霧"
+                        : "Fog"
+                    : locale === "zh-CN"
+                      ? "无特殊规则"
+                      : locale === "ja"
+                        ? "特殊ルールなし"
+                        : "No modifier"}
+                </span>
+              </div>
+            ) : null}
+            <button
+              className="ticket-button-secondary"
+              type="button"
+              disabled={busy !== null || Boolean(matchTicket) || roomCode.length !== 5}
+              onClick={() => void action("join")}
+            >
+              {busy === "join" ? <span className="button-spinner" /> : <DoorOpen size={17} />}{" "}
+              {roomPreview
+                ? t("duel.join")
+                : locale === "zh-CN"
+                  ? "查看房间配置"
+                  : locale === "ja"
+                    ? "設定を確認"
+                    : "Review room"}
+            </button>
+          </article>
+        ) : null}
       </section>
 
       {matchTicket && (

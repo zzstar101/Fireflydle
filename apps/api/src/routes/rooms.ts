@@ -1,18 +1,15 @@
-import { JoinRoomRequestSchema, MatchFormatSchema } from "@fireflydle/contracts";
+import { CreateRoomRequestSchema, JoinRoomRequestSchema } from "@fireflydle/contracts";
 import { Hono } from "hono";
 import { z } from "zod";
-import { getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem, ok, readJson, readOptionalJson } from "../lib/http";
 import { requireAuth } from "../services/auth";
+import { loadMultiplayerContentSnapshot } from "../services/multiplayer-content";
 import { enforceRateLimit } from "../services/rate-limit";
 import type { AppContext, AuthUser } from "../types";
 
 const ROOM_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const ROOM_TTL_MS = 24 * 60 * 60 * 1_000;
 const RoomIdSchema = z.string().uuid();
-const CreatePrivateRoomSchema = z.object({
-  format: MatchFormatSchema.optional().default(3),
-});
 
 interface RoomDirectoryRow {
   room_id: string;
@@ -111,13 +108,19 @@ roomRoutes.post("/rooms", async (context) => {
     limit: 10,
     windowMs: 60 * 1_000,
   });
-  const parsed = CreatePrivateRoomSchema.safeParse(await readOptionalJson(context));
+  const raw = await readOptionalJson(context);
+  const body = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const modeId = body.modeId ?? "playable";
+  const parsed = CreateRoomRequestSchema.safeParse({
+    ...body,
+    maxAttempts: body.maxAttempts ?? (modeId === "npc" ? 4 : modeId === "aeon" ? 8 : 6),
+  });
   if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
-  const [characters, targets] = await Promise.all([
-    getEnabledCharacters(context.env.DB),
-    getTargetPool(context.env.DB),
-  ]);
-  if (targets.length === 0) {
+  if (parsed.data.modifier === "speed" && parsed.data.roundTimeSeconds === null) {
+    throw new ApiProblem("VALIDATION_FAILED", 400, { reason: "speed-requires-timed-round" });
+  }
+  const contentSnapshot = await loadMultiplayerContentSnapshot(context.env.DB, parsed.data.modeId);
+  if (!contentSnapshot) {
     throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
   }
 
@@ -134,11 +137,11 @@ roomRoutes.post("/rooms", async (context) => {
     const snapshot = await context.env.GAME_ROOM.getByName(roomId).initialize({
       roomId,
       code,
+      activityId: parsed.data.activityId,
       format: parsed.data.format,
-      ranked: false,
+      configuration: parsed.data,
       owner: participant(auth.user),
-      characters,
-      targetIds: targets.map((character) => character.id),
+      contentSnapshot,
       now,
     });
     return ok(context, { roomId, code, snapshot }, 201);
@@ -146,6 +149,24 @@ roomRoutes.post("/rooms", async (context) => {
     await context.env.DB.prepare("DELETE FROM room_directory WHERE room_id = ?").bind(roomId).run();
     throw error;
   }
+});
+
+roomRoutes.get("/rooms/preview", async (context) => {
+  const auth = requireAuth(context);
+  await enforceRateLimit(context.env.DB, "rooms:preview:user", auth.user.id, {
+    limit: 20,
+    windowMs: 60 * 1_000,
+  });
+  const parsed = JoinRoomRequestSchema.safeParse({ code: context.req.query("code") });
+  if (!parsed.success) throw new ApiProblem("VALIDATION_FAILED", 400);
+  const room = await roomByCode(context.env.DB, parsed.data.code);
+  const preview = await context.env.GAME_ROOM.getByName(room.durable_object_name).preview();
+  if (preview.state !== "waiting") throw new ApiProblem("ROOM_FULL", 409);
+  return ok(context, {
+    roomId: room.room_id,
+    code: room.room_code,
+    configuration: preview.configuration,
+  });
 });
 
 roomRoutes.post("/rooms/join", async (context) => {

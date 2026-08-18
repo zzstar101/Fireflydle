@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-08-16",
+  "scope": {
+    "sourceRoster": "测试用官方 NPC 名单快照",
+    "sourceCounts": { "zh-CN": 3, "en": 3, "ja": 2 },
+    "unionEntries": 3,
+    "policy": "只有证据闭合的 NPC 才能进入发布池。"
+  },
+  "coverage": {
+    "statusCounts": { "target": 1, "candidateOnly": 1, "pending": 0, "excluded": 1 },
+    "anyUsableName": "3/3",
+    "threeLocaleNames": "2/3",
+    "recognizableAsset": "2/3",
+    "sourceTrace": "3/3",
+    "completeQuizFields": "3/3",
+    "humanApprovedTargets": "1/1"
+  },
+  "policy": {
+    "target": "完成全部审核并允许作为答案。",
+    "candidateOnly": "可搜索但不得作为答案。",
+    "pending": "证据未闭合。",
+    "excluded": "不进入 NPC 池。",
+    "identity": "换装合并，首领形态排除。",
+    "complexity": "手工快照，不建立审批平台。"
+  },
+  "reviewChecklist": [
+    "sourceChecked",
+    "namesChecked",
+    "fallbackChecked",
+    "assetChecked",
+    "identityBoundaryChecked",
+    "regionChecked",
+    "factionChecked",
+    "debutChecked",
+    "humanApproved"
+  ],
+  "unresolvedEvidenceGaps": [],
+  "sources": {
+    "officialHoyowikiNpc": {
+      "menuId": "105",
+      "menuUrl": "https://example.com/npc-menu",
+      "listApi": "https://example.com/api/npc-menu",
+      "retrievedAt": "2026-08-16T00:00:00.000+00:00",
+      "responseSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "rights": "仅用于测试"
+    },
+    "officialVersionNotices": {
+      "listApi": "https://example.com/api/version-notices",
+      "use": "校对首次登场版本。"
+    }
+  },
+  "entries": [
+    {
+      "censusEntryKey": "hoyowiki:105:1001",
+      "projectId": "npc-express-guide",
+      "sourceEntryPageId": "1001",
+      "status": "target",
+      "names": { "zh-CN": "列车向导", "en": "Express Guide" },
+      "fallbackLocale": "zh-CN",
+      "factionsByLocale": {
+        "zh-CN": ["星穹列车"],
+        "en": ["Astral Express"],
+        "ja": ["星穹列車"]
+      },
+      "recognizableAsset": {
+        "status": "available",
+        "sourceUrls": ["https://example.com/assets/express-guide.png"],
+        "manuallyChecked": true
+      },
+      "quizFields": {
+        "region": "astral-express",
+        "faction": "astral-express",
+        "debutVersion": "1.0"
+      },
+      "identity": { "decision": "standalone", "mergedIntoProjectId": null },
+      "sources": [
+        {
+          "sourceId": "official-npc-entry",
+          "url": "https://example.com/npc/express-guide",
+          "locator": "entry_page_id=1001",
+          "supports": ["identity", "names", "asset", "debutEvidence"]
+        }
+      ],
+      "review": {
+        "sourceChecked": true,
+        "namesChecked": true,
+        "fallbackChecked": true,
+        "assetChecked": true,
+        "identityBoundaryChecked": true,
+        "regionChecked": true,
+        "factionChecked": true,
+        "debutChecked": true,
+        "humanApproved": true,
+        "note": "独立 NPC，普通换装合并。"
+      }
+    },
+    {
+      "censusEntryKey": "hoyowiki:105:1002",
+      "projectId": "npc-station-merchant",
+      "sourceEntryPageId": "1002",
+      "status": "candidate-only",
+      "names": {
+        "zh-CN": "空间站商人",
+        "en": "Station Merchant",
+        "ja": "宇宙ステーション商人"
+      },
+      "fallbackLocale": "en",
+      "factionsByLocale": {
+        "zh-CN": ["空间站「黑塔」"],
+        "en": ["Herta Space Station"],
+        "ja": ["宇宙ステーション「ヘルタ」"]
+      },
+      "recognizableAsset": {
+        "status": "available",
+        "sourceUrls": ["https://example.com/assets/station-merchant.png"],
+        "manuallyChecked": true
+      },
+      "quizFields": {
+        "region": "herta-space-station",
+        "faction": "herta-space-station",
+        "debutVersion": "1.0"
+      },
+      "identity": { "decision": "standalone", "mergedIntoProjectId": null },
+      "sources": [
+        {
+          "sourceId": "official-npc-entry",
+          "url": "https://example.com/npc/station-merchant",
+          "locator": "entry_page_id=1002",
+          "supports": ["identity", "names", "asset", "debutEvidence"]
+        }
+      ],
+      "review": {
+        "sourceChecked": true,
+        "namesChecked": true,
+        "fallbackChecked": true,
+        "assetChecked": true,
+        "identityBoundaryChecked": true,
+        "regionChecked": true,
+        "factionChecked": true,
+        "debutChecked": true,
+        "humanApproved": false,
+        "note": "仅作为可搜索候选。"
+      }
+    },
+    {
+      "censusEntryKey": "hoyowiki:105:1003",
+      "projectId": "npc-boss-form",
+      "sourceEntryPageId": "1003",
+      "status": "excluded",
+      "names": { "zh-CN": "首领形态", "en": "Boss Form", "ja": "ボス形態" },
+      "fallbackLocale": "zh-CN",
+      "factionsByLocale": {
+        "zh-CN": ["匹诺康尼"],
+        "en": ["Penacony"],
+        "ja": ["ピノコニー"]
+      },
+      "recognizableAsset": {
+        "status": "available",
+        "sourceUrls": ["https://example.com/assets/boss-form.png"],
+        "manuallyChecked": false
+      },
+      "quizFields": {
+        "region": "penacony",
+        "faction": "penacony",
+        "debutVersion": "2.0"
+      },
+      "identity": { "decision": "exclude", "mergedIntoProjectId": null },
+      "sources": [
+        {
+          "sourceId": "official-npc-entry",
+          "url": "https://example.com/npc/boss-form",
+          "locator": "entry_page_id=1003",
+          "supports": ["identity"]
+        }
+      ],
+      "review": {
+        "sourceChecked": true,
+        "namesChecked": true,
+        "fallbackChecked": true,
+        "assetChecked": false,
+        "identityBoundaryChecked": true,
+        "regionChecked": false,
+        "factionChecked": false,
+        "debutChecked": false,
+        "humanApproved": false,
+        "note": "战斗首领形态不进入 NPC 池。"
+      }
+    }
+  ]
+}

@@ -2,6 +2,9 @@
 
 候选来源的字段覆盖、稳定性、许可风险和取舍记录见[角色数据源调研](./CHARACTER_DATA_SOURCE_RESEARCH.md)。
 
+NPC 模式的内容清点、目标建议、合并/排除边界和证据缺口见
+[NPC census 与人工审核清单](./NPC_CENSUS.md)。该快照只用于内容策展，尚未接入 NPC 运行时。
+
 ## 结论与覆盖率
 
 当前发布快照截止 **2026-08-02 UTC**，收录国服已正式实装的 **90** 个可玩形态：
@@ -105,16 +108,17 @@ bun run sync:data -- --cache-dir tmp/fireflydle-data-cache --refresh-cache
 
 生成物：
 
-| 路径                                                  | 内容                                           |
-| ----------------------------------------------------- | ---------------------------------------------- |
-| `packages/game-data/src/generated/characters.json`    | 完整 `CharacterSchema` 数组                    |
-| `packages/game-data/src/generated/factions.json`      | 官网三语阵营页签                               |
-| `packages/game-data/src/generated/versions.json`      | 官方版本上线日和比较顺序                       |
-| `packages/game-data/src/generated/sync-metadata.json` | 来源修订、公告 ID、覆盖率和合并决策            |
-| `packages/game-data/generated/characters.sql`         | 三张表的可幂等 D1 发布 seed 与 soft-disable    |
-| `apps/web/public/assets/characters/*`                 | 随站点发布的内容寻址缩略图                     |
-| `apps/web/public/assets/manifest.json`                | 每个素材的本地路径、来源 URL、字节数与 SHA-256 |
-| `apps/web/public/assets/manifest.sha256`              | `manifest.json` 本身的 SHA-256                 |
+| 路径                                                     | 内容                                           |
+| -------------------------------------------------------- | ---------------------------------------------- |
+| `packages/game-data/src/generated/characters.json`       | 完整 `CharacterSchema` 数组                    |
+| `packages/game-data/src/generated/content-manifest.json` | 版本化普通角色实体、模式和题池 manifest        |
+| `packages/game-data/src/generated/factions.json`         | 官网三语阵营页签                               |
+| `packages/game-data/src/generated/versions.json`         | 官方版本上线日和比较顺序                       |
+| `packages/game-data/src/generated/sync-metadata.json`    | 来源修订、公告 ID、覆盖率和合并决策            |
+| `packages/game-data/generated/characters.sql`            | 三张表的可幂等 D1 发布 seed 与 soft-disable    |
+| `apps/web/public/assets/characters/*`                    | 随站点发布的内容寻址缩略图                     |
+| `apps/web/public/assets/manifest.json`                   | 每个素材的本地路径、来源 URL、字节数与 SHA-256 |
+| `apps/web/public/assets/manifest.sha256`                 | `manifest.json` 本身的 SHA-256                 |
 
 D1 SQL 按 `versions` → `factions` → `characters` 的顺序发布，三张表都以 `id` UPSERT，且不改写已有行的 `created_at`。每张表完成全量 UPSERT 后才把清单外历史行 soft-disable；角色还会同时清除 `target_eligible`，不会 `DELETE` 任何可能被历史数据引用的记录。这样 fresh D1 与已运行实例使用同一份 seed，都能得到 29 个版本、23 个阵营和 90 个可选角色。
 

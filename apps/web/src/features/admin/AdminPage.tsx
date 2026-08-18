@@ -37,7 +37,7 @@ import type {
   UserRole,
   Version,
 } from "@fireflydle/contracts";
-import { characters, getFactionName, pathLabels } from "@fireflydle/game-data";
+import { characters, getFactionName, pathLabels } from "@fireflydle/game-data/playable";
 import { PageHeader } from "../../components/PageHeader";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { MarkdownContent } from "../../components/MarkdownContent";
@@ -47,7 +47,7 @@ import { ApiClientError, apiRequest } from "../../api/client";
 import { OperationsPanel } from "./OperationsPanel";
 import "./admin.css";
 
-type AdminTab = "overview" | "characters" | "taxonomy" | "announcements" | "users" | "moderation";
+type AdminTab = "overview" | "characters" | "taxonomy" | "announcements" | "users" | "audit";
 
 interface AdminUser {
   id: string;
@@ -971,73 +971,30 @@ function numberFormat(value: number, locale: Locale): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
-function ModerationPanel({ locale, actorRole }: { locale: Locale; actorRole: UserRole }) {
-  const [resultId, setResultId] = useState("");
-  const [reason, setReason] = useState("");
-  const [message, setMessage] = useState("");
+function AuditPanel({ locale }: { locale: Locale }) {
   const audits = useQuery({
     queryKey: ["admin", "audit-logs"],
     queryFn: () => apiRequest<AuditLog[]>("/admin/audit-logs"),
-    enabled: actorRole === "admin" || actorRole === "owner",
-  });
-  const hide = useMutation({
-    mutationFn: () =>
-      apiRequest<{ hidden: boolean }>(
-        `/admin/leaderboards/daily/${encodeURIComponent(resultId)}?reason=${encodeURIComponent(reason || "moderated")}`,
-        { method: "DELETE" },
-      ),
-    onSuccess: () => {
-      setResultId("");
-      setReason("");
-      setMessage(
-        locale === "zh-CN" ? "该成绩已从公开榜隐藏。" : "Result hidden from the public board.",
-      );
-    },
-    onError: (error) => setMessage(mutationMessage(error, locale)),
   });
   return (
     <div className="admin-stack">
       <section className="admin-card">
         <header>
-          <Ban size={18} />
-          <span>{locale === "zh-CN" ? "隐藏每日榜成绩" : "Hide daily result"}</span>
+          <FileClock size={18} />
+          <span>{locale === "zh-CN" ? "不可变审计记录" : "Immutable audit log"}</span>
         </header>
-        <div className="inline-admin-form">
-          <input
-            value={resultId}
-            onChange={(event) => setResultId(event.target.value)}
-            placeholder="game / result id"
-          />
-          <input
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-            placeholder={locale === "zh-CN" ? "治理原因" : "Moderation reason"}
-          />
-          <button className="ticket-button" disabled={!resultId} onClick={() => hide.mutate()}>
-            <Ban size={15} /> {locale === "zh-CN" ? "隐藏" : "Hide"}
-          </button>
+        <div className="compact-records audit-records">
+          {(audits.data ?? []).map((entry) => (
+            <div key={entry.id}>
+              <span className="mono">{new Date(entry.createdAt).toLocaleString(locale)}</span>
+              <strong>{entry.action}</strong>
+              <small>
+                {entry.targetType} · {entry.targetId ?? "batch"} · {entry.requestId}
+              </small>
+            </div>
+          ))}
         </div>
-        {message ? <p className="admin-message">{message}</p> : null}
       </section>
-      {actorRole === "admin" || actorRole === "owner" ? (
-        <section className="admin-card">
-          <header>
-            <FileClock size={18} />
-            <span>{locale === "zh-CN" ? "不可变审计记录" : "Immutable audit log"}</span>
-          </header>
-          <div className="compact-records audit-records">
-            {(audits.data ?? []).map((entry) => (
-              <div key={entry.id}>
-                <span className="mono">{new Date(entry.createdAt).toLocaleString(locale)}</span>
-                <strong>{entry.action}</strong>
-                <small>
-                  {entry.targetType} · {entry.targetId ?? "batch"} · {entry.requestId}
-                </small>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }
@@ -1084,14 +1041,10 @@ export default function AdminPage() {
         ]
       : []),
     ...(canModerate
-      ? [
-          { id: "users" as const, label: locale === "zh-CN" ? "用户" : "Users", icon: UsersRound },
-          {
-            id: "moderation" as const,
-            label: locale === "zh-CN" ? "排行治理" : "Moderation",
-            icon: Ban,
-          },
-        ]
+      ? [{ id: "users" as const, label: locale === "zh-CN" ? "用户" : "Users", icon: UsersRound }]
+      : []),
+    ...(canOperate
+      ? [{ id: "audit" as const, label: locale === "zh-CN" ? "审计" : "Audit", icon: FileClock }]
       : []),
   ];
   const activeTab = tabs.some((item) => item.id === tab) ? tab : tabs[0]?.id;
@@ -1161,7 +1114,7 @@ export default function AdminPage() {
           {activeTab === "taxonomy" ? <TaxonomyPanel locale={locale} /> : null}
           {activeTab === "announcements" ? <AnnouncementsPanel locale={locale} /> : null}
           {activeTab === "users" ? <UsersPanel locale={locale} actorRole={role} /> : null}
-          {activeTab === "moderation" ? <ModerationPanel locale={locale} actorRole={role} /> : null}
+          {activeTab === "audit" ? <AuditPanel locale={locale} /> : null}
         </section>
       </div>
     </main>

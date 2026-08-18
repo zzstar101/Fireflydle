@@ -15,14 +15,15 @@ async function expireAbandonedGames(db: D1Database, now: number): Promise<void> 
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, activity_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at)
          SELECT
-           g.id, g.user_id, g.mode, g.difficulty, g.date_key, 'expired',
+           g.id, g.user_id, g.mode, g.mode_id, g.activity_id, g.difficulty, g.date_key, 'expired',
            (SELECT COUNT(*) FROM game_guesses gg WHERE gg.game_id = g.id),
            MAX(0, ? - g.started_at), ?, ?
          FROM games g
-         WHERE g.status = 'active' AND g.started_at <= ?`,
+         WHERE g.status = 'active' AND g.started_at <= ?
+           AND g.activity_id != 'friend-challenge'`,
       )
       .bind(now, now, now + REPLAY_RETENTION_MS, cutoff),
     db
@@ -69,6 +70,31 @@ async function purgeExpiredReplays(db: D1Database, now: number): Promise<void> {
        WHERE expires_at <= ?`,
       )
       .bind(now, now),
+  ]);
+}
+
+async function purgeExpiredFriendChallenges(db: D1Database, now: number): Promise<void> {
+  await db.batch([
+    db
+      .prepare(
+        `INSERT OR IGNORE INTO friend_challenge_tombstones (id, mode_id, expired_at)
+         SELECT id, mode_id, expires_at
+         FROM friend_challenges
+         WHERE expires_at <= ?`,
+      )
+      .bind(now),
+    db
+      .prepare(
+        `DELETE FROM games
+         WHERE id IN (
+           SELECT attempt.game_id
+           FROM friend_challenge_attempts attempt
+           JOIN friend_challenges challenge ON challenge.id = attempt.challenge_id
+           WHERE challenge.expires_at <= ?
+         )`,
+      )
+      .bind(now),
+    db.prepare("DELETE FROM friend_challenges WHERE expires_at <= ?").bind(now),
   ]);
 }
 
@@ -144,6 +170,7 @@ async function processAccountDeletions(db: D1Database, now: number): Promise<voi
 export async function runScheduledMaintenance(env: Env, now = Date.now()): Promise<void> {
   await expireAbandonedGames(env.DB, now);
   await purgeExpiredReplays(env.DB, now);
+  await purgeExpiredFriendChallenges(env.DB, now);
   await processAccountDeletions(env.DB, now);
   await runScheduledOperations(env, now);
   await env.DB.batch([

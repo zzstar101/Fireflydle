@@ -7,7 +7,7 @@ Fireflydle 是一个静态前端加边缘 API 的非官方粉丝项目。生产�
 架构刻意保持两个边界：
 
 - 浏览器永远不直接访问 D1 或 Durable Object，只访问 `https://api.fireflydle.games`。
-- 角色数据、图片和 D1 角色池是一个发布单元，不允许通过独立定时任务分别更新。
+- 角色数据、版本化内容 manifest、图片和 D1 角色池是一个发布单元，不允许通过独立定时任务分别更新。
 
 免费额度和产品限制会变化，生产管理员仍需在 GitHub 与 Cloudflare 控制台开启用量提醒。域名注册本身不属于免费托管范围。
 
@@ -31,7 +31,7 @@ flowchart LR
 
 `apps/web` 是 React、Vite 与 React Router 构建的单页应用。Vite 输出 `apps/web/dist`，构建时通过 `VITE_API_URL=https://api.fireflydle.games` 固定生产 API 地址。构建插件复制 `index.html` 为 `404.html`，让 GitHub Pages 上的客户端路由可刷新。
 
-`/` 是总站大厅，平级展示每日、随机和对战线路；`/daily` 与 `/random` 先进入准备页。准备页通过只读的 `GET /api/games/current` 恢复状态，只有用户明确点击开始后才调用 `POST /api/games`。服务不可用时，单人模式可以进入不保存、不计入统计和排行的离线练习；排位对战始终要求注册账号。
+`/` 默认进入普通角色模式 `/playable`，模式外壳只从当前版本内容 manifest 注册可用活动；`/playable/daily`、`/playable/practice` 与 `/playable/duel` 分别承接每日、练习和对战流程。每日与练习先进入准备页，通过只读的 `GET /api/games/current` 恢复状态，只有用户明确点击开始后才调用 `POST /api/games`。服务不可用时，单人模式可以进入不保存、不计入统计和排行的离线练习；排位对战始终要求注册账号。
 
 角色图片随 Pages 构建产物发布，不从运行时第三方 CDN 直接读取。浏览器因此看到的角色清单、图片 manifest 与本次发布相互匹配。
 
@@ -54,7 +54,7 @@ D1 是长期、可查询的数据源，包含账号、会话、角色、每日�
 
 请求延迟与状态码写入 Workers Analytics Engine，不为每个请求增加 D1 写入。D1 只保存访问会话、每日首次活跃、账号流程计数、脱敏错误和预警；会话/错误明细保留 7 天，日汇总保留 180 天。Analytics Engine 按 Cloudflare 当前托管策略保留 90 天，但后台只查询最近 7 天；其中用户标识每天使用 SHA-256 重新匿名化，数据点不包含原始用户 ID、访问会话 ID、请求正文、Cookie、令牌、邮箱或 IP。
 
-单人对局的核心不变量是：每名用户每天只有一个 daily 对局，且同时只有一个 active random 对局。创建接口采用 start-or-resume，已经创建的对局不能切换难度。猜测、认输与结果摘要在同一个 D1 batch 中用条件写入完成裁决；访客登录已有账号时由 `guest_progress_merges` 账本提供一次性合并边界，冲突的每日成绩不会迁入目标账号。
+单人对局的核心不变量是：每名用户每天只有一个 `daily` 活动对局，且每个内容模式同时只有一个 active `practice` 活动对局。创建接口采用 start-or-resume，模式固定猜测次数来自对局绑定的规则快照。猜测、认输与结果摘要在同一个 D1 batch 中用条件写入完成裁决；访客登录已有账号时由 `guest_progress_merges` 账本提供一次性合并边界，冲突的每日成绩不会迁入目标账号。
 
 同步器生成 `packages/game-data/generated/characters.sql`。该文件按角色 ID 幂等 UPSERT，并对权威清单中已移除的角色做 soft-disable；不会删除已被历史对局引用的行。Wrangler D1 import 不接受文件中的显式 `BEGIN`/`COMMIT`，所以失败后直接重跑同一 seed，而不是依赖客户端事务语句。
 

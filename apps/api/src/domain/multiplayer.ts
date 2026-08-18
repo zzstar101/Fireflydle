@@ -1,4 +1,26 @@
-import type { Character, ErrorCode, MatchFormat, RoomSnapshot } from "@fireflydle/contracts";
+import type {
+  ActivityId,
+  GameEntitySummary,
+  ContentModeId,
+  ErrorCode,
+  FieldDefinition,
+  MatchFormat,
+  RoomConfiguration,
+  RoomSnapshot,
+} from "@fireflydle/contracts";
+import type { SnapshotFieldRule } from "@fireflydle/game-engine";
+
+export interface MultiplayerContentSnapshot {
+  modeId: ContentModeId;
+  poolRuleVersion: string;
+  manifestVersion: string;
+  candidateSnapshots: Record<string, GameEntitySummary & Record<string, unknown>>;
+  targetIds: string[];
+  fieldRules: {
+    rules: SnapshotFieldRule[];
+    definitions: FieldDefinition[];
+  };
+}
 
 export interface RoomParticipant {
   userId: string;
@@ -11,12 +33,12 @@ export interface RoomParticipant {
 export interface InitializeRoomInput {
   roomId: string;
   code: string;
+  activityId: ActivityId;
   format: MatchFormat;
-  ranked: boolean;
+  configuration?: RoomConfiguration;
   owner: RoomParticipant;
   opponent?: RoomParticipant;
-  characters: Character[];
-  targetIds: string[];
+  contentSnapshot: MultiplayerContentSnapshot;
   now?: number;
 }
 
@@ -30,10 +52,7 @@ export type RoomCommandResult =
 
 export interface MatchmakingInput {
   participant: RoomParticipant;
-  format: MatchFormat;
-  ranked: boolean;
-  characters: Character[];
-  targetIds: string[];
+  contentSnapshot: MultiplayerContentSnapshot;
   now?: number;
 }
 

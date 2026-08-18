@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@fireflydle/contracts": "workspace:*",
+    "@fireflydle/game-data": "workspace:*",
     "@fireflydle/game-engine": "workspace:*",
     "hono": "^4.12.33",
     "zod": "^4.4.3"

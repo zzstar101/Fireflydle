@@ -1,5 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { Activity, CalendarDays, ChevronRight, Gauge, History, Swords, Target } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  CalendarDays,
+  ChevronRight,
+  Gauge,
+  History,
+  Swords,
+  Target,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { PersonalStats } from "@fireflydle/contracts";
@@ -7,6 +16,7 @@ import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "./useSession";
+import { InferenceReview } from "../game/InferenceReview";
 import "./account.css";
 
 export default function StatsPage() {
@@ -20,10 +30,22 @@ export default function StatsPage() {
     retry: false,
   });
   const data = stats.data;
-  const modeLabel = (mode: string) => {
-    if (mode === "daily")
+  const achievementLabels: Record<string, { zh: string; en: string; ja: string }> = {
+    "one-shot": { zh: "一发入魂", en: "One-shot", ja: "一発入魂" },
+    "daily-seven": { zh: "连续七日每日题", en: "Seven daily days", ja: "7日連続デイリー" },
+    "win-streak-10": { zh: "十连胜", en: "Ten-win streak", ja: "10連勝" },
+    "last-guess": { zh: "最后一猜命中", en: "Last guess hit", ja: "最後の一猜で正解" },
+    "first-npc": { zh: "首次 NPC 完成", en: "First NPC finish", ja: "初NPCクリア" },
+    "games-100": { zh: "累计一百局", en: "One hundred games", ja: "累計100局" },
+  };
+  const distribution = data
+    ? [...data.guessDistribution, { guesses: 0, count: data.failedDaily }]
+    : [];
+  const distributionMax = Math.max(1, ...distribution.map((bucket) => bucket.count));
+  const activityLabel = (activityId: string) => {
+    if (activityId === "daily")
       return locale === "zh-CN" ? "每日一题" : locale === "ja" ? "デイリー" : "Daily";
-    if (mode === "random")
+    if (activityId === "practice")
       return locale === "zh-CN" ? "随机挑战" : locale === "ja" ? "ランダム" : "Random";
     return locale === "zh-CN" ? "对战" : locale === "ja" ? "対戦" : "Duel";
   };
@@ -56,7 +78,7 @@ export default function StatsPage() {
     {
       icon: Target,
       label: locale === "zh-CN" ? "随机挑战" : locale === "ja" ? "ランダム勝利" : "Random wins",
-      value: data ? `${data.randomWon}/${data.randomPlayed}` : "—",
+      value: data ? `${data.practiceWon}/${data.practicePlayed}` : "—",
     },
     {
       icon: Gauge,
@@ -100,6 +122,131 @@ export default function StatsPage() {
           </div>
         ))}
       </section>
+      <section className="achievements-section" aria-labelledby="achievements-title">
+        <header>
+          <span id="achievements-title">
+            {locale === "zh-CN" ? "成就" : locale === "ja" ? "実績" : "ACHIEVEMENTS"}
+          </span>
+          <small>
+            {locale === "zh-CN"
+              ? "仅统计正式在线成绩"
+              : locale === "ja"
+                ? "正式オンライン成績のみ"
+                : "Official online results only"}
+          </small>
+        </header>
+        <div className="achievements-list">
+          {data?.achievements.map((achievement) => {
+            const label = achievementLabels[achievement.id] ?? achievementLabels["one-shot"]!;
+            const title = locale === "zh-CN" ? label.zh : locale === "ja" ? label.ja : label.en;
+            return (
+              <div key={achievement.id} className={achievement.unlockedAt ? "is-unlocked" : ""}>
+                <strong>{title}</strong>
+                <span>
+                  {achievement.unlockedAt
+                    ? locale === "zh-CN"
+                      ? "已解锁"
+                      : locale === "ja"
+                        ? "解放済み"
+                        : "Unlocked"
+                    : `${achievement.progress}/${achievement.target}`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      <section className="daily-stats-section">
+        <header>
+          <span>
+            <BarChart3 size={18} />{" "}
+            {locale === "zh-CN" ? "每日题统计" : locale === "ja" ? "デイリー統計" : "DAILY STATS"}
+          </span>
+          <small>
+            {locale === "zh-CN"
+              ? `北京时间今天已有 ${data?.todayCompletions ?? 0} 人完成`
+              : locale === "ja"
+                ? `北京時間の本日は ${data?.todayCompletions ?? 0} 人が達成`
+                : `${data?.todayCompletions ?? 0} completed today (Beijing time)`}
+          </small>
+        </header>
+        <div className="daily-stats-grid">
+          <div className="guess-distribution">
+            <h2>
+              {locale === "zh-CN"
+                ? "猜测分布"
+                : locale === "ja"
+                  ? "推測分布"
+                  : "Guess distribution"}
+            </h2>
+            <div
+              className="distribution-chart"
+              aria-label={locale === "zh-CN" ? "猜测分布" : "Guess distribution"}
+            >
+              {distribution.map((bucket) => (
+                <div key={bucket.guesses || "failed"}>
+                  <strong>{bucket.count}</strong>
+                  <i
+                    style={{
+                      height: `${Math.max(4, Math.round((bucket.count / distributionMax) * 100))}%`,
+                    }}
+                  />
+                  <span>
+                    {bucket.guesses ||
+                      (locale === "zh-CN" ? "未中" : locale === "ja" ? "失敗" : "X")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="daily-history">
+            <h2>
+              {locale === "zh-CN"
+                ? "完成历史"
+                : locale === "ja"
+                  ? "達成履歴"
+                  : "Completion history"}
+            </h2>
+            {data?.dailyHistory.length ? (
+              <div className="daily-history-list">
+                {data.dailyHistory.map((item) => (
+                  <div key={item.dateKey}>
+                    <CalendarDays size={16} />
+                    <span>
+                      <strong>{item.dateKey}</strong>
+                      <small>
+                        {item.result === "won"
+                          ? locale === "zh-CN"
+                            ? "已猜中"
+                            : locale === "ja"
+                              ? "正解"
+                              : "Solved"
+                          : locale === "zh-CN"
+                            ? "已完成"
+                            : locale === "ja"
+                              ? "完了"
+                              : "Completed"}
+                      </small>
+                    </span>
+                    <i>
+                      {item.guesses}
+                      {locale === "zh-CN" ? " 次" : locale === "ja" ? " 回" : " guesses"}
+                    </i>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="daily-history-empty">
+                {locale === "zh-CN"
+                  ? "完成每日题后，记录会显示在这里。"
+                  : locale === "ja"
+                    ? "デイリーを完了すると、ここに記録されます。"
+                    : "Daily completions will appear here."}
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
       <section className="history-section">
         <header>
           <span>
@@ -121,19 +268,22 @@ export default function StatsPage() {
                 <Target size={17} />
                 <span>
                   <strong>
-                    {modeLabel(item.mode)} · {resultLabel(item.result)}
+                    {activityLabel(item.activityId)} · {resultLabel(item.result)}
                   </strong>
                   <small>
-                    {item.mode === "multiplayer" && item.opponentDisplayName
+                    {item.activityId === "ranked-match" && item.opponentDisplayName
                       ? `${item.ranked ? (locale === "zh-CN" ? "排位" : "RANKED") : locale === "zh-CN" ? "休闲" : "CASUAL"} · ${locale === "zh-CN" ? "对阵" : "VS"} ${item.opponentDisplayName}`
                       : new Date(item.playedAt).toLocaleString(locale)}
                   </small>
                 </span>
                 <i>
-                  {item.mode === "multiplayer" && item.scoreFor !== undefined
+                  {item.activityId === "ranked-match" && item.scoreFor !== undefined
                     ? `${item.scoreFor} : ${item.scoreAgainst}`
                     : `${item.guesses} · ${Math.round(item.elapsedMs / 1000)}${locale === "zh-CN" ? " 秒" : "s"}`}
                 </i>
+                {item.inferenceReview ? (
+                  <InferenceReview review={item.inferenceReview} locale={locale} compact />
+                ) : null}
                 <ChevronRight size={16} />
               </Link>
             ))}
@@ -165,7 +315,7 @@ export default function StatsPage() {
                   ? "完成今日谜题或随机对局后，结果会出现在这里。"
                   : locale === "ja"
                     ? "デイリーまたはランダムを完了すると、ここに記録されます。"
-                    : "Complete a daily or random game to see it here."}
+                    : "Complete a daily or practice game to see it here."}
             </p>
             <Link className="ticket-button" to="/">
               {t("hub.backToHub")}

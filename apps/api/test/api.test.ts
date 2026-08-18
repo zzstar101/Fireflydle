@@ -1,16 +1,22 @@
 import {
   PASSWORD_MIN_LENGTH,
+  ServerRoomMessageSchema,
   type Announcement,
   type Character,
   type ReplayResponse,
   type PublicGame,
+  type PublicEndlessRun,
+  type EndlessLeaderboardEntry,
   type RoomSnapshot,
+  type RoomPreviewResponse,
 } from "@fireflydle/contracts";
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getBeijingDateKey, MULTIPLAYER_ROUND_MS } from "@fireflydle/game-engine";
-import { PASSWORD_ITERATIONS } from "../src/lib/crypto";
+import { MULTIPLAYER_ROUND_MS, RECONNECT_GRACE_MS } from "@fireflydle/game-engine";
+import { PASSWORD_ITERATIONS, sha256 } from "../src/lib/crypto";
+import { createPlayableMultiplayerContentSnapshot } from "../src/services/multiplayer-content";
+import { contentManifest, currencyWarsManifest, npcManifest } from "@fireflydle/game-data";
 
 const character: Character = {
   id: "firefly-test",
@@ -38,6 +44,16 @@ const character: Character = {
   sourceRevision: "test",
 };
 
+const snapshotCandidate: Character = {
+  ...character,
+  id: "snapshot-candidate",
+  officialId: "test-snapshot-candidate",
+  baseCharacterId: "snapshot-candidate",
+  names: { "zh-CN": "快照候选", en: "Snapshot Candidate", ja: "スナップ候補" },
+  element: "ice",
+  targetEligible: false,
+};
+
 interface SessionData {
   expiresAt: string;
   user: {
@@ -59,8 +75,11 @@ async function dataOf<T>(response: Response): Promise<T> {
   return record.data as T;
 }
 
-async function createSession(): Promise<{ cookie: string; data: SessionData }> {
-  const response = await SELF.fetch("https://fireflydle.games/api/session", { method: "POST" });
+async function createSession(ipAddress?: string): Promise<{ cookie: string; data: SessionData }> {
+  const response = await SELF.fetch("https://fireflydle.games/api/session", {
+    method: "POST",
+    headers: { "cf-connecting-ip": ipAddress ?? `test:session:${crypto.randomUUID()}` },
+  });
   expect(response.status).toBe(201);
   const cookie = response.headers.get("set-cookie");
   expect(cookie).toContain("HttpOnly");
@@ -124,6 +143,55 @@ async function seedCharacter(): Promise<void> {
       now,
     )
     .run();
+}
+
+async function seedSnapshotCandidate(candidate: Character = snapshotCandidate): Promise<void> {
+  const now = Date.now();
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO characters
+       (id, official_id, base_character_id, element, path, rarity, faction_id,
+        faction_group_id, release_version_id, release_order, enabled, target_eligible,
+        source_revision, payload_json, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
+  )
+    .bind(
+      candidate.id,
+      candidate.officialId,
+      candidate.baseCharacterId,
+      candidate.element,
+      candidate.path,
+      candidate.rarity,
+      candidate.factionId,
+      candidate.factionGroupId,
+      candidate.releaseVersionId,
+      candidate.releaseOrder,
+      candidate.sourceRevision,
+      JSON.stringify(candidate),
+      now,
+      now,
+    )
+    .run();
+}
+
+function nextSocketMessage(socket: WebSocket): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    socket.addEventListener("message", (event) => resolve(JSON.parse(String(event.data))), {
+      once: true,
+    });
+    socket.addEventListener("error", () => reject(new Error("WebSocket 接收失败")), {
+      once: true,
+    });
+  });
+}
+
+async function nextSocketSnapshot(
+  socket: WebSocket,
+  predicate: (snapshot: RoomSnapshot) => boolean,
+): Promise<RoomSnapshot> {
+  for (;;) {
+    const message = ServerRoomMessageSchema.parse(await nextSocketMessage(socket));
+    if (message.type === "snapshot" && predicate(message.snapshot)) return message.snapshot;
+  }
 }
 
 beforeEach(async () => {
@@ -391,7 +459,248 @@ describe("账号密码边界", () => {
 });
 
 describe("服务端游戏裁决", () => {
-  it("同一模式只保留一个可继续对局，并在主动结束后允许随机换题", async () => {
+  it("题库摘要只为匹配的 manifest 版本提供不可变响应", async () => {
+    const playable = await SELF.fetch(
+      `https://fireflydle.games/api/characters?manifestVersion=${contentManifest.manifestVersion}`,
+    );
+    expect(playable.status).toBe(200);
+    expect(playable.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+
+    const npc = await SELF.fetch(
+      `https://fireflydle.games/api/npcs?manifestVersion=${npcManifest.manifestVersion}`,
+    );
+    expect(npc.status).toBe(200);
+    expect(npc.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+
+    const unavailable = await SELF.fetch(
+      "https://fireflydle.games/api/characters?manifestVersion=0.0.0",
+    );
+    expect(unavailable.status).toBe(409);
+  });
+
+  it("NPC 使用独立四猜快照，创建和恢复不泄露答案", async () => {
+    const { cookie } = await createSession();
+    const roster = await dataOf<Array<Record<string, unknown> & { id: string }>>(
+      await SELF.fetch("https://fireflydle.games/api/npcs", { headers: { cookie } }),
+    );
+    expect(roster.map((entry) => entry.id).sort()).toEqual(
+      ["npc-pom-pom", "npc-siobhan", "npc-skott"].sort(),
+    );
+
+    const create = () =>
+      SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId: "npc", activityId: "practice" }),
+      });
+    const game = await dataOf<PublicGame>(await create());
+    expect(game.modeId).toBe("npc");
+    expect(game.maxAttempts).toBe(4);
+    expect(game.answer).toBeNull();
+    expect(game.fieldDefinitions?.map((field) => field.id)).toEqual([
+      "region",
+      "faction",
+      "debut-version",
+    ]);
+    expect((await dataOf<PublicGame>(await create())).id).toBe(game.id);
+
+    const stored = await env.DB.prepare("SELECT target_character_id FROM games WHERE id = ?")
+      .bind(game.id)
+      .first<{ target_character_id: string }>();
+    const finished = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: stored?.target_character_id }),
+      }),
+    );
+    expect(finished.status).toBe("won");
+    expect(finished.answer?.id).toBe(stored?.target_character_id);
+    expect(finished.guesses[0]?.cells.map((cell) => cell.field)).toEqual([
+      "region",
+      "faction",
+      "debut-version",
+    ]);
+    expect(finished.inferenceReview?.initialCandidates).toBe(3);
+    expect(finished.inferenceReview?.steps[0]?.remainingCandidates).toBe(1);
+
+    const replay = await dataOf<{ kind: string; game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, {
+        headers: { cookie },
+      }),
+    );
+    expect(replay.kind).toBe("solo");
+    expect(replay.game.modeId).toBe("npc");
+    expect(replay.game.guesses).toEqual(finished.guesses);
+    expect(replay.game.inferenceReview).toEqual(finished.inferenceReview);
+
+    const lossFixture = await dataOf<PublicGame>(await create());
+    const base = roster[0];
+    if (!base) throw new Error("NPC fixture 缺少基础实体");
+    const fixtureCandidates = Object.fromEntries(
+      [1, 2, 3, 4].map((index) => [
+        `npc-candidate-fixture-${index}`,
+        { ...base, id: `npc-candidate-fixture-${index}` },
+      ]),
+    );
+    await env.DB.prepare("UPDATE games SET candidate_pool_json = ? WHERE id = ?")
+      .bind(JSON.stringify(fixtureCandidates), lossFixture.id)
+      .run();
+    let loss = lossFixture;
+    for (const id of Object.keys(fixtureCandidates)) {
+      loss = await dataOf<PublicGame>(
+        await SELF.fetch(`https://fireflydle.games/api/games/${lossFixture.id}/guesses`, {
+          method: "POST",
+          headers: { cookie, "content-type": "application/json" },
+          body: JSON.stringify({ characterId: id }),
+        }),
+      );
+    }
+    expect(loss.status).toBe("lost");
+    expect(loss.guesses).toHaveLength(4);
+    expect(loss.answer?.id).not.toMatch(/^npc-candidate-fixture-/);
+    const stats = await dataOf<{ practicePlayed: number }>(
+      await SELF.fetch("https://fireflydle.games/api/stats/me", { headers: { cookie } }),
+    );
+    expect(stats.practicePlayed).toBe(0);
+    expect(stats).not.toHaveProperty("randomPlayed");
+  });
+
+  it("币战复盘使用绑定候选池精确计数，且不泄露羁绊名称", async () => {
+    const { cookie } = await createSession();
+    const game = await dataOf<PublicGame>(
+      await SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId: "currency-wars", activityId: "practice" }),
+      }),
+    );
+    const stored = await env.DB.prepare(
+      "SELECT target_character_id, candidate_pool_json FROM games WHERE id = ?",
+    )
+      .bind(game.id)
+      .first<{ target_character_id: string; candidate_pool_json: string }>();
+    if (!stored) throw new Error("币战 fixture 缺少目标");
+    const candidateCount = Object.keys(JSON.parse(stored.candidate_pool_json) as object).length;
+    const finished = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: stored.target_character_id }),
+      }),
+    );
+    expect(finished.status).toBe("won");
+    expect(finished.inferenceReview?.initialCandidates).toBe(candidateCount);
+    expect(finished.inferenceReview?.steps[0]?.remainingCandidates).toBe(1);
+    expect(JSON.stringify(finished)).not.toMatch(/ipc|merchant|herta/);
+    const replay = await dataOf<{ game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, { headers: { cookie } }),
+    );
+    expect(replay.game.inferenceReview).toEqual(finished.inferenceReview);
+    expect(
+      currencyWarsManifest.modes.find((mode) => mode.id === "currency-wars")?.maxAttempts,
+    ).toBe(game.maxAttempts);
+  });
+
+  it("星神题池在恢复、结算、回放和分享中保持同一无剧透图片快照", async () => {
+    const { cookie } = await createSession();
+    const create = () =>
+      SELF.fetch("https://fireflydle.games/api/games", {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId: "aeon", activityId: "practice" }),
+      });
+    const game = await dataOf<PublicGame>(await create());
+    expect(game.modeId).toBe("aeon");
+    expect(game.activityId).toBe("practice");
+    expect(game.maxAttempts).toBe(6);
+    expect(game.answer).toBeNull();
+    expect(game.aeonImagePath).toMatch(/^\/assets\/aeons\/\d{2}\.webp$/);
+    expect(game.aeonImageFocus).toHaveLength(2);
+    expect(game.fieldDefinitions?.map((field) => field.id)).toEqual(["image"]);
+    expect((await dataOf<PublicGame>(await create())).id).toBe(game.id);
+
+    const stored = await env.DB.prepare(
+      "SELECT target_character_id, target_payload_json FROM games WHERE id = ?",
+    )
+      .bind(game.id)
+      .first<{ target_character_id: string; target_payload_json: string }>();
+    if (!stored) throw new Error("星神 fixture 缺少目标");
+    const targetPayload = JSON.parse(stored.target_payload_json) as {
+      names: Record<string, string>;
+    };
+    const activeJson = JSON.stringify(game);
+    expect(activeJson).not.toContain(targetPayload.names["zh-CN"]);
+    expect(activeJson).not.toContain(targetPayload.names.en);
+
+    const candidates = JSON.parse(
+      (
+        await env.DB.prepare("SELECT candidate_pool_json FROM games WHERE id = ?")
+          .bind(game.id)
+          .first<{ candidate_pool_json: string }>()
+      )?.candidate_pool_json ?? "{}",
+    ) as Record<string, unknown>;
+    const wrong = Object.keys(candidates).find((id) => id !== stored.target_character_id);
+    if (!wrong) throw new Error("星神 fixture 缺少错误候选");
+    const afterWrong = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: wrong }),
+      }),
+    );
+    expect(afterWrong.status).toBe("active");
+    expect(afterWrong.answer).toBeNull();
+    expect(afterWrong.aeonImagePath).toBe(game.aeonImagePath);
+    expect(afterWrong.aeonImageFocus).toEqual(game.aeonImageFocus);
+    expect(afterWrong.guesses[0]?.cells).toEqual([
+      { field: "image", state: "miss", direction: "none" },
+    ]);
+
+    const resumed = await dataOf<PublicGame>(await create());
+    expect(resumed.id).toBe(game.id);
+    expect(resumed.aeonImagePath).toBe(game.aeonImagePath);
+    expect(resumed.aeonImageFocus).toEqual(game.aeonImageFocus);
+    const finished = await dataOf<PublicGame>(
+      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: stored.target_character_id }),
+      }),
+    );
+    expect(finished.status).toBe("won");
+    expect(finished.answer?.id).toBe(stored.target_character_id);
+    expect(finished.aeonImagePath).toBe(game.aeonImagePath);
+    expect(finished).not.toHaveProperty("inferenceReview");
+
+    const replay = await dataOf<{ kind: string; game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, {
+        headers: { cookie },
+      }),
+    );
+    expect(replay.kind).toBe("solo");
+    expect(replay.game.id).toBe(game.id);
+    expect(replay.game.aeonImagePath).toBe(game.aeonImagePath);
+    expect(replay.game.aeonImageFocus).toEqual(game.aeonImageFocus);
+    expect(replay.game.guesses).toEqual(finished.guesses);
+    expect(replay.game).not.toHaveProperty("inferenceReview");
+
+    const shared = await dataOf<{ url: string }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}/share`, {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    const shareToken = new URL(shared.url).pathname.split("/").at(-1);
+    const sharedReplay = await dataOf<{ kind: string; game: PublicGame }>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/shared/${shareToken}`),
+    );
+    expect(sharedReplay.game.id).toBe(game.id);
+    expect(sharedReplay.game.aeonImagePath).toBe(game.aeonImagePath);
+    expect(sharedReplay.game.aeonImageFocus).toEqual(game.aeonImageFocus);
+  });
+
+  it("旧 daily/random 请求只在创建边界映射且公开响应只返回新版契约", async () => {
     const { cookie } = await createSession();
     const create = (difficulty: "casual" | "hard") =>
       SELF.fetch("https://fireflydle.games/api/games", {
@@ -403,10 +712,11 @@ describe("服务端游戏裁决", () => {
     const casual = await dataOf<PublicGame>(casualResponse);
     const hard = await dataOf<PublicGame>(hardResponse);
     expect(hard.id).toBe(casual.id);
-    expect(casual.difficulty).toBe("standard");
     expect(casual.maxAttempts).toBe(6);
-    expect(hard.difficulty).toBe("standard");
     expect(hard.maxAttempts).toBe(6);
+    expect(casual).toMatchObject({ modeId: "playable", activityId: "daily" });
+    expect(casual).not.toHaveProperty("mode");
+    expect(casual).not.toHaveProperty("difficulty");
 
     const concede = async (id: string) =>
       dataOf<PublicGame>(
@@ -456,12 +766,13 @@ describe("服务端游戏裁决", () => {
     );
     expect(randomNext.id).not.toBe(randomFirst.id);
 
-    const current = await dataOf<{ daily: PublicGame | null; random: PublicGame | null }>(
+    const current = await dataOf<{ daily: PublicGame | null; practice: PublicGame | null }>(
       await SELF.fetch("https://fireflydle.games/api/games/current", { headers: { cookie } }),
     );
     expect(current.daily?.id).toBe(dailyDone.id);
     expect(current.daily?.status).toBe("won");
-    expect(current.random?.id).toBe(randomNext.id);
+    expect(current.practice?.id).toBe(randomNext.id);
+    expect(current).not.toHaveProperty("random");
     const schedule = await env.DB.prepare(
       "SELECT COUNT(*) AS count FROM daily_target_schedule",
     ).first<{ count: number }>();
@@ -474,7 +785,7 @@ describe("服务端游戏裁决", () => {
       await SELF.fetch("https://fireflydle.games/api/games", {
         method: "POST",
         headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ mode: "random", difficulty: "standard" }),
+        body: JSON.stringify({ modeId: "playable", activityId: "practice" }),
       }),
     );
 
@@ -505,66 +816,164 @@ describe("服务端游戏裁决", () => {
   });
 });
 
+describe("普通角色无尽玩法", () => {
+  async function seedEndlessWrongCandidates(): Promise<string[]> {
+    const ids = Array.from({ length: 6 }, (_, index) => `endless-wrong-${index + 1}`);
+    const now = Date.now();
+    for (const [index, id] of ids.entries()) {
+      const candidate: Character = {
+        ...character,
+        id,
+        officialId: `endless-${index + 1}`,
+        baseCharacterId: id,
+        names: {
+          "zh-CN": `无尽错误${index + 1}`,
+          en: `Wrong ${index + 1}`,
+          ja: `不正解${index + 1}`,
+        },
+        targetEligible: false,
+      };
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO characters
+           (id, official_id, base_character_id, element, path, rarity, faction_id,
+            faction_group_id, release_version_id, release_order, enabled, target_eligible,
+            source_revision, payload_json, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
+      )
+        .bind(
+          candidate.id,
+          candidate.officialId,
+          candidate.baseCharacterId,
+          candidate.element,
+          candidate.path,
+          candidate.rarity,
+          candidate.factionId,
+          candidate.factionGroupId,
+          candidate.releaseVersionId,
+          candidate.releaseOrder,
+          candidate.sourceRevision,
+          JSON.stringify(candidate),
+          now,
+          now,
+        )
+        .run();
+    }
+    return ids;
+  }
+
+  it("恢复同一局，跳过只可使用一次，四次后续失败令生命归零", async () => {
+    const wrongIds = await seedEndlessWrongCandidates();
+    const { cookie } = await createSession();
+    const create = () =>
+      SELF.fetch("https://fireflydle.games/api/endless", {
+        method: "POST",
+        headers: { cookie },
+      });
+    const started = await dataOf<PublicEndlessRun>(await create());
+    expect(started).toMatchObject({ lives: 5, clears: 0, maxAttempts: 6, skipAvailable: true });
+    expect(started.answer).toBeNull();
+    expect((await dataOf<PublicEndlessRun>(await create())).id).toBe(started.id);
+
+    const skipped = await dataOf<PublicEndlessRun>(
+      await SELF.fetch(`https://fireflydle.games/api/endless/${started.id}/skip`, {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    expect(skipped).toMatchObject({ lives: 4, clears: 0, skipAvailable: false, roundNumber: 2 });
+    expect(skipped.lastRound).toMatchObject({ result: "skipped", answer: { id: character.id } });
+    expect(
+      (
+        await SELF.fetch(`https://fireflydle.games/api/endless/${started.id}/skip`, {
+          method: "POST",
+          headers: { cookie },
+        })
+      ).status,
+    ).toBe(409);
+
+    let run = skipped;
+    for (let round = 0; round < 4; round += 1) {
+      for (const characterId of wrongIds) {
+        run = await dataOf<PublicEndlessRun>(
+          await SELF.fetch(`https://fireflydle.games/api/endless/${started.id}/guesses`, {
+            method: "POST",
+            headers: { cookie, "content-type": "application/json" },
+            body: JSON.stringify({ characterId }),
+          }),
+        );
+      }
+    }
+    expect(run).toMatchObject({ status: "finished", lives: 0, clears: 0, totalGuesses: 24 });
+    expect(run.answer?.id).toBe(character.id);
+    expect(run.lastRound).toMatchObject({ result: "lost", guessCount: 6 });
+  });
+
+  it("猜中后不消耗生命并立即开始下一道六猜题", async () => {
+    const { cookie } = await createSession();
+    const run = await dataOf<PublicEndlessRun>(
+      await SELF.fetch("https://fireflydle.games/api/endless", {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    const next = await dataOf<PublicEndlessRun>(
+      await SELF.fetch(`https://fireflydle.games/api/endless/${run.id}/guesses`, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({ characterId: character.id }),
+      }),
+    );
+    expect(next).toMatchObject({ lives: 5, clears: 1, totalGuesses: 1, roundNumber: 2 });
+    expect(next.guesses).toEqual([]);
+    expect(next.answer).toBeNull();
+    expect(next.lastRound).toMatchObject({ result: "won", answer: { id: character.id } });
+  });
+
+  it("排行榜按通关数、总猜测次数和总耗时排序", async () => {
+    const sessions = await Promise.all(
+      ["board_a", "board_b", "board_c"].map((suffix) => createRegisteredSession(suffix)),
+    );
+    const scores = [
+      { clears: 7, guesses: 20, elapsed: 90_000 },
+      { clears: 7, guesses: 18, elapsed: 100_000 },
+      { clears: 7, guesses: 18, elapsed: 70_000 },
+    ];
+    for (const [index, session] of sessions.entries()) {
+      const run = await dataOf<PublicEndlessRun>(
+        await SELF.fetch("https://fireflydle.games/api/endless", {
+          method: "POST",
+          headers: { cookie: session.cookie },
+        }),
+      );
+      const score = scores[index];
+      if (!score) throw new Error("缺少排行测试分数");
+      const startedAt = Date.now() - score.elapsed;
+      await env.DB.prepare(
+        `UPDATE endless_runs SET status = 'finished', lives = 0, clears = ?, total_guesses = ?,
+         started_at = ?, completed_at = ?, updated_at = ? WHERE id = ?`,
+      )
+        .bind(score.clears, score.guesses, startedAt, Date.now(), Date.now(), run.id)
+        .run();
+    }
+    const board = await dataOf<EndlessLeaderboardEntry[]>(
+      await SELF.fetch("https://fireflydle.games/api/leaderboards/endless"),
+    );
+    const entries = board.filter((entry) => entry.displayName.startsWith("Reg board_"));
+    expect(entries.map((entry) => entry.displayName)).toEqual([
+      "Reg board_c",
+      "Reg board_b",
+      "Reg board_a",
+    ]);
+  });
+});
+
 describe("排行榜准入", () => {
-  it("每日榜按猜中先后展示访客，Elo 榜展示全部未隐藏的注册用户", async () => {
+  it("不再公开每日榜，Elo 榜只展示未隐藏的注册用户", async () => {
     const registered = await createRegisteredSession("public_boards");
     const guest = await createSession();
     expect(registered.data.user.leaderboardEligible).toBe(true);
 
-    const playDaily = async (cookie: string, difficulty: "casual" | "hard") => {
-      const game = await dataOf<PublicGame>(
-        await SELF.fetch("https://fireflydle.games/api/games", {
-          method: "POST",
-          headers: { cookie, "content-type": "application/json" },
-          body: JSON.stringify({ mode: "daily", difficulty }),
-        }),
-      );
-      expect(game.difficulty).toBe("standard");
-      expect(game.maxAttempts).toBe(6);
-      await SELF.fetch(`https://fireflydle.games/api/games/${game.id}/guesses`, {
-        method: "POST",
-        headers: { cookie, "content-type": "application/json" },
-        body: JSON.stringify({ characterId: character.id }),
-      });
-      return game.id;
-    };
-
-    const registeredGameId = await playDaily(registered.cookie, "hard");
-    const guestGameId = await playDaily(guest.cookie, "casual");
-    const baseTime = Date.now();
-    await env.DB.batch([
-      env.DB.prepare(
-        "UPDATE game_results SET guess_count = 1, completed_at = ? WHERE game_id = ?",
-      ).bind(baseTime + 2_000, registeredGameId),
-      env.DB.prepare(
-        "UPDATE game_results SET guess_count = 6, completed_at = ? WHERE game_id = ?",
-      ).bind(baseTime + 1_000, guestGameId),
-    ]);
-
-    const daily = await dataOf<
-      Array<{ displayName: string; isGuest: boolean; guesses: number; completedAt: string }>
-    >(
-      await SELF.fetch(
-        `https://fireflydle.games/api/leaderboards/daily?date=${getBeijingDateKey()}`,
-      ),
-    );
-    const relevantDaily = daily.filter(
-      (entry) =>
-        entry.displayName === guest.data.user.displayName ||
-        entry.displayName === registered.data.user.displayName,
-    );
-    expect(relevantDaily).toEqual([
-      expect.objectContaining({
-        displayName: guest.data.user.displayName,
-        isGuest: true,
-        guesses: 6,
-      }),
-      expect.objectContaining({
-        displayName: registered.data.user.displayName,
-        isGuest: false,
-        guesses: 1,
-      }),
-    ]);
+    expect((await SELF.fetch("https://fireflydle.games/api/leaderboards/daily")).status).toBe(404);
 
     const elo = await dataOf<Array<{ displayName: string; elo: number; rankedMatches: number }>>(
       await SELF.fetch("https://fireflydle.games/api/leaderboards/elo"),
@@ -591,6 +1000,619 @@ describe("排行榜准入", () => {
 });
 
 describe("匹配、SQLite Durable Object 与 WebSocket", () => {
+  it("四种私人房模式通过真实 HTTP/WebSocket 保留配置与专用字段矩阵", async () => {
+    for (const [modeId, maxAttempts, modifier] of [
+      ["npc", 4, "fog"],
+      ["currency-wars", 6, "fog"],
+      ["aeon", 8, "speed"],
+    ] as const) {
+      const owner = await createSession(`test:${modeId}-owner`);
+      const opponent = await createSession(`test:${modeId}-opponent`);
+      const createdResponse = await SELF.fetch("https://fireflydle.games/api/rooms", {
+        method: "POST",
+        headers: { cookie: owner.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ modeId, format: 1, roundTimeSeconds: 90, maxAttempts, modifier }),
+      });
+      expect(createdResponse.status).toBe(201);
+      const created = await dataOf<{ roomId: string; code: string; snapshot: RoomSnapshot }>(
+        createdResponse,
+      );
+      expect(created.snapshot.configuration).toMatchObject({ modeId, maxAttempts, modifier });
+      await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+        method: "POST",
+        headers: { cookie: opponent.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ code: created.code }),
+      });
+      const [ownerResponse, opponentResponse] = await Promise.all([
+        SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+          headers: { cookie: owner.cookie, upgrade: "websocket" },
+        }),
+        SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+          headers: { cookie: opponent.cookie, upgrade: "websocket" },
+        }),
+      ]);
+      const ownerSocket = ownerResponse.webSocket;
+      const opponentSocket = opponentResponse.webSocket;
+      expect(ownerSocket).not.toBeNull();
+      expect(opponentSocket).not.toBeNull();
+      if (!ownerSocket || !opponentSocket) continue;
+      ownerSocket.accept();
+      opponentSocket.accept();
+      const [ownerStart, opponentStart] = await Promise.all([
+        nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+        nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+      ]);
+      expect(ownerStart.configuration).toEqual(opponentStart.configuration);
+      expect(ownerStart.modeId).toBe(modeId);
+      expect(ownerStart.ownGuesses).toEqual([]);
+      ownerSocket.close(1000, "test-complete");
+      opponentSocket.close(1000, "test-complete");
+    }
+  });
+
+  it("迷雾私人房通过真实 HTTP 与双玩家 WebSocket 隐藏同一字段并在结算和回放恢复", async () => {
+    const wrongCandidates = [
+      {
+        ...snapshotCandidate,
+        id: "fog-wrong-left",
+        officialId: "fog-wrong-left",
+        baseCharacterId: "fog-wrong-left",
+        names: { "zh-CN": "迷雾候选甲", en: "Fog wrong left", ja: "霧候補甲" },
+      },
+      {
+        ...snapshotCandidate,
+        id: "fog-wrong-right",
+        officialId: "fog-wrong-right",
+        baseCharacterId: "fog-wrong-right",
+        names: { "zh-CN": "迷雾候选乙", en: "Fog wrong right", ja: "霧候補乙" },
+        path: "harmony" as const,
+      },
+    ];
+    for (const candidate of wrongCandidates) await seedSnapshotCandidate(candidate);
+    const owner = await createSession("test:fog-owner");
+    const opponent = await createSession("test:fog-opponent");
+
+    const createdResponse = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ format: 1, roundTimeSeconds: null, modifier: "fog" }),
+    });
+    expect(createdResponse.status).toBe(201);
+    const created = await dataOf<{ roomId: string; code: string; snapshot: RoomSnapshot }>(
+      createdResponse,
+    );
+    expect(created.snapshot).toMatchObject({
+      configuration: { modifier: "fog" },
+      fogField: null,
+    });
+
+    const preview = await dataOf<RoomPreviewResponse>(
+      await SELF.fetch(`https://fireflydle.games/api/rooms/preview?code=${created.code}`, {
+        headers: { cookie: opponent.cookie },
+      }),
+    );
+    expect(preview.configuration.modifier).toBe("fog");
+    await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ code: created.code }),
+    });
+
+    const [ownerResponse, opponentResponse] = await Promise.all([
+      SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+        headers: { cookie: owner.cookie, upgrade: "websocket" },
+      }),
+      SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+        headers: { cookie: opponent.cookie, upgrade: "websocket" },
+      }),
+    ]);
+    const ownerSocket = ownerResponse.webSocket;
+    const opponentSocket = opponentResponse.webSocket;
+    expect(ownerSocket).not.toBeNull();
+    expect(opponentSocket).not.toBeNull();
+    if (!ownerSocket || !opponentSocket) return;
+    ownerSocket.accept();
+    opponentSocket.accept();
+    const [ownerStart, opponentStart] = await Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+    ]);
+    expect(ownerStart.fogField).toBeTruthy();
+    expect(opponentStart.fogField).toBe(ownerStart.fogField);
+    expect(ownerStart.roundAnswer).toBeNull();
+    expect(JSON.stringify(ownerStart)).not.toContain(`\"id\":\"${character.id}\"`);
+    expect(JSON.stringify(ownerStart)).not.toContain(character.names["zh-CN"]);
+
+    const afterOwnerGuess = Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.ownGuesses.length === 1),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.opponentFeedback.length === 1),
+    ]);
+    ownerSocket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: wrongCandidates[0]?.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const [ownerAfterOwnGuess, opponentAfterOwnerGuess] = await afterOwnerGuess;
+
+    const afterOpponentGuess = Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.opponentFeedback.length === 1),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.ownGuesses.length === 1),
+    ]);
+    opponentSocket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: wrongCandidates[1]?.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const [ownerPlaying, opponentPlaying] = await afterOpponentGuess;
+    const fogField = ownerStart.fogField;
+    for (const snapshot of [
+      ownerAfterOwnGuess,
+      opponentAfterOwnerGuess,
+      ownerPlaying,
+      opponentPlaying,
+    ]) {
+      expect(snapshot.fogField).toBe(fogField);
+      const cells = [
+        ...snapshot.ownGuesses.flatMap((guess) => guess.cells),
+        ...snapshot.opponentFeedback.flat(),
+      ];
+      expect(cells.filter((cell) => cell.field === fogField)).toEqual(
+        expect.arrayContaining([expect.objectContaining({ state: "fog", direction: "none" })]),
+      );
+      expect(
+        cells.filter((cell) => cell.field === fogField).every((cell) => cell.state === "fog"),
+      ).toBe(true);
+      expect(snapshot.roundAnswer).toBeNull();
+      expect(JSON.stringify(snapshot)).not.toContain(`\"id\":\"${character.id}\"`);
+      expect(JSON.stringify(snapshot)).not.toContain(character.names["zh-CN"]);
+    }
+
+    const finishedSnapshots = Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "finished"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "finished"),
+    ]);
+    ownerSocket.send(
+      JSON.stringify({ type: "guess", characterId: character.id, actionId: crypto.randomUUID() }),
+    );
+    const [ownerFinished, opponentFinished] = await finishedSnapshots;
+    for (const snapshot of [ownerFinished, opponentFinished]) {
+      expect(snapshot.fogField).toBeNull();
+      expect(snapshot.roundAnswer?.id).toBe(character.id);
+      expect(
+        [
+          ...snapshot.ownGuesses.flatMap((guess) => guess.cells),
+          ...snapshot.opponentFeedback.flat(),
+        ].some((cell) => cell.state === "fog"),
+      ).toBe(false);
+    }
+
+    const replay = await dataOf<ReplayResponse>(
+      await SELF.fetch(`https://fireflydle.games/api/replays/${created.roomId}`, {
+        headers: { cookie: owner.cookie },
+      }),
+    );
+    expect(replay.kind).toBe("multiplayer");
+    if (replay.kind === "multiplayer") {
+      expect(replay.match.rounds[0]?.answer.id).toBe(character.id);
+      expect(
+        replay.match.rounds.flatMap((round) =>
+          round.guesses.flatMap((guess) => guess.result.cells),
+        ),
+      ).not.toContainEqual(expect.objectContaining({ state: "fog" }));
+    }
+    ownerSocket.close(1000, "test-complete");
+    opponentSocket.close(1000, "test-complete");
+  });
+
+  it("迷雾字段随下一题重新抽取并由房间快照持久恢复", async () => {
+    const owner = await createSession("test:fog-reroll-owner");
+    const opponent = await createSession("test:fog-reroll-opponent");
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const randomValues = [0, 0, 0, 1];
+    vi.spyOn(crypto, "getRandomValues").mockImplementation((array) => {
+      if (array instanceof Uint32Array) array[0] = randomValues.shift() ?? 0;
+      return array;
+    });
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    const first = await roomObject.initialize({
+      roomId,
+      code: "FOG42",
+      activityId: "private-room",
+      format: 3,
+      configuration: {
+        modeId: "playable",
+        activityId: "private-room",
+        format: 3,
+        roundTimeSeconds: null,
+        maxAttempts: 6,
+        modifier: "fog",
+      },
+      owner: {
+        userId: owner.data.user.id,
+        displayName: owner.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponent.data.user.id,
+        displayName: opponent.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+    expect(first).toMatchObject({ state: "playing", round: 1, fogField: "element" });
+
+    const settled = await roomObject.guess(
+      owner.data.user.id,
+      character.id,
+      "00000000-0000-4000-8000-000000000341",
+      startedAt + 1,
+    );
+    expect(settled.ok && settled.snapshot).toMatchObject({
+      state: "round-ended",
+      fogField: null,
+      roundAnswer: { id: character.id },
+    });
+    if (!settled.ok || settled.snapshot.nextRoundAt === null) return;
+
+    const restored = await roomObject.snapshot(
+      opponent.data.user.id,
+      settled.snapshot.nextRoundAt + 1,
+    );
+    expect(restored.ok && restored.snapshot).toMatchObject({
+      state: "playing",
+      round: 2,
+      fogField: "path",
+      roundAnswer: null,
+      ranked: false,
+      configuration: { modifier: "fog" },
+    });
+  });
+
+  it("普通角色私人房在加入前共享配置、开局后锁定并且不计 Elo", async () => {
+    const wrongCandidates = Array.from({ length: 4 }, (_, index) => ({
+      ...snapshotCandidate,
+      id: `private-wrong-${index}`,
+      officialId: `private-wrong-${index}`,
+      baseCharacterId: `private-wrong-${index}`,
+      names: {
+        "zh-CN": `私人房错误候选${index}`,
+        en: `Private wrong ${index}`,
+        ja: `プライベート候補${index}`,
+      },
+    }));
+    for (const candidate of wrongCandidates) await seedSnapshotCandidate(candidate);
+
+    const owner = await createSession("test:private-config-owner");
+    const opponent = await createSession("test:private-config-opponent");
+    const createdResponse = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        modeId: "playable",
+        activityId: "private-room",
+        format: 1,
+        roundTimeSeconds: null,
+        maxAttempts: 4,
+      }),
+    });
+    expect(createdResponse.status).toBe(201);
+    const created = await dataOf<{
+      roomId: string;
+      code: string;
+      snapshot: RoomSnapshot;
+    }>(createdResponse);
+    const expectedConfiguration = {
+      modeId: "playable",
+      activityId: "private-room",
+      format: 1,
+      roundTimeSeconds: null,
+      maxAttempts: 4,
+      modifier: null,
+    } as const;
+    expect(created.snapshot).toMatchObject({
+      state: "waiting",
+      ranked: false,
+      configuration: expectedConfiguration,
+    });
+
+    const preview = await dataOf<RoomPreviewResponse>(
+      await SELF.fetch(
+        `https://fireflydle.games/api/rooms/preview?code=${encodeURIComponent(created.code)}`,
+        { headers: { cookie: opponent.cookie } },
+      ),
+    );
+    expect(preview.configuration).toEqual(expectedConfiguration);
+
+    const joinedResponse = await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        code: created.code,
+        format: 7,
+        roundTimeSeconds: 30,
+        maxAttempts: 8,
+      }),
+    });
+    expect(joinedResponse.status).toBe(200);
+    const joined = await dataOf<{ snapshot: RoomSnapshot }>(joinedResponse);
+    expect(joined.snapshot).toMatchObject({
+      state: "playing",
+      roundEndsAt: null,
+      configuration: expectedConfiguration,
+    });
+
+    const [ownerResponse, opponentResponse] = await Promise.all([
+      SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+        headers: { cookie: owner.cookie, upgrade: "websocket" },
+      }),
+      SELF.fetch(`https://fireflydle.games/api/rooms/${created.roomId}/socket`, {
+        headers: { cookie: opponent.cookie, upgrade: "websocket" },
+      }),
+    ]);
+    const ownerSocket = ownerResponse.webSocket;
+    const opponentSocket = opponentResponse.webSocket;
+    expect(ownerSocket).not.toBeNull();
+    expect(opponentSocket).not.toBeNull();
+    if (!ownerSocket || !opponentSocket) return;
+    ownerSocket.accept();
+    opponentSocket.accept();
+    const [ownerPlaying, opponentPlaying] = await Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+    ]);
+    expect(ownerPlaying.configuration).toEqual(expectedConfiguration);
+    expect(opponentPlaying.configuration).toEqual(expectedConfiguration);
+
+    for (const candidate of wrongCandidates) {
+      ownerSocket.send(
+        JSON.stringify({
+          type: "guess",
+          characterId: candidate.id,
+          actionId: crypto.randomUUID(),
+        }),
+      );
+      await nextSocketSnapshot(
+        ownerSocket,
+        (snapshot) => snapshot.ownGuesses.length === wrongCandidates.indexOf(candidate) + 1,
+      );
+    }
+    const exhaustedMessage = nextSocketMessage(ownerSocket);
+    ownerSocket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: character.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    expect(await exhaustedMessage).toMatchObject({
+      type: "error",
+      code: "GAME_ATTEMPTS_EXHAUSTED",
+    });
+
+    opponentSocket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: character.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const finished = await nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.state === "finished",
+    );
+    expect(finished).toMatchObject({ ranked: false, ratingChanges: [] });
+    await SELF.fetch(`https://fireflydle.games/api/replays/${created.roomId}`, {
+      headers: { cookie: owner.cookie },
+    });
+    const archived = await env.DB.prepare(
+      `SELECT
+         (SELECT COUNT(*) FROM matches WHERE id = ?) AS matches_count,
+         (SELECT COUNT(*) FROM rating_events WHERE match_id = ?) AS rating_events_count`,
+    )
+      .bind(created.roomId, created.roomId)
+      .first<{ matches_count: number; rating_events_count: number }>();
+    expect(archived).toEqual({ matches_count: 1, rating_events_count: 0 });
+    ownerSocket.close(1000, "test-complete");
+    opponentSocket.close(1000, "test-complete");
+  });
+
+  it("私人房通过 WebSocket 始终使用创建时的候选与字段规则快照", async () => {
+    await seedSnapshotCandidate();
+    const owner = await createSession();
+    const opponent = await createSession();
+    const created = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ format: 1 }),
+    });
+    expect(created.status).toBe(201);
+    const room = await dataOf<{ roomId: string; code: string }>(created);
+
+    const publishedCandidate = { ...snapshotCandidate, element: character.element };
+    await env.DB.prepare(
+      `UPDATE characters
+       SET element = ?, payload_json = ?, enabled = 0, target_eligible = 0, updated_at = ?
+       WHERE id = ?`,
+    )
+      .bind(
+        publishedCandidate.element,
+        JSON.stringify(publishedCandidate),
+        Date.now(),
+        snapshotCandidate.id,
+      )
+      .run();
+
+    const joined = await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ code: room.code }),
+    });
+    expect(joined.status).toBe(200);
+
+    const socketResponse = await SELF.fetch(
+      `https://fireflydle.games/api/rooms/${room.roomId}/socket`,
+      { headers: { cookie: owner.cookie, upgrade: "websocket" } },
+    );
+    expect(socketResponse.status).toBe(101);
+    const socket = socketResponse.webSocket;
+    expect(socket).not.toBeNull();
+    if (!socket) return;
+    socket.accept();
+    await nextSocketSnapshot(socket, (snapshot) => snapshot.state === "playing");
+
+    socket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: snapshotCandidate.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const updated = await nextSocketSnapshot(
+      socket,
+      (snapshot) => snapshot.ownGuesses.length === 1,
+    );
+    expect(updated.ownGuesses[0]?.cells[0]).toMatchObject({
+      field: "element",
+      state: "miss",
+    });
+    socket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: character.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const finished = await nextSocketSnapshot(socket, (snapshot) => snapshot.state === "finished");
+    expect(finished.state).toBe("finished");
+
+    const replayResponse = await SELF.fetch(`https://fireflydle.games/api/replays/${room.roomId}`, {
+      headers: { cookie: owner.cookie },
+    });
+    expect(replayResponse.status).toBe(200);
+    const replay = await dataOf<ReplayResponse>(replayResponse);
+    expect(replay.kind).toBe("multiplayer");
+    if (replay.kind !== "multiplayer") return;
+    expect(replay.match).toMatchObject({
+      modeId: "playable",
+      activityId: "private-room",
+      ranked: false,
+    });
+    expect(replay.match.rounds[0]?.answer.element).toBe(character.element);
+
+    const archived = await env.DB.prepare(
+      `SELECT mode_id, activity_id, pool_rule_version, manifest_version,
+              candidate_pool_json, field_rules_json,
+              (SELECT COUNT(*) FROM rating_events WHERE match_id = matches.id) AS rating_events_count
+       FROM matches WHERE id = ?`,
+    )
+      .bind(room.roomId)
+      .first<{
+        mode_id: string;
+        activity_id: string;
+        pool_rule_version: string;
+        manifest_version: string;
+        candidate_pool_json: string;
+        field_rules_json: string;
+        rating_events_count: number;
+      }>();
+    expect(archived).toMatchObject({
+      mode_id: "playable",
+      activity_id: "private-room",
+      rating_events_count: 0,
+      pool_rule_version: expect.stringMatching(/^\d+\.\d+\.\d+$/u),
+      manifest_version: expect.stringMatching(/^\d+\.\d+\.\d+$/u),
+    });
+    expect(JSON.parse(archived?.candidate_pool_json ?? "{}")).toHaveProperty(snapshotCandidate.id);
+    expect(JSON.parse(archived?.field_rules_json ?? "{}")).toMatchObject({
+      rules: expect.arrayContaining([{ field: "element", comparison: "exact" }]),
+    });
+    socket.close(1000, "test-complete");
+  });
+
+  it("房间序列化字段规则后不受规则来源对象变更影响", async () => {
+    const owner = await createSession();
+    const opponent = await createSession();
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'FLD42', ?, ?, 'active', 0, 1, ?, ?)`,
+    )
+      .bind(roomId, roomId, owner.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const contentSnapshot = createPlayableMultiplayerContentSnapshot(
+      [character, snapshotCandidate],
+      [character],
+    );
+    contentSnapshot.fieldRules = {
+      rules: [{ field: "element", comparison: "exact" }],
+      definitions: contentSnapshot.fieldRules.definitions.filter((field) => field.id === "element"),
+    };
+    await env.GAME_ROOM.getByName(roomId).initialize({
+      roomId,
+      code: "FLD42",
+      format: 1,
+      activityId: "private-room",
+      owner: {
+        userId: owner.data.user.id,
+        displayName: owner.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponent.data.user.id,
+        displayName: opponent.data.user.displayName,
+        isGuest: true,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot,
+      now: startedAt,
+    });
+
+    contentSnapshot.fieldRules.rules = [{ field: "faction", comparison: "faction" }];
+    contentSnapshot.candidateSnapshots[snapshotCandidate.id] = {
+      ...snapshotCandidate,
+      element: character.element,
+    };
+    const socketResponse = await SELF.fetch(`https://fireflydle.games/api/rooms/${roomId}/socket`, {
+      headers: { cookie: owner.cookie, upgrade: "websocket" },
+    });
+    expect(socketResponse.status).toBe(101);
+    const socket = socketResponse.webSocket;
+    if (!socket) return;
+    socket.accept();
+    await nextSocketSnapshot(socket, (snapshot) => snapshot.state === "playing");
+    socket.send(
+      JSON.stringify({
+        type: "guess",
+        characterId: snapshotCandidate.id,
+        actionId: crypto.randomUUID(),
+      }),
+    );
+    const updated = await nextSocketSnapshot(
+      socket,
+      (snapshot) => snapshot.ownGuesses.length === 1,
+    );
+    expect(updated.ownGuesses[0]?.cells).toEqual([
+      { field: "element", state: "miss", direction: "none" },
+    ]);
+    socket.close(1000, "test-complete");
+  });
+
   it("只在回合结束后公开答案，连续平局也会一直加赛", async () => {
     const roomId = crypto.randomUUID();
     const ownerId = crypto.randomUUID();
@@ -601,7 +1623,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "DRW22",
       format: 3,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: ownerId,
         displayName: "Draw Left",
@@ -616,8 +1638,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
     expect(playing.roundAnswer).toBeNull();
@@ -656,7 +1677,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "AGR42",
       format: 3,
-      ranked: false,
+      activityId: "private-room",
       owner: {
         userId: ownerId,
         displayName: "Offer Left",
@@ -671,8 +1692,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
     });
 
     const offered = await roomObject.offerDraw(ownerId);
@@ -692,7 +1712,186 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     expect(accepted.snapshot.drawOfferByPlayerId).toBeNull();
   });
 
-  it("排位结算向双方返回各自的 Elo 加减分", async () => {
+  it("通过 WebSocket 向双方同步跳过的待确认、取消和执行状态", async () => {
+    const owner = await createSession("test:skip-owner");
+    const opponent = await createSession("test:skip-opponent");
+    const created = await SELF.fetch("https://fireflydle.games/api/rooms", {
+      method: "POST",
+      headers: { cookie: owner.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ format: 3 }),
+    });
+    const room = await dataOf<{ roomId: string; code: string }>(created);
+    await SELF.fetch("https://fireflydle.games/api/rooms/join", {
+      method: "POST",
+      headers: { cookie: opponent.cookie, "content-type": "application/json" },
+      body: JSON.stringify({ code: room.code }),
+    });
+
+    const [ownerResponse, opponentResponse] = await Promise.all([
+      SELF.fetch(`https://fireflydle.games/api/rooms/${room.roomId}/socket`, {
+        headers: { cookie: owner.cookie, upgrade: "websocket" },
+      }),
+      SELF.fetch(`https://fireflydle.games/api/rooms/${room.roomId}/socket`, {
+        headers: { cookie: opponent.cookie, upgrade: "websocket" },
+      }),
+    ]);
+    const ownerSocket = ownerResponse.webSocket;
+    const opponentSocket = opponentResponse.webSocket;
+    expect(ownerSocket).not.toBeNull();
+    expect(opponentSocket).not.toBeNull();
+    if (!ownerSocket || !opponentSocket) return;
+    ownerSocket.accept();
+    opponentSocket.accept();
+    const [ownerPlaying] = await Promise.all([
+      nextSocketSnapshot(ownerSocket, (snapshot) => snapshot.state === "playing"),
+      nextSocketSnapshot(opponentSocket, (snapshot) => snapshot.state === "playing"),
+    ]);
+
+    const ownerPending = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    const opponentPending = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    ownerSocket.send(JSON.stringify({ type: "request-skip" }));
+    const pendingSnapshots = await Promise.all([ownerPending, opponentPending]);
+    expect(pendingSnapshots.map((snapshot) => snapshot.roundSkip)).toEqual([
+      pendingSnapshots[0]?.roundSkip,
+      pendingSnapshots[0]?.roundSkip,
+    ]);
+
+    const ownerCancelled = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "cancelled",
+    );
+    const opponentCancelled = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "cancelled",
+    );
+    opponentSocket.send(JSON.stringify({ type: "respond-skip", accepted: false }));
+    const cancelledSnapshots = await Promise.all([ownerCancelled, opponentCancelled]);
+    expect(cancelledSnapshots.map((snapshot) => snapshot.roundSkip)).toEqual([
+      {
+        status: "cancelled",
+        round: ownerPlaying.round,
+        requestedByPlayerId: owner.data.user.id,
+        reason: "declined",
+      },
+      {
+        status: "cancelled",
+        round: ownerPlaying.round,
+        requestedByPlayerId: owner.data.user.id,
+        reason: "declined",
+      },
+    ]);
+
+    const ownerPendingAgain = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    const opponentPendingAgain = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "pending",
+    );
+    ownerSocket.send(JSON.stringify({ type: "request-skip" }));
+    await Promise.all([ownerPendingAgain, opponentPendingAgain]);
+    const ownerExecuted = nextSocketSnapshot(
+      ownerSocket,
+      (snapshot) => snapshot.roundSkip.status === "executed",
+    );
+    const opponentExecuted = nextSocketSnapshot(
+      opponentSocket,
+      (snapshot) => snapshot.roundSkip.status === "executed",
+    );
+    opponentSocket.send(JSON.stringify({ type: "respond-skip", accepted: true }));
+    const executedSnapshots = await Promise.all([ownerExecuted, opponentExecuted]);
+    for (const snapshot of executedSnapshots) {
+      expect(snapshot).toMatchObject({
+        state: "playing",
+        round: ownerPlaying.round + 1,
+        roundAnswer: null,
+        players: [{ score: 0 }, { score: 0 }],
+        roundSkip: {
+          status: "executed",
+          round: ownerPlaying.round,
+          requestedByPlayerId: owner.data.user.id,
+          acceptedByPlayerId: opponent.data.user.id,
+        },
+      });
+    }
+    ownerSocket.close(1000, "test-complete");
+    opponentSocket.close(1000, "test-complete");
+  });
+
+  it("跳过拒绝或超时保持本题，并发确认只推进一次", async () => {
+    const roomId = crypto.randomUUID();
+    const ownerId = crypto.randomUUID();
+    const opponentId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "SKP42",
+      format: 3,
+      activityId: "private-room",
+      owner: {
+        userId: ownerId,
+        displayName: "Skip Left",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: opponentId,
+        displayName: "Skip Right",
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+
+    await roomObject.requestSkip(ownerId, startedAt + 10);
+    const declined = await roomObject.respondSkip(opponentId, false, startedAt + 20);
+    expect(declined.ok && declined.snapshot).toMatchObject({
+      state: "playing",
+      round: 1,
+      players: [{ score: 0 }, { score: 0 }],
+      roundSkip: { status: "cancelled", reason: "declined" },
+    });
+
+    const pending = await roomObject.requestSkip(opponentId, startedAt + 30);
+    expect(pending.ok).toBe(true);
+    if (!pending.ok || pending.snapshot.roundSkip.status !== "pending") return;
+    const timedOut = await roomObject.snapshot(ownerId, pending.snapshot.roundSkip.expiresAt + 1);
+    expect(timedOut.ok && timedOut.snapshot).toMatchObject({
+      state: "playing",
+      round: 1,
+      players: [{ score: 0 }, { score: 0 }],
+      roundSkip: { status: "cancelled", reason: "timeout" },
+    });
+
+    await roomObject.requestSkip(ownerId, pending.snapshot.roundSkip.expiresAt + 2);
+    const confirmations = await Promise.all([
+      roomObject.respondSkip(opponentId, true, pending.snapshot.roundSkip.expiresAt + 3),
+      roomObject.respondSkip(opponentId, true, pending.snapshot.roundSkip.expiresAt + 3),
+    ]);
+    expect(confirmations.filter((result) => result.ok)).toHaveLength(1);
+    const final = await roomObject.snapshot(ownerId, pending.snapshot.roundSkip.expiresAt + 4);
+    expect(final.ok && final.snapshot).toMatchObject({
+      state: "playing",
+      round: 2,
+      consecutiveDraws: 0,
+      roundAnswer: null,
+      players: [{ score: 0 }, { score: 0 }],
+      roundSkip: { status: "executed", round: 1 },
+    });
+  });
+
+  it("固定 BO3 随机匹配在双方跳过后返回双方永久 Elo 变化", async () => {
     const roomId = crypto.randomUUID();
     const ownerId = crypto.randomUUID();
     const opponentId = crypto.randomUUID();
@@ -701,8 +1900,8 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     await roomObject.initialize({
       roomId,
       code: "ELR24",
-      format: 1,
-      ranked: true,
+      activityId: "ranked-match",
+      format: 3,
       owner: {
         userId: ownerId,
         displayName: "Rated Left",
@@ -717,21 +1916,228 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
-    const won = await roomObject.guess(ownerId, character.id, crypto.randomUUID(), startedAt + 100);
+    const firstWin = await roomObject.guess(
+      ownerId,
+      character.id,
+      crypto.randomUUID(),
+      startedAt + 100,
+    );
+    expect(firstWin.ok).toBe(true);
+    if (!firstWin.ok || firstWin.snapshot.nextRoundAt === null) return;
+    const roundTwoAt = firstWin.snapshot.nextRoundAt + 1;
+    await roomObject.snapshot(ownerId, roundTwoAt);
+    await roomObject.requestSkip(ownerId, roundTwoAt + 1);
+    const skipped = await roomObject.respondSkip(opponentId, true, roundTwoAt + 2);
+    expect(skipped.ok && skipped.snapshot).toMatchObject({
+      state: "playing",
+      round: 3,
+      roundSkip: { status: "executed", round: 2 },
+    });
+
+    const won = await roomObject.guess(ownerId, character.id, crypto.randomUUID(), roundTwoAt + 3);
     expect(won.ok).toBe(true);
     if (!won.ok) return;
     expect(won.snapshot.state).toBe("finished");
     expect(won.snapshot.roundAnswer?.id).toBe(character.id);
-    expect(won.snapshot.ratingChange).toEqual({ before: 1000, after: 1024, delta: 24 });
+    expect(won.snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "ranked-match",
+      ranked: true,
+      ratingChanges: [
+        { playerId: ownerId, before: 1000, after: 1024, delta: 24 },
+        { playerId: opponentId, before: 1000, after: 976, delta: -24 },
+      ],
+    });
 
-    const lost = await roomObject.snapshot(opponentId, startedAt + 101);
+    const lost = await roomObject.snapshot(opponentId, roundTwoAt + 4);
     expect(lost.ok).toBe(true);
     if (!lost.ok) return;
-    expect(lost.snapshot.ratingChange).toEqual({ before: 1000, after: 976, delta: -24 });
+    expect(lost.snapshot.ratingChanges).toEqual(won.snapshot.ratingChanges);
+  });
+
+  it("并发归档只写入一场比赛和双方各一个评分事件", async () => {
+    const left = await createRegisteredSession("single_verdict_left");
+    const right = await createRegisteredSession("single_verdict_right");
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'ONE42', ?, ?, 'active', 1, 3, ?, ?)`,
+    )
+      .bind(roomId, roomId, left.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "ONE42",
+      activityId: "ranked-match",
+      format: 3,
+      owner: {
+        userId: left.data.user.id,
+        displayName: left.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: right.data.user.id,
+        displayName: right.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+
+    const first = await roomObject.guess(
+      left.data.user.id,
+      character.id,
+      crypto.randomUUID(),
+      startedAt + 1,
+    );
+    expect(first.ok && first.snapshot.nextRoundAt).not.toBeNull();
+    if (!first.ok || first.snapshot.nextRoundAt === null) return;
+    const secondRoundAt = first.snapshot.nextRoundAt + 1;
+    await roomObject.snapshot(left.data.user.id, secondRoundAt);
+    await roomObject.guess(left.data.user.id, character.id, crypto.randomUUID(), secondRoundAt + 1);
+    const final = await roomObject.snapshot(left.data.user.id, secondRoundAt + 2);
+    expect(final.ok && final.snapshot.state).toBe("finished");
+    expect(final.ok && final.snapshot.winnerId).toBe(left.data.user.id);
+
+    expect(
+      await Promise.all([
+        roomObject.archiveForPlayer(left.data.user.id, secondRoundAt + 3),
+        roomObject.archiveForPlayer(right.data.user.id, secondRoundAt + 3),
+      ]),
+    ).toEqual([true, true]);
+    const archived = await env.DB.prepare(
+      `SELECT
+         (SELECT COUNT(*) FROM matches WHERE id = ?) AS matches_count,
+         (SELECT COUNT(*) FROM rating_events WHERE match_id = ?) AS rating_events_count`,
+    )
+      .bind(roomId, roomId)
+      .first<{ matches_count: number; rating_events_count: number }>();
+    expect(archived).toEqual({ matches_count: 1, rating_events_count: 2 });
+    const ratingEvents = await env.DB.prepare(
+      `SELECT user_id, rating_before, rating_after, delta
+       FROM rating_events WHERE match_id = ? ORDER BY user_id`,
+    )
+      .bind(roomId)
+      .all<{
+        user_id: string;
+        rating_before: number;
+        rating_after: number;
+        delta: number;
+      }>();
+    expect(ratingEvents.results).toEqual(
+      expect.arrayContaining([
+        {
+          user_id: left.data.user.id,
+          rating_before: 1000,
+          rating_after: 1024,
+          delta: 24,
+        },
+        {
+          user_id: right.data.user.id,
+          rating_before: 1000,
+          rating_after: 976,
+          delta: -24,
+        },
+      ]),
+    );
+    const ratings = await env.DB.prepare(
+      "SELECT id, elo, ranked_matches FROM users WHERE id IN (?, ?) ORDER BY id",
+    )
+      .bind(left.data.user.id, right.data.user.id)
+      .all<{ id: string; elo: number; ranked_matches: number }>();
+    expect(ratings.results).toEqual(
+      expect.arrayContaining([
+        { id: left.data.user.id, elo: 1024, ranked_matches: 1 },
+        { id: right.data.user.id, elo: 976, ranked_matches: 1 },
+      ]),
+    );
+  });
+
+  it("重连与超时竞争后仍只归档断线裁决一次", async () => {
+    const left = await createRegisteredSession("timeout_left");
+    const right = await createRegisteredSession("timeout_right");
+    const roomId = crypto.randomUUID();
+    const startedAt = Date.now();
+    await env.DB.prepare(
+      `INSERT INTO room_directory
+         (room_id, room_code, durable_object_name, owner_user_id, state, ranked,
+          match_format, created_at, expires_at)
+       VALUES (?, 'RCE42', ?, ?, 'active', 0, 1, ?, ?)`,
+    )
+      .bind(roomId, roomId, left.data.user.id, startedAt, startedAt + 60_000)
+      .run();
+    const roomObject = env.GAME_ROOM.getByName(roomId);
+    await roomObject.initialize({
+      roomId,
+      code: "RCE42",
+      format: 1,
+      activityId: "private-room",
+      owner: {
+        userId: left.data.user.id,
+        displayName: left.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      opponent: {
+        userId: right.data.user.id,
+        displayName: right.data.user.displayName,
+        isGuest: false,
+        rating: 1000,
+        rankedMatches: 0,
+      },
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
+      now: startedAt,
+    });
+    await roomObject.disconnect(right.data.user.id, startedAt + 1);
+    const deadline = startedAt + 1 + RECONNECT_GRACE_MS;
+    await Promise.all([
+      roomObject.reconnect(right.data.user.id, deadline),
+      roomObject.snapshot(left.data.user.id, deadline),
+    ]);
+    const final = await roomObject.snapshot(left.data.user.id, deadline + 1);
+    expect(final.ok && final.snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "private-room",
+      ranked: false,
+      state: "finished",
+      finishReason: "disconnect",
+      winnerId: left.data.user.id,
+      ratingChanges: [],
+    });
+
+    await Promise.all([
+      roomObject.archiveForPlayer(left.data.user.id, deadline + 2),
+      roomObject.archiveForPlayer(right.data.user.id, deadline + 2),
+    ]);
+    const count = await env.DB.prepare(
+      `SELECT COUNT(*) AS count,
+              (SELECT COUNT(*) FROM rating_events WHERE match_id = ?) AS rating_events_count
+       FROM matches WHERE id = ?`,
+    )
+      .bind(roomId, roomId)
+      .first<{ count: number; rating_events_count: number }>();
+    expect(count).toEqual({ count: 1, rating_events_count: 0 });
+    const unchanged = await env.DB.prepare(
+      "SELECT elo, ranked_matches FROM users WHERE id IN (?, ?) ORDER BY id",
+    )
+      .bind(left.data.user.id, right.data.user.id)
+      .all<{ elo: number; ranked_matches: number }>();
+    expect(unchanged.results).toEqual([
+      { elo: 1000, ranked_matches: 0 },
+      { elo: 1000, ranked_matches: 0 },
+    ]);
   });
 
   it("归档并仅向参赛者返回完整多人复盘", async () => {
@@ -753,7 +2159,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       roomId,
       code: "RPY42",
       format: 3,
-      ranked: true,
+      activityId: "ranked-match",
       owner: {
         userId: left.data.user.id,
         displayName: left.data.user.displayName,
@@ -768,8 +2174,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
         rating: 1000,
         rankedMatches: 0,
       },
-      characters: [character],
-      targetIds: [character.id],
+      contentSnapshot: createPlayableMultiplayerContentSnapshot([character], [character]),
       now: startedAt,
     });
 
@@ -842,6 +2247,7 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
   });
 
   it("固定 BO3 排位并建立只对局内玩家可用的房间", async () => {
+    await seedSnapshotCandidate();
     const guest = await createSession();
     const guestRanked = await SELF.fetch("https://fireflydle.games/api/matchmaking", {
       method: "POST",
@@ -883,11 +2289,30 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
       headers: { cookie: left.cookie },
     });
     const roomData = await dataOf<{ snapshot: RoomSnapshot }>(room);
-    expect(roomData.snapshot.format).toBe(3);
-    expect(roomData.snapshot.ranked).toBe(true);
+    expect(roomData.snapshot).toMatchObject({
+      modeId: "playable",
+      activityId: "ranked-match",
+      format: 3,
+      ranked: true,
+      ratingChanges: [],
+    });
     expect(roomData.snapshot.state).toBe("playing");
     expect(roomData.snapshot.players).toHaveLength(2);
     expect((roomData.snapshot.roundEndsAt ?? 0) - Date.now()).toBeGreaterThan(85_000);
+
+    const publishedCandidate = { ...snapshotCandidate, element: character.element };
+    await env.DB.prepare(
+      `UPDATE characters
+       SET element = ?, payload_json = ?, enabled = 0, target_eligible = 0, updated_at = ?
+       WHERE id = ?`,
+    )
+      .bind(
+        publishedCandidate.element,
+        JSON.stringify(publishedCandidate),
+        Date.now(),
+        snapshotCandidate.id,
+      )
+      .run();
 
     const hiddenRoom = await SELF.fetch(`https://fireflydle.games/api/rooms/${matched.roomId}`, {
       headers: { cookie: outsider.cookie },
@@ -905,7 +2330,17 @@ describe("匹配、SQLite Durable Object 与 WebSocket", () => {
     expect(hiddenSocket.status).toBe(404);
 
     const roomObject = env.GAME_ROOM.getByName(matched.roomId);
-    const rateAt = Date.now();
+    const snapshotGuess = await roomObject.guess(
+      left.data.user.id,
+      snapshotCandidate.id,
+      crypto.randomUUID(),
+      Date.now(),
+    );
+    expect(snapshotGuess.ok && snapshotGuess.snapshot.ownGuesses[0]?.cells[0]).toMatchObject({
+      field: "element",
+      state: "miss",
+    });
+    const rateAt = Date.now() + 61_000;
     // BO7 理论峰值是 42 次；前 60 个唯一 action 都不应被速率上限误伤。
     for (let index = 0; index < 60; index += 1) {
       const invalidGuess = await roomObject.guess(
@@ -1004,17 +2439,17 @@ describe("访客进度合并", () => {
     expect(registered.status).toBe(201);
     const target = await dataOf<SessionData>(registered);
 
-    const createGame = async (cookie: string, mode: "daily" | "random") =>
+    const createGame = async (cookie: string, activityId: "daily" | "practice") =>
       dataOf<PublicGame>(
         await SELF.fetch("https://fireflydle.games/api/games", {
           method: "POST",
           headers: { cookie, "content-type": "application/json" },
-          body: JSON.stringify({ mode, difficulty: "standard" }),
+          body: JSON.stringify({ modeId: "playable", activityId }),
         }),
       );
     const targetDaily = await createGame(registered.headers.get("set-cookie") ?? "", "daily");
     const guestDaily = await createGame(guest.cookie, "daily");
-    const guestRandom = await createGame(guest.cookie, "random");
+    const guestRandom = await createGame(guest.cookie, "practice");
     const submitCorrect = (cookie: string, gameId: string) =>
       SELF.fetch(`https://fireflydle.games/api/games/${gameId}/guesses`, {
         method: "POST",
@@ -1249,7 +2684,14 @@ describe("邮箱验证", () => {
     const registered = await dataOf<SessionData>(withEmail);
     expect(registered.user).toMatchObject({ hasEmail: true, emailVerified: false });
     await vi.waitFor(() => expect(outbound).toHaveBeenCalledOnce());
-    await vi.waitFor(() => expect(consoleError).toHaveBeenCalledOnce());
+    await vi.waitFor(() => {
+      const deliveryFailures = consoleError.mock.calls.filter(
+        ([message]) =>
+          typeof message === "string" &&
+          message.includes('"event":"email-verification-send-failed"'),
+      );
+      expect(deliveryFailures).toHaveLength(1);
+    });
 
     const stored = await env.DB.prepare(
       `SELECT users.email_verified,
@@ -1488,8 +2930,10 @@ describe("持久化限流", () => {
     expect(payload.error.details.retryAfter).toBeGreaterThan(0);
     expect(Date.parse(payload.error.details.retryAt)).not.toBeNaN();
     const persisted = await env.DB.prepare(
-      "SELECT request_count, blocked_until FROM rate_limits WHERE scope = 'auth:login:identity'",
-    ).first<{ request_count: number; blocked_until: number }>();
+      "SELECT request_count, blocked_until FROM rate_limits WHERE scope = 'auth:login:identity' AND key_hash = ?",
+    )
+      .bind(await sha256("rate_limited_identity"))
+      .first<{ request_count: number; blocked_until: number }>();
     expect(persisted?.request_count).toBe(11);
     expect(persisted?.blocked_until ?? 0).toBeGreaterThan(Date.now());
   });

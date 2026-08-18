@@ -1,18 +1,9 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-} from "react";
-import { useQuery } from "@tanstack/react-query";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  BookOpen,
-  Check,
   Clock3,
   Gauge,
   ImageDown,
@@ -20,27 +11,53 @@ import {
   RadioTower,
   RotateCcw,
   Signal,
+  Share2,
   Sparkles,
   Trophy,
   WifiOff,
 } from "lucide-react";
-import type { Difficulty, PersonalStats, PublicGame } from "@fireflydle/contracts";
-import { ATTEMPTS_BY_DIFFICULTY, getBeijingDateKey } from "@fireflydle/game-engine";
+import type {
+  AeonSummary,
+  FriendChallenge,
+  PersonalStats,
+  PublicGame,
+  PublicUser,
+  ReplayShareResponse,
+  SessionPayload,
+} from "@fireflydle/contracts";
+import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
+import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
+import { InferenceReview } from "./InferenceReview";
 import { ShareResultDialog } from "./ShareResultDialog";
+import { RulesPanel } from "./RulesPanel";
+import { PlayableTutorial } from "./PlayableTutorial";
+import {
+  hasCompletedGuestPlayableTutorial,
+  markGuestPlayableTutorialCompleted,
+  supportsPlayableTutorial,
+} from "./playable-tutorial-state";
+import { triggerGameHaptic } from "./haptics";
+import {
+  buildFriendChallengeSharePayload,
+  copyShareText,
+  tryNativeFriendChallengeShare,
+} from "./share-friend-challenge";
 import { useCurrentGames } from "./useCurrentGames";
 import { useGameSession } from "./useGameSession";
+import type { SoloContentMode, SoloModeRuntime } from "./mode-runtime";
+import { markInstallEligible } from "../../pwa";
+import { useSpecialModePack } from "../../offline/use-special-mode-pack";
 import "./game.css";
-
-const difficulties: Difficulty[] = ["casual", "standard", "hard"];
 
 interface SharePreview {
   imageUrl: string;
   fileName: string;
+  challengeUrl?: string;
 }
 
 function formatTime(milliseconds: number): string {
@@ -50,151 +67,189 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-function storedDifficulty(mode: "daily" | "random"): Difficulty {
-  const value = window.localStorage.getItem(`fireflydle-${mode}-difficulty`);
-  return value === "casual" || value === "hard" ? value : "standard";
+const AeonGuessBoard = lazy(() =>
+  import("./AeonGuessBoard").then((module) => ({ default: module.AeonGuessBoard })),
+);
+
+function fieldSummary(
+  locale: "zh-CN" | "en" | "ja",
+  contentModeId: SoloContentMode,
+  runtime: SoloModeRuntime,
+): string {
+  const manifest = runtime.manifest;
+  const mode = manifest.modes.find((entry) => entry.id === contentModeId);
+  const fields = (
+    contentModeId === "playable"
+      ? selectSnapshotFieldDefinitions(mode?.fields ?? [])
+      : (mode?.fields ?? [])
+  )
+    .map((field) => field.label[locale])
+    .join(locale === "ja" ? "・" : ", ");
+  return fields ?? "";
+}
+
+function ruleLabels(t: (key: string) => string, locale: "zh-CN" | "en" | "ja") {
+  return {
+    open: t("prep.viewRules"),
+    close: t("common.close"),
+    range: t("prep.ruleRange"),
+    guesses: t("prep.ruleGuesses"),
+    fields: t("prep.ruleFields"),
+    colors: t("prep.ruleColors"),
+    directions: t("prep.ruleDirections"),
+    example: t("prep.ruleExample"),
+    exact: t("game.exact"),
+    closeMatch: t("game.close"),
+    miss: t("game.miss"),
+    higher: t("game.higher"),
+    lower: t("game.lower"),
+    replayTutorial:
+      locale === "zh-CN" ? "重播新手教学" : locale === "ja" ? "ガイドを再生" : "Replay tutorial",
+  };
 }
 
 function GamePreparation({
-  mode,
-  difficulty,
-  setDifficulty,
+  activityId,
+  contentModeId,
+  runtime,
   checking,
   busy,
   connectionFailed,
   onStart,
   onRetry,
   onOffline,
+  offlineUnavailable,
+  offlinePackState,
+  onRetryOfflinePack,
+  onReplayTutorial,
 }: {
-  mode: "daily" | "random";
-  difficulty: Difficulty;
-  setDifficulty: (value: Difficulty) => void;
+  activityId: "daily" | "practice";
+  contentModeId: SoloContentMode;
+  runtime: SoloModeRuntime;
   checking: boolean;
   busy: boolean;
   connectionFailed: boolean;
   onStart: () => void;
   onRetry: () => void;
   onOffline: () => void;
+  offlineUnavailable: boolean;
+  offlinePackState?: "checking" | "downloading" | "ready" | "missing" | "unsupported" | "error";
+  onRetryOfflinePack?: () => void;
+  onReplayTutorial?: () => void;
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
-
-  const moveDifficultyFocus = (
-    event: ReactKeyboardEvent<HTMLButtonElement>,
-    current: Difficulty,
-  ) => {
-    const index = difficulties.indexOf(current);
-    let nextIndex: number | null = null;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-      nextIndex = (index + 1) % difficulties.length;
-    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-      nextIndex = (index - 1 + difficulties.length) % difficulties.length;
-    } else if (event.key === "Home") {
-      nextIndex = 0;
-    } else if (event.key === "End") {
-      nextIndex = difficulties.length - 1;
-    }
-    if (nextIndex === null) return;
-    event.preventDefault();
-    const next = difficulties[nextIndex];
-    if (!next) return;
-    setDifficulty(next);
-    event.currentTarget.parentElement
-      ?.querySelector<HTMLButtonElement>(`button[data-difficulty="${next}"]`)
-      ?.focus();
-  };
+  const modeDefinition = runtime.manifest.modes.find((entry) => entry.id === contentModeId);
+  const maxAttempts = modeDefinition?.maxAttempts ?? 6;
+  const fields = modeDefinition?.fields ?? [];
+  const poolSize =
+    runtime.manifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
+      .length ?? 0;
 
   return (
-    <main className={`game-preparation prep-${mode}`}>
+    <main className={`game-preparation prep-${activityId}`}>
       <Link className="prep-back" to="/">
         <ArrowLeft size={16} aria-hidden="true" /> {t("hub.backToHub")}
       </Link>
       <header className="prep-header">
         <div>
           <p className="eyebrow">
-            {mode === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
+            {activityId === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
           </p>
-          <h1>{mode === "daily" ? t("game.daily") : t("game.random")}</h1>
-          <p>{mode === "daily" ? t("prep.dailyIntro") : t("prep.randomIntro")}</p>
+          <h1>
+            {contentModeId === "npc"
+              ? "NPC"
+              : contentModeId === "aeon"
+                ? locale === "en"
+                  ? "Aeon image challenge"
+                  : locale === "ja"
+                    ? "星神画像チャレンジ"
+                    : "星神图片挑战"
+                : contentModeId === "currency-wars"
+                  ? locale === "zh-CN"
+                    ? "货币战争"
+                    : locale === "ja"
+                      ? "コイン戦争"
+                      : "Currency Wars"
+                  : activityId === "daily"
+                    ? t("game.daily")
+                    : t("game.random")}
+          </h1>
+          <p>
+            {contentModeId === "npc" ||
+            contentModeId === "currency-wars" ||
+            contentModeId === "aeon"
+              ? fieldSummary(locale, contentModeId, runtime)
+              : activityId === "daily"
+                ? t("prep.dailyIntro")
+                : t("prep.randomIntro")}
+          </p>
         </div>
         <div className="prep-route-mark" aria-hidden="true">
-          <span>{mode === "daily" ? "01" : "02"}</span>
-          <strong>{mode === "daily" ? t("game.dailyShort") : t("game.randomShort")}</strong>
+          <span>{activityId === "daily" ? "01" : "02"}</span>
+          <strong>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</strong>
         </div>
       </header>
 
-      <section className="prep-console" aria-labelledby="difficulty-heading">
+      <section className="prep-console" aria-labelledby="rules-heading">
         <div className="prep-section-label">
           <span>01</span>
           <div>
-            <h2 id="difficulty-heading">
-              {mode === "daily"
+            <h2 id="rules-heading">
+              {activityId === "daily"
                 ? locale === "zh-CN"
                   ? "今日规则"
                   : locale === "ja"
                     ? "今日のルール"
                     : "TODAY'S RULE"
-                : t("prep.chooseDifficulty")}
+                : locale === "zh-CN"
+                  ? "练习规则"
+                  : locale === "ja"
+                    ? "練習ルール"
+                    : "PRACTICE RULE"}
             </h2>
             <p>
-              {mode === "daily"
-                ? locale === "zh-CN"
-                  ? "每日一题固定 6 次猜测，每位玩家每天只有一局。"
-                  : locale === "ja"
-                    ? "デイリーは6回固定で、1日1回だけ挑戦できます。"
-                    : "Daily puzzles always allow 6 guesses and one run per player."
-                : t("prep.difficultyHint")}
+              {locale === "zh-CN"
+                ? `${contentModeId === "npc" ? "NPC 练习" : contentModeId === "currency-wars" ? "货币战争练习" : activityId === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${activityId === "daily" ? "，每位玩家每天只有一局。" : "。"}`
+                : locale === "ja"
+                  ? `${contentModeId === "npc" ? "NPC練習" : contentModeId === "currency-wars" ? "コイン戦争練習" : activityId === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${activityId === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
+                  : `${contentModeId === "npc" ? "NPC practice" : contentModeId === "currency-wars" ? "Currency Wars practice" : activityId === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${activityId === "daily" ? " and one run per player." : "."}`}
             </p>
           </div>
         </div>
-        {mode === "daily" ? (
-          <div className="prep-daily-rule">
-            <Gauge size={22} aria-hidden="true" />
-            <span>
-              <strong>
-                {locale === "zh-CN"
-                  ? "标准猜测次数"
-                  : locale === "ja"
-                    ? "固定推測回数"
-                    : "FIXED ATTEMPTS"}
-              </strong>
-              <small>
-                {locale === "zh-CN"
-                  ? "所有玩家使用相同次数规则"
-                  : locale === "ja"
-                    ? "すべてのプレイヤーに同じルール"
-                    : "The same attempt limit for every player"}
-              </small>
-            </span>
-            <b>6</b>
-            <em>{t("prep.attemptUnit")}</em>
-          </div>
-        ) : (
-          <div className="prep-difficulties" role="radiogroup" aria-label={t("game.difficulty")}>
-            {difficulties.map((value) => (
-              <button
-                key={value}
-                data-difficulty={value}
-                type="button"
-                role="radio"
-                aria-checked={difficulty === value}
-                tabIndex={difficulty === value ? 0 : -1}
-                className={difficulty === value ? "active" : undefined}
-                disabled={busy}
-                onClick={() => setDifficulty(value)}
-                onKeyDown={(event) => moveDifficultyFocus(event, value)}
-              >
-                <span>
-                  <strong>{t(`game.${value}`)}</strong>
-                  <small>{t(`prep.${value}Hint`)}</small>
-                </span>
-                <b>{ATTEMPTS_BY_DIFFICULTY[value]}</b>
-                <em>{t("prep.attemptUnit")}</em>
-                {difficulty === value ? <Check size={17} aria-hidden="true" /> : null}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="prep-daily-rule">
+          <Gauge size={22} aria-hidden="true" />
+          <span>
+            <strong>
+              {locale === "zh-CN"
+                ? "固定猜测次数"
+                : locale === "ja"
+                  ? "固定推測回数"
+                  : "FIXED ATTEMPTS"}
+            </strong>
+            <small>
+              {locale === "zh-CN"
+                ? contentModeId === "npc"
+                  ? "NPC 练习使用独立四猜规则"
+                  : contentModeId === "currency-wars"
+                    ? "货币战争使用独立六猜规则"
+                    : "所有普通角色活动使用相同次数规则"
+                : locale === "ja"
+                  ? contentModeId === "npc"
+                    ? "NPC練習専用の4回ルール"
+                    : contentModeId === "currency-wars"
+                      ? "コイン戦争専用の6回ルール"
+                      : "通常キャラクターの全アクティビティで同じルール"
+                  : contentModeId === "npc"
+                    ? "Four attempts for NPC practice"
+                    : contentModeId === "currency-wars"
+                      ? "Six attempts for Currency Wars practice"
+                      : "The same limit for every playable-character activity"}
+            </small>
+          </span>
+          <b>{maxAttempts}</b>
+          <em>{t("prep.attemptUnit")}</em>
+        </div>
 
         <div className="prep-start-zone">
           <div className="timer-notice">
@@ -207,7 +262,7 @@ function GamePreparation({
           <button
             className="ticket-button prep-start-button"
             type="button"
-            disabled={checking || busy || connectionFailed}
+            disabled={checking || busy || connectionFailed || offlineUnavailable}
             onClick={onStart}
           >
             {busy || checking ? <span className="button-spinner" /> : <RadioTower size={18} />}
@@ -215,7 +270,50 @@ function GamePreparation({
           </button>
         </div>
 
-        {connectionFailed && (
+        {contentModeId !== "playable" && offlinePackState ? (
+          <section className="offline-pack-status" role="status">
+            <WifiOff size={20} aria-hidden="true" />
+            <div>
+              <strong>
+                {offlinePackState === "ready"
+                  ? locale === "en"
+                    ? "Available offline"
+                    : locale === "ja"
+                      ? "オフライン利用可"
+                      : "可离线使用"
+                  : offlinePackState === "downloading" || offlinePackState === "checking"
+                    ? locale === "en"
+                      ? "Preparing offline pack"
+                      : locale === "ja"
+                        ? "オフラインパックを準備中"
+                        : "正在准备离线包"
+                    : locale === "en"
+                      ? "Open online once to prepare this mode"
+                      : locale === "ja"
+                        ? "オンラインで一度開いて準備してください"
+                        : "需要联网打开一次以缓存此模式"}
+              </strong>
+              <span>
+                {locale === "en"
+                  ? "Offline games stay on this device and are not uploaded."
+                  : locale === "ja"
+                    ? "オフライン対局は端末内だけに保存され、アップロードされません。"
+                    : "离线对局仅保留在本机，不会上传。"}
+              </span>
+            </div>
+            {offlinePackState === "error" && onRetryOfflinePack ? (
+              <button
+                type="button"
+                className="ticket-button-secondary"
+                onClick={onRetryOfflinePack}
+              >
+                {t("common.retry")}
+              </button>
+            ) : null}
+          </section>
+        ) : null}
+
+        {connectionFailed && activityId === "practice" && !offlineUnavailable && (
           <section className="connection-choice" role="alert" aria-labelledby="connection-title">
             <WifiOff size={22} aria-hidden="true" />
             <div>
@@ -243,55 +341,35 @@ function GamePreparation({
           </section>
         )}
 
-        <details className="prep-rules">
-          <summary>
-            <BookOpen size={17} aria-hidden="true" /> {t("prep.viewRules")}
-          </summary>
-          <div>
-            <p>{t("prep.rulesIntro")}</p>
-            <ul>
-              <li>
-                <i className="key-exact">✓</i>
-                <span>
-                  <strong>{t("game.exact")}</strong>
-                  {t("prep.exactRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-close">•</i>
-                <span>
-                  <strong>{t("game.close")}</strong>
-                  {t("prep.closeRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-miss">×</i>
-                <span>
-                  <strong>{t("game.miss")}</strong>
-                  {t("prep.missRule")}
-                </span>
-              </li>
-            </ul>
-            <small>
-              {locale === "zh-CN"
-                ? "比较字段：属性、命途、稀有度、阵营、实装版本。"
-                : locale === "ja"
-                  ? "比較項目：属性・運命・レア度・陣営・実装版。"
-                  : "Compare element, path, rarity, faction, and release version."}
-            </small>
-          </div>
-        </details>
+        <RulesPanel
+          locale={locale}
+          title={t("prep.rulesTitle")}
+          intro={t("prep.rulesIntro")}
+          poolSize={poolSize}
+          maxAttempts={maxAttempts}
+          fields={fields}
+          labels={ruleLabels(t, locale)}
+          {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
+            ? { onReplayTutorial }
+            : {})}
+        />
       </section>
     </main>
   );
 }
 
 function ActiveGame({
-  mode,
+  activityId,
+  contentModeId,
+  runtime,
   session,
+  onReplayTutorial,
 }: {
-  mode: "daily" | "random";
+  activityId: "daily" | "practice";
+  contentModeId: SoloContentMode;
+  runtime: SoloModeRuntime;
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
+  onReplayTutorial?: () => void;
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
@@ -299,14 +377,30 @@ function ActiveGame({
   const [sharePreview, setSharePreview] = useState<SharePreview | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
   const [shareError, setShareError] = useState(false);
+  const [challengeBusy, setChallengeBusy] = useState(false);
+  const [challengeUrl, setChallengeUrl] = useState<string | null>(null);
+  const [challengeError, setChallengeError] = useState(false);
+  const [replayUrl, setReplayUrl] = useState<string | null>(null);
+  const [dialogActionBusy, setDialogActionBusy] = useState(false);
+  const [dialogActionError, setDialogActionError] = useState(false);
+  const [challengeCopied, setChallengeCopied] = useState(false);
+  const [replayCopied, setReplayCopied] = useState(false);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const gameHeadingRef = useRef<HTMLHeadingElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const abandonButtonRef = useRef<HTMLButtonElement>(null);
   const confirmAbandonButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const observedGuessCountRef = useRef(session.game.guesses.length);
   const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
     session;
+  const guessCount = game.guesses.length;
+  const modeManifest = runtime.manifest;
+  const modeDefinition = modeManifest.modes.find((entry) => entry.id === contentModeId);
+  const ruleFields = game.fieldDefinitions ?? modeDefinition?.fields ?? [];
+  const rulePoolSize =
+    modeManifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
+      .length ?? 0;
   const playerStats = useQuery({
     queryKey: ["stats", "game-rail"],
     queryFn: () => apiRequest<PersonalStats>("/stats/me"),
@@ -316,11 +410,26 @@ function ActiveGame({
 
   useEffect(() => {
     setConfirmAbandon(false);
+    setChallengeUrl(null);
+    setReplayUrl(null);
+    setChallengeError(false);
+    setSharePreview(null);
+    observedGuessCountRef.current = game.guesses.length;
     gameHeadingRef.current?.focus();
   }, [game.id]);
 
   useEffect(() => {
+    const previousCount = observedGuessCountRef.current;
+    observedGuessCountRef.current = guessCount;
+    if (contentModeId !== "playable" || guessCount <= previousCount) return;
+
+    const latestGuess = game.guesses.at(-1);
+    triggerGameHaptic(latestGuess?.isCorrect ? "win" : "life-lost");
+  }, [contentModeId, guessCount]);
+
+  useEffect(() => {
     if (game.status !== "active") resultRef.current?.focus();
+    if (game.status === "won" || game.status === "lost") markInstallEligible();
   }, [game.status]);
 
   useEffect(() => {
@@ -352,35 +461,115 @@ function ActiveGame({
 
   const closeSharePreview = useCallback(() => {
     setSharePreview(null);
+    setDialogActionError(false);
+    setChallengeCopied(false);
+    setReplayCopied(false);
     window.requestAnimationFrame(() => shareButtonRef.current?.focus());
   }, []);
+
+  const generateShareImage = async (siteUrl: string) => {
+    const { generateShareResultImage, shareImageFileName } = await import("./share-result-image");
+    const dateKey = game.dateKey ?? getBeijingDateKey();
+    const blob = await generateShareResultImage({
+      locale,
+      activityId,
+      dateKey,
+      guesses: game.guesses,
+      ...(game.fieldDefinitions ? { fieldDefinitions: game.fieldDefinitions } : {}),
+      maxAttempts: game.maxAttempts,
+      won: game.status === "won",
+      elapsedMs: game.elapsedMs,
+      siteUrl,
+    });
+    return { blob, fileName: shareImageFileName({ dateKey, activityId }) };
+  };
 
   const createShareImage = async () => {
     if (!shareable || shareBusy) return;
     setShareBusy(true);
     setShareError(false);
     try {
-      const { generateShareResultImage, shareImageFileName } = await import("./share-result-image");
-      const dateKey = game.dateKey ?? getBeijingDateKey();
-      const blob = await generateShareResultImage({
-        locale,
-        mode,
-        dateKey,
-        difficulty: game.difficulty,
-        guesses: game.guesses,
-        maxAttempts: game.maxAttempts,
-        won: game.status === "won",
-        elapsedMs: game.elapsedMs,
-        siteUrl: window.location.origin,
-      });
+      const { blob, fileName } = await generateShareImage(window.location.origin);
       setSharePreview({
         imageUrl: URL.createObjectURL(blob),
-        fileName: shareImageFileName({ dateKey, mode }),
+        fileName,
       });
     } catch {
       setShareError(true);
     } finally {
       setShareBusy(false);
+    }
+  };
+
+  const shareFriendChallenge = async () => {
+    if (challengeBusy) return;
+    setChallengeBusy(true);
+    setChallengeError(false);
+    setDialogActionError(false);
+    try {
+      let url = challengeUrl;
+      if (!url) {
+        const challenge = await apiRequest<FriendChallenge>(`/games/${game.id}/challenges`, {
+          method: "POST",
+        });
+        url = `${window.location.origin}/challenge/${challenge.id}`;
+        setChallengeUrl(url);
+      }
+      const { blob, fileName } = await generateShareImage(url);
+      const payload = buildFriendChallengeSharePayload({
+        locale,
+        won: game.status === "won",
+        guessCount: game.guesses.length,
+        maxAttempts: game.maxAttempts,
+        elapsedMs: game.elapsedMs,
+        challengeUrl: url,
+      });
+      const nativeResult = await tryNativeFriendChallengeShare(payload, blob, fileName);
+      if (nativeResult === "fallback") {
+        setSharePreview({ imageUrl: URL.createObjectURL(blob), fileName, challengeUrl: url });
+      }
+    } catch {
+      setChallengeError(true);
+    } finally {
+      setChallengeBusy(false);
+    }
+  };
+
+  const copyChallengeFromDialog = async () => {
+    if (!challengeUrl || dialogActionBusy) return;
+    setDialogActionBusy(true);
+    setDialogActionError(false);
+    try {
+      await copyShareText(challengeUrl);
+      setChallengeCopied(true);
+      window.setTimeout(() => setChallengeCopied(false), 1_800);
+    } catch {
+      setDialogActionError(true);
+    } finally {
+      setDialogActionBusy(false);
+    }
+  };
+
+  const copyReplayFromDialog = async () => {
+    if (dialogActionBusy) return;
+    setDialogActionBusy(true);
+    setDialogActionError(false);
+    try {
+      let url = replayUrl;
+      if (!url) {
+        const shared = await apiRequest<ReplayShareResponse>(`/replays/${game.id}/share`, {
+          method: "POST",
+        });
+        url = shared.url;
+        setReplayUrl(url);
+      }
+      await copyShareText(url);
+      setReplayCopied(true);
+      window.setTimeout(() => setReplayCopied(false), 1_800);
+    } catch {
+      setDialogActionError(true);
+    } finally {
+      setDialogActionBusy(false);
     }
   };
 
@@ -399,21 +588,53 @@ function ActiveGame({
             <ArrowLeft size={15} /> {t("hub.backToHub")}
           </Link>
           <p className="eyebrow">
-            {mode === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
+            {contentModeId === "npc"
+              ? "NPC · TRACER"
+              : contentModeId === "aeon"
+                ? "AEON · IMAGE"
+                : contentModeId === "currency-wars"
+                  ? "CURRENCY WARS · TRACER"
+                  : activityId === "daily"
+                    ? t("prep.dailyEyebrow")
+                    : t("prep.randomEyebrow")}
           </p>
           <h1 ref={gameHeadingRef} tabIndex={-1}>
-            {mode === "daily" ? t("game.daily") : t("game.random")}
+            {contentModeId === "npc"
+              ? "NPC"
+              : contentModeId === "aeon"
+                ? locale === "en"
+                  ? "Aeon image challenge"
+                  : locale === "ja"
+                    ? "星神画像チャレンジ"
+                    : "星神图片挑战"
+                : contentModeId === "currency-wars"
+                  ? locale === "zh-CN"
+                    ? "货币战争"
+                    : locale === "ja"
+                      ? "コイン戦争"
+                      : "Currency Wars"
+                  : activityId === "daily"
+                    ? t("game.daily")
+                    : t("game.random")}
           </h1>
-          <p>{t("prep.activeIntro")}</p>
+          <p>
+            {contentModeId === "aeon"
+              ? locale === "en"
+                ? "Identify the Aeon from the gradually revealed image."
+                : locale === "ja"
+                  ? "少しずつ開示される画像から星神を当てます。"
+                  : "只根据逐步揭示的图片猜测星神。"
+              : t("prep.activeIntro")}
+          </p>
         </div>
         <div className="hero-stamp">
-          <span>{mode === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
+          <span>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
           <strong>
-            {mode === "daily"
+            {activityId === "daily"
               ? (game.dateKey ?? getBeijingDateKey()).slice(5).replace("-", ".")
               : "∞"}
           </strong>
-          <small>{mode === "daily" ? "UTC+8 · 00:00" : t("game.unlimited")}</small>
+          <small>{activityId === "daily" ? "UTC+8 · 00:00" : t("game.unlimited")}</small>
         </div>
       </section>
 
@@ -421,69 +642,33 @@ function ActiveGame({
         <aside className="game-left-rail">
           <div className="rail-section">
             <span className="rail-number">01</span>
-            <h2>
-              {mode === "daily"
-                ? locale === "zh-CN"
-                  ? "猜测次数"
-                  : locale === "ja"
-                    ? "推測回数"
-                    : "ATTEMPTS"
-                : t("game.difficulty")}
-            </h2>
-            <div className="locked-difficulty">
-              <span>
-                {mode === "daily"
-                  ? locale === "zh-CN"
-                    ? "固定"
-                    : locale === "ja"
-                      ? "固定"
-                      : "FIXED"
-                  : t(`game.${game.difficulty}`)}
-              </span>
+            <h2>{locale === "zh-CN" ? "猜测次数" : locale === "ja" ? "推測回数" : "ATTEMPTS"}</h2>
+            <div className="fixed-attempts">
+              <span>{locale === "zh-CN" ? "固定" : locale === "ja" ? "固定" : "FIXED"}</span>
               <strong>{game.maxAttempts}</strong>
               <small>
-                {mode === "daily"
-                  ? locale === "zh-CN"
-                    ? "每日统一"
-                    : locale === "ja"
-                      ? "全員共通"
-                      : "SAME FOR EVERYONE"
-                  : t("prep.locked")}
+                {locale === "zh-CN"
+                  ? "所有活动统一"
+                  : locale === "ja"
+                    ? "全アクティビティ共通"
+                    : "SAME FOR EVERY ACTIVITY"}
               </small>
             </div>
           </div>
           <div className="rail-section compact">
             <span className="rail-number">02</span>
-            <h2>{t("game.rules")}</h2>
-            <ul className="rule-key">
-              <li>
-                <i className="key-exact">
-                  <span>✓</span>
-                </i>
-                <span>
-                  <strong>{t("game.exact")}</strong>
-                  {t("prep.exactRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-close">
-                  <span>•</span>
-                </i>
-                <span>
-                  <strong>{t("game.close")}</strong>
-                  {t("prep.closeRule")}
-                </span>
-              </li>
-              <li>
-                <i className="key-miss">
-                  <span>×</span>
-                </i>
-                <span>
-                  <strong>{t("game.miss")}</strong>
-                  {t("prep.missRule")}
-                </span>
-              </li>
-            </ul>
+            <RulesPanel
+              locale={locale}
+              title={t("prep.rulesTitle")}
+              intro={t("prep.rulesIntro")}
+              poolSize={rulePoolSize}
+              maxAttempts={game.maxAttempts}
+              fields={ruleFields}
+              labels={ruleLabels(t, locale)}
+              {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
+                ? { onReplayTutorial }
+                : {})}
+            />
           </div>
         </aside>
 
@@ -507,7 +692,7 @@ function ActiveGame({
             <div>
               <span>
                 <Signal size={16} />{" "}
-                {mode === "daily"
+                {activityId === "daily"
                   ? t("home.dailyNumber", { date: game.dateKey })
                   : t("game.random")}
               </span>
@@ -518,7 +703,7 @@ function ActiveGame({
             </div>
           </div>
 
-          {mode === "random" && game.status === "active" && (
+          {activityId === "practice" && game.status === "active" && (
             <div className="active-game-tools">
               {!confirmAbandon ? (
                 <button
@@ -559,13 +744,38 @@ function ActiveGame({
             </div>
           )}
 
+          {contentModeId === "aeon" ? (
+            <AeonGuessBoard
+              gameId={game.aeonRevealSeed ?? game.id}
+              wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
+              answer={
+                game.answer && "imagePath" in game.answer.assets
+                  ? (game.answer as AeonSummary)
+                  : null
+              }
+              imagePath={game.aeonImagePath}
+              imageFocus={game.aeonImageFocus}
+              locale={locale}
+              finished={finished}
+            />
+          ) : null}
+
           {!finished && (
             <CharacterCombobox
               characters={roster}
               locale={locale}
+              {...(contentModeId === "playable"
+                ? { searchIndex: runtime.manifest.searchIndex }
+                : {})}
+              {...(contentModeId === "aeon"
+                ? { entityLabel: locale === "en" ? "Aeon" : "星神" }
+                : {})}
               excludedIds={guessedIds}
               disabled={busy}
-              onSubmit={(id) => void submitGuess(id)}
+              onSubmit={(id) => {
+                if (contentModeId === "playable") triggerGameHaptic("submit");
+                void submitGuess(id);
+              }}
             />
           )}
 
@@ -576,71 +786,113 @@ function ActiveGame({
           )}
 
           {finished && game.answer && (
-            <section
-              ref={resultRef}
-              className={`game-result result-${game.status}`}
-              role="status"
-              aria-live="polite"
-              tabIndex={-1}
-            >
-              <div className="result-icon">
-                <Sparkles size={25} />
-              </div>
-              <CharacterAvatar character={game.answer} size="large" priority />
-              <div className="result-copy">
-                <p>{game.status === "won" ? t("game.wonTitle") : t("game.lostTitle")}</p>
-                <h2>{game.answer.names[locale]}</h2>
-                <small>
-                  {t("game.answer")} · {game.guesses.length}/{game.maxAttempts} ·{" "}
-                  {formatTime(game.elapsedMs)}
-                </small>
-              </div>
-              <div className="result-actions">
-                {mode === "daily" ? (
-                  <Link className="ticket-button" to="/">
-                    <ArrowLeft size={17} /> {t("hub.backToHub")}
-                  </Link>
-                ) : (
-                  <button
-                    className="ticket-button"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void restart()}
-                  >
-                    <RotateCcw size={17} /> {t("game.playAgain")}
-                  </button>
+            <>
+              {contentModeId === "playable" && game.status === "won" ? (
+                <div className="settlement-energy" aria-hidden="true">
+                  <i />
+                  <span />
+                  <i />
+                </div>
+              ) : null}
+              <section
+                ref={resultRef}
+                className={`game-result result-${game.status}${contentModeId === "playable" ? " result-animated" : ""}`}
+                role="status"
+                aria-live="polite"
+                tabIndex={-1}
+              >
+                <div className="result-icon">
+                  <Sparkles size={25} />
+                </div>
+                <CharacterAvatar character={game.answer} size="large" priority />
+                <div className="result-copy">
+                  <p>{game.status === "won" ? t("game.wonTitle") : t("game.lostTitle")}</p>
+                  <h2>{game.answer.names[locale]}</h2>
+                  <small>
+                    {t("game.answer")} · {game.guesses.length}/{game.maxAttempts} ·{" "}
+                    {formatTime(game.elapsedMs)}
+                  </small>
+                </div>
+                <div className="result-actions">
+                  {shareable && source === "server" && (
+                    <button
+                      ref={shareButtonRef}
+                      className="ticket-button"
+                      type="button"
+                      disabled={challengeBusy}
+                      onClick={() => void shareFriendChallenge()}
+                    >
+                      {challengeBusy ? (
+                        <span className="button-spinner" aria-hidden="true" />
+                      ) : (
+                        <Share2 size={17} />
+                      )}{" "}
+                      {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
+                    </button>
+                  )}
+                  {activityId === "daily" ? (
+                    <Link className="ticket-button" to="/">
+                      <ArrowLeft size={17} /> {t("hub.backToHub")}
+                    </Link>
+                  ) : (
+                    <button
+                      className="ticket-button"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void restart()}
+                    >
+                      <RotateCcw size={17} /> {t("game.playAgain")}
+                    </button>
+                  )}
+                  {activityId === "practice" && (
+                    <Link className="ticket-button-secondary" to="/">
+                      <ArrowLeft size={17} /> {t("hub.backToHub")}
+                    </Link>
+                  )}
+                  {shareable && source !== "server" && (
+                    <button
+                      ref={shareButtonRef}
+                      className="result-share-button"
+                      type="button"
+                      disabled={shareBusy}
+                      onClick={() => void createShareImage()}
+                    >
+                      {shareBusy ? (
+                        <span className="button-spinner" aria-hidden="true" />
+                      ) : (
+                        <ImageDown size={17} />
+                      )}{" "}
+                      {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
+                    </button>
+                  )}
+                </div>
+                {shareError && (
+                  <p className="share-image-error" role="alert">
+                    {t("game.shareImageError")}
+                  </p>
                 )}
-                {mode === "random" && (
-                  <Link className="ticket-button-secondary" to="/">
-                    <ArrowLeft size={17} /> {t("hub.backToHub")}
-                  </Link>
+                {challengeError && (
+                  <p className="share-image-error" role="alert">
+                    {t("game.challengeShareError")}
+                  </p>
                 )}
-                {shareable && (
-                  <button
-                    ref={shareButtonRef}
-                    className="result-share-button"
-                    type="button"
-                    disabled={shareBusy}
-                    onClick={() => void createShareImage()}
-                  >
-                    {shareBusy ? (
-                      <span className="button-spinner" aria-hidden="true" />
-                    ) : (
-                      <ImageDown size={17} />
-                    )}{" "}
-                    {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
-                  </button>
-                )}
-              </div>
-              {shareError && (
-                <p className="share-image-error" role="alert">
-                  {t("game.shareImageError")}
-                </p>
-              )}
-            </section>
+              </section>
+            </>
           )}
 
-          <GuessBoard guesses={game.guesses} locale={locale} />
+          {contentModeId !== "aeon" ? (
+            <>
+              {game.inferenceReview ? (
+                <InferenceReview review={game.inferenceReview} locale={locale} />
+              ) : null}
+              <GuessBoard
+                guesses={game.guesses}
+                locale={locale}
+                fields={game.fieldDefinitions}
+                animateLatest={contentModeId === "playable"}
+              />
+            </>
+          ) : null}
         </div>
 
         <aside className="game-right-rail">
@@ -657,19 +909,32 @@ function ActiveGame({
           </div>
           <div className="rail-metric">
             <span>{t("hub.nextReset")}</span>
-            <strong>{mode === "daily" ? "00:00" : "∞"}</strong>
-            <small>{mode === "daily" ? "UTC+8" : t("game.unlimited")}</small>
+            <strong>{activityId === "daily" ? "00:00" : "∞"}</strong>
+            <small>{activityId === "daily" ? "UTC+8" : t("game.unlimited")}</small>
           </div>
-          <Link className="leaderboard-callout" to="/leaderboard">
-            <Trophy size={18} />
-            <span>{t("prep.viewLeaderboard")}</span>
-          </Link>
+          {activityId === "practice" && source === "server" ? (
+            <Link className="leaderboard-callout" to="/leaderboard">
+              <Trophy size={18} />
+              <span>{t("prep.viewLeaderboard")}</span>
+            </Link>
+          ) : null}
         </aside>
       </section>
       {sharePreview ? (
         <ShareResultDialog
           imageUrl={sharePreview.imageUrl}
           fileName={sharePreview.fileName}
+          challengeCopied={challengeCopied}
+          replayCopied={replayCopied}
+          actionBusy={dialogActionBusy}
+          actionError={dialogActionError}
+          {...(sharePreview.challengeUrl
+            ? {
+                challengeUrl: sharePreview.challengeUrl,
+                onCopyChallenge: copyChallengeFromDialog,
+                onCopyReplay: copyReplayFromDialog,
+              }
+            : {})}
           onClose={closeSharePreview}
         />
       ) : null}
@@ -677,42 +942,63 @@ function ActiveGame({
   );
 }
 
-export default function GamePage({ mode }: { mode: "daily" | "random" }) {
+export function ModeGamePage({
+  activityId,
+  runtime,
+}: {
+  activityId: "daily" | "practice";
+  runtime: SoloModeRuntime;
+}) {
+  const contentModeId = runtime.contentModeId;
   const [searchParams, setSearchParams] = useSearchParams();
+  const locale = usePreferences((state) => state.language);
+  const queryClient = useQueryClient();
+  const [guestTutorialCompleted, setGuestTutorialCompleted] = useState(() => {
+    try {
+      return hasCompletedGuestPlayableTutorial(window.localStorage);
+    } catch {
+      return false;
+    }
+  });
+  const [tutorialDismissed, setTutorialDismissed] = useState(false);
+  const [tutorialReplayOpen, setTutorialReplayOpen] = useState(false);
+  const [tutorialBusy, setTutorialBusy] = useState(false);
+  const [tutorialError, setTutorialError] = useState(false);
   const requestedGameId = searchParams.get("game");
-  const [difficulty, setDifficultyState] = useState<Difficulty>(() =>
-    mode === "daily" ? "standard" : storedDifficulty(mode),
-  );
-  const currentGames = useCurrentGames();
+  const specialModeId = contentModeId === "playable" ? null : contentModeId;
+  const offlinePack = useSpecialModePack(specialModeId, specialModeId !== null);
+  const accountSession = useSession(offlinePack.online);
+  const serverRequestedGameId = offlinePack.online ? requestedGameId : null;
+  const currentGames = useCurrentGames(offlinePack.online);
   const requestedGame = useQuery({
-    queryKey: ["games", "detail", requestedGameId],
+    queryKey: ["games", "detail", serverRequestedGameId],
     queryFn: async () => {
       await ensureSession();
-      const game = await apiRequest<PublicGame>(`/games/${requestedGameId}`);
-      if (game.mode !== mode) throw new Error("GAME_MODE_MISMATCH");
+      const game = await apiRequest<PublicGame>(`/games/${serverRequestedGameId}`);
+      if (game.activityId !== activityId || game.modeId !== contentModeId) {
+        throw new Error("GAME_MODE_MISMATCH");
+      }
       return game;
     },
-    enabled: Boolean(requestedGameId),
+    enabled: Boolean(serverRequestedGameId),
     retry: false,
   });
-  const initialGame = requestedGameId ? requestedGame.data : currentGames.data?.[mode];
-  const session = useGameSession(mode, difficulty, initialGame);
+  const initialGame = serverRequestedGameId
+    ? requestedGame.data
+    : contentModeId === "playable"
+      ? currentGames.data?.[activityId]
+      : null;
+  const session = useGameSession(activityId, initialGame, runtime);
   const navigationGameId = session.navigationGameId;
   const navigationGame =
     navigationGameId && session.game?.id === navigationGameId ? session.game : null;
   const game =
     navigationGame ??
-    (requestedGameId
-      ? session.game?.id === requestedGameId
+    (serverRequestedGameId
+      ? session.game?.id === serverRequestedGameId
         ? session.game
         : (requestedGame.data ?? null)
       : session.game);
-
-  const setDifficulty = (value: Difficulty) => {
-    if (mode === "daily") return;
-    setDifficultyState(value);
-    window.localStorage.setItem(`fireflydle-${mode}-difficulty`, value);
-  };
 
   useEffect(() => {
     if (!navigationGameId) return;
@@ -728,35 +1014,116 @@ export default function GamePage({ mode }: { mode: "daily" | "random" }) {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [game?.id]);
 
-  const checking = requestedGameId ? requestedGame.isPending : currentGames.isPending;
-  const lookupFailed = requestedGameId ? requestedGame.isError : currentGames.isError;
+  const offlinePackBusy =
+    specialModeId !== null &&
+    (offlinePack.state === "checking" || offlinePack.state === "downloading");
+  const offlineUnavailable =
+    specialModeId !== null &&
+    offlinePack.state !== "ready" &&
+    (!offlinePack.online || offlinePack.state === "error");
+  const checking = serverRequestedGameId
+    ? requestedGame.isPending
+    : specialModeId
+      ? offlinePackBusy
+      : offlinePack.online && currentGames.isPending;
+  const lookupFailed = serverRequestedGameId
+    ? requestedGame.isError
+    : specialModeId
+      ? offlinePack.online && offlinePack.state === "error"
+      : offlinePack.online && currentGames.isError;
   const connectionFailed = lookupFailed || Boolean(session.errorCode);
+  const tutorialUser = accountSession.data?.user;
+  const tutorialAutoOpen =
+    accountSession.isSuccess &&
+    !tutorialDismissed &&
+    Boolean(
+      tutorialUser &&
+      (tutorialUser.isGuest ? !guestTutorialCompleted : !tutorialUser.playableTutorialCompleted),
+    );
+  const tutorialOpen =
+    supportsPlayableTutorial(contentModeId) && (tutorialReplayOpen || tutorialAutoOpen);
+  const replayTutorial = useCallback(() => {
+    setTutorialError(false);
+    setTutorialReplayOpen(true);
+  }, []);
+  const finishTutorial = useCallback(async () => {
+    const user = accountSession.data?.user;
+    if (!user || tutorialBusy) return;
+    setTutorialBusy(true);
+    setTutorialError(false);
+    try {
+      if (user.isGuest) {
+        markGuestPlayableTutorialCompleted(window.localStorage);
+        setGuestTutorialCompleted(true);
+      } else {
+        const updatedUser = await apiRequest<PublicUser>("/account/playable-tutorial", {
+          method: "PATCH",
+        });
+        queryClient.setQueryData<SessionPayload>(["session"], (current) =>
+          current ? { ...current, user: updatedUser } : current,
+        );
+      }
+      setTutorialDismissed(true);
+      setTutorialReplayOpen(false);
+    } catch {
+      setTutorialError(true);
+    } finally {
+      setTutorialBusy(false);
+    }
+  }, [accountSession.data?.user, queryClient, tutorialBusy]);
   const retry = () => {
     session.clearError();
     if (session.errorCode) {
       void session.start();
-    } else if (requestedGameId) {
+    } else if (serverRequestedGameId) {
       void requestedGame.refetch();
     } else {
       void currentGames.refetch();
     }
   };
 
-  if (!game) {
-    return (
-      <GamePreparation
-        mode={mode}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
-        checking={checking}
-        busy={session.busy}
-        connectionFailed={connectionFailed}
-        onStart={() => void session.start()}
-        onRetry={retry}
-        onOffline={() => session.startOffline()}
-      />
-    );
-  }
+  const page = !game ? (
+    <GamePreparation
+      activityId={activityId}
+      contentModeId={contentModeId}
+      runtime={runtime}
+      checking={checking}
+      busy={session.busy}
+      connectionFailed={connectionFailed}
+      offlineUnavailable={offlineUnavailable}
+      {...(specialModeId
+        ? {
+            offlinePackState: offlinePack.state,
+            onRetryOfflinePack: () => void offlinePack.retry(),
+          }
+        : {})}
+      onStart={() => (offlinePack.online ? void session.start() : session.startOffline())}
+      onRetry={retry}
+      onOffline={() => session.startOffline()}
+      onReplayTutorial={replayTutorial}
+    />
+  ) : (
+    <ActiveGame
+      activityId={activityId}
+      contentModeId={contentModeId}
+      runtime={runtime}
+      session={{ ...session, game }}
+      onReplayTutorial={replayTutorial}
+    />
+  );
 
-  return <ActiveGame mode={mode} session={{ ...session, game }} />;
+  return (
+    <>
+      {page}
+      {tutorialOpen ? (
+        <PlayableTutorial
+          locale={locale}
+          busy={tutorialBusy}
+          error={tutorialError}
+          onComplete={() => void finishTutorial()}
+          onSkip={() => void finishTutorial()}
+        />
+      ) : null}
+    </>
+  );
 }

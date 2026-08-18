@@ -281,11 +281,11 @@ curl --fail-with-body https://fireflydle.games/
 再用浏览器验证登录 Cookie、角色图片、房间 WebSocket 和刷新深层路由，并覆盖以下总站流程：
 
 - `/` 正常显示三条平级线路，完成后的每日卡片不显示答案；
-- `/daily` 与 `/random` 在准备页不会提前创建对局，点击开始后刷新可以恢复；
+- `/playable/daily` 与 `/playable/practice` 在准备页不会提前创建对局，点击开始后刷新可以恢复；
 - API 故障时只能由用户明确进入离线练习，离线结果不进入记录；
 - 游客不能进入排位，但仍可创建或加入私人房间。
 
-GitHub Pages 的 `404.html` SPA fallback 可能对深层路由保留 HTTP 404，因此不要把 `curl --fail /random` 当作唯一判断。检查 Cloudflare Worker logs、D1 error、GitHub Pages deployment URL 与 Actions artifact 的 commit 是否一致。
+GitHub Pages 的 `404.html` SPA fallback 可能对深层路由保留 HTTP 404，因此不要把 `curl --fail /playable/practice` 当作唯一判断。检查 Cloudflare Worker logs、D1 error、GitHub Pages deployment URL 与 Actions artifact 的 commit 是否一致。
 
 DNS 检查：
 

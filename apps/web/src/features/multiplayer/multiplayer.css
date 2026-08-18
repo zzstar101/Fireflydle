@@ -23,10 +23,13 @@
 .duel-stage {
   position: relative;
   display: grid;
-  grid-template-columns: 1.15fr 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 70px;
   border-top: 1px solid var(--border);
   border-left: 1px solid var(--border);
+}
+.duel-stage.has-ranked {
+  grid-template-columns: 1.15fr 1fr 1fr;
 }
 .duel-signal {
   position: absolute;
@@ -159,6 +162,51 @@
 .format-picker button.active {
   color: #111a27;
   background: var(--gold-bright);
+}
+.room-config-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  margin: -10px 0 24px;
+  gap: 10px;
+}
+.room-config-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+}
+.room-config-fields select {
+  width: 100%;
+  height: 42px;
+  padding: 0 10px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--canvas-deep);
+  font: inherit;
+}
+.room-config-fields select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.room-preview {
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr repeat(4, auto);
+  align-items: center;
+  width: 100%;
+  padding: 11px 12px;
+  margin: -12px 0 16px;
+  gap: 8px;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+}
+.room-preview strong {
+  color: var(--text);
 }
 .room-code-input {
   display: block;
@@ -343,6 +391,25 @@
   max-width: 520px;
   color: var(--text-muted);
 }
+.locked-room-config {
+  display: flex;
+  align-items: center;
+  padding: 11px 16px;
+  gap: 14px;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+}
+.locked-room-config strong {
+  color: var(--gold-bright);
+}
+.locked-room-config small {
+  margin-left: auto;
+  color: var(--text-faint);
+}
 .room-radar {
   position: relative;
   display: grid;
@@ -486,6 +553,37 @@
   margin-bottom: 18px;
   gap: 14px;
 }
+.skip-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 54px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  gap: 10px;
+  border-left: 2px solid var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 7%, transparent);
+}
+.skip-controls > svg {
+  color: var(--cyan);
+}
+.skip-controls p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.skip-controls > div {
+  display: flex;
+  gap: 10px;
+}
+.skip-controls.state-cancelled {
+  border-left-color: var(--gold);
+  background: rgb(216 182 107 / 7%);
+}
+.skip-controls.state-executed {
+  border-left-color: var(--exact);
+  background: color-mix(in srgb, var(--exact) 7%, transparent);
+}
 .draw-controls p {
   margin: 0;
   color: var(--text-muted);
@@ -501,6 +599,49 @@
   align-items: center;
   gap: 8px;
   color: var(--text-muted);
+}
+.room-state-signal {
+  position: relative;
+  display: inline-grid !important;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+.room-state-signal::before {
+  position: absolute;
+  inset: 5px;
+  content: "";
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+.room-state-signal i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: radar-pulse 1.8s ease-in-out infinite;
+}
+.room-state-signal i:nth-child(2) {
+  animation-delay: 600ms;
+}
+.room-state-signal i:nth-child(3) {
+  animation-delay: 1200ms;
+}
+.guess-submit-status {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 10px;
+  margin: -8px 0 16px;
+  color: var(--cyan);
+  border-left: 2px solid var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 6%, transparent);
+  font-size: 0.7rem;
+  animation: room-status-in 180ms ease-out both;
 }
 .invite-strip strong {
   margin-left: auto;
@@ -589,7 +730,7 @@
 }
 .opponent-feedback-head {
   display: grid;
-  grid-template-columns: 28px repeat(5, minmax(0, 1fr));
+  grid-template-columns: 28px repeat(6, minmax(0, 1fr));
   gap: 5px;
   padding-top: 14px;
 }
@@ -604,8 +745,12 @@
 }
 .masked-feedback-grid > div {
   display: grid;
-  grid-template-columns: 28px repeat(5, 1fr);
+  grid-template-columns: 28px repeat(6, 1fr);
   gap: 5px;
+}
+.masked-feedback-grid > div.is-latest i {
+  animation: opponent-signal-in 260ms var(--motion-ease) both;
+  animation-delay: var(--cell-delay);
 }
 .masked-feedback-grid span {
   align-self: center;
@@ -614,9 +759,17 @@
   font-size: 0.58rem;
 }
 .masked-feedback-grid i {
+  display: grid;
   height: 37px;
+  place-items: center;
   border-radius: 3px;
   background: var(--miss);
+}
+.masked-feedback-grid i.state-fog,
+.feedback-legend i.state-fog {
+  color: var(--text);
+  border: 1px dashed var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 72%, var(--text-faint));
 }
 .masked-feedback-grid i.state-exact {
   background: var(--exact);
@@ -652,26 +805,46 @@
 .feedback-legend i.state-close {
   background: var(--close);
 }
+.rating-settlement {
+  display: grid;
+  min-width: min(100%, 300px);
+  border: 1px solid var(--border);
+}
 .rating-change {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto 42px;
   align-items: baseline;
-  margin-top: 8px;
-  gap: 10px;
+  gap: 12px;
+  padding: 8px 10px;
+}
+.rating-change + .rating-change {
+  border-top: 1px solid var(--border);
+}
+.rating-change span {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rating-change b,
+.rating-change strong {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-align: right;
+}
+.rating-change b {
+  color: var(--text-faint);
+  font-weight: 500;
 }
 .rating-change strong {
   color: var(--text-muted);
-  font-family: var(--font-mono);
 }
 .rating-change.positive strong {
   color: var(--exact);
 }
 .rating-change.negative strong {
   color: var(--danger);
-}
-.rating-change span {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
 }
 .match-finished {
   display: flex;
@@ -707,6 +880,22 @@
     opacity: 1;
     transform: scale(1.2);
     box-shadow: 0 0 12px var(--cyan);
+  }
+}
+@keyframes opponent-signal-in {
+  from {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes room-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
   }
 }
 @media (max-width: 900px) {
@@ -758,6 +947,15 @@
   .match-card {
     min-height: 360px;
   }
+  .room-config-fields {
+    grid-template-columns: 1fr;
+  }
+  .room-preview {
+    grid-template-columns: 1fr 1fr;
+  }
+  .room-preview strong {
+    grid-column: 1 / -1;
+  }
   .duel-signal {
     width: 80%;
   }
@@ -803,6 +1001,14 @@
   .invite-strip {
     flex-wrap: wrap;
   }
+  .locked-room-config {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .locked-room-config small {
+    width: 100%;
+    margin-left: 0;
+  }
   .invite-strip strong {
     order: 2;
     margin: 0;
@@ -814,14 +1020,32 @@
   .match-finished {
     flex-wrap: wrap;
   }
+  .rating-settlement {
+    width: 100%;
+  }
   .draw-controls {
     align-items: stretch;
     flex-direction: column;
   }
   .draw-controls > div,
+  .skip-controls > div,
   .match-finished-actions {
     width: 100%;
     flex-direction: column;
+  }
+  .skip-controls {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .skip-controls > button,
+  .skip-controls > div {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .skip-controls > div {
+    flex-direction: row;
+  }
+  .skip-controls > div button {
+    flex: 1;
   }
   .match-finished-actions {
     margin-left: 0;
@@ -836,4 +1060,10 @@
     width: 100%;
     margin: 0;
   }
+}
+
+:root[data-motion="reduced"] .room-state-signal i,
+:root[data-motion="reduced"] .guess-submit-status,
+:root[data-motion="reduced"] .masked-feedback-grid > div.is-latest i {
+  animation: none;
 }

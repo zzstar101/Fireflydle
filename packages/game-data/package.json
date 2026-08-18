@@ -4,10 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./playable": "./src/playable.ts",
+    "./playable-shell": "./src/playable-shell.ts",
+    "./npc": "./src/npc.ts",
+    "./currency-wars": "./src/currency-wars.ts",
+    "./aeon": "./src/aeon-manifest.ts",
+    "./search": "./src/search.ts"
   },
   "scripts": {
-    "test": "bun test src/index.test.ts",
+    "test": "bun test src",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

@@ -2,14 +2,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   BarChart3,
+  Download,
   Home,
   Languages,
   Menu,
   MoonStar,
-  Shuffle,
-  Sparkles,
   Sun,
-  Swords,
   UserRound,
   X,
 } from "lucide-react";
@@ -19,12 +17,13 @@ import { usePreferences } from "../state/preferences";
 import { useSession } from "../features/account/useSession";
 import { BrandMark } from "./BrandMark";
 import { AnnouncementCenter } from "./AnnouncementCenter";
+import { getDefaultMode } from "../features/modes/mode-registry";
+import { motionModeFromPreference, motionPausedForPage } from "./motion";
+import { PwaInstallPrompt } from "./PwaInstallPrompt";
+import { requestInstallFromMenu } from "../pwa";
 
 const mainNavigation = [
-  { to: "/", key: "nav.hub", icon: Home, end: true },
-  { to: "/daily", key: "nav.daily", icon: Sparkles, end: false },
-  { to: "/random", key: "nav.random", icon: Shuffle, end: false },
-  { to: "/duel", key: "nav.duel", icon: Swords, end: false },
+  { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
   { to: "/leaderboard", key: "nav.leaderboard", icon: BarChart3, end: false },
 ] as const;
 
@@ -35,6 +34,40 @@ export function AppShell({ children }: { children: ReactNode }) {
   const drawerCloseRef = useRef<HTMLButtonElement>(null);
   const { theme, language, setTheme, setLanguage } = usePreferences();
   const session = useSession();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let hasFocus = document.hasFocus();
+    const sync = () => {
+      root.dataset.motion = motionModeFromPreference(media.matches);
+      root.dataset.motionPaused = String(
+        motionPausedForPage(document.visibilityState === "visible", hasFocus),
+      );
+    };
+    const onVisibilityChange = () => sync();
+    const onFocus = () => {
+      hasFocus = true;
+      sync();
+    };
+    const onBlur = () => {
+      hasFocus = false;
+      sync();
+    };
+    sync();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("blur", onBlur);
+    media.addEventListener("change", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("blur", onBlur);
+      media.removeEventListener("change", sync);
+      delete root.dataset.motion;
+      delete root.dataset.motionPaused;
+    };
+  }, []);
 
   const toggleTheme = () =>
     setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark");
@@ -120,7 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [menuOpen]);
 
   return (
-    <div className="app-frame">
+    <div className="app-frame" data-motion-scope="app">
       <a className="skip-link" href="#main-content">
         {language === "zh-CN"
           ? "跳到主要内容"
@@ -225,6 +258,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BarChart3 size={18} /> {t("nav.stats")}
             </NavLink>
             <div className="drawer-controls">
+              <button type="button" onClick={() => requestInstallFromMenu()}>
+                <Download size={18} aria-hidden="true" />
+                <span>{t("pwa.menu")}</span>
+              </button>
               <label title="Language">
                 <Languages size={17} aria-hidden="true" />
                 <span className="sr-only">Language</span>
@@ -276,6 +313,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+      <PwaInstallPrompt />
     </div>
   );
 }

@@ -1,0 +1,170 @@
+{
+  "auditVersion": "1.0.0",
+  "auditedAt": "2026-08-16T08:00:00.000Z",
+  "censusSnapshot": {
+    "path": "packages/game-data/src/data/npc-census.json",
+    "unionEntries": 436,
+    "targetCount": 3,
+    "candidateOnlyCount": 0,
+    "pendingCount": 431,
+    "excludedCount": 2
+  },
+  "formalTargetIds": ["npc-pom-pom", "npc-siobhan", "npc-skott"],
+  "candidateOnlyIds": [],
+  "evidence": [
+    {
+      "projectId": "npc-pom-pom",
+      "censusEntryKey": "hoyowiki:105:581",
+      "sourceEntryPageId": "581",
+      "names": { "zh-CN": "帕姆", "en": "Pom-Pom", "ja": "パム" },
+      "fallbackLocale": "zh-CN",
+      "quizFields": {
+        "region": "Astral Express",
+        "faction": "Astral Express",
+        "debutVersion": "1.0"
+      },
+      "sources": [
+        {
+          "sourceId": "official-hoyowiki-npc",
+          "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=581",
+          "locator": "menu_id=105; entry_page_id=581; name=帕姆",
+          "supports": ["identity", "names", "faction", "asset"]
+        },
+        {
+          "sourceId": "official-version-notices",
+          "url": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
+          "locator": "iInfoId=111258; version=1.0",
+          "supports": ["debutVersion"]
+        },
+        {
+          "sourceId": "official-hoyowiki-debut",
+          "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=2793",
+          "locator": "menu_id=142; entry_page_id=2793; name=A Moment of Peace; npc=Pom-Pom; region=Astral Express",
+          "supports": ["debutEvidence", "region"]
+        }
+      ],
+      "asset": {
+        "path": "/assets/npcs/pom-pom-avatar-cfbd7189940e.png",
+        "sourceUrl": "https://upload-static.hoyoverse.com/hoyolab-wiki/2023/05/07/84496276/afb6ea39dd4a9ef3e034f5426debb592_6380372957216716981.png",
+        "sha256": "cfbd7189940e664415d79e4a856b1027f066257e74502d5dd333cfeb50d993ff",
+        "manuallyChecked": true
+      },
+      "review": {
+        "sourceChecked": true,
+        "namesChecked": true,
+        "fallbackChecked": true,
+        "assetChecked": true,
+        "identityBoundaryChecked": true,
+        "regionChecked": true,
+        "factionChecked": true,
+        "debutChecked": true,
+        "humanApproved": true,
+        "note": "列车长作为独立 NPC；换装统一并入同一实体。"
+      }
+    },
+    {
+      "projectId": "npc-siobhan",
+      "censusEntryKey": "hoyowiki:105:2441",
+      "sourceEntryPageId": "2441",
+      "names": { "zh-CN": "舒翁", "en": "Siobhan", "ja": "シヴォーン" },
+      "fallbackLocale": "zh-CN",
+      "quizFields": { "region": "Penacony", "faction": "Penacony", "debutVersion": "2.1" },
+      "sources": [
+        {
+          "sourceId": "official-hoyowiki-npc",
+          "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=2441",
+          "locator": "menu_id=105; entry_page_id=2441; name=舒翁",
+          "supports": ["identity", "names", "faction", "asset"]
+        },
+        {
+          "sourceId": "official-version-notices",
+          "url": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
+          "locator": "iInfoId=123034; version=2.1",
+          "supports": ["debutVersion"]
+        },
+        {
+          "sourceId": "official-hoyowiki-debut",
+          "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=2384",
+          "locator": "menu_id=136; entry_page_id=2384; name=Vignettes in a Cup; npc=Siobhan; region=Penacony",
+          "supports": ["debutEvidence", "region"]
+        }
+      ],
+      "asset": {
+        "path": "/assets/npcs/siobhan-avatar-b2bf4ce51d43.png",
+        "sourceUrl": "https://act-upload.hoyoverse.com/event-ugc-hoyowiki/2024/05/05/255555375/d41a10aa230b62e5ea50ef29e20f4871_6801633911007188858.png",
+        "sha256": "b2bf4ce51d431819500bdf54b4ef1f7e0bb2376044ff50d64e71e95dcd7826fc",
+        "manuallyChecked": true
+      },
+      "review": {
+        "sourceChecked": true,
+        "namesChecked": true,
+        "fallbackChecked": true,
+        "assetChecked": true,
+        "identityBoundaryChecked": true,
+        "regionChecked": true,
+        "factionChecked": true,
+        "debutChecked": true,
+        "humanApproved": true,
+        "note": "调饮活动中的普通剧情形象作为同一实体。"
+      }
+    },
+    {
+      "projectId": "npc-skott",
+      "censusEntryKey": "hoyowiki:105:3058",
+      "sourceEntryPageId": "3058",
+      "names": { "zh-CN": "斯科特", "en": "Skott", "ja": "スコート" },
+      "fallbackLocale": "zh-CN",
+      "quizFields": {
+        "region": "Xianzhou Luofu",
+        "faction": "Interastral Peace Corporation",
+        "debutVersion": "1.3"
+      },
+      "sources": [
+        {
+          "sourceId": "official-hoyowiki-npc",
+          "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=3058",
+          "locator": "menu_id=105; entry_page_id=3058; name=斯科特",
+          "supports": ["identity", "names", "faction", "asset"]
+        },
+        {
+          "sourceId": "official-version-notices",
+          "url": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
+          "locator": "iInfoId=112854; version=1.3",
+          "supports": ["debutVersion"]
+        },
+        {
+          "sourceId": "official-hoyowiki-debut",
+          "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=1405",
+          "locator": "menu_id=136; entry_page_id=1405; name=Aurum Alley's Hustle and Bustle; npc=Skott; region=Xianzhou Luofu",
+          "supports": ["debutEvidence", "region"]
+        }
+      ],
+      "asset": {
+        "path": "/assets/npcs/skott-avatar-c067d5bb9ded.png",
+        "sourceUrl": "https://act-upload.hoyoverse.com/event-ugc-hoyowiki/2025/04/02/130460543/c71d269489f82ca6328147dc5e7528db_3234009202597711329.png",
+        "sha256": "c067d5bb9ded0addc9337c86bdf91787b82adbe4a5347f7e92c0c1384206b5cf",
+        "manuallyChecked": true
+      },
+      "review": {
+        "sourceChecked": true,
+        "namesChecked": true,
+        "fallbackChecked": true,
+        "assetChecked": true,
+        "identityBoundaryChecked": true,
+        "regionChecked": true,
+        "factionChecked": true,
+        "debutChecked": true,
+        "humanApproved": true,
+        "note": "活动内换装和后续复用统一并入同一实体。"
+      }
+    }
+  ],
+  "releaseGate": {
+    "dataGate": "passed",
+    "v1Release": "blocked",
+    "blockers": [
+      "NPC 运行时、搜索隔离、4 猜判题和真实浏览器可玩验收尚未在本 ticket 交付；父规格要求这些通过后才可发布 v1.0。"
+    ],
+    "policy": "不以 pending 或预设数量扩充正式池；任何证据缺口保持 pending，不得发布。"
+  }
+}

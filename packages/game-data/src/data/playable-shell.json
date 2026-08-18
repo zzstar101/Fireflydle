@@ -1,0 +1,111 @@
+{
+  "manifestVersion": "1.0.3344413066",
+  "modes": [
+    {
+      "id": "playable",
+      "label": { "zh-CN": "普通角色", "en": "Characters", "ja": "キャラクター" },
+      "targetPoolId": "playable-targets",
+      "candidatePoolId": "playable-candidates",
+      "fields": [
+        {
+          "id": "element",
+          "label": { "zh-CN": "属性", "en": "Element", "ja": "属性" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "path",
+          "label": { "zh-CN": "命途", "en": "Path", "ja": "運命" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "rarity",
+          "label": { "zh-CN": "稀有度", "en": "Rarity", "ja": "レアリティ" },
+          "valueType": "number",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "faction",
+          "label": { "zh-CN": "派系", "en": "Faction", "ja": "派閥" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "region",
+          "label": { "zh-CN": "地区", "en": "Region", "ja": "地域" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "version",
+          "label": { "zh-CN": "版本", "en": "Version", "ja": "バージョン" },
+          "valueType": "number",
+          "comparison": "direction",
+          "required": true,
+          "directional": true
+        }
+      ],
+      "maxAttempts": 6,
+      "rulesVersion": "1.0.0",
+      "activities": [
+        "daily",
+        "practice",
+        "weekly",
+        "endless",
+        "friend-challenge",
+        "private-room",
+        "ranked-match"
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "daily",
+      "label": { "zh-CN": "每日题", "en": "Daily", "ja": "デイリー" },
+      "modeIds": ["playable"],
+      "enabled": true
+    },
+    {
+      "id": "practice",
+      "label": { "zh-CN": "练习", "en": "Practice", "ja": "練習" },
+      "modeIds": ["playable"],
+      "enabled": true
+    },
+    {
+      "id": "weekly",
+      "label": { "zh-CN": "周赛", "en": "Weekly", "ja": "ウィークリー" },
+      "modeIds": ["playable"],
+      "enabled": true
+    },
+    {
+      "id": "endless",
+      "label": { "zh-CN": "无尽", "en": "Endless", "ja": "エンドレス" },
+      "modeIds": ["playable"],
+      "enabled": true
+    },
+    {
+      "id": "friend-challenge",
+      "label": { "zh-CN": "好友挑战", "en": "Friend challenge", "ja": "フレンドチャレンジ" },
+      "modeIds": ["playable"],
+      "enabled": false
+    },
+    {
+      "id": "private-room",
+      "label": { "zh-CN": "私人房", "en": "Private room", "ja": "プライベートルーム" },
+      "modeIds": ["playable"],
+      "enabled": true
+    },
+    {
+      "id": "ranked-match",
+      "label": { "zh-CN": "排位匹配", "en": "Ranked match", "ja": "ランクマッチ" },
+      "modeIds": ["playable"],
+      "enabled": false
+    }
+  ]
+}

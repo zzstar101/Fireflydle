@@ -1,4 +1,5 @@
-import type { Difficulty, FeedbackState, GuessResult, Locale } from "@fireflydle/contracts";
+import type { FeedbackState, FieldDefinition, GuessResult, Locale } from "@fireflydle/contracts";
+import { contentManifest } from "@fireflydle/game-data/playable";
 import QRCode from "qrcode";
 
 export const SHARE_IMAGE_WIDTH = 1080;
@@ -6,10 +7,10 @@ export const SHARE_IMAGE_HEIGHT = 1350;
 
 export interface ShareResultImageInput {
   locale: Locale;
-  mode: "daily" | "random";
+  activityId: "daily" | "practice";
   dateKey: string;
-  difficulty: Difficulty;
   guesses: readonly GuessResult[];
+  fieldDefinitions?: readonly FieldDefinition[];
   maxAttempts: number;
   won: boolean;
   elapsedMs: number;
@@ -20,17 +21,13 @@ interface ShareLabels {
   brand: string;
   subtitle: string;
   daily: string;
-  random: string;
+  practice: string;
   won: string;
   lost: string;
   guesses: string;
   time: string;
-  difficulty: string;
-  casual: string;
-  standard: string;
-  hard: string;
+  limit: string;
   character: string;
-  fields: readonly string[];
   legend: string;
   footer: string;
 }
@@ -40,73 +37,60 @@ const LABELS: Record<Locale, ShareLabels> = {
     brand: "萤一把",
     subtitle: "星穹铁道角色猜谜",
     daily: "每日一题",
-    random: "随机挑战",
+    practice: "随机挑战",
     won: "猜中",
     lost: "未猜中",
     guesses: "尝试",
     time: "用时",
-    difficulty: "难度",
-    casual: "休闲",
-    standard: "标准",
-    hard: "硬核",
-    character: "猜测角色",
-    fields: ["属性", "命途", "稀有度", "阵营", "版本"],
-    legend: "一致  ·  接近  ·  不一致",
+    limit: "上限",
+    character: "猜测",
+    legend: "一致  ·  接近  ·  不一致  ·  不可用",
     footer: "每位玩家  ·  每日不同谜题",
   },
   en: {
     brand: "Fireflydle",
     subtitle: "A HONKAI: STAR RAIL CHARACTER GAME",
     daily: "DAILY PUZZLE",
-    random: "RANDOM RUN",
+    practice: "RANDOM RUN",
     won: "SOLVED",
     lost: "NOT SOLVED",
     guesses: "GUESSES",
     time: "TIME",
-    difficulty: "DIFFICULTY",
-    casual: "CASUAL",
-    standard: "STANDARD",
-    hard: "HARD",
-    character: "YOUR GUESS",
-    fields: ["ELEMENT", "PATH", "RARITY", "FACTION", "VERSION"],
-    legend: "EXACT  ·  CLOSE  ·  MISS",
+    limit: "LIMIT",
+    character: "GUESS",
+    legend: "EXACT  ·  CLOSE  ·  MISS  ·  UNAVAILABLE",
     footer: "ONE DAY  ·  A PUZZLE OF YOUR OWN",
   },
   ja: {
     brand: "Fireflydle",
     subtitle: "崩壊：スターレイル キャラクタークイズ",
     daily: "デイリー",
-    random: "ランダム",
+    practice: "ランダム",
     won: "正解",
     lost: "失敗",
     guesses: "試行",
     time: "タイム",
-    difficulty: "難易度",
-    casual: "カジュアル",
-    standard: "スタンダード",
-    hard: "ハード",
-    character: "推測キャラ",
-    fields: ["属性", "運命", "レア度", "陣営", "バージョン"],
-    legend: "一致  ·  近い  ·  不一致",
+    limit: "上限",
+    character: "推測",
+    legend: "一致  ·  近い  ·  不一致  ·  利用不可",
     footer: "プレイヤーごとに異なるデイリー問題",
   },
 };
 
 export interface ShareCardGuess {
   name: string;
-  avatarPath?: string;
   cells: readonly FeedbackState[];
 }
 
 export interface ShareCardModel {
   brand: string;
   subtitle: string;
-  mode: string;
+  activity: string;
   date: string;
   status: string;
   attempts: string;
   time: string;
-  difficulty: string;
+  limit: string;
   metricLabels: readonly [string, string, string];
   characterLabel: string;
   fields: readonly string[];
@@ -124,28 +108,38 @@ function formatElapsed(milliseconds: number): string {
     .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
 
+function shareCardSiteLabel(siteUrl: string): string {
+  const url = new URL(siteUrl);
+  return `${url.host}${url.pathname.startsWith("/challenge/") ? "/challenge" : url.pathname.replace(/\/$/u, "")}`;
+}
+
 export function buildShareCardModel(input: ShareResultImageInput): ShareCardModel {
   const labels = LABELS[input.locale];
+  const definitions =
+    input.fieldDefinitions ??
+    contentManifest.modes.find((mode) => mode.id === "playable")?.fields ??
+    [];
   return {
     brand: labels.brand,
     subtitle: labels.subtitle,
-    mode: input.mode === "daily" ? labels.daily : labels.random,
+    activity: input.activityId === "daily" ? labels.daily : labels.practice,
     date: input.dateKey.replaceAll("-", "."),
     status: input.won ? labels.won : labels.lost,
     attempts: `${input.guesses.length} / ${input.maxAttempts}`,
     time: formatElapsed(input.elapsedMs),
-    difficulty: labels[input.difficulty],
-    metricLabels: [labels.guesses, labels.time, labels.difficulty],
+    limit: String(input.maxAttempts),
+    metricLabels: [labels.guesses, labels.time, labels.limit],
     characterLabel: labels.character,
-    fields: labels.fields,
+    fields: definitions.map((field) => field.label[input.locale]),
     legend: labels.legend,
     footer: labels.footer,
-    guesses: input.guesses.map((guess) => ({
-      name: guess.character.names[input.locale],
-      avatarPath: guess.character.assets?.avatarPath,
-      cells: guess.cells.map((cell) => cell.state),
+    guesses: input.guesses.map((guess, index) => ({
+      name: `#${String(index + 1).padStart(2, "0")}`,
+      cells: definitions.map(
+        (field) => guess.cells.find((cell) => cell.field === field.id)?.state ?? "unavailable",
+      ),
     })),
-    site: input.siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+    site: shareCardSiteLabel(input.siteUrl),
     qrUrl: input.siteUrl,
   };
 }
@@ -186,31 +180,11 @@ function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
-function fittedText(
-  context: CanvasRenderingContext2D,
-  value: string,
-  maximumWidth: number,
-): string {
-  if (context.measureText(value).width <= maximumWidth) return value;
-  let fitted = value;
-  while (fitted.length > 1 && context.measureText(`${fitted}…`).width > maximumWidth) {
-    fitted = fitted.slice(0, -1);
-  }
-  return `${fitted}…`;
-}
-
 export async function generateShareResultImage(input: ShareResultImageInput): Promise<Blob> {
   await document.fonts.ready;
   const model = buildShareCardModel(input);
-  const [logo, avatarImages, qrCode] = await Promise.all([
+  const [logo, qrCode] = await Promise.all([
     loadImage(new URL("/favicon.png", window.location.href).href).catch(() => null),
-    Promise.all(
-      model.guesses.map((guess) =>
-        guess.avatarPath
-          ? loadImage(new URL(guess.avatarPath, window.location.href).href).catch(() => null)
-          : Promise.resolve(null),
-      ),
-    ),
     QRCode.toDataURL(model.qrUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
@@ -286,7 +260,7 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
   context.textAlign = "right";
   context.fillStyle = "#79d7e8";
   context.font = '700 23px Inter, "Noto Sans SC", "Segoe UI", sans-serif';
-  context.fillText(model.mode, 1008, 105);
+  context.fillText(model.activity, 1008, 105);
   context.fillStyle = "#f0d68b";
   context.font = '700 38px "Roboto Mono", Consolas, monospace';
   context.fillText(model.date, 1008, 153);
@@ -303,7 +277,7 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
   context.font = '700 25px Inter, "Noto Sans SC", "Segoe UI", sans-serif';
   context.fillText(model.status, 112, 310);
 
-  const metrics = [model.attempts, model.time, model.difficulty];
+  const metrics = [model.attempts, model.time, model.limit];
   for (let index = 0; index < metrics.length; index += 1) {
     const x = 112 + index * 296;
     if (index > 0) {
@@ -318,10 +292,11 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     context.fillText(model.metricLabels[index] ?? "", x, 418);
   }
 
-  const identityWidth = 230;
-  const cellWidth = 127;
-  const cellGap = 14;
-  const gridWidth = identityWidth + cellWidth * 5 + cellGap * 4;
+  const identityWidth = 110;
+  const cellGap = 10;
+  const fieldCount = Math.max(1, model.fields.length);
+  const gridWidth = SHARE_IMAGE_WIDTH - 144;
+  const cellWidth = (gridWidth - identityWidth - cellGap * (fieldCount - 1)) / fieldCount;
   const gridX = (SHARE_IMAGE_WIDTH - gridWidth) / 2;
   context.textAlign = "center";
   context.fillStyle = "#6f7e91";
@@ -347,8 +322,16 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     exact: "#2eaa7b",
     close: "#d59a35",
     miss: "#3b4658",
+    unavailable: "#667085",
+    fog: "#737d8c",
   };
-  const symbols: Record<FeedbackState, string> = { exact: "✓", close: "•", miss: "×" };
+  const symbols: Record<FeedbackState, string> = {
+    exact: "✓",
+    close: "•",
+    miss: "×",
+    unavailable: "–",
+    fog: "?",
+  };
 
   for (let rowIndex = 0; rowIndex < model.guesses.length; rowIndex += 1) {
     const guess = model.guesses[rowIndex];
@@ -362,33 +345,9 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
     context.lineWidth = 1;
     context.stroke();
 
-    const avatarSize = Math.min(64, rowHeight - 14);
-    const avatarX = gridX + 9;
-    const avatarY = y + (rowHeight - avatarSize) / 2;
-    const avatar = avatarImages[rowIndex];
-    context.save();
-    roundedRect(context, avatarX, avatarY, avatarSize, avatarSize, avatarSize / 2);
-    context.clip();
-    if (avatar) {
-      context.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-    } else {
-      context.fillStyle = "#24425c";
-      context.fillRect(avatarX, avatarY, avatarSize, avatarSize);
-    }
-    context.restore();
-    context.strokeStyle = "rgba(121, 215, 232, 0.38)";
-    roundedRect(context, avatarX, avatarY, avatarSize, avatarSize, avatarSize / 2);
-    context.stroke();
-
-    context.textAlign = "left";
     context.fillStyle = "#f6f0df";
-    context.font = `700 ${rowHeight < 70 ? 16 : 19}px Inter, "Noto Sans SC", "Segoe UI", sans-serif`;
-    const nameX = avatarX + avatarSize + 12;
-    context.fillText(
-      fittedText(context, guess.name, gridX + identityWidth - cellGap - nameX - 10),
-      nameX,
-      y + rowHeight / 2 + 7,
-    );
+    context.font = '700 22px "Roboto Mono", Consolas, monospace';
+    context.fillText(guess.name, gridX + (identityWidth - cellGap) / 2, y + rowHeight / 2 + 8);
     context.textAlign = "center";
 
     for (let cellIndex = 0; cellIndex < guess.cells.length; cellIndex += 1) {
@@ -429,6 +388,6 @@ export async function generateShareResultImage(input: ShareResultImageInput): Pr
   return canvasToBlob(canvas);
 }
 
-export function shareImageFileName(input: Pick<ShareResultImageInput, "dateKey" | "mode">) {
-  return `fireflydle-${input.mode}-${input.dateKey}.png`;
+export function shareImageFileName(input: Pick<ShareResultImageInput, "dateKey" | "activityId">) {
+  return `fireflydle-${input.activityId}-${input.dateKey}.png`;
 }

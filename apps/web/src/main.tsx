@@ -6,6 +6,7 @@ import { App } from "./app/App";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import "./styles/tokens.css";
 import "./styles/global.css";
+import { initializePwaInstall, registerPwaServiceWorker } from "./pwa";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,3 +30,6 @@ ReactDOM.createRoot(root).render(
     </QueryClientProvider>
   </React.StrictMode>,
 );
+
+registerPwaServiceWorker();
+initializePwaInstall();

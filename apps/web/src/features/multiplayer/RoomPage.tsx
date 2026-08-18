@@ -1,36 +1,37 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Check,
   Clock3,
   CircleDot,
+  CloudFog,
   Copy,
   LogOut,
   Radio,
   ShieldAlert,
+  SkipForward,
   Trophy,
   UserRound,
   Wifi,
   WifiOff,
   X,
 } from "lucide-react";
-import {
-  GUESS_FIELDS,
-  ServerRoomMessageSchema,
-  type Character,
-  type RoomSnapshot,
-} from "@fireflydle/contracts";
+import { GUESS_FIELDS, ServerRoomMessageSchema, type RoomSnapshot } from "@fireflydle/contracts";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { characters } from "@fireflydle/game-data";
+import { characters, contentManifest } from "@fireflydle/game-data/playable";
 import { apiRequest, getWebSocketUrl } from "../../api/client";
 import { CharacterCombobox } from "../game/CharacterCombobox";
 import { GuessBoard } from "../game/GuessBoard";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
+import { contentRosterQueryOptions } from "../game/content-roster";
+import { getDefaultMode, getDefaultModeNavigation } from "../modes/mode-registry";
 import "../game/game.css";
 import "./multiplayer.css";
+
+const duelLobbyPath = getDefaultModeNavigation("duel")?.path ?? getDefaultMode().path;
 
 function formatSeconds(milliseconds: number) {
   return Math.max(0, Math.ceil(milliseconds / 1000))
@@ -59,17 +60,16 @@ export default function RoomPage() {
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
   const [connection, setConnection] = useState<"connecting" | "open" | "closed">("connecting");
   const [error, setError] = useState<string | null>(null);
+  const [guessPending, setGuessPending] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [codeCopied, setCodeCopied] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const leavingRef = useRef(false);
   const acknowledgedRef = useRef(false);
   const matchTicket = getMatchTicket(location.state);
-  const rosterQuery = useQuery({
-    queryKey: ["characters", "multiplayer"],
-    queryFn: () => apiRequest<Character[]>("/characters"),
-    retry: false,
-  });
+  const rosterQuery = useQuery(
+    contentRosterQueryOptions("playable", contentManifest.manifestVersion, characters),
+  );
   const roster = rosterQuery.data ?? characters;
 
   const acknowledgeMatchTicket = useCallback(async () => {
@@ -101,6 +101,7 @@ export default function RoomPage() {
       };
       socket.onclose = () => {
         if (disposed || leavingRef.current) return;
+        setGuessPending(false);
         setConnection("closed");
         const delay = Math.min(5_000, 600 * 2 ** attempt);
         attempt += 1;
@@ -113,7 +114,10 @@ export default function RoomPage() {
           if (!parsed.success) throw new Error("Invalid room message");
           const message = parsed.data;
           if (message.type === "snapshot") setSnapshot(message.snapshot);
-          if (message.type === "error") setError(message.code);
+          if (message.type === "error") {
+            setGuessPending(false);
+            setError(message.code);
+          }
         } catch {
           setError("INTERNAL_ERROR");
         }
@@ -133,6 +137,10 @@ export default function RoomPage() {
     const interval = window.setInterval(() => setNow(Date.now()), 250);
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (snapshot?.state !== "playing" || snapshot.ownGuesses.length) setGuessPending(false);
+  }, [snapshot?.ownGuesses.length, snapshot?.state]);
 
   useEffect(() => {
     if (snapshot?.state !== "finished" || !matchTicket || acknowledgedRef.current) return;
@@ -164,6 +172,10 @@ export default function RoomPage() {
       : snapshot?.nextRoundAt
         ? snapshot.nextRoundAt - now
         : 0;
+  const clockLabel =
+    snapshot?.configuration.roundTimeSeconds === null && snapshot.state === "playing"
+      ? "∞"
+      : formatSeconds(timeLeft);
   const canGuess = connection === "open" && snapshot?.state === "playing";
   const roomStateLabel = snapshot
     ? snapshot.state === "waiting"
@@ -184,13 +196,19 @@ export default function RoomPage() {
       )
     : "";
 
-  const submit = (characterId: string) =>
+  const submit = (characterId: string) => {
+    if (connection !== "open") return;
+    setGuessPending(true);
     socketRef.current?.send(
       JSON.stringify({ type: "guess", characterId, actionId: crypto.randomUUID() }),
     );
+  };
   const offerDraw = () => socketRef.current?.send(JSON.stringify({ type: "offer-draw" }));
   const respondDraw = (accepted: boolean) =>
     socketRef.current?.send(JSON.stringify({ type: "respond-draw", accepted }));
+  const requestSkip = () => socketRef.current?.send(JSON.stringify({ type: "request-skip" }));
+  const respondSkip = (accepted: boolean) =>
+    socketRef.current?.send(JSON.stringify({ type: "respond-skip", accepted }));
   const leave = async () => {
     if (
       snapshot &&
@@ -215,7 +233,7 @@ export default function RoomPage() {
         // WebSocket leave 与 HTTP leave 任一成功即可完成可靠退出。
       }
     }
-    navigate("/duel", { replace: true });
+    navigate(duelLobbyPath, { replace: true });
   };
 
   const copyRoomCode = async () => {
@@ -314,13 +332,46 @@ export default function RoomPage() {
             ))}
             <div className={`round-clock state-${snapshot.state}`}>
               <Clock3 size={18} />
-              <strong>{formatSeconds(timeLeft)}</strong>
+              <strong>{clockLabel}</strong>
               <small>{roomStateLabel}</small>
             </div>
           </section>
 
+          <section
+            className="locked-room-config"
+            aria-label={tr("已锁定的房间配置", "固定されたルーム設定", "Locked room settings")}
+          >
+            <span>{tr("普通角色", "通常キャラクター", "Characters")}</span>
+            <strong>BO{snapshot.configuration.format}</strong>
+            <span>
+              {snapshot.configuration.roundTimeSeconds === null
+                ? tr("不限时", "無制限", "Unlimited")
+                : `${snapshot.configuration.roundTimeSeconds}s`}
+            </span>
+            <span>
+              {snapshot.configuration.maxAttempts} {tr("猜", "回", "guesses")}
+            </span>
+            {snapshot.configuration.modifier === "speed" ? (
+              <span>
+                {tr("极速：错误 -5 秒", "スピード：ミスごとに -5 秒", "Speed: -5s per miss")}
+              </span>
+            ) : snapshot.configuration.modifier === "fog" ? (
+              <span>{tr("迷雾", "霧", "Fog")}</span>
+            ) : null}
+            <small>
+              {snapshot.state === "waiting"
+                ? tr("等待对手加入", "対戦相手を待機", "Waiting for opponent")
+                : tr("开局后已锁定", "開始後は固定", "Locked after start")}
+            </small>
+          </section>
+
           {snapshot.state === "waiting" && (
             <section className="invite-strip">
+              <span className="room-state-signal state-waiting" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
               <span>
                 <Copy size={17} />
                 {tr("邀请好友使用房间码", "ルームコードを共有", "Share room code")}
@@ -348,6 +399,88 @@ export default function RoomPage() {
                     : "Connection lost. The match is paused for up to 30 seconds."}
               </span>
             </div>
+          )}
+
+          {snapshot.state === "playing" && (
+            <section
+              className={`skip-controls state-${snapshot.roundSkip.status}`}
+              aria-label={tr("协商跳过本题", "問題のスキップ交渉", "Skip question")}
+              role="status"
+            >
+              <SkipForward size={18} />
+              {snapshot.roundSkip.status === "pending" &&
+              snapshot.roundSkip.requestedByPlayerId === session.data?.user.id ? (
+                <p>
+                  {tr(
+                    `已请求跳过，等待对手确认（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
+                    `スキップを申請しました。相手の確認待ち（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
+                    `Skip requested. Waiting for your opponent (${formatSeconds(snapshot.roundSkip.expiresAt - now)})`,
+                  )}
+                </p>
+              ) : snapshot.roundSkip.status === "pending" ? (
+                <>
+                  <p>
+                    {tr(
+                      "对手请求跳过本题",
+                      "相手が問題のスキップを申請しました",
+                      "Your opponent wants to skip this question",
+                    )}
+                  </p>
+                  <div>
+                    <button
+                      className="ticket-button"
+                      type="button"
+                      onClick={() => respondSkip(true)}
+                    >
+                      <Check size={16} /> {tr("同意跳过", "スキップ", "Skip")}
+                    </button>
+                    <button
+                      className="ticket-button-secondary"
+                      type="button"
+                      onClick={() => respondSkip(false)}
+                    >
+                      <X size={16} /> {tr("拒绝", "拒否", "Decline")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>
+                    {snapshot.roundSkip.status === "cancelled"
+                      ? snapshot.roundSkip.reason === "timeout"
+                        ? tr(
+                            "跳过请求已超时，本题继续",
+                            "申請がタイムアウトしました。この問題を続けます",
+                            "Skip request timed out. This question continues",
+                          )
+                        : tr(
+                            "跳过请求已拒绝，本题继续",
+                            "申請は拒否されました。この問題を続けます",
+                            "Skip request declined. This question continues",
+                          )
+                      : snapshot.roundSkip.status === "executed"
+                        ? tr(
+                            `第 ${snapshot.roundSkip.round} 题已共同跳过，双方均不得分`,
+                            `第${snapshot.roundSkip.round}問は合意によりスキップされ、得点はありません`,
+                            `Question ${snapshot.roundSkip.round} was skipped by agreement. No points awarded`,
+                          )
+                        : tr(
+                            "需要对手同意才能跳过本题",
+                            "相手の同意がある場合のみスキップできます",
+                            "Your opponent must agree to skip",
+                          )}
+                  </p>
+                  <button
+                    className="ticket-button-secondary"
+                    type="button"
+                    disabled={connection !== "open"}
+                    onClick={requestSkip}
+                  >
+                    {tr("请求跳过", "スキップを申請", "Request skip")}
+                  </button>
+                </>
+              )}
+            </section>
           )}
 
           {!["waiting", "finished"].includes(snapshot.state) && (
@@ -427,11 +560,25 @@ export default function RoomPage() {
             <CharacterCombobox
               characters={roster}
               locale={locale}
+              searchIndex={contentManifest.searchIndex}
               excludedIds={ownGuessedIds}
-              disabled={!canGuess || snapshot.ownGuesses.length >= 6}
+              disabled={
+                !canGuess ||
+                guessPending ||
+                snapshot.ownGuesses.length >= snapshot.configuration.maxAttempts
+              }
               onSubmit={submit}
             />
           )}
+          {snapshot.state === "playing" && guessPending ? (
+            <p className="guess-submit-status" role="status" aria-live="polite">
+              {tr(
+                "已提交，等待对手…",
+                "送信済み。相手を待っています…",
+                "Submitted. Waiting for the opponent…",
+              )}
+            </p>
+          ) : null}
           {error && (
             <div className="inline-error" role="alert">
               {t(`error.${error}`, { defaultValue: t("error.generic") })}
@@ -442,14 +589,18 @@ export default function RoomPage() {
             <section>
               <header>
                 <span>{tr("你的猜测", "あなたの回答", "YOUR GUESSES")}</span>
-                <strong>{snapshot.ownGuesses.length} / 6</strong>
+                <strong>
+                  {snapshot.ownGuesses.length} / {snapshot.configuration.maxAttempts}
+                </strong>
               </header>
               <GuessBoard guesses={snapshot.ownGuesses} locale={locale} />
             </section>
             <section className="opponent-board">
               <header>
                 <span>{tr("对手反馈", "相手のフィードバック", "RIVAL SIGNALS")}</span>
-                <strong>{snapshot.opponentFeedback.length} / 6</strong>
+                <strong>
+                  {snapshot.opponentFeedback.length} / {snapshot.configuration.maxAttempts}
+                </strong>
               </header>
               <div className="opponent-feedback-head" aria-hidden="true">
                 <span />
@@ -459,12 +610,16 @@ export default function RoomPage() {
               </div>
               <div className="masked-feedback-grid">
                 {snapshot.opponentFeedback.map((row, rowIndex) => (
-                  <div key={rowIndex}>
+                  <div
+                    key={rowIndex}
+                    className={rowIndex === snapshot.opponentFeedback.length - 1 ? "is-latest" : ""}
+                  >
                     <span>#{rowIndex + 1}</span>
-                    {row.map((cell) => (
+                    {row.map((cell, cellIndex) => (
                       <i
                         key={cell.field}
                         className={`state-${cell.state}`}
+                        style={{ "--cell-delay": `${cellIndex * 75}ms` } as CSSProperties}
                         role="img"
                         aria-label={tr(
                           `第 ${rowIndex + 1} 次，${t(`game.${cell.field}`)}：${t(`game.${cell.state}`)}`,
@@ -472,7 +627,9 @@ export default function RoomPage() {
                           `Guess ${rowIndex + 1}, ${t(`game.${cell.field}`)}: ${t(`game.${cell.state}`)}`,
                         )}
                         title={t(`game.${cell.state}`)}
-                      />
+                      >
+                        {cell.state === "fog" ? <CloudFog size={14} /> : null}
+                      </i>
                     ))}
                   </div>
                 ))}
@@ -481,6 +638,12 @@ export default function RoomPage() {
                 className="feedback-legend"
                 aria-label={tr("反馈颜色说明", "色の説明", "Feedback legend")}
               >
+                <span>
+                  <i className="state-fog">
+                    <CloudFog size={12} />
+                  </i>
+                  {t("game.fog")}
+                </span>
                 <span>
                   <i className="state-exact">
                     <Check size={12} />
@@ -542,26 +705,38 @@ export default function RoomPage() {
                           ? "Draw by agreement"
                           : "No winner"}
                 </h2>
-                {snapshot.ranked && snapshot.ratingChange ? (
-                  <div
-                    className={`rating-change ${
-                      snapshot.ratingChange.delta > 0
-                        ? "positive"
-                        : snapshot.ratingChange.delta < 0
-                          ? "negative"
-                          : "neutral"
-                    }`}
-                  >
-                    <strong>
-                      {snapshot.ratingChange.delta > 0 ? "+" : ""}
-                      {snapshot.ratingChange.delta} Elo
-                    </strong>
-                    <span>
-                      {snapshot.ratingChange.before} → {snapshot.ratingChange.after}
-                    </span>
-                  </div>
-                ) : null}
               </div>
+              {snapshot.ranked && snapshot.ratingChanges.length === 2 ? (
+                <div
+                  className="rating-settlement"
+                  aria-label={tr(
+                    "双方永久评分变化",
+                    "両者の常設レート変動",
+                    "Permanent rating changes",
+                  )}
+                >
+                  {snapshot.players.map((player) => {
+                    const change = snapshot.ratingChanges.find(
+                      (entry) => entry.playerId === player.playerId,
+                    );
+                    if (!change) return null;
+                    const tone =
+                      change.delta > 0 ? "positive" : change.delta < 0 ? "negative" : "neutral";
+                    return (
+                      <div className={`rating-change ${tone}`} key={player.playerId}>
+                        <span>{player.displayName}</span>
+                        <b>
+                          {change.before} → {change.after}
+                        </b>
+                        <strong>
+                          {change.delta > 0 ? "+" : ""}
+                          {change.delta}
+                        </strong>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
               <div className="match-finished-actions">
                 <button
                   className="ticket-button-secondary"
@@ -573,7 +748,9 @@ export default function RoomPage() {
                 <button
                   className="ticket-button"
                   type="button"
-                  onClick={() => void acknowledgeMatchTicket().finally(() => navigate("/duel"))}
+                  onClick={() =>
+                    void acknowledgeMatchTicket().finally(() => navigate(duelLobbyPath))
+                  }
                 >
                   {tr("返回对战大厅", "対戦ロビーへ戻る", "Back to lobby")}
                 </button>

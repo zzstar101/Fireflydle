@@ -1,16 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PublicUser, SessionPayload } from "@fireflydle/contracts";
-import { ensureSession } from "../../api/client";
+import { ensureSession, getStableGuestId } from "../../api/client";
 
 function localGuest(): PublicUser {
-  const key = "fireflydle-local-guest-id";
-  let id = localStorage.getItem(key);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(key, id);
-  }
   return {
-    id,
+    id: getStableGuestId(),
     displayName: "Guest",
     role: "player",
     isGuest: true,
@@ -19,11 +13,12 @@ function localGuest(): PublicUser {
     elo: 1000,
     rankedMatches: 0,
     leaderboardEligible: false,
+    playableTutorialCompleted: false,
     createdAt: new Date(0).toISOString(),
   };
 }
 
-export function useSession() {
+export function useSession(enabled = true) {
   return useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -34,6 +29,7 @@ export function useSession() {
       }
     },
     staleTime: 5 * 60_000,
+    enabled,
   });
 }
 

@@ -17,6 +17,7 @@ interface SessionUserRow {
   elo: number;
   ranked_matches: number;
   leaderboard_eligible: number;
+  playable_tutorial_completed: number;
   created_at: number;
 }
 
@@ -24,6 +25,12 @@ interface LoginUserRow extends SessionUserRow {
   password_hash: string | null;
   password_salt: string | null;
   password_iterations: number | null;
+}
+
+interface GuestUserRow {
+  id: string;
+  display_name: string;
+  created_at: number;
 }
 
 async function mergeGuestProgress(
@@ -57,28 +64,29 @@ async function mergeGuestProgress(
     db
       .prepare(
         `INSERT OR IGNORE INTO game_results
-           (game_id, user_id, mode, difficulty, date_key, result, guess_count,
+           (game_id, user_id, mode, mode_id, activity_id, difficulty, date_key, result, guess_count,
             elapsed_ms, completed_at, replay_expires_at,
             leaderboard_hidden_at, leaderboard_hidden_reason)
          SELECT
-           source.id, source.user_id, source.mode, source.difficulty, source.date_key,
+           source.id, source.user_id, source.mode, source.mode_id, source.activity_id,
+           source.difficulty, source.date_key,
            'expired',
            (SELECT COUNT(*) FROM game_guesses gg WHERE gg.game_id = source.id),
            MAX(0, ? - source.started_at), ?, ?,
-           CASE WHEN source.mode = 'daily' THEN ? ELSE NULL END,
-           CASE WHEN source.mode = 'daily' THEN 'guest-merge-daily-conflict' ELSE NULL END
+           CASE WHEN source.activity_id = 'daily' THEN ? ELSE NULL END,
+           CASE WHEN source.activity_id = 'daily' THEN 'guest-merge-daily-conflict' ELSE NULL END
          FROM games source
          WHERE source.user_id = ? AND source.status = 'active'
            AND (
-             (source.mode = 'daily' AND EXISTS (
+             (source.activity_id = 'daily' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'daily'
+               WHERE target.user_id = ? AND target.activity_id = 'daily'
                  AND target.date_key = source.date_key
              ))
              OR
-             (source.mode = 'random' AND EXISTS (
+             (source.activity_id = 'practice' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'random'
+               WHERE target.user_id = ? AND target.activity_id = 'practice'
                  AND target.status = 'active'
              ))
            )
@@ -90,15 +98,15 @@ async function mergeGuestProgress(
         `UPDATE games SET status = 'expired', completed_at = ?, updated_at = ?
          WHERE user_id = ? AND status = 'active'
            AND (
-             (mode = 'daily' AND EXISTS (
+             (activity_id = 'daily' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'daily'
+               WHERE target.user_id = ? AND target.activity_id = 'daily'
                  AND target.date_key = games.date_key
              ))
              OR
-             (mode = 'random' AND EXISTS (
+             (activity_id = 'practice' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'random'
+               WHERE target.user_id = ? AND target.activity_id = 'practice'
                  AND target.status = 'active'
              ))
            )
@@ -113,10 +121,10 @@ async function mergeGuestProgress(
              leaderboard_hidden_reason,
              'guest-merge-daily-conflict'
            )
-         WHERE user_id = ? AND mode = 'daily' AND date_key IS NOT NULL
+         WHERE user_id = ? AND activity_id = 'daily' AND date_key IS NOT NULL
            AND EXISTS (
              SELECT 1 FROM games target
-             WHERE target.user_id = ? AND target.mode = 'daily'
+             WHERE target.user_id = ? AND target.activity_id = 'daily'
                AND target.date_key = game_results.date_key
            )
            AND ${claimExists}`,
@@ -127,9 +135,9 @@ async function mergeGuestProgress(
         `UPDATE games SET user_id = ?
          WHERE user_id = ?
            AND NOT (
-             mode = 'daily' AND EXISTS (
+             activity_id = 'daily' AND EXISTS (
                SELECT 1 FROM games target
-               WHERE target.user_id = ? AND target.mode = 'daily'
+               WHERE target.user_id = ? AND target.activity_id = 'daily'
                  AND target.date_key = games.date_key
              )
            )
@@ -251,7 +259,10 @@ async function mergeGuestProgress(
          id AS user_id, display_name, role, is_guest,
          CASE WHEN email IS NULL THEN 0 ELSE 1 END AS has_email,
          email_verified, elo,
-         ranked_matches, leaderboard_eligible, created_at
+         ranked_matches, leaderboard_eligible,
+         CASE WHEN playable_tutorial_completed_at IS NULL THEN 0 ELSE 1 END
+           AS playable_tutorial_completed,
+         created_at
        FROM users WHERE id = ? AND merged_into_user_id IS NULL`,
     )
     .bind(targetUserId)
@@ -291,6 +302,7 @@ function mapAuthUser(row: SessionUserRow): AuthUser {
     elo: row.elo,
     rankedMatches: row.ranked_matches,
     leaderboardEligible: row.leaderboard_eligible === 1,
+    playableTutorialCompleted: row.playable_tutorial_completed === 1,
     createdAt: row.created_at,
   };
 }
@@ -306,6 +318,7 @@ export function toPublicUser(user: AuthUser): PublicUser {
     elo: user.elo,
     rankedMatches: user.rankedMatches,
     leaderboardEligible: user.leaderboardEligible,
+    playableTutorialCompleted: user.playableTutorialCompleted,
     createdAt: new Date(user.createdAt).toISOString(),
   };
 }
@@ -339,7 +352,10 @@ export async function resolveAuth(env: Env, request: Request): Promise<AuthConte
        s.id AS session_id, s.expires_at, s.last_seen_at,
        u.id AS user_id, u.display_name, u.role, u.is_guest,
        CASE WHEN u.email IS NULL THEN 0 ELSE 1 END AS has_email, u.email_verified,
-       u.elo, u.ranked_matches, u.leaderboard_eligible, u.created_at
+       u.elo, u.ranked_matches, u.leaderboard_eligible,
+       CASE WHEN u.playable_tutorial_completed_at IS NULL THEN 0 ELSE 1 END
+         AS playable_tutorial_completed,
+       u.created_at
      FROM sessions s
      JOIN users u ON u.id = s.user_id
      WHERE s.token_hash = ? AND s.revoked_at IS NULL AND s.expires_at > ?
@@ -383,22 +399,35 @@ export function requireRole(
 export async function createGuest(
   env: Env,
   userAgent: string | null,
+  stableGuestId?: string,
   now = Date.now(),
 ): Promise<AuthContext> {
-  const userId = crypto.randomUUID();
-  const suffix = randomToken(5)
-    .replace(/[^a-zA-Z0-9]/gu, "")
-    .slice(0, 6)
-    .toUpperCase();
-  const displayName = `开拓者-${suffix}`;
-  await env.DB.prepare(
-    `INSERT INTO users
-       (id, display_name, display_name_normalized, role, is_guest, email_verified,
-        elo, ranked_matches, leaderboard_eligible, created_at, updated_at)
-     VALUES (?, ?, ?, 'player', 1, 0, 1000, 0, 0, ?, ?)`,
-  )
-    .bind(userId, displayName, normalizeIdentity(displayName), now, now)
-    .run();
+  let guest: GuestUserRow | null = null;
+  for (let attempt = 0; attempt < 3 && !guest; attempt += 1) {
+    const userId = attempt === 0 && stableGuestId ? stableGuestId : crypto.randomUUID();
+    const suffix = randomToken(5)
+      .replace(/[^a-zA-Z0-9]/gu, "")
+      .slice(0, 6)
+      .toUpperCase();
+    const displayName = `开拓者-${suffix}`;
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO users
+         (id, display_name, display_name_normalized, role, is_guest, email_verified,
+          elo, ranked_matches, leaderboard_eligible, created_at, updated_at)
+       VALUES (?, ?, ?, 'player', 1, 0, 1000, 0, 0, ?, ?)`,
+    )
+      .bind(userId, displayName, normalizeIdentity(displayName), now, now)
+      .run();
+    guest = await env.DB.prepare(
+      `SELECT id, display_name, created_at FROM users
+       WHERE id = ? AND is_guest = 1 AND merged_into_user_id IS NULL`,
+    )
+      .bind(userId)
+      .first<GuestUserRow>();
+  }
+  if (!guest) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "guest-identity" });
+
+  const userId = guest.id;
   const session = await insertSession(env.DB, userId, userAgent, now);
   return {
     sessionId: session.id,
@@ -406,7 +435,7 @@ export async function createGuest(
     expiresAt: session.expiresAt,
     user: {
       id: userId,
-      displayName,
+      displayName: guest.display_name,
       role: "player",
       isGuest: true,
       hasEmail: false,
@@ -414,7 +443,8 @@ export async function createGuest(
       elo: 1000,
       rankedMatches: 0,
       leaderboardEligible: false,
-      createdAt: now,
+      playableTutorialCompleted: false,
+      createdAt: guest.created_at,
     },
   };
 }
@@ -536,6 +566,7 @@ export async function registerUser(
       elo: 1000,
       rankedMatches: 0,
       leaderboardEligible: true,
+      playableTutorialCompleted: false,
       createdAt: now,
     },
   };
@@ -555,7 +586,10 @@ export async function loginUser(
        id AS user_id, display_name, role, is_guest,
        CASE WHEN email IS NULL THEN 0 ELSE 1 END AS has_email,
        email_verified, elo,
-       ranked_matches, leaderboard_eligible, created_at,
+       ranked_matches, leaderboard_eligible,
+       CASE WHEN playable_tutorial_completed_at IS NULL THEN 0 ELSE 1 END
+         AS playable_tutorial_completed,
+       created_at,
        password_hash, password_salt, password_iterations
      FROM users
      WHERE login_name_normalized = ? AND is_guest = 0 AND merged_into_user_id IS NULL

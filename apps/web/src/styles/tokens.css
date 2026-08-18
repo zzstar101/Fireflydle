@@ -25,6 +25,10 @@
   --radius-lg: 24px;
   --content: 1440px;
   --reading: 1180px;
+  --motion-fast: 140ms;
+  --motion-page: 260ms;
+  --motion-signal: 3.4s;
+  --motion-ease: cubic-bezier(0.2, 0.72, 0.25, 1);
 }
 
 :root[data-theme="light"] {

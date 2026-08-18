@@ -11,6 +11,7 @@ const RESERVATION_TTL_MS = 60_000;
 const RESULT_TTL_MS = 60 * 60 * 1_000;
 const MATCHED_RESULT_TTL_MS = 24 * 60 * 60 * 1_000;
 const ROOM_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const RANKED_FORMAT = 3 as const;
 
 interface QueueRow extends Record<string, SqlStorageValue> {
   ticket_id: string;
@@ -151,7 +152,6 @@ export class Matchmaker extends DurableObject<Env> {
   private async createRoomDirectory(
     roomId: string,
     ownerUserId: string,
-    input: MatchmakingInput,
     now: number,
   ): Promise<string> {
     for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -161,18 +161,9 @@ export class Matchmaker extends DurableObject<Env> {
           `INSERT INTO room_directory
              (room_id, room_code, durable_object_name, owner_user_id, state,
               ranked, match_format, created_at, expires_at)
-           VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?)`,
+           VALUES (?, ?, ?, ?, 'active', 1, ?, ?, ?)`,
         )
-          .bind(
-            roomId,
-            code,
-            roomId,
-            ownerUserId,
-            input.ranked ? 1 : 0,
-            input.format,
-            now,
-            now + 24 * 60 * 60 * 1_000,
-          )
+          .bind(roomId, code, roomId, ownerUserId, RANKED_FORMAT, now, now + 24 * 60 * 60 * 1_000)
           .run();
         return code;
       } catch (error) {
@@ -184,25 +175,27 @@ export class Matchmaker extends DurableObject<Env> {
   }
 
   private async materializePair(pair: ReservedPair, now: number): Promise<void> {
-    const leftInput = JSON.parse(pair.left.payload_json) as MatchmakingInput;
-    const rightInput = JSON.parse(pair.right.payload_json) as MatchmakingInput;
+    const waitingInput = JSON.parse(pair.left.payload_json) as MatchmakingInput;
+    const creatingInput = JSON.parse(pair.right.payload_json) as MatchmakingInput;
     let roomCode: string | null = null;
     try {
-      roomCode = await this.createRoomDirectory(
-        pair.roomId,
-        leftInput.participant.userId,
-        leftInput,
-        now,
-      );
+      roomCode = await this.createRoomDirectory(pair.roomId, waitingInput.participant.userId, now);
       const roomInput: InitializeRoomInput = {
         roomId: pair.roomId,
         code: roomCode,
-        format: leftInput.format,
-        ranked: leftInput.ranked,
-        owner: leftInput.participant,
-        opponent: rightInput.participant,
-        characters: leftInput.characters,
-        targetIds: leftInput.targetIds,
+        activityId: "ranked-match",
+        format: RANKED_FORMAT,
+        configuration: {
+          modeId: "playable",
+          activityId: "ranked-match",
+          format: RANKED_FORMAT,
+          roundTimeSeconds: 90,
+          maxAttempts: 6,
+          modifier: null,
+        },
+        owner: waitingInput.participant,
+        opponent: creatingInput.participant,
+        contentSnapshot: creatingInput.contentSnapshot,
         now,
       };
       await this.env.GAME_ROOM.getByName(pair.roomId).initialize(roomInput);

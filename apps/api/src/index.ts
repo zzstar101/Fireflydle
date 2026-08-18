@@ -6,10 +6,13 @@ import { analyticsRoutes } from "./routes/analytics";
 import { announcementRoutes } from "./routes/announcements";
 import { authRoutes } from "./routes/auth";
 import { characterRoutes } from "./routes/characters";
+import { challengeRoutes } from "./routes/challenges";
 import { gameRoutes } from "./routes/games";
+import { endlessRoutes } from "./routes/endless";
 import { matchmakingRoutes } from "./routes/matchmaking";
 import { replayRoutes } from "./routes/replays";
 import { roomRoutes } from "./routes/rooms";
+import { weeklyRoutes } from "./routes/weekly";
 import { ApiProblem, ok, problemResponse } from "./lib/http";
 import { resolveAuth } from "./services/auth";
 import { runScheduledMaintenance } from "./services/maintenance";
@@ -45,7 +48,10 @@ function setCorsHeaders(
   context.header("Access-Control-Allow-Origin", origin);
   context.header("Access-Control-Allow-Credentials", "true");
   context.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  context.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Visit-Session-Id");
+  context.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type,Authorization,X-Visit-Session-Id,X-Guest-Id",
+  );
   context.header("Access-Control-Max-Age", "86400");
   context.header("Vary", "Origin", { append: true });
 }
@@ -106,12 +112,15 @@ api.get("/health", (context) =>
 api.route("/", authRoutes);
 api.route("/", accountRoutes);
 api.route("/", characterRoutes);
+api.route("/", challengeRoutes);
 api.route("/", gameRoutes);
+api.route("/", endlessRoutes);
 api.route("/", roomRoutes);
 api.route("/", matchmakingRoutes);
 api.route("/", analyticsRoutes);
 api.route("/", replayRoutes);
 api.route("/", announcementRoutes);
+api.route("/", weeklyRoutes);
 api.route("/", adminRoutes);
 
 app.route("/api", api);

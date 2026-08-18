@@ -1,0 +1,147 @@
+{
+  "manifestVersion": "1.0.1",
+  "generatedAt": "2026-08-16T08:00:00.000Z",
+  "modes": [
+    {
+      "id": "npc",
+      "label": { "zh-CN": "NPC", "en": "NPCs", "ja": "NPC" },
+      "targetPoolId": "npc-targets",
+      "candidatePoolId": "npc-candidates",
+      "fields": [
+        {
+          "id": "region",
+          "label": { "zh-CN": "主叙事地区", "en": "Story region", "ja": "主な舞台" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "faction",
+          "label": { "zh-CN": "主派系", "en": "Faction", "ja": "所属勢力" },
+          "valueType": "enum",
+          "comparison": "exact",
+          "required": true
+        },
+        {
+          "id": "debut-version",
+          "label": { "zh-CN": "首次剧情登场版本", "en": "Debut version", "ja": "初登場バージョン" },
+          "valueType": "number",
+          "comparison": "direction",
+          "required": true,
+          "directional": true
+        }
+      ],
+      "maxAttempts": 4,
+      "rulesVersion": "1.0.0",
+      "activities": ["practice", "endless"]
+    }
+  ],
+  "activities": [
+    {
+      "id": "practice",
+      "label": { "zh-CN": "练习", "en": "Practice", "ja": "練習" },
+      "modeIds": ["npc"],
+      "enabled": true
+    },
+    {
+      "id": "endless",
+      "label": { "zh-CN": "无尽", "en": "Endless", "ja": "エンドレス" },
+      "modeIds": ["npc"],
+      "enabled": true
+    }
+  ],
+  "pools": [
+    {
+      "id": "npc-targets",
+      "modeId": "npc",
+      "targetIds": ["npc-pom-pom", "npc-siobhan", "npc-skott"],
+      "candidateIds": ["npc-pom-pom", "npc-siobhan", "npc-skott"]
+    },
+    {
+      "id": "npc-candidates",
+      "modeId": "npc",
+      "targetIds": ["npc-pom-pom", "npc-siobhan", "npc-skott"],
+      "candidateIds": ["npc-pom-pom", "npc-siobhan", "npc-skott"]
+    }
+  ],
+  "entities": [
+    {
+      "id": "npc-pom-pom",
+      "kind": "npc",
+      "names": { "zh-CN": "帕姆", "en": "Pom-Pom", "ja": "パム" },
+      "aliases": {
+        "zh-CN": ["pa mu", "pam"],
+        "en": ["pom pom"],
+        "ja": ["pamu"]
+      },
+      "source": {
+        "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=581",
+        "revision": "hoyowiki:105:581"
+      },
+      "reviewStatus": "approved",
+      "payload": {
+        "regionId": "astral-express",
+        "factionId": "astral-express",
+        "debutVersionId": "1.0",
+        "assets": {
+          "avatarPath": "/assets/npcs/pom-pom-avatar-cfbd7189940e.png",
+          "portraitPath": "/assets/npcs/pom-pom-avatar-cfbd7189940e.png",
+          "sha256": "cfbd7189940e664415d79e4a856b1027f066257e74502d5dd333cfeb50d993ff",
+          "rightsNotice": "HoYoWiki 托管素材；仅作非商业粉丝项目展示，保留来源并接受权利人下架要求。"
+        }
+      }
+    },
+    {
+      "id": "npc-siobhan",
+      "kind": "npc",
+      "names": { "zh-CN": "舒翁", "en": "Siobhan", "ja": "シヴォーン" },
+      "aliases": {
+        "zh-CN": ["shu weng", "shiweng"],
+        "en": [],
+        "ja": ["shivon"]
+      },
+      "source": {
+        "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=2441",
+        "revision": "hoyowiki:105:2441"
+      },
+      "reviewStatus": "approved",
+      "payload": {
+        "regionId": "penacony",
+        "factionId": "penacony",
+        "debutVersionId": "2.1",
+        "assets": {
+          "avatarPath": "/assets/npcs/siobhan-avatar-b2bf4ce51d43.png",
+          "portraitPath": "/assets/npcs/siobhan-avatar-b2bf4ce51d43.png",
+          "sha256": "b2bf4ce51d431819500bdf54b4ef1f7e0bb2376044ff50d64e71e95dcd7826fc",
+          "rightsNotice": "HoYoWiki 托管素材；仅作非商业粉丝项目展示，保留来源并接受权利人下架要求。"
+        }
+      }
+    },
+    {
+      "id": "npc-skott",
+      "kind": "npc",
+      "names": { "zh-CN": "斯科特", "en": "Skott", "ja": "スコート" },
+      "aliases": {
+        "zh-CN": ["si ke te", "sikete"],
+        "en": [],
+        "ja": ["sukoto"]
+      },
+      "source": {
+        "url": "https://sg-wiki-api.hoyolab.com/hoyowiki/wapi/entry_page?entry_page_id=3058",
+        "revision": "hoyowiki:105:3058"
+      },
+      "reviewStatus": "approved",
+      "payload": {
+        "regionId": "xianzhou-luofu",
+        "factionId": "interastral-peace-corporation",
+        "debutVersionId": "1.3",
+        "assets": {
+          "avatarPath": "/assets/npcs/skott-avatar-c067d5bb9ded.png",
+          "portraitPath": "/assets/npcs/skott-avatar-c067d5bb9ded.png",
+          "sha256": "c067d5bb9ded0addc9337c86bdf91787b82adbe4a5347f7e92c0c1384206b5cf",
+          "rightsNotice": "HoYoWiki 托管素材；仅作非商业粉丝项目展示，保留来源并接受权利人下架要求。"
+        }
+      }
+    }
+  ]
+}

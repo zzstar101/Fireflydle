@@ -806,30 +806,6 @@ adminRoutes.patch("/admin/users/:userId", async (context) => {
   return ok(context, { updated: true });
 });
 
-adminRoutes.delete("/admin/leaderboards/daily/:resultId", async (context) => {
-  const auth = requireRole(context, MODERATION_ROLES);
-  const now = Date.now();
-  const reason = context.req.query("reason")?.trim().slice(0, 500) || "moderated";
-  const result = await context.env.DB.prepare(
-    `UPDATE game_results SET
-       leaderboard_hidden_at = ?, leaderboard_hidden_by_user_id = ?,
-       leaderboard_hidden_reason = ?
-     WHERE game_id = ? AND mode = 'daily' AND leaderboard_hidden_at IS NULL`,
-  )
-    .bind(now, auth.user.id, reason, context.req.param("resultId"))
-    .run();
-  if ((result.meta.changes ?? 0) === 0) throw new ApiProblem("NOT_FOUND", 404);
-  await audit(
-    context,
-    auth,
-    "leaderboard.daily.hide",
-    "game-result",
-    context.req.param("resultId"),
-    { reason },
-  );
-  return ok(context, { hidden: true });
-});
-
 adminRoutes.get("/admin/audit-logs", async (context) => {
   requireRole(context, ADMIN_ROLES);
   const rows = await context.env.DB.prepare(

@@ -14,6 +14,7 @@ export default defineConfig({
   },
   build: {
     // 生产站点不发布源码映射，避免把完整题库结构直接暴露为可读源码。
+    manifest: true,
     sourcemap: false,
     target: "es2022",
   },

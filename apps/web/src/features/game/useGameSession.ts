@@ -1,29 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import type {
-  Character,
+  ActivityId,
   CurrentGames,
-  Difficulty,
-  GameMode,
+  GameEntitySummary,
   PublicGame,
 } from "@fireflydle/contracts";
-import { characters } from "@fireflydle/game-data";
 import {
-  ATTEMPTS_BY_DIFFICULTY,
-  createGuessResult,
   getBeijingDateKey,
   hasDuplicateGuess,
+  selectSnapshotFieldDefinitions,
 } from "@fireflydle/game-engine";
 import { ApiClientError, apiRequest, ensureSession } from "../../api/client";
+import { loadContentRoster } from "./content-roster";
+import type { SoloModeRuntime } from "./mode-runtime";
 import { currentGamesQueryKey } from "./useCurrentGames";
 
-type PlayableMode = Extract<GameMode, "daily" | "random">;
+type SoloActivity = Extract<ActivityId, "daily" | "practice">;
 type SessionSource = "server" | "local" | null;
 const LOCAL_PLAYER_SEED_KEY = "fireflydle-local-player-seed";
 
 interface GameSession {
   game: PublicGame | null;
-  roster: readonly Character[];
+  roster: readonly GameEntitySummary[];
   source: SessionSource;
   navigationGameId: string | null;
   busy: boolean;
@@ -39,7 +38,7 @@ interface GameSession {
 
 interface ServerStartResult {
   game: PublicGame;
-  roster: readonly Character[];
+  roster: readonly GameEntitySummary[];
 }
 
 function errorCodeOf(error: unknown): string {
@@ -47,18 +46,25 @@ function errorCodeOf(error: unknown): string {
 }
 
 async function startServerGame(
-  mode: PlayableMode,
-  difficulty: Difficulty,
+  queryClient: QueryClient,
+  activityId: SoloActivity,
+  runtime: SoloModeRuntime,
 ): Promise<ServerStartResult> {
   // 会话与对局创建必须顺序执行，首次访客请求才能稳定携带身份 cookie。
   await ensureSession();
-  const [game, roster] = await Promise.all([
-    apiRequest<PublicGame>("/games", {
-      method: "POST",
-      body: JSON.stringify({ mode, difficulty }),
-    }),
-    apiRequest<Character[]>("/characters").catch(() => characters),
-  ]);
+  const game = await apiRequest<PublicGame>("/games", {
+    method: "POST",
+    body: JSON.stringify({ modeId: runtime.contentModeId, activityId }),
+  });
+  const roster =
+    runtime.contentModeId === "aeon"
+      ? runtime.roster
+      : await loadContentRoster(
+          queryClient,
+          runtime.contentModeId,
+          game.manifestVersion,
+          runtime.roster,
+        );
   return { game, roster };
 }
 
@@ -79,42 +85,64 @@ function localPlayerSeed(): string {
   return created;
 }
 
-function targetFor(mode: PlayableMode, difficulty: Difficulty, salt = ""): Character {
-  const eligible = characters.filter((character) => character.enabled && character.targetEligible);
+function targetFor(
+  activityId: SoloActivity,
+  runtime: SoloModeRuntime,
+  salt = "",
+): GameEntitySummary {
+  const eligible = runtime.roster.filter((entity) => {
+    const flags = entity as GameEntitySummary & { enabled?: boolean; targetEligible?: boolean };
+    return flags.targetEligible === undefined || (flags.enabled !== false && flags.targetEligible);
+  });
   const seed =
-    mode === "daily"
+    activityId === "daily"
       ? `${getBeijingDateKey()}-${localPlayerSeed()}`
-      : `${crypto.randomUUID()}-${difficulty}-${salt}`;
+      : `${crypto.randomUUID()}-${salt}`;
   const target = eligible[stringHash(seed) % eligible.length];
   if (!target) throw new Error("题库为空");
   return target;
 }
 
-function createLocalGame(mode: PlayableMode, difficulty: Difficulty): PublicGame {
+function createLocalGame(
+  activityId: SoloActivity,
+  runtime: SoloModeRuntime,
+  target: GameEntitySummary,
+): PublicGame {
+  const contentModeId = runtime.contentModeId;
+  const mode = runtime.manifest.modes.find((item) => item.id === contentModeId);
+  if (!mode) throw new Error(`内容模式未注册：${contentModeId}`);
   const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
-    mode,
-    difficulty,
-    dateKey: mode === "daily" ? getBeijingDateKey() : null,
-    maxAttempts: ATTEMPTS_BY_DIFFICULTY[difficulty],
+    modeId: contentModeId,
+    activityId,
+    poolRuleVersion: mode.rulesVersion,
+    manifestVersion: runtime.manifest.manifestVersion,
+    dateKey: activityId === "daily" ? getBeijingDateKey() : null,
+    maxAttempts: mode.maxAttempts,
     guesses: [],
     status: "active",
     startedAt: now,
     completedAt: null,
     elapsedMs: 0,
     answer: null,
+    ...(contentModeId === "aeon" && "imagePath" in target.assets
+      ? { aeonImagePath: target.assets.imagePath, aeonImageFocus: target.assets.focus }
+      : {}),
+    fieldDefinitions:
+      contentModeId === "playable" ? selectSnapshotFieldDefinitions(mode.fields) : mode.fields,
   };
 }
 
 export function useGameSession(
-  mode: PlayableMode,
-  difficulty: Difficulty,
+  activityId: SoloActivity,
   initialGame: PublicGame | null | undefined,
+  runtime: SoloModeRuntime,
 ): GameSession {
+  const contentModeId = runtime.contentModeId;
   const queryClient = useQueryClient();
   const [gameState, setGameState] = useState<PublicGame | null>(initialGame ?? null);
-  const [roster, setRoster] = useState<readonly Character[]>(characters);
+  const [roster, setRoster] = useState<readonly GameEntitySummary[]>(runtime.roster);
   const [sourceState, setSourceState] = useState<SessionSource>(initialGame ? "server" : null);
   const [navigationGameId, setNavigationGameId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -123,33 +151,34 @@ export function useGameSession(
   const submitting = useRef(false);
   const startSequence = useRef(0);
   const sessionEpoch = useRef(0);
-  const sessionMode = useRef(mode);
+  const sessionActivity = useRef(activityId);
 
   const game = gameState ?? initialGame ?? null;
   const source = sourceState ?? (initialGame ? "server" : null);
 
   const writeCurrentCache = useCallback(
     (next: PublicGame | null) => {
+      if (contentModeId !== "playable") return;
       queryClient.setQueryData<CurrentGames>(currentGamesQueryKey, (current) => {
         if (!current) return current;
         return {
           ...current,
           serverNow: new Date().toISOString(),
-          [mode]: mode === "random" && next?.status !== "active" ? null : next,
+          [activityId]: activityId === "practice" && next?.status !== "active" ? null : next,
         };
       });
     },
-    [mode, queryClient],
+    [activityId, contentModeId, queryClient],
   );
 
   useEffect(() => {
-    if (sessionMode.current !== mode) {
-      sessionMode.current = mode;
+    if (sessionActivity.current !== activityId) {
+      sessionActivity.current = activityId;
       ++startSequence.current;
       sessionEpoch.current += 1;
       localTargetId.current = null;
       submitting.current = false;
-      setRoster(characters);
+      setRoster(runtime.roster);
       setGameState(initialGame ?? null);
       setSourceState(initialGame ? "server" : null);
       setNavigationGameId(null);
@@ -161,7 +190,34 @@ export function useGameSession(
     setGameState(initialGame);
     setSourceState(initialGame ? "server" : null);
     localTargetId.current = null;
-  }, [initialGame, mode, sourceState]);
+  }, [activityId, contentModeId, initialGame, runtime.roster, sourceState]);
+
+  useEffect(() => {
+    if (!initialGame || sourceState === "local") return;
+    let cancelled = false;
+    const rosterPromise =
+      contentModeId === "aeon"
+        ? Promise.resolve(runtime.roster)
+        : loadContentRoster(
+            queryClient,
+            contentModeId,
+            initialGame.manifestVersion,
+            runtime.roster,
+          );
+    void rosterPromise.then((snapshotRoster) => {
+      if (!cancelled) setRoster(snapshotRoster);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    contentModeId,
+    initialGame?.id,
+    initialGame?.manifestVersion,
+    queryClient,
+    runtime.roster,
+    sourceState,
+  ]);
 
   const applyServerStart = useCallback(
     (result: ServerStartResult) => {
@@ -181,7 +237,7 @@ export function useGameSession(
     setBusy(true);
     setErrorCode(null);
     try {
-      const result = await startServerGame(mode, difficulty);
+      const result = await startServerGame(queryClient, activityId, runtime);
       if (sequence !== startSequence.current) return false;
       applyServerStart(result);
       setBusy(false);
@@ -192,22 +248,22 @@ export function useGameSession(
       setBusy(false);
       return false;
     }
-  }, [applyServerStart, difficulty, mode]);
+  }, [activityId, applyServerStart, queryClient, runtime]);
 
   const startOffline = useCallback(() => {
-    const target = targetFor(mode, difficulty, String(Date.now()));
-    const localGame = createLocalGame(mode, difficulty);
+    const target = targetFor(activityId, runtime, String(Date.now()));
+    const localGame = createLocalGame(activityId, runtime, target);
     ++startSequence.current;
     sessionEpoch.current += 1;
     localTargetId.current = target.id;
-    setRoster(characters);
+    setRoster(runtime.roster);
     setGameState(localGame);
     setSourceState("local");
     setNavigationGameId(null);
     setErrorCode(null);
     setBusy(false);
     return true;
-  }, [difficulty, mode]);
+  }, [activityId, runtime]);
 
   const submitGuess = useCallback(
     async (characterId: string) => {
@@ -243,15 +299,16 @@ export function useGameSession(
         return;
       }
 
-      const target = characters.find((character) => character.id === localTargetId.current);
-      const guess = characters.find((character) => character.id === characterId);
+      const localRoster = runtime.roster;
+      const target = localRoster.find((entity) => entity.id === localTargetId.current);
+      const guess = localRoster.find((entity) => entity.id === characterId);
       if (!target || !guess) {
         setErrorCode("NOT_FOUND");
         submitting.current = false;
         setBusy(false);
         return;
       }
-      const result = createGuessResult(target, guess);
+      const result = runtime.createGuessResult(target, guess);
       const guesses = [...game.guesses, result];
       const ended = result.isCorrect || guesses.length >= game.maxAttempts;
       const completedAt = ended ? new Date().toISOString() : null;
@@ -266,20 +323,20 @@ export function useGameSession(
       submitting.current = false;
       setBusy(false);
     },
-    [game, queryClient, source, writeCurrentCache],
+    [game, queryClient, runtime, source, writeCurrentCache],
   );
 
   const restart = useCallback(async () => {
-    if (mode === "daily") return;
+    if (activityId === "daily") return;
     if (source === "local") {
       startOffline();
       return;
     }
     await start();
-  }, [mode, source, start, startOffline]);
+  }, [activityId, source, start, startOffline]);
 
   const abandonAndRestart = useCallback(async () => {
-    if (!game || game.status !== "active" || mode !== "random") return false;
+    if (!game || game.status !== "active" || activityId !== "practice") return false;
     if (source === "local") {
       startOffline();
       return true;
@@ -294,7 +351,7 @@ export function useGameSession(
       setGameState(conceded);
       setSourceState("server");
       writeCurrentCache(null);
-      const result = await startServerGame(mode, difficulty);
+      const result = await startServerGame(queryClient, activityId, runtime);
       applyServerStart(result);
       void queryClient.invalidateQueries({ queryKey: ["stats"] });
       setBusy(false);
@@ -306,10 +363,10 @@ export function useGameSession(
     }
   }, [
     applyServerStart,
-    difficulty,
+    activityId,
     game,
-    mode,
     queryClient,
+    runtime,
     source,
     startOffline,
     writeCurrentCache,

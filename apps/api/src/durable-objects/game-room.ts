@@ -1,22 +1,30 @@
 import type {
   Character,
+  GameEntitySummary,
   ClientRoomMessage,
   ErrorCode,
   GuessResult,
   MatchFinishReason,
+  RoundSkipState,
+  RoomConfiguration,
   RoomPlayer,
   RoomSnapshot,
 } from "@fireflydle/contracts";
 import { ClientRoomMessageSchema } from "@fireflydle/contracts";
 import {
   calculateElo,
-  createGuessResult,
+  createGuessResultWithRules,
+  createNpcGuessResult,
+  createCurrencyWarsGuessResult,
+  createAeonGuessResult,
+  DEFAULT_SNAPSHOT_FIELD_RULES,
   MULTIPLAYER_ATTEMPTS,
   MULTIPLAYER_ROUND_MS,
   RECONNECT_GRACE_MS,
 } from "@fireflydle/game-engine";
 import { DurableObject } from "cloudflare:workers";
 import { recordDailyPlayers } from "../services/operations";
+import { evaluateMatch } from "../services/achievements";
 import type { InitializeRoomInput, JoinRoomInput, RoomCommandResult } from "../domain/multiplayer";
 
 const INTERMISSION_MS = 3_000;
@@ -24,6 +32,8 @@ const ROOM_PURGE_DELAY_MS = 24 * 60 * 60 * 1_000;
 const GUESS_RATE_WINDOW_MS = 60 * 1_000;
 const GUESS_RATE_LIMIT = 60;
 const PROCESSED_ACTION_LIMIT = 256;
+const SKIP_REQUEST_TIMEOUT_MS = 15_000;
+const IDLE_ROUND_SKIP: RoundSkipState = { status: "idle" };
 
 type RoomState = RoomSnapshot["state"];
 
@@ -41,10 +51,19 @@ interface MetaRow extends Record<string, SqlStorageValue> {
   paused_remaining_ms: number | null;
   winner_id: string | null;
   draw_offer_by_id: string | null;
+  round_skip_json: string;
   finish_reason: MatchFinishReason | null;
   target_json: string | null;
   pool_json: string;
   target_ids_json: string;
+  mode_id: string;
+  activity_id: string;
+  round_time_seconds: 30 | 60 | 90 | null;
+  max_attempts: 4 | 6 | 8;
+  modifier: "speed" | "fog" | null;
+  pool_rule_version: string;
+  manifest_version: string;
+  field_rules_json: string;
   revision: number;
   created_at: number;
   started_at: number | null;
@@ -82,11 +101,12 @@ interface RoundRow extends Record<string, SqlStorageValue> {
   winner_id: string | null;
   started_at: number;
   completed_at: number | null;
+  hidden_field: string | null;
 }
 
 interface TaskRow extends Record<string, SqlStorageValue> {
   task_key: string;
-  kind: "round-timeout" | "reconnect-timeout" | "next-round";
+  kind: "round-timeout" | "reconnect-timeout" | "next-round" | "skip-request-timeout";
   due_at: number;
   generation: number;
   payload_json: string;
@@ -98,7 +118,7 @@ interface SocketAttachment {
 
 function ratingAfterByPlayer(meta: MetaRow, players: PlayerRow[]): Map<string, number> {
   const result = new Map(players.map((player) => [player.player_id, player.rating]));
-  if (meta.ranked !== 1 || !meta.winner_id || players.length !== 2) return result;
+  if (!isPermanentEloMatch(meta, players) || !meta.winner_id) return result;
   const winner = players.find((player) => player.player_id === meta.winner_id);
   const loser = players.find((player) => player.player_id !== meta.winner_id);
   if (!winner || !loser) return result;
@@ -111,6 +131,27 @@ function ratingAfterByPlayer(meta: MetaRow, players: PlayerRow[]): Map<string, n
   result.set(winner.player_id, rating.winnerRating);
   result.set(loser.player_id, rating.loserRating);
   return result;
+}
+
+function isPermanentEloMatch(meta: MetaRow, players: PlayerRow[]): boolean {
+  return (
+    meta.ranked === 1 &&
+    meta.mode_id === "playable" &&
+    meta.activity_id === "ranked-match" &&
+    meta.match_format === 3 &&
+    players.length === 2 &&
+    players.every((player) => player.is_guest === 0)
+  );
+}
+
+function maskFogCell(result: GuessResult, hiddenField: string | null): GuessResult {
+  if (!hiddenField) return result;
+  return {
+    ...result,
+    cells: result.cells.map((cell) =>
+      cell.field === hiddenField ? { ...cell, state: "fog", direction: "none" } : cell,
+    ),
+  };
 }
 
 export class GameRoom extends DurableObject<Env> {
@@ -136,10 +177,19 @@ export class GameRoom extends DurableObject<Env> {
           paused_remaining_ms INTEGER,
           winner_id TEXT,
           draw_offer_by_id TEXT,
+          round_skip_json TEXT NOT NULL DEFAULT '{"status":"idle"}',
           finish_reason TEXT,
           target_json TEXT,
           pool_json TEXT NOT NULL,
           target_ids_json TEXT NOT NULL,
+          mode_id TEXT NOT NULL DEFAULT 'playable',
+          activity_id TEXT NOT NULL DEFAULT 'private-room',
+          round_time_seconds INTEGER,
+          max_attempts INTEGER NOT NULL DEFAULT 6,
+          modifier TEXT,
+          pool_rule_version TEXT NOT NULL DEFAULT '1.0.0',
+          manifest_version TEXT NOT NULL DEFAULT '1.0.0',
+          field_rules_json TEXT NOT NULL DEFAULT '{}',
           revision INTEGER NOT NULL,
           created_at INTEGER NOT NULL,
           started_at INTEGER,
@@ -165,7 +215,8 @@ export class GameRoom extends DurableObject<Env> {
           target_character_id TEXT NOT NULL,
           winner_id TEXT,
           started_at INTEGER NOT NULL,
-          completed_at INTEGER
+          completed_at INTEGER,
+          hidden_field TEXT
         ) STRICT;
         CREATE TABLE IF NOT EXISTS guesses (
           round_number INTEGER NOT NULL,
@@ -209,6 +260,54 @@ export class GameRoom extends DurableObject<Env> {
       const metaColumns = this.sql.exec<{ name: string }>("PRAGMA table_info(room_meta)").toArray();
       if (!metaColumns.some((column) => column.name === "draw_offer_by_id")) {
         this.sql.exec("ALTER TABLE room_meta ADD COLUMN draw_offer_by_id TEXT");
+      }
+      if (!metaColumns.some((column) => column.name === "round_skip_json")) {
+        this.sql.exec(
+          `ALTER TABLE room_meta ADD COLUMN round_skip_json TEXT NOT NULL DEFAULT '{"status":"idle"}'`,
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "mode_id")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN mode_id TEXT NOT NULL DEFAULT 'playable'");
+      }
+      if (!metaColumns.some((column) => column.name === "activity_id")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN activity_id TEXT NOT NULL DEFAULT 'private-room'",
+        );
+        this.sql.exec("UPDATE room_meta SET activity_id = 'ranked-match' WHERE ranked = 1");
+      }
+      if (!metaColumns.some((column) => column.name === "round_time_seconds")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN round_time_seconds INTEGER");
+        this.sql.exec("UPDATE room_meta SET round_time_seconds = 90");
+      }
+      if (!metaColumns.some((column) => column.name === "max_attempts")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN max_attempts INTEGER NOT NULL DEFAULT 6");
+      }
+      if (!metaColumns.some((column) => column.name === "pool_rule_version")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN pool_rule_version TEXT NOT NULL DEFAULT '1.0.0'",
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "manifest_version")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN manifest_version TEXT NOT NULL DEFAULT '1.0.0'",
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "field_rules_json")) {
+        this.sql.exec(
+          "ALTER TABLE room_meta ADD COLUMN field_rules_json TEXT NOT NULL DEFAULT '{}'",
+        );
+      }
+      if (!metaColumns.some((column) => column.name === "modifier")) {
+        this.sql.exec("ALTER TABLE room_meta ADD COLUMN modifier TEXT");
+        if (metaColumns.some((column) => column.name === "modifiers_json")) {
+          this.sql.exec(
+            `UPDATE room_meta SET modifier = 'speed' WHERE modifiers_json LIKE '%"speed"%'`,
+          );
+        }
+      }
+      const roundColumns = this.sql.exec<{ name: string }>("PRAGMA table_info(rounds)").toArray();
+      if (!roundColumns.some((column) => column.name === "hidden_field")) {
+        this.sql.exec("ALTER TABLE rounds ADD COLUMN hidden_field TEXT");
       }
     });
   }
@@ -262,8 +361,52 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec("DELETE FROM clock_tasks WHERE task_key = ?", taskKey);
   }
 
-  private selectTarget(meta: MetaRow): Character {
-    const pool = JSON.parse(meta.pool_json) as Character[];
+  private candidateSnapshots(
+    meta: MetaRow,
+  ): Record<string, GameEntitySummary & Record<string, unknown>> {
+    const encoded = JSON.parse(meta.pool_json) as
+      | (GameEntitySummary & Record<string, unknown>)[]
+      | Record<string, GameEntitySummary & Record<string, unknown>>;
+    if (Array.isArray(encoded)) {
+      return Object.fromEntries(encoded.map((character) => [character.id, character]));
+    }
+    return encoded;
+  }
+
+  private fieldRules(meta: MetaRow) {
+    const encoded = JSON.parse(meta.field_rules_json) as { rules?: unknown };
+    if (!Array.isArray(encoded.rules) || encoded.rules.length === 0) {
+      return DEFAULT_SNAPSHOT_FIELD_RULES;
+    }
+    return encoded.rules as typeof DEFAULT_SNAPSHOT_FIELD_RULES;
+  }
+
+  private roundSkip(meta = this.meta()): RoundSkipState {
+    return JSON.parse(meta.round_skip_json) as RoundSkipState;
+  }
+
+  private configuration(meta = this.meta()): RoomConfiguration {
+    return {
+      modeId: meta.mode_id as RoomConfiguration["modeId"],
+      activityId: meta.activity_id as RoomConfiguration["activityId"],
+      format: meta.match_format,
+      roundTimeSeconds: meta.round_time_seconds,
+      maxAttempts: meta.max_attempts,
+      modifier: meta.modifier,
+    };
+  }
+
+  private selectFogField(meta: MetaRow): string | null {
+    if (meta.modifier !== "fog") return null;
+    const fields = this.fieldRules(meta).map((rule) => rule.field);
+    if (fields.length === 0) throw new Error("迷雾字段不能为空");
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    return fields[(random[0] ?? 0) % fields.length] ?? null;
+  }
+
+  private selectTarget(meta: MetaRow): GameEntitySummary & Record<string, unknown> {
+    const pool = this.candidateSnapshots(meta);
     const targetIds = JSON.parse(meta.target_ids_json) as string[];
     const used = new Set(
       this.sql
@@ -277,12 +420,13 @@ export class GameRoom extends DurableObject<Env> {
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
     const id = ids[(random[0] ?? 0) % ids.length];
-    const target = pool.find((character) => character.id === id);
+    if (!id) throw new Error("多人题库不能为空");
+    const target = pool[id];
     if (!target) throw new Error("多人目标不在角色池中");
     return target;
   }
 
-  private startRound(now: number): void {
+  private startRound(now: number, roundSkip: RoundSkipState = IDLE_ROUND_SKIP): void {
     let meta = this.meta();
     if (meta.state === "finished") return;
     const disconnected = this.players().find((player) => player.connected === 0);
@@ -293,32 +437,47 @@ export class GameRoom extends DurableObject<Env> {
     }
 
     const target = this.selectTarget(meta);
+    const hiddenField = this.selectFogField(meta);
     const roundNumber = meta.round_number + 1;
     const revision = meta.revision + 1;
-    const endsAt = now + MULTIPLAYER_ROUND_MS;
+    const endsAt = meta.round_time_seconds === null ? null : now + meta.round_time_seconds * 1_000;
     this.sql.exec(
       `UPDATE room_meta SET
          state = 'playing', round_number = ?, round_ends_at = ?, reconnect_deadline = NULL,
          paused_seat = NULL, paused_remaining_ms = NULL, target_json = ?, revision = ?,
-         started_at = COALESCE(started_at, ?)
+         started_at = COALESCE(started_at, ?), round_skip_json = ?
        WHERE singleton = 1`,
       roundNumber,
       endsAt,
       JSON.stringify(target),
       revision,
       now,
+      JSON.stringify(roundSkip),
     );
     this.sql.exec("UPDATE players SET guesses_used = 0");
     this.sql.exec(
-      "INSERT INTO rounds (round_number, target_character_id, started_at) VALUES (?, ?, ?)",
+      "INSERT INTO rounds (round_number, target_character_id, started_at, hidden_field) VALUES (?, ?, ?, ?)",
       roundNumber,
       target.id,
       now,
+      hiddenField,
     );
-    this.enqueueTask("round", "round-timeout", endsAt, revision, { roundNumber });
+    if (endsAt === null) {
+      this.deleteTask("round");
+    } else {
+      this.enqueueTask("round", "round-timeout", endsAt, revision, { roundNumber });
+    }
     this.deleteTask("next-round");
+    this.deleteTask("skip-request");
     meta = this.meta();
-    if (disconnected) this.pauseForSeat(disconnected.seat, now, MULTIPLAYER_ROUND_MS, meta);
+    if (disconnected) {
+      this.pauseForSeat(
+        disconnected.seat,
+        now,
+        meta.round_time_seconds === null ? null : meta.round_time_seconds * 1_000,
+        meta,
+      );
+    }
   }
 
   private finish(
@@ -330,7 +489,8 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE room_meta SET
          state = 'finished', winner_id = ?, finish_reason = ?, round_ends_at = NULL,
          reconnect_deadline = NULL, paused_seat = NULL, paused_remaining_ms = NULL,
-         draw_offer_by_id = NULL,
+          draw_offer_by_id = NULL,
+          round_skip_json = '{"status":"idle"}',
          completed_at = ?, archive_status = 'pending', archive_next_at = ?, revision = revision + 1
        WHERE singleton = 1`,
       winnerId,
@@ -353,6 +513,7 @@ export class GameRoom extends DurableObject<Env> {
       meta.round_number,
     );
     this.deleteTask("round");
+    this.deleteTask("skip-request");
     if (winner) {
       this.sql.exec("UPDATE players SET score = score + 1 WHERE seat = ?", winner.seat);
       this.sql.exec("UPDATE room_meta SET consecutive_draws = 0 WHERE singleton = 1");
@@ -373,14 +534,20 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec(
       `UPDATE room_meta SET
          state = 'round-ended', round_ends_at = NULL, reconnect_deadline = NULL,
-         paused_seat = NULL, paused_remaining_ms = NULL, revision = ?
+         paused_seat = NULL, paused_remaining_ms = NULL,
+         round_skip_json = '{"status":"idle"}', revision = ?
        WHERE singleton = 1`,
       revision,
     );
     this.enqueueTask("next-round", "next-round", now + INTERMISSION_MS, revision);
   }
 
-  private pauseForSeat(seat: number, now: number, remainingMs: number, meta = this.meta()): void {
+  private pauseForSeat(
+    seat: number,
+    now: number,
+    remainingMs: number | null,
+    meta = this.meta(),
+  ): void {
     const deadline = now + RECONNECT_GRACE_MS;
     const revision = meta.revision + 1;
     this.sql.exec(
@@ -390,7 +557,7 @@ export class GameRoom extends DurableObject<Env> {
        WHERE singleton = 1`,
       deadline,
       seat,
-      Math.max(0, remainingMs),
+      remainingMs === null ? null : Math.max(0, remainingMs),
       revision,
     );
     this.sql.exec("UPDATE players SET reconnect_pause_used = 1 WHERE seat = ?", seat);
@@ -410,7 +577,7 @@ export class GameRoom extends DurableObject<Env> {
       if (!task) break;
       this.deleteTask(task.task_key);
       const meta = this.meta();
-      if (task.generation !== meta.revision) continue;
+      if (task.kind !== "skip-request-timeout" && task.generation !== meta.revision) continue;
       changed = true;
       if (task.kind === "round-timeout" && meta.state === "playing") {
         this.settleRound(null, now);
@@ -422,6 +589,22 @@ export class GameRoom extends DurableObject<Env> {
         if (disconnected?.connected === 0) {
           const opponent = this.players().find((player) => player.seat !== disconnected.seat);
           this.finish(opponent?.player_id ?? null, "disconnect", now);
+        }
+      } else if (
+        task.kind === "skip-request-timeout" &&
+        (meta.state === "playing" || meta.state === "paused")
+      ) {
+        const roundSkip = this.roundSkip(meta);
+        if (roundSkip.status === "pending" && roundSkip.round === meta.round_number) {
+          this.sql.exec(
+            "UPDATE room_meta SET round_skip_json = ? WHERE singleton = 1",
+            JSON.stringify({
+              status: "cancelled",
+              round: roundSkip.round,
+              requestedByPlayerId: roundSkip.requestedByPlayerId,
+              reason: "timeout",
+            } satisfies RoundSkipState),
+          );
         }
       }
     }
@@ -439,15 +622,19 @@ export class GameRoom extends DurableObject<Env> {
         meta.round_number,
       )
       .toArray();
-    const ownGuesses = currentGuesses
-      .filter((guess) => guess.seat === own.seat)
-      .map((guess) => JSON.parse(guess.result_json) as GuessResult);
-    const opponentFeedback = currentGuesses
-      .filter((guess) => guess.seat !== own.seat)
-      .map((guess) => (JSON.parse(guess.result_json) as GuessResult).cells);
     const currentRound = this.sql
       .exec<RoundRow>("SELECT * FROM rounds WHERE round_number = ?", meta.round_number)
       .toArray()[0];
+    const hiddenField =
+      meta.modifier === "fog" && (meta.state === "playing" || meta.state === "paused")
+        ? (currentRound?.hidden_field ?? null)
+        : null;
+    const ownGuesses = currentGuesses
+      .filter((guess) => guess.seat === own.seat)
+      .map((guess) => maskFogCell(JSON.parse(guess.result_json) as GuessResult, hiddenField));
+    const opponentFeedback = currentGuesses
+      .filter((guess) => guess.seat !== own.seat)
+      .map((guess) => maskFogCell(JSON.parse(guess.result_json) as GuessResult, hiddenField).cells);
     const nextRoundAt =
       this.sql
         .exec<{ due_at: number }>("SELECT due_at FROM clock_tasks WHERE task_key = 'next-round'")
@@ -457,15 +644,17 @@ export class GameRoom extends DurableObject<Env> {
         ? (JSON.parse(meta.target_json) as Character)
         : null;
     const ratingAfter =
-      meta.state === "finished" && meta.ranked === 1 && players.length === 2
+      meta.state === "finished" && isPermanentEloMatch(meta, players)
         ? ratingAfterByPlayer(meta, players)
         : null;
-    const ownRatingAfter = ratingAfter?.get(own.player_id);
     return {
       roomId: meta.room_id,
       code: meta.code,
+      modeId: meta.mode_id as RoomSnapshot["modeId"],
+      activityId: meta.activity_id as RoomSnapshot["activityId"],
       format: meta.match_format,
-      ranked: meta.ranked === 1,
+      configuration: this.configuration(meta),
+      ranked: isPermanentEloMatch(meta, players),
       state: meta.state,
       round: Math.max(1, meta.round_number),
       consecutiveDraws: meta.consecutive_draws,
@@ -482,19 +671,24 @@ export class GameRoom extends DurableObject<Env> {
       })),
       ownGuesses,
       opponentFeedback,
+      fogField: hiddenField,
       roundAnswer,
       roundWinnerId: currentRound?.winner_id ?? null,
+      roundSkip: this.roundSkip(meta),
       drawOfferByPlayerId: meta.draw_offer_by_id,
       winnerId: meta.winner_id,
       finishReason: meta.finish_reason,
-      ratingChange:
-        ownRatingAfter === undefined
-          ? null
-          : {
-              before: own.rating,
-              after: ownRatingAfter,
-              delta: ownRatingAfter - own.rating,
-            },
+      ratingChanges: ratingAfter
+        ? players.map((player) => {
+            const after = ratingAfter.get(player.player_id) ?? player.rating;
+            return {
+              playerId: player.player_id,
+              before: player.rating,
+              after,
+              delta: after - player.rating,
+            };
+          })
+        : [],
     };
   }
 
@@ -521,8 +715,40 @@ export class GameRoom extends DurableObject<Env> {
 
   public async initialize(input: InitializeRoomInput): Promise<RoomSnapshot> {
     const now = input.now ?? Date.now();
-    if (input.characters.length === 0 || input.targetIds.length === 0) {
+    const configuration: RoomConfiguration = input.configuration ?? {
+      modeId: input.contentSnapshot.modeId,
+      activityId: input.activityId,
+      format: input.format,
+      roundTimeSeconds: (MULTIPLAYER_ROUND_MS / 1_000) as 90,
+      maxAttempts: MULTIPLAYER_ATTEMPTS as 6,
+      modifier: null,
+    };
+    if (
+      configuration.format !== input.format ||
+      configuration.modeId !== input.contentSnapshot.modeId ||
+      configuration.activityId !== input.activityId
+    ) {
+      throw new Error("房间配置与内容快照不一致");
+    }
+    const ranked =
+      input.contentSnapshot.modeId === "playable" &&
+      input.activityId === "ranked-match" &&
+      input.format === 3 &&
+      input.opponent !== undefined &&
+      !input.owner.isGuest &&
+      !input.opponent.isGuest;
+    if (input.activityId === "ranked-match" && !ranked) {
+      throw new Error("正式随机匹配必须使用普通角色固定 BO3，并且双方均为注册用户");
+    }
+    if (
+      Object.keys(input.contentSnapshot.candidateSnapshots).length === 0 ||
+      input.contentSnapshot.targetIds.length === 0 ||
+      input.contentSnapshot.fieldRules.rules.length === 0
+    ) {
       throw new Error("题库不能为空");
+    }
+    if (configuration.modifier === "speed" && configuration.roundTimeSeconds === null) {
+      throw new Error("极速模式必须使用 30/60/90 秒计时");
     }
     let started = false;
     this.ctx.storage.transactionSync(() => {
@@ -530,15 +756,25 @@ export class GameRoom extends DurableObject<Env> {
       this.sql.exec(
         `INSERT INTO room_meta
            (singleton, room_id, code, match_format, ranked, state, round_number,
-            consecutive_draws, pool_json, target_ids_json, revision, created_at,
-            archive_status, archive_attempts)
-         VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, 0, ?, 'none', 0)`,
+            consecutive_draws, pool_json, target_ids_json, mode_id, activity_id,
+            round_time_seconds, max_attempts, modifier, pool_rule_version,
+            manifest_version, field_rules_json, revision, created_at, archive_status,
+            archive_attempts)
+         VALUES (1, ?, ?, ?, ?, 'waiting', 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 'none', 0)`,
         input.roomId,
         input.code,
         input.format,
-        input.ranked ? 1 : 0,
-        JSON.stringify(input.characters),
-        JSON.stringify(input.targetIds),
+        ranked ? 1 : 0,
+        JSON.stringify(input.contentSnapshot.candidateSnapshots),
+        JSON.stringify(input.contentSnapshot.targetIds),
+        configuration.modeId,
+        configuration.activityId,
+        configuration.roundTimeSeconds,
+        configuration.maxAttempts,
+        configuration.modifier,
+        input.contentSnapshot.poolRuleVersion,
+        input.contentSnapshot.manifestVersion,
+        JSON.stringify(input.contentSnapshot.fieldRules),
         now,
       );
       this.insertPlayer(0, input.owner);
@@ -637,6 +873,11 @@ export class GameRoom extends DurableObject<Env> {
     return { ok: true, snapshot: this.snapshotSync(input.participant.userId) };
   }
 
+  public preview(): { configuration: RoomConfiguration; state: RoomState } {
+    const meta = this.meta();
+    return { configuration: this.configuration(meta), state: meta.state };
+  }
+
   public async snapshot(playerId: string, now = Date.now()): Promise<RoomCommandResult> {
     let isMember = false;
     const changed = this.ctx.storage.transactionSync(() => {
@@ -706,7 +947,7 @@ export class GameRoom extends DurableObject<Env> {
       const meta = this.meta();
       if (meta.state !== "playing") {
         code = "ROOM_NOT_PLAYING";
-      } else if (player.guesses_used >= MULTIPLAYER_ATTEMPTS) {
+      } else if (player.guesses_used >= meta.max_attempts) {
         code = "GAME_ATTEMPTS_EXHAUSTED";
       } else {
         const duplicate = this.sql
@@ -721,14 +962,31 @@ export class GameRoom extends DurableObject<Env> {
         if (duplicate) {
           code = "GAME_DUPLICATE_GUESS";
         } else {
-          const pool = JSON.parse(meta.pool_json) as Character[];
-          const character = pool.find((entry) => entry.id === characterId);
-          const target = meta.target_json ? (JSON.parse(meta.target_json) as Character) : null;
+          const character = this.candidateSnapshots(meta)[characterId];
+          const target = meta.target_json
+            ? (JSON.parse(meta.target_json) as GameEntitySummary & Record<string, unknown>)
+            : null;
           if (!character || !target) {
             code = "NOT_FOUND";
           } else {
             const ordinal = player.guesses_used + 1;
-            const result = createGuessResult(target, character, new Date(now));
+            const result =
+              meta.mode_id === "npc"
+                ? createNpcGuessResult(target as never, character as never, new Date(now))
+                : meta.mode_id === "currency-wars"
+                  ? createCurrencyWarsGuessResult(
+                      target as never,
+                      character as never,
+                      new Date(now),
+                    )
+                  : meta.mode_id === "aeon"
+                    ? createAeonGuessResult(target as never, character as never, new Date(now))
+                    : createGuessResultWithRules(
+                        target as Character,
+                        character as Character,
+                        this.fieldRules(meta),
+                        new Date(now),
+                      );
             this.sql.exec(
               `INSERT INTO guesses
                  (round_number, seat, ordinal, character_id, result_json, guessed_at)
@@ -747,9 +1005,29 @@ export class GameRoom extends DurableObject<Env> {
             );
             if (result.isCorrect) {
               this.settleRound(player.seat, now);
-            } else if (ordinal >= MULTIPLAYER_ATTEMPTS) {
+            } else {
               const opponent = this.players().find((entry) => entry.seat !== player.seat);
-              if (opponent && opponent.guesses_used >= MULTIPLAYER_ATTEMPTS) {
+              if (meta.modifier === "speed" && meta.round_ends_at !== null) {
+                const endsAt = Math.max(now, meta.round_ends_at - 5_000);
+                const revision = meta.revision + 1;
+                this.sql.exec(
+                  "UPDATE room_meta SET round_ends_at = ?, revision = ? WHERE singleton = 1",
+                  endsAt,
+                  revision,
+                );
+                this.deleteTask("round");
+                if (endsAt <= now) {
+                  this.settleRound(opponent?.seat ?? null, now);
+                } else {
+                  this.enqueueTask("round", "round-timeout", endsAt, revision, {
+                    roundNumber: meta.round_number,
+                  });
+                }
+              } else if (
+                ordinal >= meta.max_attempts &&
+                opponent &&
+                opponent.guesses_used >= meta.max_attempts
+              ) {
                 this.settleRound(null, now);
               }
             }
@@ -800,7 +1078,12 @@ export class GameRoom extends DurableObject<Env> {
         this.finish(opponent?.player_id ?? null, "disconnect", now);
         return;
       }
-      this.pauseForSeat(player.seat, now, Math.max(0, (meta.round_ends_at ?? now) - now), meta);
+      this.pauseForSeat(
+        player.seat,
+        now,
+        meta.round_ends_at === null ? null : Math.max(0, meta.round_ends_at - now),
+        meta,
+      );
     });
     await this.rearmAlarm();
     await this.broadcastSnapshots();
@@ -822,7 +1105,7 @@ export class GameRoom extends DurableObject<Env> {
       }
       this.sql.exec("UPDATE players SET connected = 1 WHERE player_id = ?", playerId);
       if (meta.state === "paused" && meta.paused_seat === player.seat) {
-        const endsAt = now + (meta.paused_remaining_ms ?? 0);
+        const endsAt = meta.paused_remaining_ms === null ? null : now + meta.paused_remaining_ms;
         const revision = meta.revision + 1;
         this.sql.exec(
           `UPDATE room_meta SET
@@ -833,9 +1116,11 @@ export class GameRoom extends DurableObject<Env> {
           revision,
         );
         this.deleteTask("reconnect");
-        this.enqueueTask("round", "round-timeout", endsAt, revision, {
-          roundNumber: meta.round_number,
-        });
+        if (endsAt !== null) {
+          this.enqueueTask("round", "round-timeout", endsAt, revision, {
+            roundNumber: meta.round_number,
+          });
+        }
         const otherDisconnected = this.players().find(
           (entry) => entry.player_id !== playerId && entry.connected === 0,
         );
@@ -847,7 +1132,7 @@ export class GameRoom extends DurableObject<Env> {
             this.pauseForSeat(
               otherDisconnected.seat,
               now,
-              Math.max(0, (resumed.round_ends_at ?? now) - now),
+              resumed.round_ends_at === null ? null : Math.max(0, resumed.round_ends_at - now),
               resumed,
             );
           }
@@ -891,6 +1176,10 @@ export class GameRoom extends DurableObject<Env> {
         return;
       }
       if (meta.state === "waiting" || meta.state === "finished") {
+        code = "FORBIDDEN";
+        return;
+      }
+      if (this.roundSkip(meta).status === "pending") {
         code = "FORBIDDEN";
         return;
       }
@@ -943,6 +1232,95 @@ export class GameRoom extends DurableObject<Env> {
     return { ok: true, snapshot: this.snapshotSync(playerId) };
   }
 
+  public async requestSkip(playerId: string, now = Date.now()): Promise<RoomCommandResult> {
+    let code: ErrorCode | null = null;
+    this.ctx.storage.transactionSync(() => {
+      this.advanceSync(now);
+      const meta = this.meta();
+      const roundSkip = this.roundSkip(meta);
+      if (!this.player(playerId) || meta.state !== "playing" || meta.draw_offer_by_id !== null) {
+        code = "FORBIDDEN";
+        return;
+      }
+      if (roundSkip.status === "pending") {
+        if (roundSkip.requestedByPlayerId !== playerId) code = "FORBIDDEN";
+        return;
+      }
+      const expiresAt = now + SKIP_REQUEST_TIMEOUT_MS;
+      const pending = {
+        status: "pending",
+        round: meta.round_number,
+        requestedByPlayerId: playerId,
+        expiresAt,
+      } satisfies RoundSkipState;
+      this.sql.exec(
+        "UPDATE room_meta SET round_skip_json = ? WHERE singleton = 1",
+        JSON.stringify(pending),
+      );
+      this.enqueueTask("skip-request", "skip-request-timeout", expiresAt, meta.revision, {
+        round: meta.round_number,
+        requestedByPlayerId: playerId,
+      });
+    });
+    await this.rearmAlarm();
+    if (code) return { ok: false, code };
+    await this.broadcastSnapshots();
+    return { ok: true, snapshot: this.snapshotSync(playerId) };
+  }
+
+  public async respondSkip(
+    playerId: string,
+    accepted: boolean,
+    now = Date.now(),
+  ): Promise<RoomCommandResult> {
+    let code: ErrorCode | null = null;
+    this.ctx.storage.transactionSync(() => {
+      this.advanceSync(now);
+      const meta = this.meta();
+      const roundSkip = this.roundSkip(meta);
+      if (
+        !this.player(playerId) ||
+        meta.state !== "playing" ||
+        roundSkip.status !== "pending" ||
+        roundSkip.round !== meta.round_number ||
+        roundSkip.requestedByPlayerId === playerId
+      ) {
+        code = "FORBIDDEN";
+        return;
+      }
+      this.deleteTask("skip-request");
+      if (!accepted) {
+        this.sql.exec(
+          "UPDATE room_meta SET round_skip_json = ? WHERE singleton = 1",
+          JSON.stringify({
+            status: "cancelled",
+            round: roundSkip.round,
+            requestedByPlayerId: roundSkip.requestedByPlayerId,
+            reason: "declined",
+          } satisfies RoundSkipState),
+        );
+        return;
+      }
+
+      this.sql.exec(
+        "UPDATE rounds SET winner_id = NULL, completed_at = ? WHERE round_number = ?",
+        now,
+        meta.round_number,
+      );
+      this.deleteTask("round");
+      this.startRound(now, {
+        status: "executed",
+        round: roundSkip.round,
+        requestedByPlayerId: roundSkip.requestedByPlayerId,
+        acceptedByPlayerId: playerId,
+      });
+    });
+    await this.rearmAlarm();
+    if (code) return { ok: false, code };
+    await this.broadcastSnapshots();
+    return { ok: true, snapshot: this.snapshotSync(playerId) };
+  }
+
   private async archiveIfDue(now: number): Promise<void> {
     const meta = this.meta();
     if (
@@ -980,9 +1358,7 @@ export class GameRoom extends DurableObject<Env> {
       .exec<GuessRow>("SELECT * FROM guesses ORDER BY round_number, seat, ordinal")
       .toArray();
     const ratingAfter = ratingAfterByPlayer(meta, players);
-    const targetsById = new Map(
-      (JSON.parse(meta.pool_json) as Character[]).map((character) => [character.id, character]),
-    );
+    const candidateSnapshots = this.candidateSnapshots(meta);
     const completedAt = meta.completed_at ?? now;
     const legacyFinishReason =
       meta.finish_reason === "agreed-draw" ? "cancelled" : meta.finish_reason;
@@ -990,16 +1366,24 @@ export class GameRoom extends DurableObject<Env> {
       this.env.DB.prepare(
         `INSERT OR IGNORE INTO matches
            (id, room_code, match_format, ranked, winner_user_id, finish_reason,
-            resolution, created_at, started_at, completed_at, archived_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             resolution, mode_id, activity_id, pool_rule_version, manifest_version,
+             candidate_pool_json, field_rules_json, created_at, started_at, completed_at,
+             archived_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
         meta.room_id,
         meta.code,
         meta.match_format,
-        meta.ranked,
+        isPermanentEloMatch(meta, players) ? 1 : 0,
         meta.winner_id,
         legacyFinishReason ?? "cancelled",
         meta.finish_reason ?? "cancelled",
+        meta.mode_id,
+        meta.activity_id,
+        meta.pool_rule_version,
+        meta.manifest_version,
+        JSON.stringify(candidateSnapshots),
+        meta.field_rules_json,
         meta.created_at,
         meta.started_at ?? meta.created_at,
         completedAt,
@@ -1023,7 +1407,7 @@ export class GameRoom extends DurableObject<Env> {
           after,
         ),
       );
-      if (meta.ranked === 1 && players.length === 2) {
+      if (isPermanentEloMatch(meta, players)) {
         statements.push(
           this.env.DB.prepare(
             `INSERT OR IGNORE INTO rating_events
@@ -1052,7 +1436,7 @@ export class GameRoom extends DurableObject<Env> {
           meta.room_id,
           round.round_number,
           round.target_character_id,
-          JSON.stringify(targetsById.get(round.target_character_id) ?? null),
+          JSON.stringify(candidateSnapshots[round.target_character_id] ?? null),
           round.winner_id,
           round.started_at,
           round.completed_at ?? completedAt,
@@ -1085,6 +1469,7 @@ export class GameRoom extends DurableObject<Env> {
     );
     try {
       await this.env.DB.batch(statements);
+      await evaluateMatch(this.env.DB, meta.room_id, now);
       this.sql.exec(
         `UPDATE room_meta SET
            archive_status = 'purge-pending', archive_next_at = ?
@@ -1204,6 +1589,12 @@ export class GameRoom extends DurableObject<Env> {
       if (!result.ok) this.sendSocketError(webSocket, result.code);
     } else if (clientMessage.type === "respond-draw") {
       const result = await this.respondDraw(playerId, clientMessage.accepted);
+      if (!result.ok) this.sendSocketError(webSocket, result.code);
+    } else if (clientMessage.type === "request-skip") {
+      const result = await this.requestSkip(playerId);
+      if (!result.ok) this.sendSocketError(webSocket, result.code);
+    } else if (clientMessage.type === "respond-skip") {
+      const result = await this.respondSkip(playerId, clientMessage.accepted);
       if (!result.ok) this.sendSocketError(webSocket, result.code);
     } else if (clientMessage.type === "leave") {
       await this.leave(playerId);
