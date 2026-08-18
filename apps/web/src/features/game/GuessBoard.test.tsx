@@ -129,6 +129,56 @@ describe("动态 GuessBoard", () => {
     expect(markup).not.toContain('aria-label="属性: 火');
   });
 
+  test("币战显示已猜单位全部羁绊名，但不标记具体共享项", () => {
+    const currencyGuess: GuessResult = {
+      character: {
+        id: "cw-firefly",
+        names: { "zh-CN": "流萤", en: "Firefly", ja: "ホタル" },
+        aliases: { "zh-CN": [], en: [], ja: [] },
+        cost: 4,
+        position: "front",
+        synergies: ["break", "stellaron-hunters"],
+        assets: {
+          avatarPath: "/characters/firefly.webp",
+          portraitPath: "/characters/firefly.webp",
+          sha256: "b".repeat(64),
+          rightsNotice: "仅用于测试",
+        },
+      },
+      cells: [{ field: "synergies", state: "close", direction: "none" }],
+      isCorrect: false,
+      guessedAt: "2026-08-18T00:00:00.000Z",
+    };
+    const synergyField: FieldDefinition = {
+      id: "synergies",
+      label: { "zh-CN": "原生羁绊", en: "Native Synergies", ja: "固有シナジー" },
+      valueType: "set",
+      comparison: "set",
+      required: true,
+    };
+    const markup = renderToStaticMarkup(
+      <GuessBoard
+        guesses={[currencyGuess]}
+        locale="zh-CN"
+        fields={[synergyField]}
+        synergyDefinitions={[
+          {
+            id: "break",
+            names: { "zh-CN": "击破", en: "Break Effect", ja: "撃破" },
+          },
+          {
+            id: "stellaron-hunters",
+            names: { "zh-CN": "星核猎手", en: "Stellaron Hunter", ja: "星核ハンター" },
+          },
+        ]}
+      />,
+    );
+
+    expect(markup).toContain("击破 · 星核猎手");
+    expect(markup).toContain('aria-label="原生羁绊: 击破 · 星核猎手; 接近"');
+    expect(markup).not.toContain("matchedSynergy");
+  });
+
   test("旧多人结果缺少字段定义时使用普通角色六列兼容规则", () => {
     const markup = renderToStaticMarkup(<GuessBoard guesses={[]} locale="zh-CN" />);
 

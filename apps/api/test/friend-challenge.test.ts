@@ -394,7 +394,7 @@ describe("特殊模式好友挑战", () => {
         expect(
           Boolean(privateSnapshot.currencyWarsUnits?.some((unit) => unit.synergies?.length)),
         ).toBe(true);
-        expect(completed.guesses[0]?.character).not.toHaveProperty("synergies");
+        expect(completed.guesses[0]?.character).toHaveProperty("synergies");
         expect(completed.answer).not.toHaveProperty("synergies");
         expect(candidatesText).not.toMatch(/stellaron-hunters|astral-express|masked-fools/);
       }

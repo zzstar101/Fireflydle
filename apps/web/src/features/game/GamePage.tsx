@@ -889,6 +889,7 @@ function ActiveGame({
                 guesses={game.guesses}
                 locale={locale}
                 fields={game.fieldDefinitions}
+                synergyDefinitions={modeManifest.currencyWars?.synergyDefinitions}
                 animateLatest={contentModeId === "playable"}
               />
             </>

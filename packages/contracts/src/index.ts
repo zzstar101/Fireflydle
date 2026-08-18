@@ -192,6 +192,10 @@ export const CurrencyWarsUnitSummarySchema = z.strictObject({
   aliases: LocalizedAliasesSchema,
   cost: CurrencyWarsCostSchema,
   position: z.enum(["front", "back", "front-back"]),
+  synergies: z
+    .array(z.string().regex(/^[a-z0-9][a-z0-9-]*$/))
+    .min(1)
+    .optional(),
   assets: CurrencyWarsAssetSchema,
 });
 export type CurrencyWarsUnitSummary = z.infer<typeof CurrencyWarsUnitSummarySchema>;

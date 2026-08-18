@@ -494,7 +494,7 @@ describe("服务端游戏裁决", () => {
     expect(create.status).toBe(400);
   });
 
-  it("币战复盘使用绑定候选池精确计数，且不泄露羁绊名称", async () => {
+  it("币战复盘使用绑定候选池精确计数，且不标记具体共享羁绊", async () => {
     const { cookie } = await createSession();
     const playable = await dataOf<PublicGame>(
       await SELF.fetch("https://fireflydle.games/api/games", {
@@ -529,7 +529,10 @@ describe("服务端游戏裁决", () => {
     expect(finished.status).toBe("won");
     expect(finished.inferenceReview?.initialCandidates).toBe(candidateCount);
     expect(finished.inferenceReview?.steps[0]?.remainingCandidates).toBe(1);
-    expect(JSON.stringify(finished)).not.toMatch(/ipc|merchant|herta/);
+    expect(finished.guesses[0]?.character).toHaveProperty("synergies");
+    expect(
+      finished.guesses[0]?.cells.find((cell) => cell.field === "synergies"),
+    ).not.toHaveProperty("matchedSynergy");
     const replay = await dataOf<{ game: PublicGame }>(
       await SELF.fetch(`https://fireflydle.games/api/replays/${game.id}`, { headers: { cookie } }),
     );
