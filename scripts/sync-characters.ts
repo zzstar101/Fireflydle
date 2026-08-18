@@ -25,6 +25,14 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, "..");
 const GAME_DATA_PACKAGE_PATH = join(REPO_ROOT, "packages", "game-data", "package.json");
 const GENERATED_DATA_DIR = join(REPO_ROOT, "packages", "game-data", "src", "generated");
+const PLAYABLE_SHELL_PATH = join(
+  REPO_ROOT,
+  "packages",
+  "game-data",
+  "src",
+  "data",
+  "playable-shell.json",
+);
 const GENERATED_SQL_PATH = join(REPO_ROOT, "packages", "game-data", "generated", "characters.sql");
 const PUBLIC_ASSET_DIR = join(REPO_ROOT, "apps", "web", "public", "assets");
 const CHARACTER_ASSET_DIR = join(PUBLIC_ASSET_DIR, "characters");
@@ -1607,7 +1615,14 @@ async function writePublishedOutputs(
       formattedJsonText(characters),
       formattedJsonText(manifest),
     ]);
-  const contentManifestText = await formattedJsonText(buildPlayableManifest(characters));
+  const contentManifest = buildPlayableManifest(characters);
+  const contentManifestText = await formattedJsonText(contentManifest);
+  const playableShell = {
+    manifestVersion: contentManifest.manifestVersion,
+    modes: contentManifest.modes,
+    activities: contentManifest.activities,
+  };
+  const playableShellText = await formattedJsonText(playableShell);
   const manifestDigest = sha256(manifestText);
 
   // 先写内容寻址素材，再更新小型清单；抓取/验证失败时不会触碰上次有效数据。
@@ -1622,6 +1637,7 @@ async function writePublishedOutputs(
   );
   await writeAtomic(join(GENERATED_DATA_DIR, "characters.json"), charactersText);
   await writeAtomic(join(GENERATED_DATA_DIR, "content-manifest.json"), contentManifestText);
+  await writeAtomic(PLAYABLE_SHELL_PATH, playableShellText);
 }
 
 function latestSourceEpochSeconds(
