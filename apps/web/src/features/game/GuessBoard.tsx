@@ -152,6 +152,7 @@ export function GuessBoard({
                       <td
                         key={field.id}
                         className={`feedback-cell state-${status.state} direction-${status.direction}`}
+                        data-field-label={field.label[locale]}
                         style={
                           {
                             "--cell-delay": `${90 + fieldIndex * 105}ms`,

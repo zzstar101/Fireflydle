@@ -94,7 +94,7 @@ const regionLabels: Record<string, LocalizedText> = {
   amphoreus: { "zh-CN": "翁法罗斯", en: "Amphoreus", ja: "オンパロス" },
   cosmic: { "zh-CN": "银河", en: "Cosmic", ja: "銀河" },
   "astral-express": { "zh-CN": "星穹列车", en: "Astral Express", ja: "星穹列車" },
-  planarcadia: { "zh-CN": "哀丽秘榭", en: "Planarcadia", ja: "プラナルカディア" },
+  planarcadia: { "zh-CN": "二相乐园", en: "Planarcadia", ja: "二相楽園" },
   "another-world": { "zh-CN": "异界", en: "Another World", ja: "異界" },
 };
 
