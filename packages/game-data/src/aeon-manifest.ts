@@ -1,6 +1,6 @@
 import { ContentManifestSchema, type ContentManifest, type Locale } from "@fireflydle/contracts";
 
-export type AeonAssetKind = "official-main-art" | "official-path-emblem-fallback";
+export type AeonAssetKind = "official-main-art";
 
 type AeonDefinition = {
   id: string;
@@ -15,6 +15,8 @@ type AeonDefinition = {
   height: number;
 };
 
+const BWIKI_AEON_PAGE_URL = "https://wiki.biligame.com/sr/星神";
+
 const DEFINITIONS: readonly AeonDefinition[] = [
   {
     id: "aha",
@@ -28,19 +30,6 @@ const DEFINITIONS: readonly AeonDefinition[] = [
     sha256: "cb38f0535833d6d73a125bf0b6605ebb13189d91bcb6bfffa0d3aefb5129583c",
     width: 757,
     height: 757,
-  },
-  {
-    id: "akivili",
-    names: { "zh-CN": "阿基维利", en: "Akivili", ja: "アキヴィリ" },
-    entryId: 896,
-    image: "02.webp",
-    focus: [0.5, 0.5],
-    assetKind: "official-path-emblem-fallback",
-    sourceAssetUrl:
-      "https://act-upload.hoyoverse.com/event-ugc-hoyowiki/2024/03/03/310141917/b9cf8c72a7e1741d50ec0d74cc399f92_6102263996548855284.png",
-    sha256: "8511eb1fb0c62d296b70106eaf1e61306e6b4796b24c66170445c70b4d007d33",
-    width: 489,
-    height: 510,
   },
   {
     id: "ena",
@@ -82,19 +71,6 @@ const DEFINITIONS: readonly AeonDefinition[] = [
     height: 139,
   },
   {
-    id: "idrila",
-    names: { "zh-CN": "伊德莉拉", en: "Idrila", ja: "イドリラ" },
-    entryId: 893,
-    image: "06.webp",
-    focus: [0.5, 0.5],
-    assetKind: "official-path-emblem-fallback",
-    sourceAssetUrl:
-      "https://upload-static.hoyoverse.com/hoyolab-wiki/2023/06/23/250281765/992a0513970a6a76dbe70b22dd770e70_8027765677325237829.png",
-    sha256: "2ceee29627e54b7c2260bf30d153dbd91c7a067462764168868cf0ccd929b1b4",
-    width: 720,
-    height: 720,
-  },
-  {
     id: "ix",
     names: { "zh-CN": "Ⅸ", en: "IX", ja: "IX" },
     entryId: 887,
@@ -119,19 +95,6 @@ const DEFINITIONS: readonly AeonDefinition[] = [
     sha256: "1fa3a4633842316f3c1c1c4be892c0df11438f21aef1dacbc46851c8b8ff1bb7",
     width: 283,
     height: 283,
-  },
-  {
-    id: "long",
-    names: { "zh-CN": "龙", en: "Long", ja: "龍" },
-    entryId: 1210,
-    image: "09.webp",
-    focus: [0.48, 0.48],
-    assetKind: "official-path-emblem-fallback",
-    sourceAssetUrl:
-      "https://static.wikia.nocookie.net/houkai-star-rail/images/8/86/Path_Permanence.png/revision/latest?cb=20260215021432",
-    sha256: "af17c42e51031c73523944d0afda64521c361f121db5198868866d031a99cc14",
-    width: 803,
-    height: 801,
   },
   {
     id: "mythus",
@@ -212,18 +175,6 @@ const DEFINITIONS: readonly AeonDefinition[] = [
     height: 871,
   },
   {
-    id: "terminus",
-    names: { "zh-CN": "末王", en: "Terminus", ja: "テルミヌス" },
-    entryId: 1211,
-    image: "16.webp",
-    focus: [0.5, 0.5],
-    assetKind: "official-path-emblem-fallback",
-    sourceAssetUrl: "https://www.bilibili.com/video/BV1EM4y1h7Vm/",
-    sha256: "336505d4a319be6087d945cfdba6956800859fa4ad1d4715c4df1a2f01a74b9e",
-    width: 720,
-    height: 720,
-  },
-  {
     id: "xipe",
     names: { "zh-CN": "希佩", en: "Xipe", ja: "シペ" },
     entryId: 894,
@@ -255,7 +206,7 @@ export const aeonAssetAudit = DEFINITIONS.map((definition) => ({
   id: `aeon-${definition.id}`,
   assetKind: definition.assetKind,
   localPath: `/assets/aeons/${definition.image}`,
-  officialPageUrl: `https://wiki.hoyolab.com/pc/hsr/entry/${definition.entryId}`,
+  officialPageUrl: BWIKI_AEON_PAGE_URL,
   sourceAssetUrl: definition.sourceAssetUrl,
   sha256: definition.sha256,
   width: definition.width,
@@ -273,8 +224,8 @@ const entities = DEFINITIONS.map((definition) => ({
     ja: [definition.names.ja],
   },
   source: {
-    url: `https://wiki.hoyolab.com/pc/hsr/entry/${definition.entryId}`,
-    revision: "official-aeon-menu-2026-08-17",
+    url: BWIKI_AEON_PAGE_URL,
+    revision: "bwiki-aeon-page-2026-08-19",
   },
   reviewStatus: "approved" as const,
   payload: {
@@ -286,7 +237,7 @@ const entities = DEFINITIONS.map((definition) => ({
 }));
 
 export const aeonManifest: ContentManifest = ContentManifestSchema.parse({
-  manifestVersion: "1.0.1",
+  manifestVersion: "1.0.2",
   generatedAt: "2026-08-17T00:00:00.000Z",
   modes: [
     {

@@ -216,26 +216,22 @@ describe("普通角色内容兼容入口", () => {
 describe("星神正式题池", () => {
   const expected = [
     ["aeon-aha", "阿哈", "Aha", "アッハ"],
-    ["aeon-akivili", "阿基维利", "Akivili", "アキヴィリ"],
     ["aeon-ena", "太一", "Ena", "エナ"],
     ["aeon-fuli", "浮黎", "Fuli", "浮黎"],
     ["aeon-hooh", "互", "HooH", "互"],
-    ["aeon-idrila", "伊德莉拉", "Idrila", "イドリラ"],
     ["aeon-ix", "Ⅸ", "IX", "IX"],
     ["aeon-lan", "岚", "Lan", "嵐"],
-    ["aeon-long", "龙", "Long", "龍"],
     ["aeon-mythus", "迷思", "Mythus", "ミュトゥス"],
     ["aeon-nanook", "纳努克", "Nanook", "ナヌーク"],
     ["aeon-nous", "博识尊", "Nous", "ヌース"],
     ["aeon-oroboros", "奥博洛斯", "Oroboros", "ウロボロス"],
     ["aeon-qlipoth", "克里珀", "Qlipoth", "クリフォト"],
     ["aeon-tayzzyronth", "塔伊兹育罗斯", "Tayzzyronth", "タイズルス"],
-    ["aeon-terminus", "末王", "Terminus", "テルミヌス"],
     ["aeon-xipe", "希佩", "Xipe", "シペ"],
     ["aeon-yaoshi", "药师", "Yaoshi", "薬師"],
   ];
 
-  test("答案是 18 位具名星神且三语名称固定", () => {
+  test("答案是 14 位且有星神本体图的具名星神，三语名称固定", () => {
     expect(
       aeonManifest.entities.map((entity) => [
         entity.id,
@@ -244,23 +240,19 @@ describe("星神正式题池", () => {
         entity.names.ja,
       ]),
     ).toEqual(expected);
-    expect(new Set(aeonManifest.entities.map(({ id }) => id)).size).toBe(18);
+    expect(new Set(aeonManifest.entities.map(({ id }) => id)).size).toBe(14);
     expect(aeonManifest.entities.some(({ names }) => names.en === "Herta")).toBeFalse();
     expect(aeonManifest.entities.map(({ names }) => names["zh-CN"])).not.toContain("开拓");
     expect(aeonManifest.entities.map(({ names }) => names["zh-CN"])).not.toContain("毁灭");
     expect(aeonManifest.entities.map(({ names }) => names["zh-CN"])).not.toContain("智识");
   });
 
-  test("图片审计与 manifest 一一对应且正好四个官方徽记例外", () => {
-    expect(aeonAssetAudit).toHaveLength(18);
+  test("图片审计与 manifest 一一对应且全部为星神本体图", () => {
+    expect(aeonAssetAudit).toHaveLength(14);
     expect(
       aeonAssetAudit.filter(({ assetKind }) => assetKind === "official-main-art"),
     ).toHaveLength(14);
-    expect(
-      aeonAssetAudit
-        .filter(({ assetKind }) => assetKind === "official-path-emblem-fallback")
-        .map(({ id }) => id),
-    ).toEqual(["aeon-akivili", "aeon-idrila", "aeon-long", "aeon-terminus"]);
+    expect(aeonAssetAudit.every(({ assetKind }) => assetKind === "official-main-art")).toBeTrue();
     expect(aeonAssetAudit.map(({ localPath }) => localPath)).toEqual(
       aeonManifest.entities.map((entity) => {
         if (entity.kind !== "aeon") throw new Error(`${entity.id} 不是星神实体`);
@@ -268,7 +260,7 @@ describe("星神正式题池", () => {
       }),
     );
     for (const asset of aeonAssetAudit) {
-      expect(asset.officialPageUrl).toMatch(/^https:\/\/wiki\.hoyolab\.com\//);
+      expect(asset.officialPageUrl).toBe("https://wiki.biligame.com/sr/星神");
       expect(asset.sourceAssetUrl).toMatch(/^https:\/\//);
       expect(asset.width).toBeGreaterThan(0);
       expect(asset.height).toBeGreaterThan(0);
@@ -276,7 +268,7 @@ describe("星神正式题池", () => {
     }
   });
 
-  test("18 张本地图片存在、不是 SVG 或占位，并且 SHA-256 全部唯一", async () => {
+  test("14 张本地图片存在、不是 SVG 或占位，并且 SHA-256 全部唯一", async () => {
     const actualHashes: string[] = [];
     for (const asset of aeonAssetAudit) {
       const absolutePath = join(import.meta.dir, "../../../apps/web/public", asset.localPath);
@@ -287,6 +279,6 @@ describe("星神正式题池", () => {
       expect(hash).toBe(asset.sha256);
       actualHashes.push(hash);
     }
-    expect(new Set(actualHashes).size).toBe(18);
+    expect(new Set(actualHashes).size).toBe(14);
   });
 });
