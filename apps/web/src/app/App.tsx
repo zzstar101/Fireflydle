@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AppShell } from "../components/AppShell";
@@ -63,16 +63,6 @@ function ThemeAndLocaleSync() {
   return null;
 }
 
-function RouteScrollReset() {
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [pathname]);
-
-  return null;
-}
-
 const defaultMode = getDefaultMode();
 
 function DefaultModeRedirect() {
@@ -116,6 +106,18 @@ function OnlineActivity({ children }: { children: ReactNode }) {
 
 function RouteContent() {
   const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    return () => {
+      root.style.scrollBehavior = previousScrollBehavior;
+    };
+  }, [pathname]);
+
   return (
     <div className="route-transition" key={pathname} data-route={pathname}>
       <Routes>
@@ -170,7 +172,6 @@ export function App() {
   return (
     <BrowserRouter>
       <ThemeAndLocaleSync />
-      <RouteScrollReset />
       <AppShell>
         <Suspense fallback={<LoadingScreen />}>
           <RouteContent />
