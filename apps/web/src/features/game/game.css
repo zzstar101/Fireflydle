@@ -1921,16 +1921,83 @@
 }
 
 @media (max-width: 680px) {
-  /* 移动端让整张表一起横向滚动，避免 sticky 首列压住后续反馈格。 */
+  /* 移动端把宽表改成纵向反馈卡，避免限时对局依赖横向拖动。 */
   .guess-board-scroll {
     max-width: 100%;
-    touch-action: pan-x pan-y;
+    overflow-x: hidden;
+    overflow-y: visible;
+    padding-top: 12px;
+    padding-bottom: 0;
+    touch-action: pan-y;
   }
-
+  .guess-board {
+    display: contents;
+    border-spacing: 0;
+  }
+  .guess-board thead {
+    display: none;
+  }
+  .guess-board tbody {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+  .guess-board tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 88%, var(--canvas));
+  }
   .guess-board thead th:first-child,
   .guess-board tbody th {
     position: static;
+    grid-column: 1 / -1;
+    width: auto;
+    min-width: 0;
     box-shadow: none;
+  }
+  .guess-board tbody th {
+    min-height: 58px;
+    padding: 8px;
+  }
+  .guess-board tbody th > span > :not(small) {
+    font-size: 0.82rem;
+  }
+  .feedback-cell {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
+    min-height: 76px;
+    padding: 8px 6px;
+    align-content: center;
+  }
+  .feedback-cell::before {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin-bottom: 3px;
+    content: attr(data-field-label);
+    opacity: 0.78;
+    background: none;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    transform: none;
+  }
+  .guess-row.is-latest .feedback-cell::before {
+    animation: none;
+  }
+  .feedback-cell strong {
+    font-size: 0.72rem;
   }
 }
 
@@ -2481,21 +2548,31 @@
 
 @media (max-width: 560px) {
   .game-preparation {
-    min-height: 640px;
-    padding-top: 30px;
+    min-height: auto;
+    padding-top: 18px;
+    padding-bottom: 48px;
   }
   .prep-header {
-    min-height: 280px;
-    padding: 44px 4px 32px;
+    min-height: 200px;
+    padding: 28px 4px 22px;
   }
   .prep-header h1 {
     font-size: clamp(2.8rem, 16vw, 4.3rem);
   }
+  .prep-header > div > p:last-child {
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  .prep-route-mark {
+    display: none;
+  }
   .prep-console {
-    padding-top: 30px;
+    padding-top: 22px;
   }
   .prep-section-label {
-    grid-template-columns: 30px 1fr;
+    grid-template-columns: 26px 1fr;
+    margin-bottom: 14px;
+    gap: 10px;
   }
   .prep-difficulties,
   .prep-daily-rule,
@@ -2509,7 +2586,20 @@
     padding: 18px 20px;
   }
   .timer-notice {
-    padding: 15px 12px;
+    min-height: 58px;
+    padding: 12px;
+  }
+  .prep-daily-rule {
+    min-height: 88px;
+    padding: 16px 14px;
+  }
+  .prep-start-zone {
+    grid-template-columns: 1fr;
+    margin-top: 16px;
+  }
+  .prep-start-button {
+    width: 100%;
+    min-height: 52px;
   }
   .connection-choice {
     padding: 18px;
@@ -2527,13 +2617,29 @@
     width: 100%;
   }
   .running-game-hero {
-    min-height: 260px;
+    height: 240px;
+    min-height: 0;
+    padding-top: 28px;
+    padding-bottom: 24px;
   }
   .game-hub-link {
-    margin-bottom: 22px;
+    margin-bottom: 14px;
+  }
+  .running-game-page .game-left-rail {
+    display: none;
+  }
+  .running-game-hero .hero-copy h1 {
+    margin-bottom: 8px;
+    font-size: clamp(2.3rem, 12vw, 3.4rem);
+  }
+  .running-game-hero .hero-copy > p:last-child {
+    display: none;
   }
   .active-game-tools {
     justify-content: stretch;
+  }
+  .running-game-page .active-game-tools {
+    margin-bottom: 8px;
   }
   .active-game-tools > button {
     width: 100%;
@@ -2563,11 +2669,14 @@
     display: none;
   }
   .game-main-column {
-    padding-top: 22px;
+    padding-top: 12px;
+  }
+  .metric-strip {
+    margin-bottom: 10px;
   }
   .metric-strip > div {
-    min-height: 60px;
-    padding: 8px 12px;
+    min-height: 54px;
+    padding: 6px 10px;
   }
   .metric-strip span {
     font-size: 0.64rem;
@@ -2577,6 +2686,21 @@
   }
   .combobox-row {
     grid-template-columns: 1fr;
+  }
+  .guess-composer {
+    position: sticky;
+    top: 64px;
+    z-index: 20;
+    padding: 4px 10px 0;
+    margin-bottom: 14px;
+    box-shadow: 0 12px 26px rgb(4 8 15 / 24%);
+  }
+  .combobox-label {
+    margin-bottom: 6px;
+  }
+  .character-combobox input,
+  .guess-submit {
+    min-height: 48px;
   }
   .guess-submit {
     width: 100%;

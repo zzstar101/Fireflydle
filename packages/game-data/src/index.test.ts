@@ -8,6 +8,7 @@ import {
   characters,
   contentManifest,
   factions,
+  getRegionName,
   getNpcSearchText,
   npcEntities,
   npcManifest,
@@ -177,6 +178,21 @@ describe("阵营层级", () => {
     for (const factionId of partyOnlyIds) {
       expect(publishedFactionIds.has(factionId), factionId).toBeFalse();
     }
+  });
+});
+
+describe("地区显示", () => {
+  test("二相乐园不再错误显示为哀丽秘榭", () => {
+    const evanescia = characters.find((character) => character.id === "evanescia");
+    expect(evanescia?.factionGroupId).toBe("planarcadia");
+    expect(getRegionName("planarcadia", "zh-CN")).toBe("二相乐园");
+    expect(getRegionName("planarcadia", "ja")).toBe("二相楽園");
+  });
+
+  test("遐蝶仍归入有来源支持的翁法罗斯", () => {
+    const castorice = characters.find((character) => character.id === "castorice");
+    expect(castorice?.factionGroupId).toBe("amphoreus");
+    expect(getRegionName("amphoreus", "zh-CN")).toBe("翁法罗斯");
   });
 });
 
