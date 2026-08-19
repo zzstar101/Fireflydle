@@ -42,10 +42,10 @@ export function RulesPanel({
 
   useEffect(() => {
     if (!open) {
-      triggerRef.current?.focus();
+      triggerRef.current?.focus({ preventScroll: true });
       return;
     }
-    dialogRef.current?.focus();
+    dialogRef.current?.focus({ preventScroll: true });
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };

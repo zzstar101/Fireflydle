@@ -415,7 +415,7 @@ function ActiveGame({
     setChallengeError(false);
     setSharePreview(null);
     observedGuessCountRef.current = game.guesses.length;
-    gameHeadingRef.current?.focus();
+    gameHeadingRef.current?.focus({ preventScroll: true });
   }, [game.id]);
 
   useEffect(() => {
@@ -1013,7 +1013,11 @@ export function ModeGamePage({
 
   useEffect(() => {
     if (!game) return;
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    root.style.scrollBehavior = previousScrollBehavior;
   }, [game?.id]);
 
   const offlinePackBusy =

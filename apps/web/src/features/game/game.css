@@ -1743,7 +1743,9 @@
 
 .guess-board-scroll {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
 }
 .guess-board {
   width: 100%;
@@ -1916,6 +1918,20 @@
 .guess-row.is-latest .feedback-cell.direction-lower .feedback-icon {
   animation: direction-cue 320ms var(--motion-ease) both;
   animation-delay: calc(var(--cell-delay) + 250ms);
+}
+
+@media (max-width: 680px) {
+  /* 移动端让整张表一起横向滚动，避免 sticky 首列压住后续反馈格。 */
+  .guess-board-scroll {
+    max-width: 100%;
+    touch-action: pan-x pan-y;
+  }
+
+  .guess-board thead th:first-child,
+  .guess-board tbody th {
+    position: static;
+    box-shadow: none;
+  }
 }
 
 .board-empty {
