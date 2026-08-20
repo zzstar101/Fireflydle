@@ -46,7 +46,7 @@ export default function StatsPage() {
     if (activityId === "daily")
       return locale === "zh-CN" ? "每日一题" : locale === "ja" ? "デイリー" : "Daily";
     if (activityId === "practice")
-      return locale === "zh-CN" ? "随机挑战" : locale === "ja" ? "ランダム" : "Random";
+      return locale === "zh-CN" ? "普通挑战" : locale === "ja" ? "通常" : "Practice";
     return locale === "zh-CN" ? "对战" : locale === "ja" ? "対戦" : "Duel";
   };
   const resultLabel = (result: string) => {
@@ -77,7 +77,7 @@ export default function StatsPage() {
     },
     {
       icon: Target,
-      label: locale === "zh-CN" ? "随机挑战" : locale === "ja" ? "ランダム勝利" : "Random wins",
+      label: locale === "zh-CN" ? "普通挑战胜利" : locale === "ja" ? "通常勝利" : "Practice wins",
       value: data ? `${data.practiceWon}/${data.practicePlayed}` : "—",
     },
     {

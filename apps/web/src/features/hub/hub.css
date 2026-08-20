@@ -82,6 +82,83 @@
   border-left: 1px solid var(--border);
 }
 
+.hub-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hub-ambient i {
+  position: absolute;
+  top: calc(18% + (var(--ambient-index) * 26%));
+  left: -24%;
+  width: 58%;
+  height: 1px;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--cyan) 42%, transparent),
+    transparent
+  );
+  transform: rotate(-13deg);
+  animation: ambient-flight calc(11s + (var(--ambient-index) * 4s)) linear infinite;
+  animation-delay: calc(var(--ambient-index) * -3.5s);
+}
+
+.mode-board-grid-primary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mode-board-grid-primary .mode-board {
+  min-height: 332px;
+  padding: clamp(24px, 2.6vw, 38px);
+}
+
+.mode-board-grid-primary .mode-symbol {
+  width: 54px;
+  height: 54px;
+  margin: 28px 0 21px;
+}
+
+.mode-board-grid-primary .mode-board h2 {
+  font-size: clamp(1.55rem, 2.25vw, 2.2rem);
+}
+
+.mode-board-grid-primary .mode-metric {
+  margin-top: 18px;
+}
+
+.hub-section-heading {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  padding: 34px 0 14px;
+}
+
+.hub-section-heading > span {
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+}
+
+.hub-section-heading h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.hub-section-heading p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.hub-section-heading-secondary {
+  padding-top: 30px;
+}
+
 .mode-board {
   --mode-signal: var(--gold);
   position: relative;
@@ -317,6 +394,80 @@
   transform: translate(3px, -3px);
 }
 
+.hub-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 22px;
+  border-left: 1px solid var(--border);
+}
+
+.hub-secondary-link {
+  position: relative;
+  display: grid;
+  min-height: 142px;
+  min-height: 150px;
+  padding: 18px;
+  align-content: start;
+  gap: 8px;
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--gold) 4%, transparent),
+    transparent 70%
+  );
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.hub-secondary-link:hover {
+  color: var(--gold-bright);
+  background: var(--surface-raised);
+  transform: translateY(-2px);
+}
+
+.hub-secondary-link.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.secondary-link-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 9px;
+  place-items: center;
+  color: var(--gold);
+  border: 1px solid var(--border-strong);
+  transform: rotate(45deg);
+}
+
+.secondary-link-icon svg {
+  transform: rotate(-45deg);
+}
+
+.hub-secondary-link strong {
+  font-size: 0.92rem;
+}
+
+.hub-secondary-link > span:not(.secondary-link-icon) {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.secondary-link-arrow {
+  position: absolute;
+  top: 20px;
+  right: 18px;
+  color: var(--text-faint);
+}
+
 .station-status {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -391,8 +542,13 @@
 }
 
 @media (max-width: 980px) {
-  .mode-board-grid {
+  .mode-board-grid,
+  .mode-board-grid-primary {
     grid-template-columns: 1fr;
+  }
+
+  .hub-secondary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .mode-board {
@@ -405,6 +561,21 @@
 
   .station-status {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@keyframes ambient-flight {
+  0% {
+    opacity: 0;
+    transform: translate3d(-20vw, 22px, 0) rotate(-13deg);
+  }
+  14%,
+  62% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(150vw, -78px, 0) rotate(-13deg);
   }
 }
 
@@ -440,6 +611,10 @@
     margin: 28px 0 22px;
   }
 
+  .hub-secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
   .station-status {
     grid-template-columns: 1fr;
   }
@@ -448,22 +623,4 @@
     border-top: 1px solid var(--border);
     border-left: 0;
   }
-}
-.hub-endless-links {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 18px 0;
-}
-
-.hub-endless-links a {
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  border-bottom: 1px solid var(--color-border);
-  padding: 6px 0;
-}
-
-.hub-endless-links a:hover {
-  color: var(--color-text-primary);
 }

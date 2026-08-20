@@ -2,16 +2,18 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   BarChart3,
+  BookOpen,
   Download,
   Home,
   Languages,
   Menu,
   MoonStar,
+  MessageSquareText,
   Sun,
   UserRound,
   X,
 } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import type { Locale } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
 import { useSession } from "../features/account/useSession";
@@ -25,15 +27,57 @@ import { requestInstallFromMenu } from "../pwa";
 const mainNavigation = [
   { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
   { to: "/leaderboard", key: "nav.leaderboard", icon: BarChart3, end: false },
+  { to: "/collection", key: "nav.collection", icon: BookOpen, end: false },
+  { to: "/feedback", key: "nav.feedback", icon: MessageSquareText, end: false },
 ] as const;
+
+const sourceRepository = "https://github.com/zzstar101/fireflydle";
+
+function GitHubMark() {
+  return (
+    <svg className="github-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.53-1.35-1.3-1.7-1.3-1.7-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.67 1.24 3.32.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.96 10.96 0 0 1 5.76 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.43-2.69 5.4-5.25 5.68.41.35.77 1.04.77 2.1v3.11c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"
+      />
+    </svg>
+  );
+}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
   const drawerCloseRef = useRef<HTMLButtonElement>(null);
-  const { theme, language, setTheme, setLanguage } = usePreferences();
+  const { theme, language, setTheme, setLanguage, collectionRewardId } = usePreferences();
+  const collectionRewardImage = usePreferences((state) => state.collectionRewardImage);
   const session = useSession();
+  const location = useLocation();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const factionTheme = collectionRewardId?.startsWith("faction:")
+      ? collectionRewardId.slice(8)
+      : "";
+    const rewardImage = collectionRewardImage;
+    if (rewardImage) root.style.setProperty("--collection-reward-image", `url("${rewardImage}")`);
+    else root.style.removeProperty("--collection-reward-image");
+    const gameplay = /^(\/playable|\/currency-wars|\/aeon|\/room|\/challenge)/.test(
+      location.pathname,
+    );
+    root.dataset.rewardVisible = String(Boolean(collectionRewardId) && !gameplay);
+    if (factionTheme) root.dataset.collectionFaction = factionTheme;
+    else delete root.dataset.collectionFaction;
+    const pathTheme = collectionRewardId?.startsWith("path:") ? collectionRewardId.slice(5) : "";
+    if (pathTheme) root.dataset.collectionTheme = pathTheme;
+    else delete root.dataset.collectionTheme;
+    return () => {
+      delete root.dataset.rewardVisible;
+      delete root.dataset.collectionFaction;
+      delete root.dataset.collectionTheme;
+      root.style.removeProperty("--collection-reward-image");
+    };
+  }, [collectionRewardId, collectionRewardImage, location.pathname]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -177,6 +221,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="header-actions">
+            <a
+              className="header-icon-link"
+              href={sourceRepository}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t("footer.source")}
+              title={t("footer.source")}
+            >
+              <GitHubMark />
+            </a>
             <label className="language-select" title="Language">
               <Languages size={17} aria-hidden="true" />
               <span className="sr-only">Language</span>
@@ -258,6 +312,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BarChart3 size={18} /> {t("nav.stats")}
             </NavLink>
             <div className="drawer-controls">
+              <a
+                href={sourceRepository}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setMenuOpen(false)}
+              >
+                <GitHubMark />
+                <span>{t("footer.source")}</span>
+              </a>
               <button type="button" onClick={() => requestInstallFromMenu()}>
                 <Download size={18} aria-hidden="true" />
                 <span>{t("pwa.menu")}</span>
@@ -306,9 +369,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <p>{t("footer.unofficial")}</p>
           <div>
             <a href="mailto:takedown@fireflydle.games">{t("footer.takedown")}</a>
-            <a href="https://github.com/zzstar101/fireflydle" target="_blank" rel="noreferrer">
-              {t("footer.source")}
-            </a>
             <Link to="/legal">{t("footer.privacy")}</Link>
           </div>
         </div>

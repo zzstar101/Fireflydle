@@ -29,7 +29,7 @@ import {
 } from "@fireflydle/game-data";
 import { getEnabledCharacters, getTargetPool } from "../lib/db";
 import { ApiProblem } from "../lib/http";
-import { getPublicGame, getReplayGame } from "./games";
+import { getReplayGames } from "./games";
 
 const WEEKLY_QUESTION_COUNT = 5;
 
@@ -212,6 +212,33 @@ async function readRun(db: D1Database, runId: string): Promise<WeeklyRunRow | nu
   return db.prepare("SELECT * FROM weekly_runs WHERE id = ?").bind(runId).first<WeeklyRunRow>();
 }
 
+export async function getWeeklyCurrentGameId(
+  db: D1Database,
+  runId: string,
+  userId: string,
+  now = Date.now(),
+): Promise<string> {
+  const run = await readRun(db, runId);
+  if (!run || run.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
+  const schedule = await ensureSchedule(db, run.week_key, now);
+  await ensureNextRound(db, run, schedule, now);
+  const row = await db
+    .prepare(
+      `SELECT games.id, games.status
+       FROM weekly_runs
+       JOIN weekly_rounds ON weekly_rounds.run_id = weekly_runs.id
+       JOIN games ON games.id = weekly_rounds.game_id
+       WHERE weekly_runs.id = ? AND weekly_runs.user_id = ?
+       ORDER BY weekly_rounds.ordinal DESC
+       LIMIT 1`,
+    )
+    .bind(runId, userId)
+    .first<{ id: string; status: PublicGame["status"] }>();
+  if (!row) throw new ApiProblem("NOT_FOUND", 404);
+  if (row.status !== "active") throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
+  return row.id;
+}
+
 async function ensureNextRound(
   db: D1Database,
   run: WeeklyRunRow,
@@ -282,19 +309,18 @@ async function publicRun(
   run: WeeklyRunRow,
   schedule: WeeklyScheduleRow,
   now: number,
-  shared = false,
 ): Promise<WeeklyRun> {
   const roundRows = await db
     .prepare("SELECT game_id FROM weekly_rounds WHERE run_id = ? ORDER BY ordinal")
     .bind(run.id)
     .all<{ game_id: string }>();
-  const games = await Promise.all(
-    roundRows.results.map((round) =>
-      shared
-        ? getReplayGame(db, round.game_id, now)
-        : getPublicGame(db, round.game_id, run.user_id, now),
-    ),
-  );
+  const gameIds = roundRows.results.map((round) => round.game_id);
+  const gameMap = await getReplayGames(db, gameIds, now);
+  const games = gameIds.map((gameId) => {
+    const game = gameMap.get(gameId);
+    if (!game) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "weekly-game" });
+    return game;
+  });
   const finishedGames = games.filter((game) => game.status !== "active");
   return {
     id: run.id,
@@ -418,6 +444,6 @@ export async function getSharedWeeklyRun(
     .first<WeeklyRunRow>();
   if (!share) throw new ApiProblem("NOT_FOUND", 404);
   const schedule = await ensureSchedule(db, share.week_key, now);
-  const { currentGame: _currentGame, ...shared } = await publicRun(db, share, schedule, now, true);
+  const { currentGame: _currentGame, ...shared } = await publicRun(db, share, schedule, now);
   return shared;
 }

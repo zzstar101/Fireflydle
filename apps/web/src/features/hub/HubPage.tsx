@@ -17,7 +17,6 @@ import {
 import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
 import { getWeeklyModeId } from "@fireflydle/game-engine";
 import { apiRequest } from "../../api/client";
-import { useSession } from "../account/useSession";
 import { useCurrentGames } from "../game/useCurrentGames";
 import { getDefaultModeNavigation } from "../modes/mode-registry";
 import { usePreferences } from "../../state/preferences";
@@ -25,10 +24,11 @@ import { useNetworkStatus } from "../../offline/network-status";
 import { useSpecialModePack, type SpecialModePackState } from "../../offline/use-special-mode-pack";
 import "./hub.css";
 
-type HubMode = "daily" | "practice" | "duel" | "currency-wars" | "aeon" | "weekly";
+type HubMode = "daily" | "practice" | "endless" | "duel" | "currency-wars" | "aeon" | "weekly";
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
+const endlessActivity = getDefaultModeNavigation("endless");
 const duelActivity = getDefaultModeNavigation("duel");
 
 function formatTime(milliseconds: number): string {
@@ -100,11 +100,13 @@ function ModeBoard({
             ? 1
             : mode === "practice"
               ? 2
-              : mode === "duel"
+              : mode === "endless"
                 ? 3
-                : mode === "currency-wars"
-                  ? 4
-                  : 5}
+                : mode === "duel"
+                  ? 3
+                  : mode === "currency-wars"
+                    ? 4
+                    : 5}
         </span>
         <span className="mode-status">
           <i /> {status}
@@ -137,6 +139,40 @@ function ModeBoard({
   );
 }
 
+function SecondaryLink({
+  to,
+  icon,
+  title,
+  detail,
+  disabled = false,
+}: {
+  to: string;
+  icon: ReactNode;
+  title: string;
+  detail: string;
+  disabled?: boolean;
+}) {
+  const content = (
+    <>
+      <span className="secondary-link-icon" aria-hidden="true">
+        {icon}
+      </span>
+      <strong>{title}</strong>
+      <span>{detail}</span>
+      <ArrowUpRight className="secondary-link-arrow" size={16} aria-hidden="true" />
+    </>
+  );
+  return disabled ? (
+    <div className="hub-secondary-link is-disabled" aria-disabled="true">
+      {content}
+    </div>
+  ) : (
+    <Link className="hub-secondary-link" to={to}>
+      {content}
+    </Link>
+  );
+}
+
 export default function HubPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
@@ -145,7 +181,6 @@ export default function HubPage() {
   const aeonPack = useSpecialModePack("aeon");
   const [now, setNow] = useState(Date.now());
   const currentGames = useCurrentGames(online);
-  const session = useSession(online);
   const stats = useQuery({
     queryKey: ["stats", "hub"],
     queryFn: () => apiRequest<PersonalStats>("/stats/me"),
@@ -158,7 +193,6 @@ export default function HubPage() {
   }, []);
 
   const daily = currentGames.data?.daily ?? null;
-  const practice = currentGames.data?.practice ?? null;
   const weeklyModeId = getWeeklyModeId(now);
   const weeklyModeLabel =
     weeklyModeId === "playable"
@@ -191,21 +225,17 @@ export default function HubPage() {
         time: formatTime(elapsedFor(daily, now)),
       })
     : t("hub.streakValue", { count: stats.data?.currentStreak ?? 0 });
-  const practiceStatus = serviceChecking
-    ? t("hub.statusSyncing")
-    : practice
-      ? t("hub.statusProgress", { current: practice.guesses.length, total: practice.maxAttempts })
-      : t("hub.statusReady");
-  const practiceMetric = practice
-    ? t("hub.elapsedValue", { time: formatTime(elapsedFor(practice, now)) })
-    : t("hub.runValue", { count: stats.data?.practicePlayed ?? 0 });
-
   return (
     <main className="hub-page">
       <section className="hub-intro" aria-labelledby="hub-title">
         <div className="hub-particles" aria-hidden="true">
           {Array.from({ length: 6 }, (_, index) => (
             <i key={index} style={{ ["--particle-index" as string]: index }} />
+          ))}
+        </div>
+        <div className="hub-ambient" aria-hidden="true">
+          {Array.from({ length: 3 }, (_, index) => (
+            <i key={index} style={{ ["--ambient-index" as string]: index }} />
           ))}
         </div>
         <div className="hub-orbit" aria-hidden="true">
@@ -218,25 +248,22 @@ export default function HubPage() {
         <p>{t("hub.intro")}</p>
       </section>
 
-      <section className="mode-board-grid" aria-label={t("hub.modesLabel")}>
-        <ModeBoard
-          mode="weekly"
-          to={`/${weeklyModeId}/weekly`}
-          icon={<Trophy size={30} />}
-          status={locale === "en" ? "THIS WEEK" : locale === "ja" ? "今週" : "本周开放"}
-          title={`${weeklyModeLabel} · ${locale === "en" ? "Weekly" : locale === "ja" ? "ウィークリー" : "周赛"}`}
-          description={
-            locale === "en"
-              ? "Five questions share one frozen manifest and rules snapshot."
+      <div className="hub-section-heading">
+        <span>01</span>
+        <div>
+          <h2>
+            {locale === "zh-CN" ? "核心入口" : locale === "ja" ? "メインモード" : "Main modes"}
+          </h2>
+          <p>
+            {locale === "zh-CN"
+              ? "从这里开始一局游戏"
               : locale === "ja"
-                ? "5問すべてが同じマニフェストとルールのスナップショットを使用します。"
-                : "五题共用同一份题库与规则快照，完成后进入统一排名。"
-          }
-          metricLabel={locale === "en" ? "QUESTIONS" : locale === "ja" ? "問題数" : "题目"}
-          metricValue="5"
-          action={locale === "en" ? "Enter weekly" : locale === "ja" ? "参加する" : "进入周赛"}
-          active
-        />
+                ? "ここからゲームを始めます"
+                : "Start a game here"}
+          </p>
+        </div>
+      </div>
+      <section className="mode-board-grid mode-board-grid-primary" aria-label={t("hub.modesLabel")}>
         {dailyActivity ? (
           <ModeBoard
             mode="daily"
@@ -261,98 +288,111 @@ export default function HubPage() {
         {practiceActivity ? (
           <ModeBoard
             mode="practice"
-            to={practice ? `${practiceActivity.path}?game=${practice.id}` : practiceActivity.path}
+            to={practiceActivity.path}
             icon={<Shuffle size={30} />}
-            status={practiceStatus}
-            title={t("game.random")}
-            description={t("hub.randomDescription")}
-            metricLabel={practice ? t("game.elapsed") : t("hub.completedRuns")}
-            metricValue={practiceMetric}
-            action={
-              online
-                ? practice
-                  ? t("hub.continueGame")
-                  : t("hub.startRandom")
-                : t("prep.offlinePractice")
+            status={locale === "en" ? "READY" : locale === "ja" ? "準備完了" : "随时可玩"}
+            title={
+              locale === "en" ? "Normal challenge" : locale === "ja" ? "通常チャレンジ" : "普通挑战"
             }
-            active={Boolean(practice)}
+            description={
+              locale === "en"
+                ? "Practice one character at a time with the full feedback rules."
+                : locale === "ja"
+                  ? "完全なヒントルールでキャラクター問題を1問ずつ練習します。"
+                  : "使用完整提示规则，逐题练习普通角色。"
+            }
+            metricLabel={t("game.attempts")}
+            metricValue="6"
+            action={t("hub.startRandom")}
           />
         ) : null}
-        {duelActivity ? (
+        {endlessActivity ? (
           <ModeBoard
-            mode="duel"
-            to={duelActivity.path}
-            icon={<Swords size={30} />}
-            status={
-              serviceChecking
-                ? t("hub.statusSyncing")
-                : serviceOnline
-                  ? t("hub.statusReady")
-                  : t("hub.statusUnavailable")
+            mode="endless"
+            to={endlessActivity.path}
+            icon={<Infinity size={30} />}
+            status={locale === "en" ? "5 lives" : locale === "ja" ? "5 ライフ" : "5 条命"}
+            title={
+              locale === "en"
+                ? "Endless challenge"
+                : locale === "ja"
+                  ? "エンドレス挑戦"
+                  : "无尽挑战"
             }
-            title={t("nav.duel")}
-            description={t("hub.duelDescription")}
-            metricLabel="ELO"
-            metricValue={String(session.data?.user.elo ?? 1000)}
-            action={serviceOnline ? t("hub.enterDuel") : t("hub.duelUnavailable")}
-            disabled={!online || (!serviceChecking && !serviceOnline)}
+            description={
+              locale === "en"
+                ? "Keep the streak alive across a shuffle bag of characters."
+                : locale === "ja"
+                  ? "シャッフルされた問題を、ライフが尽きるまで続けます。"
+                  : "在洗牌题袋中持续猜题，直到生命耗尽。"
+            }
+            metricLabel={locale === "en" ? "LIVES" : locale === "ja" ? "ライフ" : "生命"}
+            metricValue="5"
+            action={locale === "en" ? "Start endless" : locale === "ja" ? "開始" : "开始无尽"}
+            active={false}
           />
         ) : null}
-        <ModeBoard
-          mode="currency-wars"
-          to="/currency-wars/practice"
-          icon={<Coins size={30} />}
-          status={packStatus(locale, currencyWarsPack.state)}
-          title={locale === "en" ? "Currency Wars" : locale === "ja" ? "コイン戦争" : "货币战争"}
-          description={
-            locale === "en"
-              ? "Guess an independent unit ruleset by cost, position and synergy feedback."
-              : locale === "ja"
-                ? "独立ルールセットのコスト、配置、シナジーでユニットを絞り込みます。"
-                : "使用独立规则集，通过费用、站位和羁绊反馈锁定单位。"
-          }
-          metricLabel={t("game.attempts")}
-          metricValue="6"
-          action={t("hub.startRandom")}
-          disabled={!online && currencyWarsPack.state !== "ready"}
-        />
-        <ModeBoard
-          mode="aeon"
-          to="/aeon/practice"
-          icon={<Sparkles size={30} />}
-          status={packStatus(locale, aeonPack.state)}
-          title={locale === "en" ? "Aeons" : "星神"}
-          description={
-            locale === "en"
-              ? "Identify an Aeon from a stable sequence of revealed image tiles."
-              : locale === "ja"
-                ? "順番に開示される画像タイルから星神を当てます。"
-                : "根据按稳定顺序逐步揭示的图片方格猜出星神。"
-          }
-          metricLabel={t("game.attempts")}
-          metricValue="6"
-          action={t("hub.startRandom")}
-          disabled={!online && aeonPack.state !== "ready"}
-        />
       </section>
 
-      <nav
-        className="hub-endless-links"
-        aria-label={locale === "zh-CN" ? "无尽模式" : "Endless modes"}
+      <div className="hub-section-heading hub-section-heading-secondary">
+        <span>02</span>
+        <div>
+          <h2>
+            {locale === "zh-CN" ? "更多玩法" : locale === "ja" ? "その他のモード" : "More modes"}
+          </h2>
+          <p>
+            {locale === "zh-CN"
+              ? "活动、对战与收藏玩法"
+              : locale === "ja"
+                ? "イベント、対戦、コレクション"
+                : "Events, duels, and collections"}
+          </p>
+        </div>
+      </div>
+      <section
+        className="hub-secondary-grid"
+        aria-label={locale === "zh-CN" ? "更多玩法" : "More modes"}
       >
-        <Infinity size={18} aria-hidden="true" />
-        {(
-          [
-            ["/playable/endless", locale === "zh-CN" ? "角色无尽" : "Characters"],
-            ["/currency-wars/endless", locale === "zh-CN" ? "币战" : "Currency Wars"],
-            ["/aeon/endless", locale === "zh-CN" ? "星神" : "Aeons"],
-          ] as const
-        ).map(([to, label]) => (
-          <Link key={to} to={to}>
-            {label}
-          </Link>
-        ))}
-      </nav>
+        <SecondaryLink
+          to={`/${weeklyModeId}/weekly`}
+          icon={<Trophy size={20} />}
+          title={locale === "en" ? "Weekly" : locale === "ja" ? "ウィークリー" : "周赛"}
+          detail={`${weeklyModeLabel} · 5 ${locale === "zh-CN" ? "题" : "questions"}`}
+        />
+        <SecondaryLink
+          to={duelActivity?.path ?? "/playable/duel"}
+          icon={<Swords size={20} />}
+          title={t("nav.duel")}
+          detail={serviceOnline ? t("hub.statusReady") : t("hub.statusUnavailable")}
+          disabled={!online || (!serviceChecking && !serviceOnline)}
+        />
+        <SecondaryLink
+          to="/currency-wars/practice"
+          icon={<Coins size={20} />}
+          title={locale === "en" ? "Currency Wars" : locale === "ja" ? "コイン戦争" : "货币战争"}
+          detail={packStatus(locale, currencyWarsPack.state)}
+          disabled={!online && currencyWarsPack.state !== "ready"}
+        />
+        <SecondaryLink
+          to="/aeon/practice"
+          icon={<Sparkles size={20} />}
+          title={locale === "en" ? "Aeons" : "星神"}
+          detail={packStatus(locale, aeonPack.state)}
+          disabled={!online && aeonPack.state !== "ready"}
+        />
+        <SecondaryLink
+          to="/playable/portrait"
+          icon={<Infinity size={20} />}
+          title={
+            locale === "zh-CN"
+              ? "立绘挑战"
+              : locale === "ja"
+                ? "立ち絵チャレンジ"
+                : "Portrait challenge"
+          }
+          detail={locale === "zh-CN" ? "单局、无尽与时装" : "Practice, endless, and skins"}
+        />
+      </section>
 
       <section className="station-status" aria-label={t("hub.stationStatus")}>
         <div>

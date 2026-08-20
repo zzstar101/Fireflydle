@@ -3,6 +3,7 @@ import { Hono, type Context } from "hono";
 import { getCharacter, getEnabledCharacters } from "../lib/db";
 import { ApiProblem, ok } from "../lib/http";
 import type { AppContext } from "../types";
+import { requireAuth } from "../services/auth";
 import {
   contentManifest,
   currencyWarsManifest,
@@ -10,9 +11,12 @@ import {
   npcEntities,
   npcManifest,
   npcSummary,
+  characterSkins,
 } from "@fireflydle/game-data";
 
 export const characterRoutes = new Hono<AppContext>();
+
+const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
 
 function requireCurrentManifest(context: Context<AppContext>, currentVersion: string): void {
   const requestedVersion = context.req.query("manifestVersion");
@@ -29,6 +33,67 @@ function requireCurrentManifest(context: Context<AppContext>, currentVersion: st
 characterRoutes.get("/characters", async (context) => {
   requireCurrentManifest(context, contentManifest.manifestVersion);
   return ok(context, await getEnabledCharacters(context.env.DB));
+});
+
+characterRoutes.get("/portrait-roster", async (context) => {
+  const characters = await getEnabledCharacters(context.env.DB);
+  const allowed = new Set(characters.map((character) => character.id));
+  return ok(context, {
+    characters,
+    skins: characterSkins.filter((skin) => allowed.has(skin.characterId)),
+  });
+});
+
+characterRoutes.get("/collection", async (context) => {
+  const auth = requireAuth(context);
+  const requestUrl = new URL(context.req.url);
+  const localUnlockAll =
+    requestUrl.searchParams.get("unlockAll") === "1" &&
+    LOCAL_HOSTNAMES.has(requestUrl.hostname.toLocaleLowerCase("en-US"));
+  const [available, unlockedRows] = await Promise.all([
+    getEnabledCharacters(context.env.DB),
+    context.env.DB.prepare(
+      `SELECT DISTINCT g.target_character_id
+       FROM games g
+       JOIN game_results r ON r.game_id = g.id
+       WHERE (g.user_id = ? OR EXISTS (
+         SELECT 1 FROM users merged
+         WHERE merged.id = g.user_id AND merged.merged_into_user_id = ?
+       ))
+         AND g.mode_id = 'playable' AND r.result = 'won'`,
+    )
+      .bind(auth.user.id, auth.user.id)
+      .all<{ target_character_id: string }>(),
+  ]);
+  const unlocked = localUnlockAll
+    ? new Set(available.map((character) => character.id))
+    : new Set(unlockedRows.results.map((row) => row.target_character_id));
+  const unlockedCharacters = available.filter((character) => unlocked.has(character.id));
+  const pathProgress = new Map<string, { unlocked: number; total: number }>();
+  const factionProgress = new Map<string, { unlocked: number; total: number }>();
+  for (const character of available) {
+    for (const [map, key] of [
+      [pathProgress, character.path],
+      [factionProgress, character.factionId],
+    ] as const) {
+      const current = map.get(key) ?? { unlocked: 0, total: 0 };
+      current.total += 1;
+      if (unlocked.has(character.id)) current.unlocked += 1;
+      map.set(key, current);
+    }
+  }
+  return ok(context, {
+    unlockedIds: [...unlocked],
+    characters: available.map((character) => ({
+      ...character,
+      unlocked: unlocked.has(character.id),
+    })),
+    skins: characterSkins.filter((skin) => unlocked.has(skin.characterId)),
+    pathProgress: Object.fromEntries(pathProgress),
+    factionProgress: Object.fromEntries(factionProgress),
+    total: available.length,
+    unlockedCount: unlockedCharacters.length,
+  });
 });
 
 characterRoutes.get("/npcs", (context) => {

@@ -89,6 +89,8 @@ interface OperationsOverview {
     completionRate: number;
   }>;
   cloudflare: {
+    plan: "paid" | "free";
+    billingPeriod: "monthly" | "daily";
     configured: boolean;
     available: boolean;
     fetchedAt: string | null;
@@ -533,7 +535,15 @@ export function OperationsPanel({ locale }: { locale: Locale }) {
           <SectionTitle
             icon={Cloud}
             title="Cloudflare"
-            meta={locale === "zh-CN" ? "免费额度 · UTC 重置" : "Free quota · UTC reset"}
+            meta={
+              data.cloudflare.plan === "paid"
+                ? locale === "zh-CN"
+                  ? "Workers Paid · 月度监测窗口"
+                  : "Workers Paid · monthly window"
+                : locale === "zh-CN"
+                  ? "免费额度 · UTC 重置"
+                  : "Free quota · UTC reset"
+            }
           />
           {!data.cloudflare.available ? (
             <p className="ops-inline-notice">{data.cloudflare.error}</p>

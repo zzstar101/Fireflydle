@@ -51,3 +51,113 @@
   --border-strong: rgb(94 70 24 / 40%);
   --shadow: 0 22px 58px rgb(65 50 26 / 13%);
 }
+
+/* 命途奖励主题只替换站点强调色，判题颜色保持固定。 */
+:root[data-collection-theme="destruction"] {
+  --gold: #e07a62;
+  --gold-bright: #ffad8d;
+  --cyan: #f2a274;
+  --border: rgb(224 122 98 / 32%);
+  --border-strong: rgb(224 122 98 / 62%);
+}
+:root[data-collection-theme="hunt"] {
+  --gold: #4fb9c8;
+  --gold-bright: #9be8ed;
+  --cyan: #78d5df;
+  --border: rgb(79 185 200 / 30%);
+  --border-strong: rgb(79 185 200 / 60%);
+}
+:root[data-collection-theme="erudition"] {
+  --gold: #a88be8;
+  --gold-bright: #d2bdff;
+  --cyan: #b5a1f2;
+  --border: rgb(168 139 232 / 32%);
+  --border-strong: rgb(168 139 232 / 62%);
+}
+:root[data-collection-theme="harmony"] {
+  --gold: #db86c5;
+  --gold-bright: #ffc1ec;
+  --cyan: #e2a4da;
+  --border: rgb(219 134 197 / 32%);
+  --border-strong: rgb(219 134 197 / 62%);
+}
+:root[data-collection-theme="nihility"] {
+  --gold: #8c83c8;
+  --gold-bright: #c1baff;
+  --cyan: #9b9de4;
+  --border: rgb(140 131 200 / 32%);
+  --border-strong: rgb(140 131 200 / 62%);
+}
+:root[data-collection-theme="preservation"] {
+  --gold: #6eaadf;
+  --gold-bright: #b4ddff;
+  --cyan: #8fd5f2;
+  --border: rgb(110 170 223 / 32%);
+  --border-strong: rgb(110 170 223 / 62%);
+}
+:root[data-collection-theme="abundance"] {
+  --gold: #70c798;
+  --gold-bright: #b1efc5;
+  --cyan: #8fdfb1;
+  --border: rgb(112 199 152 / 32%);
+  --border-strong: rgb(112 199 152 / 62%);
+}
+:root[data-collection-theme="remembrance"] {
+  --gold: #72b8d2;
+  --gold-bright: #b8efff;
+  --cyan: #9bd9ed;
+  --border: rgb(114 184 210 / 32%);
+  --border-strong: rgb(114 184 210 / 62%);
+}
+:root[data-collection-theme="elation"] {
+  --gold: #e29a55;
+  --gold-bright: #ffd09a;
+  --cyan: #f2b26e;
+  --border: rgb(226 154 85 / 32%);
+  --border-strong: rgb(226 154 85 / 62%);
+}
+
+/* 阵营奖励使用独立的主题色，不把角色立绘当作壁纸。 */
+:root[data-collection-faction="herta-space-station"] {
+  --faction-primary: #9b8ce8;
+  --faction-secondary: #73d8e7;
+}
+:root[data-collection-faction="belobog"] {
+  --faction-primary: #82b9ed;
+  --faction-secondary: #d6efff;
+}
+:root[data-collection-faction="penacony"] {
+  --faction-primary: #e6a0c5;
+  --faction-secondary: #f2cf83;
+}
+:root[data-collection-faction="xianzhou-alliance"],
+:root[data-collection-faction="xianzhou-luofu"],
+:root[data-collection-faction="xianzhou-yaoqing"],
+:root[data-collection-faction="xianzhou-yuque"] {
+  --faction-primary: #72c8b2;
+  --faction-secondary: #d6b56d;
+}
+:root[data-collection-faction="astral-express"] {
+  --faction-primary: #d3aa65;
+  --faction-secondary: #79b8dc;
+}
+:root[data-collection-faction="stellaron-hunters"] {
+  --faction-primary: #b8759d;
+  --faction-secondary: #7e91d7;
+}
+:root[data-collection-faction="ipc"] {
+  --faction-primary: #d8b66b;
+  --faction-secondary: #76a6d1;
+}
+:root[data-collection-faction="masked-fools"] {
+  --faction-primary: #d989bd;
+  --faction-secondary: #eabf70;
+}
+:root[data-collection-faction="garden-of-recollection"] {
+  --faction-primary: #a8b9e8;
+  --faction-secondary: #91d8c4;
+}
+:root[data-collection-faction="amphoreus"] {
+  --faction-primary: #72c5c2;
+  --faction-secondary: #e1bd73;
+}

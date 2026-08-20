@@ -32,6 +32,7 @@ const modeLabels: Record<ContentModeId, Record<Locale, string>> = {
   npc: { "zh-CN": "NPC", en: "NPCs", ja: "NPC" },
   "currency-wars": { "zh-CN": "货币战争", en: "Currency Wars", ja: "コイン戦争" },
   aeon: { "zh-CN": "星神", en: "Aeons", ja: "星神" },
+  portrait: { "zh-CN": "立绘", en: "Portraits", ja: "立ち絵" },
 };
 
 export function weeklyModePath(modeId: ContentModeId): string {

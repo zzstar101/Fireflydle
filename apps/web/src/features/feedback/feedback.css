@@ -1,0 +1,97 @@
+.feedback-login-note,
+.feedback-sent {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface);
+}
+.feedback-form {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+.feedback-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+.feedback-form input,
+.feedback-form textarea,
+.feedback-form select {
+  width: 100%;
+  padding: 11px 12px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font: inherit;
+}
+.feedback-form textarea {
+  resize: vertical;
+}
+.feedback-file span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.feedback-file input {
+  padding: 9px;
+}
+.feedback-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  min-width: 130px;
+  padding: 11px 18px;
+  color: #121419;
+  border: 0;
+  background: var(--gold);
+  cursor: pointer;
+  font-weight: 700;
+}
+.feedback-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.feedback-sent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 760px;
+  margin-top: 18px;
+  color: var(--exact);
+}
+.feedback-history {
+  max-width: 760px;
+  margin-top: 38px;
+  border-top: 1px solid var(--border);
+}
+.feedback-history h2 {
+  margin: 20px 0 12px;
+  font-size: 1.1rem;
+}
+.feedback-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+}
+.feedback-row span {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+.feedback-row em {
+  color: var(--gold);
+  font-style: normal;
+}
+@media (max-width: 650px) {
+  .feedback-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}

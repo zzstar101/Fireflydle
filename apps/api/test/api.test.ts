@@ -387,13 +387,21 @@ describe("管理概览与注册用户列表", () => {
       timezone: string;
       audience: { registeredTotal: number; guestTotal: number };
       api: { configured: boolean; available: boolean };
-      cloudflare: { configured: boolean; available: boolean };
+      cloudflare: {
+        plan: string;
+        billingPeriod: string;
+        configured: boolean;
+        available: boolean;
+      };
       trends: unknown[];
     }>(response);
     expect(overview.timezone).toBe("Asia/Shanghai");
     expect(overview.audience.registeredTotal).toBeGreaterThan(0);
     expect(overview.audience.guestTotal).toBeGreaterThan(0);
     expect(overview.api).toEqual(expect.objectContaining({ configured: false, available: false }));
+    expect(overview.cloudflare).toEqual(
+      expect.objectContaining({ plan: "paid", billingPeriod: "monthly" }),
+    );
     expect(overview.cloudflare).toEqual(
       expect.objectContaining({ configured: false, available: false }),
     );
@@ -908,12 +916,15 @@ describe("普通角色无尽玩法", () => {
 });
 
 describe("排行榜准入", () => {
-  it("不再公开每日榜，Elo 榜只展示未隐藏的注册用户", async () => {
+  it("每日榜无成绩时返回空数组，Elo 榜只展示未隐藏的注册用户", async () => {
     const registered = await createRegisteredSession("public_boards");
     const guest = await createSession();
     expect(registered.data.user.leaderboardEligible).toBe(true);
 
-    expect((await SELF.fetch("https://fireflydle.games/api/leaderboards/daily")).status).toBe(404);
+    const daily = await dataOf<unknown[]>(
+      await SELF.fetch("https://fireflydle.games/api/leaderboards/daily"),
+    );
+    expect(daily).toEqual([]);
 
     const elo = await dataOf<Array<{ displayName: string; elo: number; rankedMatches: number }>>(
       await SELF.fetch("https://fireflydle.games/api/leaderboards/elo"),

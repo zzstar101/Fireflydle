@@ -30,6 +30,7 @@ import {
   currencyWarsManifest,
   currencyWarsSummary,
   currencyWarsUnits,
+  characterSkins,
   npcEntities,
   npcManifest,
   npcSummary,
@@ -69,6 +70,29 @@ const manifests = {
   npc: npcManifest,
   "currency-wars": currencyWarsManifest,
   aeon: aeonManifest,
+  portrait: {
+    manifestVersion: contentManifest.manifestVersion,
+    modes: [
+      {
+        id: "portrait" as const,
+        label: { "zh-CN": "立绘挑战", en: "Portrait challenge", ja: "立ち絵チャレンジ" },
+        targetPoolId: "portrait-targets",
+        candidatePoolId: "portrait-candidates",
+        fields: [
+          {
+            id: "image",
+            label: { "zh-CN": "立绘", en: "Portrait", ja: "立ち絵" },
+            valueType: "image" as const,
+            comparison: "exact" as const,
+            required: true,
+          },
+        ],
+        maxAttempts: 6,
+        rulesVersion: "1.0.0",
+        activities: ["practice", "endless"] as const,
+      },
+    ],
+  },
 } as const;
 
 function modeDefinition(modeId: ContentModeId) {
@@ -87,6 +111,32 @@ function secureRandomValue(): number {
   const value = new Uint32Array(1);
   crypto.getRandomValues(value);
   return (value[0] ?? 0) / 0x1_0000_0000;
+}
+
+function portraitImagePath(entity: EndlessEntity, roundNumber: number): string {
+  const variants = characterSkins.filter((skin) => skin.characterId === entity.id);
+  let hash = roundNumber;
+  for (const character of entity.id) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  const variantIndex = variants.length > 0 ? hash % (variants.length + 1) : 0;
+  if (variantIndex > 0) return variants[variantIndex - 1]!.imagePath;
+  const officialId = (entity as { officialId?: unknown }).officialId;
+  return typeof officialId === "string" && officialId.length > 0
+    ? `/assets/portraits/${officialId}.png`
+    : (entity as unknown as { assets: { portraitPath: string } }).assets.portraitPath;
+}
+
+function createPortraitGuessResult(
+  target: EndlessEntity,
+  guess: EndlessEntity,
+  guessedAt: Date,
+): GuessResult {
+  const isCorrect = target.id === guess.id;
+  return {
+    character: GameEntitySummarySchema.parse(guess),
+    cells: [{ field: "image", state: isCorrect ? "exact" : "miss", direction: "none" }],
+    isCorrect,
+    guessedAt: guessedAt.toISOString(),
+  };
 }
 
 async function readRun(db: D1Database, runId: string): Promise<EndlessRunRow | null> {
@@ -203,6 +253,14 @@ async function toPublicRun(
           ).assets.focus,
         }
       : {}),
+    ...(row.mode_id === "portrait"
+      ? {
+          portraitImagePath: portraitImagePath(
+            candidates[row.current_target_id]!,
+            row.round_number,
+          ),
+        }
+      : {}),
   };
 }
 
@@ -266,7 +324,7 @@ export async function createOrResumeEndlessRun(
     candidates = candidatePool.candidateIds.map(
       (id) => currencyWarsUnits.find((entry) => entry.id === id) as EndlessEntity,
     );
-  } else {
+  } else if (modeId === "aeon") {
     const pool = aeonManifest.pools.find((entry) => entry.id === definition.targetPoolId)!;
     const candidatePool = aeonManifest.pools.find(
       (entry) => entry.id === definition.candidatePoolId,
@@ -277,6 +335,8 @@ export async function createOrResumeEndlessRun(
     candidates = candidatePool.candidateIds.map(
       (id) => aeonEntities.find((entry) => entry.id === id) as EndlessEntity,
     );
+  } else {
+    [targets, candidates] = await Promise.all([getTargetPool(db), getEnabledCharacters(db)]);
   }
   const targetIds = targets.map((target) => target.id);
   if (targetIds.length === 0) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
@@ -414,18 +474,20 @@ export async function submitEndlessGuess(
   const guess = candidates[characterId];
   if (!target || !guess) throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
   const result =
-    row.mode_id === "npc"
-      ? createNpcGuessResult(target as never, guess as never, new Date(now))
-      : row.mode_id === "currency-wars"
-        ? createCurrencyWarsGuessResult(target as never, guess as never, new Date(now))
-        : row.mode_id === "aeon"
-          ? createAeonGuessResult(target as never, guess as never, new Date(now))
-          : createGuessResultWithRules(
-              target as never,
-              guess as never,
-              readRules(row),
-              new Date(now),
-            );
+    row.mode_id === "portrait"
+      ? createPortraitGuessResult(target, guess, new Date(now))
+      : row.mode_id === "npc"
+        ? createNpcGuessResult(target as never, guess as never, new Date(now))
+        : row.mode_id === "currency-wars"
+          ? createCurrencyWarsGuessResult(target as never, guess as never, new Date(now))
+          : row.mode_id === "aeon"
+            ? createAeonGuessResult(target as never, guess as never, new Date(now))
+            : createGuessResultWithRules(
+                target as never,
+                guess as never,
+                readRules(row),
+                new Date(now),
+              );
   const ordinal = guesses.length + 1;
   await db
     .prepare(

@@ -40,7 +40,7 @@ export const DIRECTIONS = ["none", "higher", "lower"] as const;
 export const DirectionSchema = z.enum(DIRECTIONS);
 export type Direction = z.infer<typeof DirectionSchema>;
 
-export const CONTENT_MODE_IDS = ["playable", "npc", "currency-wars", "aeon"] as const;
+export const CONTENT_MODE_IDS = ["playable", "npc", "currency-wars", "aeon", "portrait"] as const;
 export const ContentModeIdSchema = z.enum(CONTENT_MODE_IDS);
 export type ContentModeId = z.infer<typeof ContentModeIdSchema>;
 
@@ -354,7 +354,7 @@ export type EndlessLastRound = z.infer<typeof EndlessLastRoundSchema>;
 
 export const PublicEndlessRunSchema = z.object({
   id: z.string().uuid(),
-  modeId: z.enum(["playable", "npc", "currency-wars", "aeon"]),
+  modeId: ContentModeIdSchema,
   activityId: z.literal("endless"),
   poolRuleVersion: RuleVersionSchema.default("1.0.0"),
   manifestVersion: ManifestVersionSchema.default("1.0.0"),
@@ -376,6 +376,7 @@ export const PublicEndlessRunSchema = z.object({
   fieldDefinitions: z.lazy(() => z.array(FieldDefinitionSchema).min(1)),
   aeonImagePath: z.string().min(1).optional(),
   aeonImageFocus: z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]).optional(),
+  portraitImagePath: z.string().min(1).optional(),
 });
 export type PublicEndlessRun = z.infer<typeof PublicEndlessRunSchema>;
 

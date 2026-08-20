@@ -1,0 +1,107 @@
+.portrait-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 52px 22px 80px;
+}
+.portrait-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.portrait-head h1 {
+  margin: 10px 0 8px;
+  font-size: clamp(2rem, 6vw, 4.3rem);
+}
+.portrait-head p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--text-muted);
+}
+.portrait-actions {
+  display: flex;
+  align-items: start;
+  gap: 9px;
+}
+.portrait-actions a,
+.portrait-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 12px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.portrait-actions button {
+  cursor: pointer;
+}
+.portrait-board-wrap {
+  max-width: 520px;
+  margin: 34px auto 0;
+}
+.portrait-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background-color: #0b0f15;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  box-shadow: 0 20px 80px rgb(0 0 0 / 35%);
+}
+.portrait-board.has-skin {
+  box-shadow:
+    0 20px 80px rgb(231 185 79 / 28%),
+    0 0 0 1px rgb(231 185 79 / 24%);
+}
+.portrait-board i {
+  background: #0b0f15;
+  transition: opacity 0.3s ease;
+}
+.portrait-board i.is-revealed {
+  opacity: 0;
+}
+.portrait-loading {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: inline-flex;
+  gap: 6px;
+  color: var(--gold);
+  transform: translate(-50%, -50%);
+}
+.portrait-feedback {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 600;
+  text-align: center;
+}
+.portrait-feedback.is-wrong {
+  color: var(--text-muted);
+}
+.portrait-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+.portrait-picker {
+  max-width: 620px;
+  margin: 18px auto 0;
+}
+@media (max-width: 650px) {
+  .portrait-head {
+    display: grid;
+  }
+  .portrait-actions {
+    justify-content: space-between;
+  }
+}

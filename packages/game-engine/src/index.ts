@@ -114,25 +114,16 @@ export function compareCurrencyWarsUnits(
 ): GuessCell[] {
   const targetCosts = Array.isArray(target.cost) ? target.cost : [target.cost];
   const guessCosts = Array.isArray(guess.cost) ? guess.cost : [guess.cost];
-  const costExact = guessCosts.some((cost) => targetCosts.includes(cost));
-  const targetMin = Math.min(...targetCosts);
-  const targetMax = Math.max(...targetCosts);
-  const guessMin = Math.min(...guessCosts);
-  const guessMax = Math.max(...guessCosts);
-  const costDirection = costExact
-    ? "none"
-    : guessMax < targetMin
-      ? "higher"
-      : guessMin > targetMax
-        ? "lower"
-        : "none";
+  const costExact =
+    targetCosts.length === guessCosts.length &&
+    targetCosts.every((cost) => guessCosts.includes(cost));
   const targetSynergies = new Set(target.synergies);
   const sharesSynergy = guess.synergies.some((synergy) => targetSynergies.has(synergy));
   const sameSynergies =
     target.synergies.length === guess.synergies.length &&
     guess.synergies.every((synergy) => targetSynergies.has(synergy));
   return [
-    cell("cost", costExact ? "exact" : "miss", costDirection),
+    cell("cost", costExact ? "exact" : "miss"),
     cell("position", target.position === guess.position ? "exact" : "miss"),
     cell("synergies", sameSynergies ? "exact" : sharesSynergy ? "close" : "miss"),
   ];
@@ -207,6 +198,7 @@ export function snapshotRulesFromFieldDefinitions(
   fields: readonly { id: string; comparison?: string }[],
 ): SnapshotFieldRule[] {
   return fields.flatMap((field): SnapshotFieldRule[] => {
+    if (field.id === "image") return [{ field: field.id, comparison: "exact" as const }];
     if (field.id === "faction") return [{ field: field.id, comparison: "faction" as const }];
     if (field.id === "version") return [{ field: field.id, comparison: "version" as const }];
     if (

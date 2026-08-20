@@ -1,0 +1,442 @@
+.collection-counter {
+  display: grid;
+  gap: 3px;
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+}
+.collection-counter strong {
+  color: var(--gold-bright);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+}
+.collection-counter span {
+  color: var(--text-muted);
+  font-size: 0.66rem;
+}
+.collection-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 30px;
+}
+.collection-progress-item {
+  display: grid;
+  gap: 8px;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.collection-progress-item span {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+.collection-progress-item strong {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+.collection-progress-item i {
+  height: 3px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 9%);
+}
+.collection-progress-item b {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+}
+.collection-rewards {
+  margin: 42px 0 34px;
+}
+.collection-rewards-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.collection-rewards-head h2 {
+  max-width: 680px;
+  margin: 7px 0 0;
+  font-size: clamp(1.35rem, 2.8vw, 2rem);
+}
+.collection-reward-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gold-bright);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+.collection-reward-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.collection-reward-card {
+  position: relative;
+  display: flex;
+  min-height: 214px;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+.collection-reward-card.is-unlocked {
+  border-color: var(--border-strong);
+  box-shadow: 0 12px 35px rgb(0 0 0 / 12%);
+}
+.collection-reward-card.is-selected {
+  border-color: var(--gold);
+}
+.collection-reward-card.is-locked {
+  opacity: 0.7;
+}
+.collection-reward-art {
+  position: relative;
+  display: grid;
+  min-height: 142px;
+  flex: 0 0 142px;
+  place-items: center;
+  overflow: hidden;
+  background-color: #0a101b;
+  filter: saturate(1.05);
+}
+.collection-reward-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 142px;
+  object-fit: contain;
+  object-position: center;
+  transition:
+    transform 0.45s ease,
+    filter 0.45s ease;
+}
+.collection-reward-card.is-unlocked:hover .collection-reward-image {
+  transform: scale(1.02);
+}
+.collection-reward-card.is-faction .collection-reward-art::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(180deg, rgb(5 10 18 / 4%), rgb(5 10 18 / 65%));
+  pointer-events: none;
+}
+.collection-reward-card.is-locked .collection-reward-art {
+  filter: grayscale(1) brightness(0.32);
+}
+.collection-reward-copy {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 13px 14px;
+}
+.collection-reward-kind {
+  color: var(--cyan);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+.collection-reward-copy h3 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+}
+.collection-reward-progress {
+  color: var(--text-muted);
+  font-size: 0.66rem;
+}
+.collection-reward-apply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  gap: 5px;
+  min-height: 28px;
+  margin-top: 3px;
+  padding: 0 9px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--gold-bright);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.66rem;
+}
+.collection-reward-apply:hover {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+}
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+.collection-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.collection-card:hover {
+  border-color: var(--gold);
+  background: var(--surface-raised);
+  transform: translateY(-3px);
+}
+.collection-art-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(in srgb, var(--cyan) 18%, transparent),
+      transparent 58%
+    ),
+    #0d1117;
+}
+.collection-art-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition:
+    transform 0.35s ease,
+    filter 0.35s ease;
+}
+.collection-card.is-unlocked:hover img {
+  transform: scale(1.06);
+}
+.collection-card.is-locked img {
+  filter: grayscale(1) brightness(0.22) blur(5px);
+  transform: scale(1.06);
+}
+.collection-art-wrap svg {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  color: var(--gold);
+  transform: translate(-50%, -50%);
+}
+.collection-card-arrow {
+  position: absolute !important;
+  top: 12px;
+  right: 12px;
+  inset: 12px 12px auto auto !important;
+  color: var(--gold);
+  opacity: 0;
+  transform: none !important;
+  transition: opacity 0.2s ease;
+}
+.collection-card:hover .collection-card-arrow {
+  opacity: 1;
+}
+.collection-card-body {
+  display: grid;
+  min-height: 86px;
+  gap: 7px;
+  padding: 13px 14px 14px;
+}
+.collection-card-body strong {
+  overflow: hidden;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.collection-card-body > span {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.collection-skin {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--gold-bright);
+}
+.collection-skin img {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border: 1px solid rgb(231 185 79 / 42%);
+  object-fit: cover;
+}
+.collection-skin span {
+  color: var(--gold-bright);
+}
+.collection-error {
+  color: var(--text-muted);
+}
+.collection-detail-page {
+  padding-bottom: 90px;
+}
+.collection-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 30px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+.collection-back-link:hover {
+  color: var(--gold);
+}
+.collection-detail {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+  gap: clamp(30px, 7vw, 100px);
+  align-items: center;
+}
+.collection-detail-art {
+  position: relative;
+  display: grid;
+  min-height: 420px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(in srgb, var(--cyan) 18%, transparent),
+      transparent 62%
+    ),
+    #0d1117;
+}
+.collection-detail-art img {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  object-fit: contain;
+}
+.collection-detail-art svg {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  color: var(--gold);
+  transform: translate(-50%, -50%);
+}
+.collection-detail-copy h1 {
+  margin: 10px 0;
+  font-size: clamp(2.6rem, 7vw, 5.4rem);
+}
+.collection-detail-meta {
+  color: var(--gold);
+  font-size: 0.9rem;
+}
+.collection-introduction {
+  max-width: 720px;
+  padding: 22px 0 4px;
+}
+.collection-introduction h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+.collection-introduction p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.85;
+  white-space: pre-line;
+}
+.collection-introduction a {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--text-faint);
+  font-size: 0.62rem;
+}
+.collection-introduction a:hover {
+  color: var(--gold);
+}
+.collection-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 34px 0;
+}
+.collection-facts div {
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.collection-facts dt {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.collection-facts dd {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 0.86rem;
+}
+.collection-skin-gallery {
+  margin-top: 26px;
+}
+.collection-skin-gallery h2 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+.collection-skin-gallery > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.collection-skin-gallery figure {
+  width: 100px;
+  margin: 0;
+}
+.collection-skin-gallery img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.collection-skin-gallery figcaption {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+}
+.collection-detail-locked {
+  color: var(--text-muted);
+}
+@media (max-width: 1000px) {
+  .collection-progress {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .collection-progress {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .collection-rewards-head {
+    align-items: start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .collection-reward-grid {
+    grid-template-columns: 1fr;
+  }
+  .collection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+    gap: 10px;
+  }
+  .collection-detail {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .collection-detail-art,
+  .collection-detail-art img {
+    min-height: min(78vw, 420px);
+  }
+}

@@ -9,6 +9,7 @@ import { forfeitWeeklyGame, submitGameGuess } from "../services/games";
 import { enforceRateLimit } from "../services/rate-limit";
 import {
   getCurrentWeeklyRun,
+  getWeeklyCurrentGameId,
   getSharedWeeklyRun,
   getWeeklyRun,
   startWeeklyRun,
@@ -56,20 +57,18 @@ weeklyRoutes.post("/weekly/runs/:runId/guesses", async (context) => {
   const runId = IdentifierSchema.safeParse(context.req.param("runId"));
   const guess = SubmitGuessRequestSchema.safeParse(await readJson(context));
   if (!runId.success || !guess.success) throw new ApiProblem("VALIDATION_FAILED", 400);
-  const run = await getWeeklyRun(context.env.DB, runId.data, auth.user.id);
-  if (!run.currentGame) throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
-  await submitGameGuess(context.env.DB, run.currentGame.id, auth.user.id, guess.data.characterId);
-  return ok(context, await getWeeklyRun(context.env.DB, run.id, auth.user.id));
+  const gameId = await getWeeklyCurrentGameId(context.env.DB, runId.data, auth.user.id);
+  await submitGameGuess(context.env.DB, gameId, auth.user.id, guess.data.characterId);
+  return ok(context, await getWeeklyRun(context.env.DB, runId.data, auth.user.id));
 });
 
 weeklyRoutes.post("/weekly/runs/:runId/forfeit", async (context) => {
   const auth = requireAuth(context);
   const runId = IdentifierSchema.safeParse(context.req.param("runId"));
   if (!runId.success) throw new ApiProblem("NOT_FOUND", 404);
-  const run = await getWeeklyRun(context.env.DB, runId.data, auth.user.id);
-  if (!run.currentGame) throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
-  await forfeitWeeklyGame(context.env.DB, run.currentGame.id, auth.user.id);
-  return ok(context, await getWeeklyRun(context.env.DB, run.id, auth.user.id));
+  const gameId = await getWeeklyCurrentGameId(context.env.DB, runId.data, auth.user.id);
+  await forfeitWeeklyGame(context.env.DB, gameId, auth.user.id);
+  return ok(context, await getWeeklyRun(context.env.DB, runId.data, auth.user.id));
 });
 
 weeklyRoutes.post("/weekly/runs/:runId/share", async (context) => {

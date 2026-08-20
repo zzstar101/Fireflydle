@@ -7,8 +7,11 @@ export type ThemePreference = "system" | "dark" | "light";
 interface PreferencesState {
   theme: ThemePreference;
   language: Locale;
+  collectionRewardId: string | null;
+  collectionRewardImage: string | null;
   setTheme: (theme: ThemePreference) => void;
   setLanguage: (language: Locale) => void;
+  setCollectionReward: (id: string, imagePath: string) => void;
 }
 
 function initialLanguage(): Locale {
@@ -23,8 +26,12 @@ export const usePreferences = create<PreferencesState>()(
     (set) => ({
       theme: "system",
       language: initialLanguage(),
+      collectionRewardId: null,
+      collectionRewardImage: null,
       setTheme: (theme) => set({ theme }),
       setLanguage: (language) => set({ language }),
+      setCollectionReward: (collectionRewardId, collectionRewardImage) =>
+        set({ collectionRewardId, collectionRewardImage }),
     }),
     { name: "fireflydle-preferences" },
   ),

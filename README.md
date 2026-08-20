@@ -11,8 +11,9 @@
 [![CI](https://github.com/zzstar101/fireflydle/actions/workflows/ci.yml/badge.svg)](https://github.com/zzstar101/fireflydle/actions/workflows/ci.yml)
 [![Deploy](https://github.com/zzstar101/fireflydle/actions/workflows/deploy.yml/badge.svg)](https://github.com/zzstar101/fireflydle/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4a78d0.svg)](LICENSE)
-[![Bun 1.3.14](https://img.shields.io/badge/Bun-1.3.14-14151a?logo=bun&logoColor=white)](https://bun.sh/)
-[![TypeScript 5.9](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Bun 1.4.0](https://img.shields.io/badge/Bun-1.4.0-14151a?logo=bun&logoColor=white)](https://bun.sh/)
+[![TypeScript 7.0.2](https://img.shields.io/badge/TypeScript-7.0.2-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Hono 4.12.34](https://img.shields.io/badge/Hono-4.12.34-e36002?logo=hono&logoColor=white)](https://hono.dev/)
 
 ![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=111827)
 ![Vite 8](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
@@ -78,7 +79,7 @@
 
 ## 快速开始
 
-环境要求：项目以根目录 `package.json` 中固定的 **Bun 1.3.14** 为准。本地 Worker 和 D1 由 Wrangler 启动，不需要预先创建生产 Cloudflare 资源。
+环境要求：项目以根目录 `package.json` 中固定的 **Bun 1.4.0** 为准。本地 Worker 和 D1 由 Wrangler 启动，不需要预先创建生产 Cloudflare 资源。
 
 安装依赖、同步角色数据并初始化本地数据库：
 

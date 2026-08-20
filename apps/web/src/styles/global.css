@@ -134,6 +134,49 @@ textarea:focus-visible,
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+}
+
+.app-frame::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background-image:
+    linear-gradient(180deg, color-mix(in srgb, var(--canvas) 92%, transparent), var(--canvas) 88%),
+    var(--collection-reward-image);
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+:root[data-reward-visible="true"] .app-frame::before {
+  opacity: 0.24;
+}
+:root[data-collection-faction] .app-frame::before {
+  background-image:
+    radial-gradient(
+      circle at 74% 12%,
+      color-mix(in srgb, var(--faction-primary, var(--gold)) 20%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 14% 88%,
+      color-mix(in srgb, var(--faction-secondary, var(--cyan)) 16%, transparent),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--canvas-deep) 72%, transparent),
+      color-mix(in srgb, var(--canvas) 78%, transparent)
+    ),
+    var(--collection-reward-image);
+  background-position: center;
+  background-size: cover;
+  opacity: 0.65;
 }
 
 .site-header {
@@ -242,6 +285,31 @@ textarea:focus-visible,
   align-items: center;
   gap: 8px;
   margin-left: auto;
+}
+
+.header-icon-link {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.header-icon-link:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--surface-soft);
+}
+
+.github-mark {
+  width: 19px;
+  height: 19px;
 }
 
 .icon-button,

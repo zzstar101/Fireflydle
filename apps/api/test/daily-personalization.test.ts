@@ -113,8 +113,8 @@ async function answerFor(cookie: string): Promise<string> {
   return current.answer.id;
 }
 
-describe("个性化每日题", () => {
-  it("同一玩家当天稳定续局，不同玩家不再共享唯一答案", async () => {
+describe("统一每日题", () => {
+  it("同一玩家当天稳定续局，所有玩家共享当天答案", async () => {
     await seedCandidates();
     const stableGuestId = crypto.randomUUID();
     const firstSession = await createSession(stableGuestId);
@@ -130,6 +130,6 @@ describe("个性化每日题", () => {
     for (let index = 0; index < 12; index += 1) {
       answers.add(await answerFor((await createSession()).cookie));
     }
-    expect(answers.size).toBeGreaterThan(1);
+    expect(answers.size).toBe(1);
   });
 });

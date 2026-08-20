@@ -22,6 +22,7 @@ import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import "./game.css";
 import "./endless.css";
+import "./portrait-challenge.css";
 
 const copy = {
   "zh-CN": {
@@ -112,6 +113,32 @@ const rosterEndpoints: Partial<Record<ContentModeId, string>> = {
   "currency-wars": "/currency-wars/units",
 };
 
+function PortraitEndlessBoard({ run }: { run: PublicEndlessRun }) {
+  const wrongGuesses = run.guesses.filter((guess) => !guess.isCorrect).length;
+  const revealed = new Set<number>([3, 60]);
+  if (run.status === "finished") {
+    for (let index = 0; index < 64; index += 1) revealed.add(index);
+  } else {
+    for (let index = 0; index < wrongGuesses * 6; index += 1) {
+      revealed.add((index * 17 + wrongGuesses * 11) % 64);
+    }
+  }
+  return (
+    <div className="portrait-board-wrap endless-portrait-board-wrap" aria-label="立绘遮罩">
+      <div
+        className="portrait-board"
+        style={{
+          backgroundImage: run.portraitImagePath ? `url(${run.portraitImagePath})` : undefined,
+        }}
+      >
+        {Array.from({ length: 64 }, (_, index) => (
+          <i key={index} className={revealed.has(index) ? "is-revealed" : ""} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function EndlessPage({
   contentModeId,
   bundledRoster,
@@ -142,11 +169,15 @@ export function EndlessPage({
       await ensureSession();
       const [nextRun, nextRoster, entries] = await Promise.all([
         apiRequest<PublicEndlessRun>(`/endless?modeId=${contentModeId}`, { method: "POST" }),
-        rosterEndpoints[contentModeId]
-          ? apiRequest<GameEntitySummary[]>(rosterEndpoints[contentModeId]!).catch(
-              () => bundledRoster,
+        contentModeId === "portrait"
+          ? apiRequest<{ characters: GameEntitySummary[] }>("/portrait-roster").then(
+              (value) => value.characters,
             )
-          : Promise.resolve(bundledRoster),
+          : rosterEndpoints[contentModeId]
+            ? apiRequest<GameEntitySummary[]>(rosterEndpoints[contentModeId]!).catch(
+                () => bundledRoster,
+              )
+            : Promise.resolve(bundledRoster),
         apiRequest<EndlessLeaderboardEntry[]>(
           `/leaderboards/endless?modeId=${contentModeId}`,
         ).catch(() => []),
@@ -241,10 +272,32 @@ export function EndlessPage({
           <p>
             {contentModeId === "playable"
               ? labels.eyebrow
-              : `${contentModeId.toUpperCase()} · ${labels.board}`}
+              : contentModeId === "portrait"
+                ? locale === "zh-CN"
+                  ? "立绘挑战 · 无尽"
+                  : locale === "ja"
+                    ? "立ち絵 · エンドレス"
+                    : "PORTRAITS · ENDLESS"
+                : `${contentModeId.toUpperCase()} · ${labels.board}`}
           </p>
-          <h1>{labels.title}</h1>
-          <span>{labels.intro}</span>
+          <h1>
+            {contentModeId === "portrait"
+              ? locale === "zh-CN"
+                ? "立绘无尽，看看你能猜中多少"
+                : locale === "ja"
+                  ? "立ち絵を何問当てられる？"
+                  : "How many portraits can you name?"
+              : labels.title}
+          </h1>
+          <span>
+            {contentModeId === "portrait"
+              ? locale === "zh-CN"
+                ? "每题展示一张角色立绘或皮肤。每次猜错会揭示更多区域，失败或跳过扣除一条生命。"
+                : locale === "ja"
+                  ? "キャラクターの立ち絵やスキンを当てよう。間違えると画像が少しずつ見えます。"
+                  : "Guess a character portrait or skin. Misses reveal more of the image and cost a life."
+              : labels.intro}
+          </span>
         </div>
         <InfinityIcon size={54} strokeWidth={1.4} aria-hidden="true" />
       </header>
@@ -340,7 +393,12 @@ export function EndlessPage({
               {labels.retry}
             </p>
           ) : null}
-          {contentModeId === "aeon" ? (
+          {contentModeId === "portrait" ? (
+            <>
+              <PortraitEndlessBoard run={run} />
+              <GuessBoard guesses={run.guesses} locale={locale} fields={run.fieldDefinitions} />
+            </>
+          ) : contentModeId === "aeon" ? (
             <AeonGuessBoard
               gameId={`${run.id}:${run.roundNumber}`}
               wrongGuesses={run.guesses.filter((guess) => !guess.isCorrect).length}

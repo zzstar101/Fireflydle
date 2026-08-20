@@ -5,11 +5,13 @@ const DAY_MS = 24 * 60 * 60 * 1_000;
 const ANALYTICS_DATASET = "fireflydle_api_metrics";
 const WORKER_NAME = "fireflydle-api";
 const EXTERNAL_CACHE_MS = 5 * 60 * 1_000;
-const FREE_LIMITS = {
-  workerRequests: 100_000,
-  workerCpuMs: 10,
-  d1RowsRead: 5_000_000,
-  d1RowsWritten: 100_000,
+const CLOUDFLARE_PLAN = "paid" as const;
+const CLOUDFLARE_CACHE_KEY = "cloudflare-usage-paid-v1";
+const PAID_LIMITS = {
+  workerRequests: 10_000_000,
+  workerCpuMs: 30_000,
+  d1RowsRead: 25_000_000_000,
+  d1RowsWritten: 50_000_000,
   d1StorageBytes: 5 * 1024 * 1024 * 1024,
 } as const;
 
@@ -110,6 +112,8 @@ export interface OperationsOverview {
     completionRate: number;
   }>;
   cloudflare: {
+    plan: "paid";
+    billingPeriod: "monthly";
     configured: boolean;
     available: boolean;
     fetchedAt: string | null;
@@ -376,10 +380,17 @@ export async function getOnlinePresence(env: Env, now = Date.now()): Promise<Onl
   };
 }
 
-function utcResetAt(now: number): string {
-  const next = new Date(now);
-  next.setUTCHours(24, 0, 0, 0);
-  return next.toISOString();
+function monthlyWindowStart(now: number): Date {
+  // Cloudflare 账单续期日不在 Analytics 查询结果中暴露，面板用 UTC 月度窗口做趋势和预警。
+  const start = new Date(now);
+  start.setUTCDate(1);
+  start.setUTCHours(0, 0, 0, 0);
+  return start;
+}
+
+function monthlyWindowResetAt(now: number): string {
+  const start = monthlyWindowStart(now);
+  return new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1)).toISOString();
 }
 
 function quota(
@@ -411,16 +422,17 @@ async function cloudflareUsageFresh(
   const token = analyticsToken(env);
   if (!token) {
     return {
+      plan: CLOUDFLARE_PLAN,
+      billingPeriod: "monthly",
       configured: false,
       available: false,
       fetchedAt: null,
-      resetAt: utcResetAt(now),
+      resetAt: monthlyWindowResetAt(now),
       quotas: [],
       error: "缺少只读 Analytics Token",
     };
   }
-  const start = new Date(now);
-  start.setUTCHours(0, 0, 0, 0);
+  const start = monthlyWindowStart(now);
   const query = `query OperationsUsage(
     $accountTag: string,
     $datetimeStart: string,
@@ -505,38 +517,42 @@ async function cloudflareUsageFresh(
     );
     const size = await databaseSize(env);
     return {
+      plan: CLOUDFLARE_PLAN,
+      billingPeriod: "monthly",
       configured: true,
       available: true,
       fetchedAt: new Date(now).toISOString(),
-      resetAt: utcResetAt(now),
+      resetAt: monthlyWindowResetAt(now),
       quotas: [
         quota(
           "worker-requests",
           "Workers 请求",
           workerRequests,
-          FREE_LIMITS.workerRequests,
+          PAID_LIMITS.workerRequests,
           "requests",
         ),
         quota(
           "worker-cpu",
-          "Worker CPU p99 / 单次请求上限",
+          "Worker CPU p99 / 默认单次上限",
           cpuP99,
-          FREE_LIMITS.workerCpuMs,
+          PAID_LIMITS.workerCpuMs,
           "ms",
           "limit",
         ),
-        quota("d1-reads", "D1 读取行", rowsRead, FREE_LIMITS.d1RowsRead, "rows"),
-        quota("d1-writes", "D1 写入行", rowsWritten, FREE_LIMITS.d1RowsWritten, "rows"),
-        quota("d1-storage", "D1 存储", size, FREE_LIMITS.d1StorageBytes, "bytes"),
+        quota("d1-reads", "D1 读取行", rowsRead, PAID_LIMITS.d1RowsRead, "rows"),
+        quota("d1-writes", "D1 写入行", rowsWritten, PAID_LIMITS.d1RowsWritten, "rows"),
+        quota("d1-storage", "D1 存储", size, PAID_LIMITS.d1StorageBytes, "bytes"),
       ],
       error: null,
     };
   } catch (error) {
     return {
+      plan: CLOUDFLARE_PLAN,
+      billingPeriod: "monthly",
       configured: true,
       available: false,
       fetchedAt: null,
-      resetAt: utcResetAt(now),
+      resetAt: monthlyWindowResetAt(now),
       quotas: [],
       error: error instanceof Error ? error.message : String(error),
     };
@@ -573,6 +589,8 @@ function validCloudflareCache(value: unknown): OperationsOverview["cloudflare"] 
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
   return {
+    plan: CLOUDFLARE_PLAN,
+    billingPeriod: "monthly",
     configured: record.configured,
     available: record.available === true,
     fetchedAt: typeof record.fetchedAt === "string" ? record.fetchedAt : null,
@@ -584,7 +602,8 @@ function validCloudflareCache(value: unknown): OperationsOverview["cloudflare"] 
 
 async function cloudflareUsage(env: Env, now: number): Promise<OperationsOverview["cloudflare"]> {
   const cached = await env.DB.prepare(
-    "SELECT payload_json FROM operations_external_cache WHERE cache_key = 'cloudflare-usage' AND expires_at > ?",
+    `SELECT payload_json FROM operations_external_cache
+     WHERE cache_key = '${CLOUDFLARE_CACHE_KEY}' AND expires_at > ?`,
   )
     .bind(now)
     .first<{ payload_json: string }>();
@@ -600,13 +619,13 @@ async function cloudflareUsage(env: Env, now: number): Promise<OperationsOvervie
   if (fresh.available) {
     await env.DB.prepare(
       `INSERT INTO operations_external_cache (cache_key, payload_json, expires_at, updated_at)
-       VALUES ('cloudflare-usage', ?, ?, ?)
+       VALUES (?, ?, ?, ?)
        ON CONFLICT(cache_key) DO UPDATE SET
          payload_json = excluded.payload_json,
          expires_at = excluded.expires_at,
          updated_at = excluded.updated_at`,
     )
-      .bind(JSON.stringify(fresh), now + EXTERNAL_CACHE_MS, now)
+      .bind(CLOUDFLARE_CACHE_KEY, JSON.stringify(fresh), now + EXTERNAL_CACHE_MS, now)
       .run();
   }
   return fresh;
@@ -625,8 +644,8 @@ function cloudflareAlertTasks(
         {
           kind: `quota-${item.id}`,
           severity: item.percent >= 0.95 ? "critical" : "warning",
-          title: `${item.label}接近免费额度`,
-          message: `当前已使用免费额度的 ${(item.percent * 100).toFixed(1)}%。`,
+          title: `${item.label}接近套餐额度`,
+          message: `当前已使用 Workers Paid 月度包含额度的 ${(item.percent * 100).toFixed(1)}%，超出后会产生额外费用。`,
           active: item.percent >= 0.8,
           notifyByEmail: item.percent >= 0.8,
         },

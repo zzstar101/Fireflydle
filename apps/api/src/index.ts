@@ -13,6 +13,7 @@ import { matchmakingRoutes } from "./routes/matchmaking";
 import { replayRoutes } from "./routes/replays";
 import { roomRoutes } from "./routes/rooms";
 import { weeklyRoutes } from "./routes/weekly";
+import { feedbackRoutes } from "./routes/feedback";
 import { ApiProblem, ok, problemResponse } from "./lib/http";
 import { resolveAuth } from "./services/auth";
 import { runScheduledMaintenance } from "./services/maintenance";
@@ -121,6 +122,7 @@ api.route("/", analyticsRoutes);
 api.route("/", replayRoutes);
 api.route("/", announcementRoutes);
 api.route("/", weeklyRoutes);
+api.route("/", feedbackRoutes);
 api.route("/", adminRoutes);
 
 app.route("/api", api);

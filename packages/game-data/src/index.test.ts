@@ -1,3 +1,5 @@
+/// <reference types="bun" />
+
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -19,6 +21,7 @@ import {
   currencyWarsUnitSummaries,
   aeonAssetAudit,
   aeonManifest,
+  characterSkins,
 } from "./index.ts";
 import { playableShell } from "./playable-shell.ts";
 
@@ -43,6 +46,17 @@ describe("角色输入搜索", () => {
     for (const character of characters) {
       expect(character.aliases["zh-CN"].some((alias) => asciiAlias.test(alias))).toBeTrue();
       expect(character.aliases.ja.some((alias) => asciiAlias.test(alias))).toBeTrue();
+    }
+  });
+});
+
+describe("角色时装视觉变体", () => {
+  test("每套时装都绑定到现有角色并使用本地官方素材", () => {
+    expect(characterSkins).toHaveLength(5);
+    for (const skin of characterSkins) {
+      expect(characters.some((character) => character.id === skin.characterId)).toBeTrue();
+      expect(skin.imagePath).toMatch(/^\/assets\/skins\/.+\.png$/);
+      expect(skin.sourceUrl).toMatch(/^https:\/\//);
     }
   });
 });
@@ -101,9 +115,9 @@ describe("货币战争独立规则集", () => {
     expect(mode?.maxAttempts).toBe(6);
     expect(mode?.fields.map((field) => field.id)).toEqual(["cost", "position", "synergies"]);
     expect(candidatePool?.candidateIds.length).toBe(targetPool?.targetIds.length ?? 0);
-    expect(candidatePool?.candidateIds.length).toBe(71);
-    expect(candidatePool?.candidateIds).not.toContain("cw-acheron");
-    expect(currencyWarsRuleset.units.some((unit) => unit.id === "cw-acheron")).toBeFalse();
+    expect(candidatePool?.candidateIds.length).toBe(72);
+    expect(candidatePool?.candidateIds).toContain("cw-acheron");
+    expect(currencyWarsRuleset.units.some((unit) => unit.id === "cw-acheron")).toBeTrue();
     expect(currencyWarsRuleset.units.every((unit) => unit.id.startsWith("cw-"))).toBeTrue();
     expect(
       currencyWarsRuleset.units.find((unit) => unit.id === "cw-silver-wolf-lv-999")?.cost,

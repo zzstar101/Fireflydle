@@ -1,5 +1,13 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AppShell } from "../components/AppShell";
 import { LoadingScreen } from "../components/LoadingScreen";
@@ -12,6 +20,12 @@ const PlayableGamePage = lazy(() => import("../features/game/PlayableModePages")
 const PlayableEndlessPage = lazy(() =>
   import("../features/game/PlayableModePages").then((module) => ({
     default: module.PlayableEndlessPage,
+  })),
+);
+const PortraitChallengePage = lazy(() => import("../features/game/PortraitChallengePage"));
+const PortraitEndlessPage = lazy(() =>
+  import("../features/game/PortraitChallengePage").then((module) => ({
+    default: module.PortraitEndlessPage,
   })),
 );
 const CurrencyWarsGamePage = lazy(() => import("../features/game/CurrencyWarsModePages"));
@@ -28,6 +42,13 @@ const HubPage = lazy(() => import("../features/hub/HubPage"));
 const DuelPage = lazy(() => import("../features/multiplayer/DuelPage"));
 const RoomPage = lazy(() => import("../features/multiplayer/RoomPage"));
 const LeaderboardPage = lazy(() => import("../features/leaderboard/LeaderboardPage"));
+const CollectionPage = lazy(() => import("../features/collection/CollectionPage"));
+const CollectionCharacterPage = lazy(() =>
+  import("../features/collection/CollectionPage").then((module) => ({
+    default: module.CollectionCharacterPage,
+  })),
+);
+const FeedbackPage = lazy(() => import("../features/feedback/FeedbackPage"));
 const StatsPage = lazy(() => import("../features/account/StatsPage"));
 const AccountPage = lazy(() => import("../features/account/AccountPage"));
 const RecoveryPage = lazy(() => import("../features/account/RecoveryPage"));
@@ -67,6 +88,11 @@ const defaultMode = getDefaultMode();
 
 function DefaultModeRedirect() {
   return <Navigate to={defaultMode.path} replace />;
+}
+
+function LegacyCollectionRedirect() {
+  const { characterId } = useParams();
+  return <Navigate to={characterId ? `/character/${characterId}` : "/collection"} replace />;
 }
 
 function DefaultModeLayout() {
@@ -130,6 +156,11 @@ function RouteContent() {
         </Route>
         <Route path="/room/:roomId" element={<RoomPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/collection" element={<CollectionPage />} />
+        <Route path="/character/:characterId" element={<CollectionCharacterPage />} />
+        <Route path="/codex" element={<LegacyCollectionRedirect />} />
+        <Route path="/codex/:characterId" element={<LegacyCollectionRedirect />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/recover" element={<RecoveryPage />} />
@@ -159,6 +190,15 @@ function RouteContent() {
           }
         />
         <Route path="/playable/weekly" element={<WeeklyPage routeModeId="playable" />} />
+        <Route path="/playable/portrait" element={<PortraitChallengePage />} />
+        <Route
+          path="/playable/portrait/endless"
+          element={
+            <OnlineActivity>
+              <PortraitEndlessPage key="portrait-endless" />
+            </OnlineActivity>
+          }
+        />
         <Route path="/currency-wars/weekly" element={<WeeklyPage routeModeId="currency-wars" />} />
         <Route path="/aeon/weekly" element={<WeeklyPage routeModeId="aeon" />} />
         <Route path="/legal" element={<LegalPage />} />

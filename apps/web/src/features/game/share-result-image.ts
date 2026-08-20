@@ -37,7 +37,7 @@ const LABELS: Record<Locale, ShareLabels> = {
     brand: "萤一把",
     subtitle: "星穹铁道角色猜谜",
     daily: "每日一题",
-    practice: "随机挑战",
+    practice: "普通挑战",
     won: "猜中",
     lost: "未猜中",
     guesses: "尝试",

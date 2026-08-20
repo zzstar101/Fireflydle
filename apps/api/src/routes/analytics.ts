@@ -2,7 +2,7 @@ import { getBeijingDateKey } from "@fireflydle/game-engine";
 import { Hono } from "hono";
 import { ok } from "../lib/http";
 import { requireAuth } from "../services/auth";
-import { getReplayGame } from "../services/games";
+import { getReplayGames } from "../services/games";
 import { getAchievementProgress } from "../services/achievements";
 import type { AppContext } from "../types";
 
@@ -39,6 +39,14 @@ interface DailyCompletionRow {
 
 interface CountRow {
   count: number;
+}
+
+interface DailyLeaderboardRow {
+  display_name: string;
+  result: "won" | "lost";
+  guess_count: number;
+  elapsed_ms: number;
+  completed_at: number;
 }
 
 interface MultiplayerRecentRow {
@@ -181,23 +189,26 @@ analyticsRoutes.get("/stats/me", async (context) => {
   }));
   const dailyGuessSum = uniqueDaily.reduce((sum, row) => sum + row.guess_count, 0);
   const totalGuessGames = (aggregate?.guess_games ?? 0) + uniqueDaily.length;
-  const soloRecent = await Promise.all(
-    recentRows.results.map(async (row) => {
-      const game = await getReplayGame(context.env.DB, row.game_id);
-      return {
-        id: row.game_id,
-        modeId: row.mode_id,
-        activityId: row.activity_id,
-        result: row.result === "expired" ? "lost" : row.result,
-        guesses: row.guess_count,
-        elapsedMs: row.elapsed_ms,
-        playedAt: new Date(row.completed_at).toISOString(),
-        ...(game.guesses.length === row.guess_count && game.inferenceReview
-          ? { inferenceReview: game.inferenceReview }
-          : {}),
-      };
-    }),
+  const replayGames = await getReplayGames(
+    context.env.DB,
+    recentRows.results.map((row) => row.game_id),
   );
+  const soloRecent = recentRows.results.flatMap((row) => {
+    const game = replayGames.get(row.game_id);
+    if (!game) return [];
+    return {
+      id: row.game_id,
+      modeId: row.mode_id,
+      activityId: row.activity_id,
+      result: row.result === "expired" ? "lost" : row.result,
+      guesses: row.guess_count,
+      elapsedMs: row.elapsed_ms,
+      playedAt: new Date(row.completed_at).toISOString(),
+      ...(game.guesses.length === row.guess_count && game.inferenceReview
+        ? { inferenceReview: game.inferenceReview }
+        : {}),
+    };
+  });
   return ok(context, {
     dailyPlayed: uniqueDaily.length,
     dailyWon: uniqueDaily.filter((row) => row.result === "won").length,
@@ -261,6 +272,45 @@ analyticsRoutes.get("/leaderboards/elo", async (context) => {
       displayName: row.display_name,
       elo: row.elo,
       rankedMatches: row.ranked_matches,
+    })),
+  );
+});
+
+analyticsRoutes.get("/leaderboards/daily", async (context) => {
+  const today = getBeijingDateKey();
+  const rows = await context.env.DB.prepare(
+    `WITH ranked AS (
+       SELECT u.display_name, r.result, r.guess_count, r.elapsed_ms, r.completed_at,
+              ROW_NUMBER() OVER (
+                PARTITION BY r.user_id, r.date_key
+                ORDER BY r.completed_at ASC
+              ) AS attempt_no
+       FROM game_results r
+       JOIN users u ON u.id = r.user_id
+       WHERE r.mode_id = 'playable' AND r.activity_id = 'daily'
+         AND r.date_key = ? AND r.result IN ('won', 'lost')
+         AND u.is_guest = 0 AND u.leaderboard_eligible = 1
+         AND u.merged_into_user_id IS NULL
+     )
+     SELECT display_name, result, guess_count, elapsed_ms, completed_at
+     FROM ranked
+     WHERE attempt_no = 1
+     ORDER BY CASE WHEN result = 'won' THEN 0 ELSE 1 END,
+              CASE WHEN result = 'won' THEN guess_count ELSE 999999 END ASC,
+              elapsed_ms ASC, completed_at ASC
+     LIMIT 100`,
+  )
+    .bind(today)
+    .all<DailyLeaderboardRow>();
+  return ok(
+    context,
+    rows.results.map((row, index) => ({
+      rank: index + 1,
+      displayName: row.display_name,
+      result: row.result,
+      guesses: row.guess_count,
+      elapsedMs: row.elapsed_ms,
+      completedAt: new Date(row.completed_at).toISOString(),
     })),
   );
 });

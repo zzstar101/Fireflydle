@@ -62,7 +62,7 @@ interface GameRow {
   pool_rule_version: PublicGame["poolRuleVersion"];
   manifest_version: PublicGame["manifestVersion"];
   target_payload_json: string;
-  candidate_pool_json: string;
+  candidate_pool_json: string | null;
   field_rules_json: string;
 }
 
@@ -86,6 +86,38 @@ function secureRandomIndex(length: number): number {
 
 async function readGameRow(db: D1Database, gameId: string): Promise<GameRow | null> {
   return db.prepare(`SELECT * FROM games WHERE id = ?`).bind(gameId).first<GameRow>();
+}
+
+async function readCandidatePool(db: D1Database, gameId: string): Promise<string | null> {
+  const row = await db
+    .prepare("SELECT candidate_pool_json FROM games WHERE id = ?")
+    .bind(gameId)
+    .first<{ candidate_pool_json: string }>();
+  return row?.candidate_pool_json ?? null;
+}
+
+async function readPublicGameData(
+  db: D1Database,
+  gameId: string,
+): Promise<{ row: GameRow | null; guesses: GuessResult[] }> {
+  const [rowResult, guessResult] = await db.batch([
+    db
+      .prepare(
+        `SELECT id, user_id, date_key, target_character_id, max_attempts, status,
+                started_at, completed_at, mode_id, activity_id, pool_rule_version,
+                manifest_version, target_payload_json, field_rules_json
+         FROM games WHERE id = ?`,
+      )
+      .bind(gameId),
+    db
+      .prepare("SELECT result_json FROM game_guesses WHERE game_id = ? ORDER BY ordinal")
+      .bind(gameId),
+  ]);
+  const row = (rowResult!.results[0] as GameRow | undefined) ?? null;
+  const guesses = (guessResult!.results as Array<{ result_json: string }>).map((item) =>
+    GuessResultSchema.parse(JSON.parse(item.result_json)),
+  );
+  return { row, guesses };
 }
 
 async function readGuessResults(db: D1Database, gameId: string): Promise<GuessResult[]> {
@@ -216,9 +248,13 @@ export async function getPublicGame(
   userId: string,
   now = Date.now(),
 ): Promise<PublicGame> {
-  const row = await readGameRow(db, gameId);
+  const data = await readPublicGameData(db, gameId);
+  let row = data.row;
   if (!row || row.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
-  return toPublicGame(row, await readGuessResults(db, gameId), now);
+  if (row.status !== "active") {
+    row = { ...row, candidate_pool_json: await readCandidatePool(db, gameId) };
+  }
+  return toPublicGame(row, data.guesses, now);
 }
 
 export async function getCurrentGames(
@@ -248,9 +284,42 @@ export async function getReplayGame(
   gameId: string,
   now = Date.now(),
 ): Promise<PublicGame> {
-  const row = await readGameRow(db, gameId);
-  if (!row) throw new ApiProblem("NOT_FOUND", 404);
-  return toPublicGame(row, await readGuessResults(db, gameId), now);
+  const games = await getReplayGames(db, [gameId], now);
+  const game = games.get(gameId);
+  if (!game) throw new ApiProblem("NOT_FOUND", 404);
+  return game;
+}
+
+export async function getReplayGames(
+  db: D1Database,
+  gameIds: readonly string[],
+  now = Date.now(),
+): Promise<Map<string, PublicGame>> {
+  const uniqueIds = [...new Set(gameIds)];
+  if (uniqueIds.length === 0) return new Map();
+  const placeholders = uniqueIds.map(() => "?").join(", ");
+  const batchResults = await db.batch([
+    db.prepare(`SELECT * FROM games WHERE id IN (${placeholders})`).bind(...uniqueIds),
+    db
+      .prepare(
+        `SELECT game_id, result_json FROM game_guesses
+         WHERE game_id IN (${placeholders}) ORDER BY game_id, ordinal`,
+      )
+      .bind(...uniqueIds),
+  ]);
+  const gameRows = batchResults[0]!;
+  const guessRows = batchResults[1]!;
+  const guessesByGame = new Map<string, GuessResult[]>();
+  for (const row of guessRows.results as Array<{ game_id: string; result_json: string }>) {
+    const guesses = guessesByGame.get(row.game_id) ?? [];
+    guesses.push(GuessResultSchema.parse(JSON.parse(row.result_json)));
+    guessesByGame.set(row.game_id, guesses);
+  }
+  const games = new Map<string, PublicGame>();
+  for (const row of gameRows.results as GameRow[]) {
+    games.set(row.id, toPublicGame(row, guessesByGame.get(row.id) ?? [], now));
+  }
+  return games;
 }
 
 async function selectDailyAnchor(
@@ -295,20 +364,8 @@ async function selectDailyAnchor(
   throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "daily-target-contention" });
 }
 
-async function personalizedDailyIndex(
-  poolLength: number,
-  dateKey: string,
-  userId: string,
-  anchorCharacterId: string,
-): Promise<number> {
-  const input = new TextEncoder().encode(`${dateKey}\0${userId}\0${anchorCharacterId}`);
-  const digest = await crypto.subtle.digest("SHA-256", input);
-  return new DataView(digest).getUint32(0, false) % poolLength;
-}
-
 async function selectTarget(
   db: D1Database,
-  userId: string,
   input: CreateGameRequest,
   now: number,
 ): Promise<{
@@ -381,8 +438,7 @@ async function selectTarget(
 
   const dateKey = getBeijingDateKey(now);
   const anchorCharacterId = await selectDailyAnchor(db, pool, dateKey, now);
-  const target =
-    pool[await personalizedDailyIndex(pool.length, dateKey, userId, anchorCharacterId)];
+  const target = pool.find((character) => character.id === anchorCharacterId);
   if (!target) throw new ApiProblem("INTERNAL_ERROR", 503, { reason: "empty-pool" });
   return { targetId: target.id, dateKey, candidateSnapshots };
 }
@@ -432,6 +488,7 @@ const snapshotFieldRules: readonly SnapshotFieldRule[] = snapshotRulesFromFieldD
 if (snapshotFieldRules.length === 0) throw new Error("普通角色 manifest 没有可比较字段");
 
 function readCandidateSnapshot(row: GameRow, characterId: string): GameEntitySummary | null {
+  if (!row.candidate_pool_json) return null;
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
   if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
   const payload = (encoded as Record<string, unknown>)[characterId];
@@ -447,11 +504,13 @@ function readCandidateSnapshot(row: GameRow, characterId: string): GameEntitySum
 }
 
 function hasCandidateSnapshotPool(row: GameRow): boolean {
+  if (!row.candidate_pool_json) return false;
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
   return typeof encoded === "object" && encoded !== null && !Array.isArray(encoded);
 }
 
 function readPlayableCandidatePool(row: GameRow): Character[] | null {
+  if (!row.candidate_pool_json) return null;
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
   if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
   const parsed = CharacterSchema.array().safeParse(Object.values(encoded));
@@ -461,6 +520,7 @@ function readPlayableCandidatePool(row: GameRow): Character[] | null {
 function readModeCandidatePool(
   row: GameRow,
 ): Character[] | NpcSummary[] | CurrencyWarsUnit[] | null {
+  if (!row.candidate_pool_json) return null;
   const encoded = JSON.parse(row.candidate_pool_json) as unknown;
   if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return null;
   const values = Object.values(encoded);
@@ -566,7 +626,7 @@ export async function createGame(
   const currentId = await readCurrentGameId(db, userId, input.activityId, dateKey, input.modeId);
   if (currentId) return getPublicGame(db, currentId, userId, now);
 
-  const target = await selectTarget(db, userId, input, now);
+  const target = await selectTarget(db, input, now);
 
   const gameId = crypto.randomUUID();
   try {
@@ -677,7 +737,9 @@ export async function submitGameGuess(
   if (hasCandidateSnapshotPool(row)) {
     guess = readCandidateSnapshot(row, characterId);
   } else {
-    const legacyIds = JSON.parse(row.candidate_pool_json) as unknown;
+    const legacyIds = row.candidate_pool_json
+      ? (JSON.parse(row.candidate_pool_json) as unknown)
+      : null;
     if (!Array.isArray(legacyIds) || !legacyIds.includes(characterId)) {
       throw new ApiProblem("NOT_FOUND", 404, { entity: "character" });
     }

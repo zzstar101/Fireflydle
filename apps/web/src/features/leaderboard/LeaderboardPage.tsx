@@ -1,5 +1,6 @@
 import type { EloLeaderboardEntry } from "@fireflydle/contracts";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Award, Radio, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../../api/client";
@@ -7,12 +8,39 @@ import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
 import "./leaderboard.css";
 
+type DailyLeaderboardEntry = {
+  rank: number;
+  displayName: string;
+  result: "won" | "lost";
+  guesses: number;
+  elapsedMs: number;
+  completedAt: string;
+};
+type EndlessLeaderboardEntry = {
+  modeId: string;
+  rank: number;
+  displayName: string;
+  clears: number;
+  totalGuesses: number;
+  elapsedMs: number;
+};
+
 export default function LeaderboardPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
-  const leaderboard = useQuery<EloLeaderboardEntry[]>({
-    queryKey: ["leaderboard", "elo"],
-    queryFn: () => apiRequest<EloLeaderboardEntry[]>("/leaderboards/elo"),
+  const [board, setBoard] = useState<"elo" | "daily" | "endless">("elo");
+  const leaderboard = useQuery<
+    EloLeaderboardEntry[] | DailyLeaderboardEntry[] | EndlessLeaderboardEntry[]
+  >({
+    queryKey: ["leaderboard", board],
+    queryFn: () =>
+      apiRequest<EloLeaderboardEntry[] | DailyLeaderboardEntry[]>(
+        board === "elo"
+          ? "/leaderboards/elo"
+          : board === "daily"
+            ? "/leaderboards/daily"
+            : "/leaderboards/endless?modeId=playable",
+      ),
     retry: false,
   });
   const entries = leaderboard.data ?? [];
@@ -26,11 +54,45 @@ export default function LeaderboardPage() {
         aside={
           <div className="rank-live">
             <Radio size={16} />
-            <span>ELO</span>
-            <strong>{locale === "ja" ? "常設" : "PERMANENT"}</strong>
+            <span>{board === "elo" ? "ELO" : locale === "zh-CN" ? "每日题" : "DAILY"}</span>
+            <strong>
+              {board === "elo"
+                ? locale === "ja"
+                  ? "常設"
+                  : "PERMANENT"
+                : locale === "zh-CN"
+                  ? "今日"
+                  : locale === "ja"
+                    ? "本日"
+                    : "TODAY"}
+            </strong>
           </div>
         }
       />
+
+      <div className="leaderboard-tabs" role="tablist" aria-label={t("leaderboard.title")}>
+        <button
+          type="button"
+          className={board === "elo" ? "is-active" : ""}
+          onClick={() => setBoard("elo")}
+        >
+          ELO
+        </button>
+        <button
+          type="button"
+          className={board === "daily" ? "is-active" : ""}
+          onClick={() => setBoard("daily")}
+        >
+          {locale === "zh-CN" ? "每日题" : locale === "ja" ? "デイリー" : "Daily"}
+        </button>
+        <button
+          type="button"
+          className={board === "endless" ? "is-active" : ""}
+          onClick={() => setBoard("endless")}
+        >
+          {locale === "zh-CN" ? "无尽" : locale === "ja" ? "エンドレス" : "Endless"}
+        </button>
+      </div>
 
       <section className="leaderboard-table-wrap">
         <table className="leaderboard-table">
@@ -38,8 +100,34 @@ export default function LeaderboardPage() {
             <tr>
               <th>{t("leaderboard.rank")}</th>
               <th>{t("leaderboard.player")}</th>
-              <th>ELO</th>
-              <th>{locale === "zh-CN" ? "排位场次" : locale === "ja" ? "対戦数" : "MATCHES"}</th>
+              <th>
+                {board === "elo"
+                  ? "ELO"
+                  : board === "daily"
+                    ? locale === "zh-CN"
+                      ? "结果"
+                      : locale === "ja"
+                        ? "結果"
+                        : "RESULT"
+                    : locale === "zh-CN"
+                      ? "通关"
+                      : "CLEARS"}
+              </th>
+              <th>
+                {board === "elo"
+                  ? locale === "zh-CN"
+                    ? "排位场次"
+                    : locale === "ja"
+                      ? "対戦数"
+                      : "MATCHES"
+                  : board === "daily"
+                    ? locale === "zh-CN"
+                      ? "猜测 / 用时"
+                      : "GUESSES / TIME"
+                    : locale === "zh-CN"
+                      ? "猜测 / 用时"
+                      : "GUESSES / TIME"}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -56,10 +144,30 @@ export default function LeaderboardPage() {
                     <strong>{entry.displayName}</strong>
                   </span>
                 </td>
-                <td>
-                  <b>{entry.elo}</b>
-                </td>
-                <td>{entry.rankedMatches}</td>
+                {board === "elo" ? (
+                  <>
+                    <td>
+                      <b>{(entry as EloLeaderboardEntry).elo}</b>
+                    </td>
+                    <td>{(entry as EloLeaderboardEntry).rankedMatches}</td>
+                  </>
+                ) : board === "daily" ? (
+                  <>
+                    <td>{(entry as DailyLeaderboardEntry).result === "won" ? "✓" : "—"}</td>
+                    <td>
+                      {(entry as DailyLeaderboardEntry).guesses} /{" "}
+                      {Math.ceil((entry as DailyLeaderboardEntry).elapsedMs / 1000)}s
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td>{(entry as EndlessLeaderboardEntry).clears}</td>
+                    <td>
+                      {(entry as EndlessLeaderboardEntry).totalGuesses} /{" "}
+                      {Math.ceil((entry as EndlessLeaderboardEntry).elapsedMs / 1000)}s
+                    </td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>

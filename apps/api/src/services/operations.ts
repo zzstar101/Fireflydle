@@ -7,6 +7,7 @@ import type { AppContext, AuthUser } from "../types";
 const VISIT_SESSION_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const FIVE_MINUTES_MS = 5 * 60 * 1_000;
+const VISIT_HEARTBEAT_MS = 60 * 1_000;
 const ALERT_EMAIL_COOLDOWN_MS = 24 * 60 * 60 * 1_000;
 
 type FlowMetric =
@@ -82,7 +83,7 @@ async function recordVisitSession(
      SET last_seen_at = ?
      WHERE id = ? AND COALESCE(last_seen_at, started_at) < ?`,
   )
-    .bind(now, sessionId, now)
+    .bind(now, sessionId, now - VISIT_HEARTBEAT_MS)
     .run();
   if ((inserted.meta.changes ?? 0) > 0) {
     await incrementDailyMetric(env.DB, dateKey, "visit_sessions", now);

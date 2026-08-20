@@ -1,3 +1,5 @@
+/// <reference types="bun" />
+
 import { describe, expect, test } from "bun:test";
 import type { Character, CurrencyWarsUnit } from "@fireflydle/contracts";
 import {
@@ -117,13 +119,13 @@ describe("货币战争三列黄金判题", () => {
     ...overrides,
   });
 
-  test("费用相同 exact、不同只给高低方向，站位二值，羁绊集合三态", () => {
+  test("费用必须完全匹配，站位二值，羁绊集合三态", () => {
     const cells = compareCurrencyWarsUnits(
       unit(),
       unit({ id: "cw-beta", cost: 4, position: "back", synergies: ["merchant", "herta"] }),
     );
     expect(cells).toEqual([
-      { field: "cost", state: "miss", direction: "lower" },
+      { field: "cost", state: "miss", direction: "none" },
       { field: "position", state: "miss", direction: "none" },
       { field: "synergies", state: "close", direction: "none" },
     ]);
@@ -146,14 +148,21 @@ describe("货币战争三列黄金判题", () => {
     expect(JSON.stringify(result)).not.toContain("ipc");
   });
 
-  test("多值费用按可用费用命中，完全落在区间外才给方向", () => {
+  test("多值费用必须完整匹配", () => {
     const target = unit({ cost: [3, 4, 5] });
     expect(compareCurrencyWarsUnits(target, unit({ id: "cw-low", cost: 2 }))[0]).toEqual({
       field: "cost",
       state: "miss",
-      direction: "higher",
+      direction: "none",
     });
     expect(compareCurrencyWarsUnits(target, unit({ id: "cw-hit", cost: 4 }))[0]).toEqual({
+      field: "cost",
+      state: "miss",
+      direction: "none",
+    });
+    expect(
+      compareCurrencyWarsUnits(target, unit({ id: "cw-array-hit", cost: [3, 4, 5] }))[0],
+    ).toEqual({
       field: "cost",
       state: "exact",
       direction: "none",
