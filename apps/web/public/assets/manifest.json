@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-02",
-  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-98f4eb36ebfb",
+  "asOf": "2026-08-20",
+  "sourceRevision": "hoyo-content-v2-3781791b32e6+starrailres-b95e75c7e127+overrides-807bb1fe4bef",
   "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
   "policy": "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
   "files": [

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-02",
-  "sourceRevision": "hoyo-content-v2-1fdf879e4e94+starrailres-b95e75c7e127+overrides-98f4eb36ebfb",
+  "asOf": "2026-08-20",
+  "sourceRevision": "hoyo-content-v2-3781791b32e6+starrailres-b95e75c7e127+overrides-807bb1fe4bef",
   "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
   "policy": {
     "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
@@ -311,7 +311,7 @@
   "sources": {
     "reviewedOverrides": {
       "path": "packages/game-data/src/data/sync-overrides.json",
-      "sha256": "98f4eb36ebfb2de77f681e6591aea47fb71067d68f4cc0a4140b4b95ef06c943",
+      "sha256": "807bb1fe4befe942f7c6893be0cc223d020bad413beb269880820786380f526f",
       "use": "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
     },
     "bwiki": {
@@ -319,7 +319,7 @@
       "semanticApi": "https://wiki.biligame.com/sr/api.php?action=ask&format=json",
       "field": "阵营",
       "excludedFields": ["初始阵营", "派系"],
-      "reviewedAt": "2026-08-02"
+      "reviewedAt": "2026-08-20"
     },
     "hoyoverse": {
       "characterPage": "https://hsr.hoyoverse.com/en-us/character",
@@ -334,7 +334,7 @@
         "ja": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=241&iPage=1&iPageSize=500&sLangKey=ja-jp"
       },
       "versionNoticeApi": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
-      "contentDigestSha256": "1fdf879e4e9415cfdbb668d290ad13ad7fba71918f477be6429039d0a6053c10",
+      "contentDigestSha256": "3781791b32e68f75e96f5bbd0eeb1ac0dcf85a5487250dda9d65f804518b9105",
       "rights": "No open-data or asset license is asserted. Names and images remain with their respective rights holders."
     },
     "starRailRes": {

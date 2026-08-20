@@ -1559,6 +1559,20 @@ async function writePublishedOutputs(
     }
   }
 
+  // 角色同步只负责 characters 目录，保留 NPC 等独立审核素材。
+  let preservedFiles: Record<string, unknown>[] = [];
+  try {
+    const existing = JSON.parse(
+      await readFile(join(PUBLIC_ASSET_DIR, "manifest.json"), "utf8"),
+    ) as { files?: Record<string, unknown>[] };
+    preservedFiles = (existing.files ?? []).filter((file) => {
+      const path = file.path;
+      return typeof path === "string" && !path.startsWith("/assets/characters/");
+    });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+
   const manifest = {
     schemaVersion: 1,
     asOf: metadata.asOf,
@@ -1566,46 +1580,48 @@ async function writePublishedOutputs(
     rightsNotice: RIGHTS_NOTICE,
     policy:
       "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
-    files: assets
-      .flatMap((asset) => [
-        {
-          bytes: asset.bytes.byteLength,
-          mimeType: asset.mimeType,
-          path: `/assets/characters/${asset.localFileName}`,
-          roles: ["avatar", "portrait", "fallback"],
-          sha256: asset.sha256,
-          sourceKind: asset.sourceKind,
-          sourceUrl: asset.sourceUrl,
-        },
-        ...asset.responsiveVariants.flatMap((variant) => {
-          const prefix = `${asset.characterId}-avatar-${asset.sha256.slice(0, 12)}-${variant.width}`;
-          return [
-            {
-              bytes: variant.avifBytes,
-              format: "avif",
-              mimeType: "image/avif",
-              path: `/assets/characters/${prefix}.avif`,
-              roles: ["avatar", "responsive"],
-              sha256: variant.avifSha256,
-              sourceKind: asset.sourceKind,
-              sourceUrl: asset.sourceUrl,
-              width: variant.width,
-            },
-            {
-              bytes: variant.webpBytes,
-              format: "webp",
-              mimeType: "image/webp",
-              path: `/assets/characters/${prefix}.webp`,
-              roles: ["avatar", "responsive"],
-              sha256: variant.webpSha256,
-              sourceKind: asset.sourceKind,
-              sourceUrl: asset.sourceUrl,
-              width: variant.width,
-            },
-          ];
-        }),
-      ])
-      .sort((left, right) => left.path.localeCompare(right.path)),
+    files: preservedFiles
+      .concat(
+        assets.flatMap((asset) => [
+          {
+            bytes: asset.bytes.byteLength,
+            mimeType: asset.mimeType,
+            path: `/assets/characters/${asset.localFileName}`,
+            roles: ["avatar", "portrait", "fallback"],
+            sha256: asset.sha256,
+            sourceKind: asset.sourceKind,
+            sourceUrl: asset.sourceUrl,
+          },
+          ...asset.responsiveVariants.flatMap((variant) => {
+            const prefix = `${asset.characterId}-avatar-${asset.sha256.slice(0, 12)}-${variant.width}`;
+            return [
+              {
+                bytes: variant.avifBytes,
+                format: "avif",
+                mimeType: "image/avif",
+                path: `/assets/characters/${prefix}.avif`,
+                roles: ["avatar", "responsive"],
+                sha256: variant.avifSha256,
+                sourceKind: asset.sourceKind,
+                sourceUrl: asset.sourceUrl,
+                width: variant.width,
+              },
+              {
+                bytes: variant.webpBytes,
+                format: "webp",
+                mimeType: "image/webp",
+                path: `/assets/characters/${prefix}.webp`,
+                roles: ["avatar", "responsive"],
+                sha256: variant.webpSha256,
+                sourceKind: asset.sourceKind,
+                sourceUrl: asset.sourceUrl,
+                width: variant.width,
+              },
+            ];
+          }),
+        ]),
+      )
+      .sort((left, right) => String(left.path).localeCompare(String(right.path))),
   };
   const [factionsText, versionsText, metadataText, charactersText, manifestText] =
     await Promise.all([
