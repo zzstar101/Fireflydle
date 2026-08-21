@@ -13,6 +13,7 @@ import {
   FileUp,
   Layers3,
   Gauge,
+  MessageSquareWarning,
   Pencil,
   Plus,
   Radio,
@@ -26,6 +27,7 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import type {
   Announcement,
   AnnouncementAudience,
@@ -47,7 +49,26 @@ import { ApiClientError, apiRequest } from "../../api/client";
 import { OperationsPanel } from "./OperationsPanel";
 import "./admin.css";
 
-type AdminTab = "overview" | "characters" | "taxonomy" | "announcements" | "users" | "audit";
+type AdminTab =
+  "overview" | "characters" | "taxonomy" | "announcements" | "feedback" | "users" | "audit";
+
+type FeedbackStatus = "open" | "reviewing" | "accepted" | "resolved" | "closed";
+
+interface AdminFeedback {
+  id: string;
+  category: "bug" | "suggestion" | "data";
+  title: string;
+  description: string;
+  reproduction: string;
+  sourceUrl: string;
+  contactEmail: string;
+  status: FeedbackStatus;
+  resolvedReleaseTag: string | null;
+  submitterName: string;
+  attachments: Array<{ name: string; mime: string; dataUrl: string }>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface AdminUser {
   id: string;
@@ -971,6 +992,187 @@ function numberFormat(value: number, locale: Locale): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
+const feedbackStatuses: FeedbackStatus[] = ["open", "reviewing", "accepted", "resolved", "closed"];
+
+function FeedbackPanel({ locale }: { locale: Locale }) {
+  const queryClient = useQueryClient();
+  const [filter, setFilter] = useState<FeedbackStatus | "all">("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [status, setStatus] = useState<FeedbackStatus>("open");
+  const [releaseTag, setReleaseTag] = useState("");
+  const feedback = useQuery({
+    queryKey: ["admin", "feedback", filter],
+    queryFn: () =>
+      apiRequest<AdminFeedback[]>(`/admin/feedback${filter === "all" ? "" : `?status=${filter}`}`),
+  });
+  const selected = feedback.data?.find((item) => item.id === selectedId) ?? feedback.data?.[0];
+
+  useEffect(() => {
+    if (!selected) return;
+    setSelectedId(selected.id);
+    setStatus(selected.status);
+    setReleaseTag(selected.resolvedReleaseTag ?? "");
+  }, [selected?.id, selected?.resolvedReleaseTag, selected?.status]);
+
+  const review = useMutation({
+    mutationFn: () =>
+      apiRequest<AdminFeedback>(`/admin/feedback/${selected?.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          status,
+          resolvedReleaseTag: status === "resolved" ? releaseTag : null,
+        }),
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "feedback"] });
+    },
+  });
+
+  const statusLabels: Record<FeedbackStatus, string> = {
+    open: locale === "zh-CN" ? "待处理" : "Open",
+    reviewing: locale === "zh-CN" ? "处理中" : "Reviewing",
+    accepted: locale === "zh-CN" ? "已采纳" : "Accepted",
+    resolved: locale === "zh-CN" ? "已解决" : "Resolved",
+    closed: locale === "zh-CN" ? "已关闭" : "Closed",
+  };
+
+  return (
+    <div className="admin-stack feedback-review">
+      <section className="admin-card">
+        <header>
+          <MessageSquareWarning size={18} />
+          <span>{locale === "zh-CN" ? "玩家反馈审核" : "Player feedback review"}</span>
+          <select
+            value={filter}
+            onChange={(event) => setFilter(event.target.value as typeof filter)}
+          >
+            <option value="all">{locale === "zh-CN" ? "全部状态" : "All statuses"}</option>
+            {feedbackStatuses.map((item) => (
+              <option key={item} value={item}>
+                {statusLabels[item]}
+              </option>
+            ))}
+          </select>
+        </header>
+        <div className="feedback-review-layout">
+          <div className="feedback-review-list">
+            {(feedback.data ?? []).map((item) => (
+              <button
+                className={selected?.id === item.id ? "active" : undefined}
+                key={item.id}
+                onClick={() => setSelectedId(item.id)}
+              >
+                <span>{statusLabels[item.status]}</span>
+                <strong>{item.title}</strong>
+                <small>
+                  {item.id} · {item.submitterName} ·{" "}
+                  {new Date(item.createdAt).toLocaleString(locale)}
+                </small>
+              </button>
+            ))}
+            {!feedback.isLoading && (feedback.data?.length ?? 0) === 0 ? (
+              <p>{locale === "zh-CN" ? "当前没有符合条件的反馈。" : "No feedback found."}</p>
+            ) : null}
+          </div>
+          {selected ? (
+            <article className="feedback-review-detail">
+              <header>
+                <div>
+                  <span>{selected.category}</span>
+                  <h2>{selected.title}</h2>
+                </div>
+                <small>{selected.id}</small>
+              </header>
+              <section>
+                <h3>{locale === "zh-CN" ? "反馈描述" : "Description"}</h3>
+                <p>{selected.description}</p>
+              </section>
+              {selected.reproduction ? (
+                <section>
+                  <h3>{locale === "zh-CN" ? "复现步骤 / 建议目标" : "Steps or outcome"}</h3>
+                  <p>{selected.reproduction}</p>
+                </section>
+              ) : null}
+              <dl>
+                <div>
+                  <dt>{locale === "zh-CN" ? "提交用户" : "Submitter"}</dt>
+                  <dd>{selected.submitterName}</dd>
+                </div>
+                {selected.contactEmail ? (
+                  <div>
+                    <dt>{locale === "zh-CN" ? "联系邮箱" : "Email"}</dt>
+                    <dd>
+                      <a href={`mailto:${selected.contactEmail}`}>{selected.contactEmail}</a>
+                    </dd>
+                  </div>
+                ) : null}
+                {selected.sourceUrl ? (
+                  <div>
+                    <dt>{locale === "zh-CN" ? "资料来源" : "Source"}</dt>
+                    <dd>
+                      <a href={selected.sourceUrl} target="_blank" rel="noreferrer">
+                        {selected.sourceUrl}
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+              {selected.attachments.length > 0 ? (
+                <div className="feedback-review-attachments">
+                  {selected.attachments.map((attachment) => (
+                    <a
+                      href={attachment.dataUrl}
+                      key={attachment.name}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <img src={attachment.dataUrl} alt={attachment.name} />
+                      <span>{attachment.name}</span>
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+              <footer>
+                <label>
+                  {locale === "zh-CN" ? "处理状态" : "Status"}
+                  <select
+                    value={status}
+                    onChange={(event) => setStatus(event.target.value as FeedbackStatus)}
+                  >
+                    {feedbackStatuses.map((item) => (
+                      <option key={item} value={item}>
+                        {statusLabels[item]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {status === "resolved" ? (
+                  <label>
+                    {locale === "zh-CN" ? "解决版本" : "Resolved release"}
+                    <input
+                      required
+                      placeholder="v1.1.1"
+                      value={releaseTag}
+                      onChange={(event) => setReleaseTag(event.target.value)}
+                    />
+                  </label>
+                ) : null}
+                <button
+                  className="primary-action"
+                  disabled={review.isPending || (status === "resolved" && !releaseTag.trim())}
+                  onClick={() => review.mutate()}
+                >
+                  <Save size={16} /> {locale === "zh-CN" ? "保存审核" : "Save review"}
+                </button>
+              </footer>
+            </article>
+          ) : null}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function AuditPanel({ locale }: { locale: Locale }) {
   const audits = useQuery({
     queryKey: ["admin", "audit-logs"],
@@ -1002,7 +1204,9 @@ function AuditPanel({ locale }: { locale: Locale }) {
 export default function AdminPage() {
   const locale = usePreferences((state) => state.language);
   const session = useSession();
-  const [tab, setTab] = useState<AdminTab>("overview");
+  const [searchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const [tab, setTab] = useState<AdminTab>(requestedTab === "feedback" ? "feedback" : "overview");
   const role = session.data?.user.role ?? "player";
   const dataRoles: UserRole[] = ["data-editor", "admin", "owner"];
   const moderationRoles: UserRole[] = ["moderator", "admin", "owner"];
@@ -1041,7 +1245,14 @@ export default function AdminPage() {
         ]
       : []),
     ...(canModerate
-      ? [{ id: "users" as const, label: locale === "zh-CN" ? "用户" : "Users", icon: UsersRound }]
+      ? [
+          {
+            id: "feedback" as const,
+            label: locale === "zh-CN" ? "反馈审核" : "Feedback",
+            icon: MessageSquareWarning,
+          },
+          { id: "users" as const, label: locale === "zh-CN" ? "用户" : "Users", icon: UsersRound },
+        ]
       : []),
     ...(canOperate
       ? [{ id: "audit" as const, label: locale === "zh-CN" ? "审计" : "Audit", icon: FileClock }]
@@ -1113,6 +1324,7 @@ export default function AdminPage() {
           {activeTab === "characters" ? <CharacterPanel locale={locale} /> : null}
           {activeTab === "taxonomy" ? <TaxonomyPanel locale={locale} /> : null}
           {activeTab === "announcements" ? <AnnouncementsPanel locale={locale} /> : null}
+          {activeTab === "feedback" ? <FeedbackPanel locale={locale} /> : null}
           {activeTab === "users" ? <UsersPanel locale={locale} actorRole={role} /> : null}
           {activeTab === "audit" ? <AuditPanel locale={locale} /> : null}
         </section>

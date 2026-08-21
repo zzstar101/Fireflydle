@@ -351,6 +351,74 @@ describe("公告中心", () => {
   });
 });
 
+describe("反馈审核", () => {
+  it("管理员可以查看反馈、更新状态并填写解决版本", async () => {
+    const player = await createRegisteredSession("feedback_player");
+    const admin = await createAdminSession("fb_review");
+    const submitted = await dataOf<{ id: string; status: string }>(
+      await SELF.fetch("https://fireflydle.games/api/feedback", {
+        method: "POST",
+        headers: { cookie: player.cookie, "content-type": "application/json" },
+        body: JSON.stringify({
+          category: "bug",
+          title: "无尽图鉴未解锁",
+          description: "在普通角色无尽模式猜中后，图鉴没有变化。",
+          reproduction: "进入无尽并猜中角色",
+          sourceUrl: "",
+          contactEmail: "player@example.com",
+          attachments: [],
+        }),
+      }),
+    );
+    expect(submitted.status).toBe("open");
+
+    const items = await dataOf<Array<{ id: string; submitterName: string; status: string }>>(
+      await SELF.fetch("https://fireflydle.games/api/admin/feedback?status=open", {
+        headers: { cookie: admin.cookie },
+      }),
+    );
+    expect(items).toContainEqual(
+      expect.objectContaining({
+        id: submitted.id,
+        submitterName: player.data.user.displayName,
+        status: "open",
+      }),
+    );
+
+    const missingTag = await SELF.fetch(
+      `https://fireflydle.games/api/admin/feedback/${submitted.id}`,
+      {
+        method: "PATCH",
+        headers: { cookie: admin.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ status: "resolved" }),
+      },
+    );
+    expect(missingTag.status).toBe(400);
+
+    const resolved = await dataOf<{ status: string; resolvedReleaseTag: string }>(
+      await SELF.fetch(`https://fireflydle.games/api/admin/feedback/${submitted.id}`, {
+        method: "PATCH",
+        headers: { cookie: admin.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ status: "resolved", resolvedReleaseTag: "v1.1.1" }),
+      }),
+    );
+    expect(resolved).toMatchObject({ status: "resolved", resolvedReleaseTag: "v1.1.1" });
+
+    const mine = await dataOf<Array<{ id: string; status: string; resolvedReleaseTag: string }>>(
+      await SELF.fetch("https://fireflydle.games/api/feedback", {
+        headers: { cookie: player.cookie },
+      }),
+    );
+    expect(mine).toContainEqual(
+      expect.objectContaining({
+        id: submitted.id,
+        status: "resolved",
+        resolvedReleaseTag: "v1.1.1",
+      }),
+    );
+  });
+});
+
 describe("管理概览与注册用户列表", () => {
   it("用户列表从查询层排除访客并支持筛选分页", async () => {
     const suffix = crypto.randomUUID().slice(0, 8);
@@ -875,6 +943,11 @@ describe("普通角色无尽玩法", () => {
     expect(next.guesses).toEqual([]);
     expect(next.answer).toBeNull();
     expect(next.lastRound).toMatchObject({ result: "won", answer: { id: character.id } });
+
+    const collection = await dataOf<{ unlockedIds: string[] }>(
+      await SELF.fetch("https://fireflydle.games/api/collection", { headers: { cookie } }),
+    );
+    expect(collection.unlockedIds).toContain(character.id);
   });
 
   it("排行榜按通关数、总猜测次数和总耗时排序", async () => {
@@ -912,6 +985,44 @@ describe("普通角色无尽玩法", () => {
       "Reg board_b",
       "Reg board_a",
     ]);
+  });
+
+  it("主动结束时保留通关数并计入当前轮已用猜测", async () => {
+    const wrongIds = await seedEndlessWrongCandidates();
+    const { cookie } = await createSession();
+    const run = await dataOf<PublicEndlessRun>(
+      await SELF.fetch("https://fireflydle.games/api/endless", {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    await SELF.fetch(`https://fireflydle.games/api/endless/${run.id}/guesses`, {
+      method: "POST",
+      headers: { cookie, "content-type": "application/json" },
+      body: JSON.stringify({ characterId: wrongIds[0] }),
+    });
+    const finished = await dataOf<PublicEndlessRun>(
+      await SELF.fetch(`https://fireflydle.games/api/endless/${run.id}/finish`, {
+        method: "POST",
+        headers: { cookie },
+      }),
+    );
+    expect(finished).toMatchObject({
+      status: "finished",
+      lives: 5,
+      clears: 0,
+      totalGuesses: 1,
+      lastRound: null,
+    });
+    expect(finished.answer?.id).toBe(character.id);
+    expect(
+      (
+        await SELF.fetch(`https://fireflydle.games/api/endless/${run.id}/finish`, {
+          method: "POST",
+          headers: { cookie },
+        })
+      ).status,
+    ).toBe(409);
   });
 });
 

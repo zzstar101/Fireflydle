@@ -482,6 +482,161 @@
   max-height: 520px;
   overflow-y: auto;
 }
+.feedback-review > .admin-card > header select {
+  min-height: 38px;
+  padding: 0 30px 0 10px;
+  margin-left: auto;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--canvas);
+}
+.feedback-review-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.38fr) minmax(0, 1fr);
+  min-height: 560px;
+  border-top: 1px solid var(--border);
+}
+.feedback-review-list {
+  max-height: 680px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+.feedback-review-list > button {
+  display: grid;
+  width: 100%;
+  padding: 14px 16px;
+  gap: 5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+}
+.feedback-review-list > button:hover,
+.feedback-review-list > button.active {
+  color: var(--text);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+}
+.feedback-review-list > button.active {
+  box-shadow: inset 2px 0 var(--gold);
+}
+.feedback-review-list span,
+.feedback-review-list small,
+.feedback-review-detail > header span,
+.feedback-review-detail > header small {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+}
+.feedback-review-list strong {
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.feedback-review-list > p {
+  padding: 24px 16px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.feedback-review-detail {
+  display: grid;
+  min-width: 0;
+  padding: 24px;
+  align-content: start;
+  gap: 20px;
+}
+.feedback-review-detail > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.feedback-review-detail h2 {
+  margin: 5px 0 0;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+}
+.feedback-review-detail h3 {
+  margin: 0 0 7px;
+  color: var(--text-faint);
+  font-size: 0.58rem;
+}
+.feedback-review-detail p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+.feedback-review-detail dl {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+.feedback-review-detail dl > div {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.65rem;
+}
+.feedback-review-detail dt {
+  color: var(--text-faint);
+}
+.feedback-review-detail dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.feedback-review-detail a {
+  color: var(--cyan);
+}
+.feedback-review-attachments {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.feedback-review-attachments a {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.56rem;
+}
+.feedback-review-attachments img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  background: var(--canvas);
+}
+.feedback-review-detail > footer {
+  display: flex;
+  align-items: end;
+  padding-top: 18px;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+}
+.feedback-review-detail > footer label {
+  display: grid;
+  min-width: 150px;
+  gap: 5px;
+  color: var(--text-faint);
+  font-size: 0.56rem;
+}
+.feedback-review-detail > footer select,
+.feedback-review-detail > footer input {
+  min-height: 42px;
+  padding: 0 10px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--canvas);
+}
+.feedback-review-detail > footer button {
+  min-height: 42px;
+  margin-left: auto;
+}
 .user-email-state {
   font-family: var(--font-mono);
   font-size: 0.53rem;
@@ -958,6 +1113,24 @@
   }
   .compact-records > .announcement-record {
     grid-template-columns: 1fr auto;
+  }
+  .feedback-review-layout {
+    grid-template-columns: 1fr;
+  }
+  .feedback-review-list {
+    max-height: 260px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .feedback-review-detail {
+    padding: 20px 4px;
+  }
+  .feedback-review-detail > footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .feedback-review-detail > footer button {
+    margin-left: 0;
   }
   .announcement-record-copy {
     grid-column: 1 / -1;

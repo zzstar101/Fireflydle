@@ -50,7 +50,7 @@ characterRoutes.get("/collection", async (context) => {
   const localUnlockAll =
     requestUrl.searchParams.get("unlockAll") === "1" &&
     LOCAL_HOSTNAMES.has(requestUrl.hostname.toLocaleLowerCase("en-US"));
-  const [available, unlockedRows] = await Promise.all([
+  const [available, gameUnlocks, endlessUnlocks] = await Promise.all([
     getEnabledCharacters(context.env.DB),
     context.env.DB.prepare(
       `SELECT DISTINCT g.target_character_id
@@ -64,10 +64,27 @@ characterRoutes.get("/collection", async (context) => {
     )
       .bind(auth.user.id, auth.user.id)
       .all<{ target_character_id: string }>(),
+    context.env.DB.prepare(
+      `SELECT DISTINCT eg.character_id AS target_character_id
+       FROM endless_guesses eg
+       JOIN endless_runs er ON er.id = eg.run_id
+       WHERE (er.user_id = ? OR EXISTS (
+         SELECT 1 FROM users merged
+         WHERE merged.id = er.user_id AND merged.merged_into_user_id = ?
+       ))
+         AND er.mode_id = 'playable'
+         AND json_extract(eg.result_json, '$.isCorrect') = 1`,
+    )
+      .bind(auth.user.id, auth.user.id)
+      .all<{ target_character_id: string }>(),
   ]);
   const unlocked = localUnlockAll
     ? new Set(available.map((character) => character.id))
-    : new Set(unlockedRows.results.map((row) => row.target_character_id));
+    : new Set(
+        [gameUnlocks, endlessUnlocks].flatMap((result) =>
+          result.results.map((row) => row.target_character_id),
+        ),
+      );
   const unlockedCharacters = available.filter((character) => unlocked.has(character.id));
   const pathProgress = new Map<string, { unlocked: number; total: number }>();
   const factionProgress = new Map<string, { unlocked: number; total: number }>();

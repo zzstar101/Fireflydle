@@ -533,6 +533,29 @@ export async function skipEndlessRound(
   return getEndlessRun(db, row.id, userId, now);
 }
 
+export async function finishEndlessRun(
+  db: D1Database,
+  runId: string,
+  userId: string,
+  now = Date.now(),
+): Promise<PublicEndlessRun> {
+  const row = await readRun(db, runId);
+  if (!row || row.user_id !== userId) throw new ApiProblem("NOT_FOUND", 404);
+  if (row.status !== "active") throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
+  const guesses = await readRoundGuesses(db, row.id, row.round_number);
+  const updated = await db
+    .prepare(
+      `UPDATE endless_runs
+       SET status = 'finished', total_guesses = total_guesses + ?, last_round_json = NULL,
+           completed_at = ?, updated_at = ?
+       WHERE id = ? AND status = 'active'`,
+    )
+    .bind(guesses.length, now, now, row.id)
+    .run();
+  if (updated.meta.changes !== 1) throw new ApiProblem("GAME_ALREADY_FINISHED", 409);
+  return getEndlessRun(db, row.id, userId, now);
+}
+
 export async function getEndlessLeaderboard(
   db: D1Database,
   modeId: ContentModeId = "playable",

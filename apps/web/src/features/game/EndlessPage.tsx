@@ -44,6 +44,10 @@ const copy = {
     skipped: "已跳过本题",
     answer: "答案",
     finished: "挑战结束",
+    finish: "结束本局",
+    finishConfirm: "确定结束这局无尽挑战吗？本局成绩会立即结算。",
+    finishCancel: "继续挑战",
+    finishConfirmAction: "确认结束",
     board: "无尽排行",
     player: "玩家",
     empty: "还没有完成的无尽挑战。",
@@ -67,6 +71,10 @@ const copy = {
     skipped: "Round skipped",
     answer: "Answer",
     finished: "Run finished",
+    finish: "End run",
+    finishConfirm: "End this endless run? Its current score will be recorded.",
+    finishCancel: "Keep playing",
+    finishConfirmAction: "End run",
     board: "Endless leaderboard",
     player: "Player",
     empty: "No completed endless runs yet.",
@@ -90,6 +98,10 @@ const copy = {
     skipped: "スキップしました",
     answer: "答え",
     finished: "チャレンジ終了",
+    finish: "この挑戦を終了",
+    finishConfirm: "このエンドレスを終了しますか？現在のスコアが記録されます。",
+    finishCancel: "続ける",
+    finishConfirmAction: "終了する",
     board: "エンドレスランキング",
     player: "プレイヤー",
     empty: "完了したチャレンジはまだありません。",
@@ -154,6 +166,7 @@ export function EndlessPage({
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [confirmFinish, setConfirmFinish] = useState(false);
 
   const loadLeaderboard = useCallback(async () => {
     const entries = await apiRequest<EndlessLeaderboardEntry[]>(
@@ -212,6 +225,7 @@ export function EndlessPage({
         body: JSON.stringify({ characterId }),
       });
       setRun(updated);
+      setConfirmFinish(false);
       if (updated.status === "finished") void loadLeaderboard();
     } catch {
       setError(true);
@@ -229,7 +243,26 @@ export function EndlessPage({
         method: "POST",
       });
       setRun(updated);
+      setConfirmFinish(false);
       if (updated.status === "finished") void loadLeaderboard();
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const finish = async () => {
+    if (!run || run.status !== "active" || busy) return;
+    setBusy(true);
+    setError(false);
+    try {
+      const updated = await apiRequest<PublicEndlessRun>(`/endless/${run.id}/finish`, {
+        method: "POST",
+      });
+      setRun(updated);
+      setConfirmFinish(false);
+      void loadLeaderboard();
     } catch {
       setError(true);
     } finally {
@@ -355,13 +388,35 @@ export function EndlessPage({
               </small>
             </div>
             {run.status === "active" ? (
-              <button
-                type="button"
-                disabled={!run.skipAvailable || busy}
-                onClick={() => void skip()}
-              >
-                <SkipForward size={17} /> {run.skipAvailable ? labels.skip : labels.skipUsed}
-              </button>
+              confirmFinish ? (
+                <div className="endless-finish-confirm" role="alert">
+                  <span>{labels.finishConfirm}</span>
+                  <button type="button" disabled={busy} onClick={() => setConfirmFinish(false)}>
+                    {labels.finishCancel}
+                  </button>
+                  <button
+                    type="button"
+                    className="is-danger"
+                    disabled={busy}
+                    onClick={() => void finish()}
+                  >
+                    {labels.finishConfirmAction}
+                  </button>
+                </div>
+              ) : (
+                <div className="endless-round-actions">
+                  <button
+                    type="button"
+                    disabled={!run.skipAvailable || busy}
+                    onClick={() => void skip()}
+                  >
+                    <SkipForward size={17} /> {run.skipAvailable ? labels.skip : labels.skipUsed}
+                  </button>
+                  <button type="button" disabled={busy} onClick={() => setConfirmFinish(true)}>
+                    {labels.finish}
+                  </button>
+                </div>
+              )
             ) : (
               <button type="button" disabled={busy} onClick={() => void start()}>
                 <RotateCcw size={17} /> {labels.restart}
@@ -384,7 +439,7 @@ export function EndlessPage({
               locale={locale}
               showImages={contentModeId !== "aeon"}
               excludedIds={guessedIds}
-              disabled={busy}
+              disabled={busy || confirmFinish}
               onSubmit={(id) => void submitGuess(id)}
             />
           ) : null}

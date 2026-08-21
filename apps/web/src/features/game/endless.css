@@ -122,6 +122,26 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+.endless-round-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.endless-finish-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.endless-finish-confirm span {
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+.endless-finish-confirm .is-danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 60%, var(--border));
+}
 
 .endless-round-result {
   display: flex;
@@ -275,6 +295,15 @@
   }
   .endless-round-header {
     align-items: flex-start;
+  }
+  .endless-round-actions,
+  .endless-finish-confirm {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .endless-round-actions button,
+  .endless-finish-confirm button {
+    flex: 1;
   }
   .endless-round-result {
     flex-direction: column;

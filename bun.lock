@@ -14,7 +14,7 @@
     },
     "apps/api": {
       "name": "@fireflydle/api",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "dependencies": {
         "@fireflydle/contracts": "workspace:*",
         "@fireflydle/game-data": "workspace:*",
@@ -32,7 +32,7 @@
     },
     "apps/web": {
       "name": "@fireflydle/web",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "dependencies": {
         "@fireflydle/contracts": "workspace:*",
         "@fireflydle/game-data": "workspace:*",
@@ -59,14 +59,14 @@
     },
     "packages/contracts": {
       "name": "@fireflydle/contracts",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "dependencies": {
         "zod": "^4.4.3",
       },
     },
     "packages/game-data": {
       "name": "@fireflydle/game-data",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "dependencies": {
         "@fireflydle/contracts": "workspace:*",
       },
@@ -77,7 +77,7 @@
     },
     "packages/game-engine": {
       "name": "@fireflydle/game-engine",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "dependencies": {
         "@fireflydle/contracts": "workspace:*",
       },

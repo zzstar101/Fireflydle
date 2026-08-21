@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import {
   createOrResumeEndlessRun,
+  finishEndlessRun,
   getEndlessLeaderboard,
   getEndlessRun,
   skipEndlessRound,
@@ -57,6 +58,14 @@ endlessRoutes.post("/endless/:runId/skip", async (context) => {
   return ok(
     context,
     await skipEndlessRound(context.env.DB, context.req.param("runId"), auth.user.id),
+  );
+});
+
+endlessRoutes.post("/endless/:runId/finish", async (context) => {
+  const auth = requireAuth(context);
+  return ok(
+    context,
+    await finishEndlessRun(context.env.DB, context.req.param("runId"), auth.user.id),
   );
 });
 
