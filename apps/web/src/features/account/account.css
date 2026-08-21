@@ -351,6 +351,11 @@
 .stats-metrics strong {
   margin-top: 10px;
 }
+.stats-metrics small {
+  margin-top: 3px;
+  color: var(--text-faint);
+  font-size: 0.62rem;
+}
 .daily-stats-section {
   border: 1px solid var(--border);
 }

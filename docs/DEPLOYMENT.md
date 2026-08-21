@@ -182,6 +182,14 @@ PUBLIC_WEB_URL=https://fireflydle.games
 
 不要用 `echo` 把 API key 写进 shell history，也不要把 Resend key 加到 GitHub Actions；Worker secret 会在后续 `wrangler deploy` 时保留。发布流程仅通过 `wrangler secret list` 校验 secret 名称，无法读取或输出 secret 值。
 
+反馈审核发布 GitHub Issue 还需要一个独立的细粒度 GitHub token。仅选择 `zzstar101/Fireflydle` 仓库，并只授予 **Issues / Read and write**；不要复用 GitHub CLI 或部署使用的高权限 token。随后在 `apps/api` 下交互式写入 Worker secret：
+
+```bash
+bunx wrangler secret put GITHUB_ISSUE_TOKEN
+```
+
+该 token 只在管理员将已采纳反馈显式发布为 Issue 时由 Worker 使用。联系邮箱和截图不会同步到公开 Issue；D1 会保存 Issue 编号与链接，避免后续重复发布。
+
 部署后依次验证邮箱验证与密码重置流程：
 
 ```text

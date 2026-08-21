@@ -163,6 +163,11 @@ describe("每日题个人统计", () => {
 
     const first = await stats(owner.cookie);
     expect(first).toMatchObject({
+      totalSolved: 2,
+      accuracy: 2 / 3,
+      averageGuesses: 2.5,
+      strongestPath: { id: "destruction", solved: 2 },
+      strongestElement: { id: "fire", solved: 2 },
       dailyPlayed: 3,
       dailyWon: 2,
       currentStreak: 2,
@@ -224,6 +229,11 @@ describe("每日题个人统计", () => {
 
     const merged = await stats(cookie);
     expect(merged).toMatchObject({
+      totalSolved: 1,
+      accuracy: 1 / 2,
+      averageGuesses: 4,
+      strongestPath: { id: "destruction", solved: 1 },
+      strongestElement: { id: "fire", solved: 1 },
       dailyPlayed: 2,
       dailyWon: 1,
       currentStreak: 2,

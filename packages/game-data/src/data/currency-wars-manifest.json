@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.1.1",
+  "manifestVersion": "1.1.2",
   "generatedAt": "2026-08-18T00:00:00.000Z",
   "modes": [
     {
@@ -2317,7 +2317,7 @@
         "reviewStatus": "approved",
         "cost": 3,
         "position": "front",
-        "synergies": ["debuff", "wolf-hunt"],
+        "synergies": ["debuff", "galaxy-rangers"],
         "assets": {
           "avatarPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",
           "portraitPath": "/assets/characters/acheron-avatar-7676548cd1fd.png",

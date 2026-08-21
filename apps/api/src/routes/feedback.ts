@@ -3,9 +3,11 @@ import { z } from "zod";
 import { ApiProblem, ok, readJson } from "../lib/http";
 import { requireAuth, requireRole } from "../services/auth";
 import { sendFeedbackEmail } from "../services/feedback-email";
+import { createGitHubIssue } from "../services/github-issue";
 import type { AppContext } from "../types";
 
 const FEEDBACK_ROLES = ["moderator", "admin", "owner"] as const;
+const FEEDBACK_PUBLISH_ROLES = ["admin", "owner"] as const;
 const FeedbackStatusSchema = z.enum(["open", "reviewing", "accepted", "resolved", "closed"]);
 const FeedbackAdminQuerySchema = z.object({
   status: FeedbackStatusSchema.optional(),
@@ -45,6 +47,9 @@ interface FeedbackRow {
   attachments_json: string;
   status: "open" | "reviewing" | "accepted" | "resolved" | "closed";
   resolved_release_tag: string | null;
+  github_issue_number: number | null;
+  github_issue_url: string | null;
+  github_published_at: number | null;
   created_at: number;
   updated_at: number;
   user_id: string;
@@ -62,6 +67,10 @@ function serialize(row: FeedbackRow) {
     contactEmail: row.contact_email ?? "",
     status: row.status,
     resolvedReleaseTag: row.resolved_release_tag,
+    githubIssueNumber: row.github_issue_number,
+    githubIssueUrl: row.github_issue_url,
+    githubPublishedAt:
+      row.github_published_at === null ? null : new Date(row.github_published_at).toISOString(),
     attachments: JSON.parse(row.attachments_json) as Array<{
       name: string;
       mime: string;
@@ -201,4 +210,59 @@ feedbackRoutes.patch("/admin/feedback/:feedbackId", async (context) => {
     .first<FeedbackRow>();
   if (!updated) throw new ApiProblem("INTERNAL_ERROR", 500);
   return ok(context, serialize(updated));
+});
+
+feedbackRoutes.post("/admin/feedback/:feedbackId/github-issue", async (context) => {
+  const auth = requireRole(context, FEEDBACK_PUBLISH_ROLES);
+  const feedbackId = context.req.param("feedbackId");
+  const current = await context.env.DB.prepare(
+    `SELECT f.*, u.display_name AS submitter_name
+     FROM feedback_items f JOIN users u ON u.id = f.user_id WHERE f.id = ?`,
+  )
+    .bind(feedbackId)
+    .first<FeedbackRow>();
+  if (!current) throw new ApiProblem("NOT_FOUND", 404);
+  if (current.github_issue_number !== null) return ok(context, serialize(current));
+  if (current.status !== "accepted") {
+    throw new ApiProblem("VALIDATION_FAILED", 409, { reason: "feedback-not-accepted" });
+  }
+  const attachments = JSON.parse(current.attachments_json) as unknown[];
+  const issue = await createGitHubIssue(context.env, {
+    id: current.id,
+    category: current.category,
+    title: current.title,
+    description: current.description,
+    reproduction: current.reproduction ?? "",
+    sourceUrl: current.source_url ?? "",
+    submitterName: current.submitter_name ?? "",
+    attachmentCount: attachments.length,
+  });
+  const now = Date.now();
+  await context.env.DB.batch([
+    context.env.DB.prepare(
+      `UPDATE feedback_items
+       SET github_issue_number = ?, github_issue_url = ?, github_published_at = ?, updated_at = ?
+       WHERE id = ? AND github_issue_number IS NULL`,
+    ).bind(issue.number, issue.url, now, now, feedbackId),
+    context.env.DB.prepare(
+      `INSERT INTO audit_logs
+         (id, actor_user_id, action, target_type, target_id, request_id, metadata_json, created_at)
+       VALUES (?, ?, 'feedback.github-issue.publish', 'feedback', ?, ?, ?, ?)`,
+    ).bind(
+      crypto.randomUUID(),
+      auth.user.id,
+      feedbackId,
+      context.get("requestId"),
+      JSON.stringify({ issueNumber: issue.number, issueUrl: issue.url }),
+      now,
+    ),
+  ]);
+  const updated = await context.env.DB.prepare(
+    `SELECT f.*, u.display_name AS submitter_name
+     FROM feedback_items f JOIN users u ON u.id = f.user_id WHERE f.id = ?`,
+  )
+    .bind(feedbackId)
+    .first<FeedbackRow>();
+  if (!updated) throw new ApiProblem("INTERNAL_ERROR", 500);
+  return ok(context, serialize(updated), 201);
 });

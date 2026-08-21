@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
+  Atom,
   BarChart3,
   CalendarDays,
+  CheckCircle2,
   ChevronRight,
+  Compass,
   Gauge,
   History,
   Swords,
@@ -12,6 +15,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { PersonalStats } from "@fireflydle/contracts";
+import { elementLabels, pathLabels } from "@fireflydle/game-data";
 import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
@@ -30,6 +34,9 @@ export default function StatsPage() {
     retry: false,
   });
   const data = stats.data;
+  const localizedPath = (id: string) => pathLabels[id as keyof typeof pathLabels]?.[locale] ?? id;
+  const localizedElement = (id: string) =>
+    elementLabels[id as keyof typeof elementLabels]?.[locale] ?? id;
   const achievementLabels: Record<string, { zh: string; en: string; ja: string }> = {
     "one-shot": { zh: "一发入魂", en: "One-shot", ja: "一発入魂" },
     "daily-seven": { zh: "连续七日每日题", en: "Seven daily days", ja: "7日連続デイリー" },
@@ -60,6 +67,42 @@ export default function StatsPage() {
   };
   const values = [
     {
+      icon: CheckCircle2,
+      label: locale === "zh-CN" ? "累计猜中" : locale === "ja" ? "累計正解" : "Total solved",
+      value: data ? String(data.totalSolved) : "—",
+    },
+    {
+      icon: Target,
+      label: locale === "zh-CN" ? "正确率" : locale === "ja" ? "正解率" : "Accuracy",
+      value: data ? `${(data.accuracy * 100).toFixed(1)}%` : "—",
+    },
+    {
+      icon: Gauge,
+      label: locale === "zh-CN" ? "猜中平均次数" : locale === "ja" ? "正解時平均" : "Avg. to solve",
+      value: data ? data.averageGuesses.toFixed(1) : "—",
+    },
+    {
+      icon: Compass,
+      label: locale === "zh-CN" ? "最擅长命途" : locale === "ja" ? "得意な運命" : "Strongest path",
+      value: data?.strongestPath ? localizedPath(data.strongestPath.id) : "—",
+      detail: data?.strongestPath
+        ? locale === "zh-CN"
+          ? `猜中 ${data.strongestPath.solved} 次`
+          : `${data.strongestPath.solved} solved`
+        : undefined,
+    },
+    {
+      icon: Atom,
+      label:
+        locale === "zh-CN" ? "最擅长属性" : locale === "ja" ? "得意な属性" : "Strongest element",
+      value: data?.strongestElement ? localizedElement(data.strongestElement.id) : "—",
+      detail: data?.strongestElement
+        ? locale === "zh-CN"
+          ? `猜中 ${data.strongestElement.solved} 次`
+          : `${data.strongestElement.solved} solved`
+        : undefined,
+    },
+    {
       icon: CalendarDays,
       label: locale === "zh-CN" ? "每日挑战" : locale === "ja" ? "デイリー達成" : "Daily solved",
       value: data ? `${data.dailyWon}/${data.dailyPlayed}` : "—",
@@ -79,11 +122,6 @@ export default function StatsPage() {
       icon: Target,
       label: locale === "zh-CN" ? "普通挑战胜利" : locale === "ja" ? "通常勝利" : "Practice wins",
       value: data ? `${data.practiceWon}/${data.practicePlayed}` : "—",
-    },
-    {
-      icon: Gauge,
-      label: locale === "zh-CN" ? "平均猜测次数" : locale === "ja" ? "平均推測数" : "Avg. guesses",
-      value: data ? data.averageGuesses.toFixed(1) : "—",
     },
     {
       icon: Swords,
@@ -114,11 +152,12 @@ export default function StatsPage() {
         </div>
       ) : null}
       <section className="stats-metrics">
-        {values.map(({ icon: Icon, label, value }) => (
+        {values.map(({ icon: Icon, label, value, detail }) => (
           <div key={label}>
             <Icon size={20} />
             <span>{label}</span>
             <strong>{value}</strong>
+            {detail ? <small>{detail}</small> : null}
           </div>
         ))}
       </section>

@@ -417,6 +417,84 @@ describe("反馈审核", () => {
       }),
     );
   });
+
+  it("管理员审核采纳后可发布一次 GitHub Issue，且不公开联系邮箱", async () => {
+    const player = await createRegisteredSession("fbip");
+    const admin = await createAdminSession("fbia");
+    const submitted = await dataOf<{ id: string }>(
+      await SELF.fetch("https://fireflydle.games/api/feedback", {
+        method: "POST",
+        headers: { cookie: player.cookie, "content-type": "application/json" },
+        body: JSON.stringify({
+          category: "bug",
+          title: "立绘无尽无法开始",
+          description: "点击开始后返回 500。",
+          reproduction: "进入立绘挑战并选择无尽模式",
+          sourceUrl: "https://fireflydle.games/playable/portrait/endless",
+          contactEmail: "private@example.com",
+          attachments: [],
+        }),
+      }),
+    );
+    const publishUrl = `https://fireflydle.games/api/admin/feedback/${submitted.id}/github-issue`;
+    expect(
+      (await SELF.fetch(publishUrl, { method: "POST", headers: { cookie: admin.cookie } })).status,
+    ).toBe(409);
+
+    const accepted = await SELF.fetch(
+      `https://fireflydle.games/api/admin/feedback/${submitted.id}`,
+      {
+        method: "PATCH",
+        headers: { cookie: admin.cookie, "content-type": "application/json" },
+        body: JSON.stringify({ status: "accepted" }),
+      },
+    );
+    expect(accepted.status).toBe(200);
+
+    const outbound = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const request = new Request(input, init);
+      expect(request.url).toBe("https://api.github.com/repos/zzstar101/Fireflydle/issues");
+      expect(request.headers.get("authorization")).toBe("Bearer test-github-issue-token");
+      expect(request.headers.get("x-github-api-version")).toBe("2022-11-28");
+      const body = (await request.json()) as { title: string; body: string; labels: string[] };
+      expect(body.title).toBe("[Bug] 立绘无尽无法开始");
+      expect(body.labels).toEqual(["bug"]);
+      expect(body.body).toContain(submitted.id);
+      expect(body.body).toContain(player.data.user.displayName);
+      expect(body.body).not.toContain("private@example.com");
+      return Response.json(
+        { number: 123, html_url: "https://github.com/zzstar101/Fireflydle/issues/123" },
+        { status: 201 },
+      );
+    });
+
+    const published = await SELF.fetch(publishUrl, {
+      method: "POST",
+      headers: { cookie: admin.cookie },
+    });
+    expect(published.status).toBe(201);
+    expect(
+      await dataOf<{ githubIssueNumber: number; githubIssueUrl: string }>(published),
+    ).toMatchObject({
+      githubIssueNumber: 123,
+      githubIssueUrl: "https://github.com/zzstar101/Fireflydle/issues/123",
+    });
+    const repeated = await SELF.fetch(publishUrl, {
+      method: "POST",
+      headers: { cookie: admin.cookie },
+    });
+    expect(repeated.status).toBe(200);
+    expect(outbound).toHaveBeenCalledOnce();
+
+    const mine = await dataOf<Array<{ id: string; githubIssueNumber: number }>>(
+      await SELF.fetch("https://fireflydle.games/api/feedback", {
+        headers: { cookie: player.cookie },
+      }),
+    );
+    expect(mine).toContainEqual(
+      expect.objectContaining({ id: submitted.id, githubIssueNumber: 123 }),
+    );
+  });
 });
 
 describe("管理概览与注册用户列表", () => {
@@ -948,6 +1026,35 @@ describe("普通角色无尽玩法", () => {
       await SELF.fetch("https://fireflydle.games/api/collection", { headers: { cookie } }),
     );
     expect(collection.unlockedIds).toContain(character.id);
+
+    const stats = await dataOf<{
+      totalSolved: number;
+      accuracy: number;
+      averageGuesses: number;
+      strongestPath: { id: string; solved: number } | null;
+      strongestElement: { id: string; solved: number } | null;
+    }>(await SELF.fetch("https://fireflydle.games/api/stats/me", { headers: { cookie } }));
+    expect(stats).toMatchObject({
+      totalSolved: 1,
+      accuracy: 1,
+      averageGuesses: 1,
+      strongestPath: { id: "destruction", solved: 1 },
+      strongestElement: { id: "fire", solved: 1 },
+    });
+  });
+
+  it("立绘无尽可以在数据库约束下创建并恢复", async () => {
+    const { cookie } = await createSession();
+    const create = () =>
+      SELF.fetch("https://fireflydle.games/api/endless?modeId=portrait", {
+        method: "POST",
+        headers: { cookie },
+      });
+    const startedResponse = await create();
+    expect(startedResponse.status).toBe(201);
+    const started = await dataOf<PublicEndlessRun>(startedResponse);
+    expect(started).toMatchObject({ modeId: "portrait", status: "active", roundNumber: 1 });
+    expect((await dataOf<PublicEndlessRun>(await create())).id).toBe(started.id);
   });
 
   it("排行榜按通关数、总猜测次数和总耗时排序", async () => {

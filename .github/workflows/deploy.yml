@@ -191,6 +191,12 @@ jobs:
             echo "::error::RELEASE_ANNOUNCEMENT_TOKEN is not configured on the Worker."
             exit 1
           fi
+          if bunx wrangler secret list --format json | jq --exit-status 'any(.[]; .name == "GITHUB_ISSUE_TOKEN")'; then
+            echo "Feedback publishing to GitHub Issues is configured."
+          else
+            echo "::error::GITHUB_ISSUE_TOKEN is not configured on the Worker."
+            exit 1
+          fi
 
       - name: Apply D1 migrations
         working-directory: apps/api

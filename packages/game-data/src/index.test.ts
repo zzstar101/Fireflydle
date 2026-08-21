@@ -118,6 +118,10 @@ describe("货币战争独立规则集", () => {
     expect(candidatePool?.candidateIds.length).toBe(72);
     expect(candidatePool?.candidateIds).toContain("cw-acheron");
     expect(currencyWarsRuleset.units.some((unit) => unit.id === "cw-acheron")).toBeTrue();
+    expect(currencyWarsRuleset.units.find((unit) => unit.id === "cw-acheron")?.synergies).toEqual([
+      "debuff",
+      "galaxy-rangers",
+    ]);
     expect(currencyWarsRuleset.units.every((unit) => unit.id.startsWith("cw-"))).toBeTrue();
     expect(
       currencyWarsRuleset.units.find((unit) => unit.id === "cw-silver-wolf-lv-999")?.cost,

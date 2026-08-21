@@ -43,6 +43,7 @@ import { characters, getFactionName, pathLabels } from "@fireflydle/game-data/pl
 import { PageHeader } from "../../components/PageHeader";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { MarkdownContent } from "../../components/MarkdownContent";
+import { GitHubMark } from "../../components/GitHubMark";
 import { usePreferences } from "../../state/preferences";
 import { useSession } from "../account/useSession";
 import { ApiClientError, apiRequest } from "../../api/client";
@@ -64,6 +65,9 @@ interface AdminFeedback {
   contactEmail: string;
   status: FeedbackStatus;
   resolvedReleaseTag: string | null;
+  githubIssueNumber: number | null;
+  githubIssueUrl: string | null;
+  githubPublishedAt: string | null;
   submitterName: string;
   attachments: Array<{ name: string; mime: string; dataUrl: string }>;
   createdAt: string;
@@ -994,12 +998,13 @@ function numberFormat(value: number, locale: Locale): string {
 
 const feedbackStatuses: FeedbackStatus[] = ["open", "reviewing", "accepted", "resolved", "closed"];
 
-function FeedbackPanel({ locale }: { locale: Locale }) {
+function FeedbackPanel({ locale, canPublish }: { locale: Locale; canPublish: boolean }) {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FeedbackStatus | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [status, setStatus] = useState<FeedbackStatus>("open");
   const [releaseTag, setReleaseTag] = useState("");
+  const [message, setMessage] = useState("");
   const feedback = useQuery({
     queryKey: ["admin", "feedback", filter],
     queryFn: () =>
@@ -1024,8 +1029,22 @@ function FeedbackPanel({ locale }: { locale: Locale }) {
         }),
       }),
     onSuccess: async () => {
+      setMessage(locale === "zh-CN" ? "审核状态已保存。" : "Review status saved.");
       await queryClient.invalidateQueries({ queryKey: ["admin", "feedback"] });
     },
+    onError: (error) => setMessage(mutationMessage(error, locale)),
+  });
+
+  const publishIssue = useMutation({
+    mutationFn: () =>
+      apiRequest<AdminFeedback>(`/admin/feedback/${selected?.id}/github-issue`, {
+        method: "POST",
+      }),
+    onSuccess: async () => {
+      setMessage(locale === "zh-CN" ? "已发布为 GitHub Issue。" : "Published as a GitHub Issue.");
+      await queryClient.invalidateQueries({ queryKey: ["admin", "feedback"] });
+    },
+    onError: (error) => setMessage(mutationMessage(error, locale)),
   });
 
   const statusLabels: Record<FeedbackStatus, string> = {
@@ -1132,6 +1151,17 @@ function FeedbackPanel({ locale }: { locale: Locale }) {
                   ))}
                 </div>
               ) : null}
+              {selected.githubIssueUrl ? (
+                <a
+                  className="feedback-github-issue"
+                  href={selected.githubIssueUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <GitHubMark /> GitHub Issue #{selected.githubIssueNumber}
+                </a>
+              ) : null}
+              {message ? <p className="admin-message">{message}</p> : null}
               <footer>
                 <label>
                   {locale === "zh-CN" ? "处理状态" : "Status"}
@@ -1157,13 +1187,31 @@ function FeedbackPanel({ locale }: { locale: Locale }) {
                     />
                   </label>
                 ) : null}
-                <button
-                  className="primary-action"
-                  disabled={review.isPending || (status === "resolved" && !releaseTag.trim())}
-                  onClick={() => review.mutate()}
-                >
-                  <Save size={16} /> {locale === "zh-CN" ? "保存审核" : "Save review"}
-                </button>
+                <div className="feedback-review-actions">
+                  {canPublish && !selected.githubIssueUrl ? (
+                    <button
+                      disabled={selected.status !== "accepted" || publishIssue.isPending}
+                      title={
+                        selected.status === "accepted"
+                          ? undefined
+                          : locale === "zh-CN"
+                            ? "先将反馈状态保存为已采纳"
+                            : "Save the feedback as accepted first"
+                      }
+                      onClick={() => publishIssue.mutate()}
+                    >
+                      <GitHubMark />
+                      {locale === "zh-CN" ? "发布为 GitHub Issue" : "Publish GitHub Issue"}
+                    </button>
+                  ) : null}
+                  <button
+                    className="primary-action"
+                    disabled={review.isPending || (status === "resolved" && !releaseTag.trim())}
+                    onClick={() => review.mutate()}
+                  >
+                    <Save size={16} /> {locale === "zh-CN" ? "保存审核" : "Save review"}
+                  </button>
+                </div>
               </footer>
             </article>
           ) : null}
@@ -1324,7 +1372,9 @@ export default function AdminPage() {
           {activeTab === "characters" ? <CharacterPanel locale={locale} /> : null}
           {activeTab === "taxonomy" ? <TaxonomyPanel locale={locale} /> : null}
           {activeTab === "announcements" ? <AnnouncementsPanel locale={locale} /> : null}
-          {activeTab === "feedback" ? <FeedbackPanel locale={locale} /> : null}
+          {activeTab === "feedback" ? (
+            <FeedbackPanel locale={locale} canPublish={canOperate} />
+          ) : null}
           {activeTab === "users" ? <UsersPanel locale={locale} actorRole={role} /> : null}
           {activeTab === "audit" ? <AuditPanel locale={locale} /> : null}
         </section>

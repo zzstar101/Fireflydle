@@ -635,7 +635,18 @@
 }
 .feedback-review-detail > footer button {
   min-height: 42px;
+}
+.feedback-review-actions {
+  display: flex;
   margin-left: auto;
+  gap: 8px;
+}
+.feedback-github-issue {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.66rem;
 }
 .user-email-state {
   font-family: var(--font-mono);
@@ -1131,6 +1142,11 @@
   }
   .feedback-review-detail > footer button {
     margin-left: 0;
+  }
+  .feedback-review-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
   }
   .announcement-record-copy {
     grid-column: 1 / -1;

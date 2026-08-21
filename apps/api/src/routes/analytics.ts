@@ -9,8 +9,18 @@ import type { AppContext } from "../types";
 interface AggregateRow {
   practice_played: number;
   practice_won: number;
-  guess_sum: number;
-  guess_games: number;
+}
+
+interface LifetimeStatsRow {
+  solved: number;
+  attempted: number;
+  solved_guess_sum: number;
+}
+
+interface SpecialtyRow {
+  path: string;
+  element: string;
+  solved_count: number;
 }
 
 interface RankedRow {
@@ -89,26 +99,44 @@ function streaks(dateKeys: readonly string[], today: string): { current: number;
   return { current, best };
 }
 
+function strongestSpecialty(
+  rows: readonly SpecialtyRow[],
+  field: "path" | "element",
+): { id: string; solved: number } | null {
+  const totals = new Map<string, number>();
+  for (const row of rows) totals.set(row[field], (totals.get(row[field]) ?? 0) + row.solved_count);
+  const strongest = [...totals].sort(
+    ([leftId, leftCount], [rightId, rightCount]) =>
+      rightCount - leftCount || leftId.localeCompare(rightId),
+  )[0];
+  return strongest ? { id: strongest[0], solved: strongest[1] } : null;
+}
+
 export const analyticsRoutes = new Hono<AppContext>();
 
 analyticsRoutes.get("/stats/me", async (context) => {
   const auth = requireAuth(context);
   const today = getBeijingDateKey();
-  const [aggregate, ranked, recentRows, multiplayerRows, dailyRows, todayRow] = await Promise.all([
+  const [
+    aggregate,
+    ranked,
+    recentRows,
+    multiplayerRows,
+    dailyRows,
+    todayRow,
+    lifetime,
+    specialtyRows,
+  ] = await Promise.all([
     context.env.DB.prepare(
       `SELECT
          SUM(CASE WHEN activity_id = 'practice' THEN 1 ELSE 0 END) AS practice_played,
-         SUM(CASE WHEN activity_id = 'practice' AND result = 'won' THEN 1 ELSE 0 END) AS practice_won,
-         SUM(CASE WHEN activity_id = 'practice' AND result IN ('won', 'lost')
-                  THEN guess_count ELSE 0 END)
-           AS guess_sum,
-         SUM(CASE WHEN activity_id = 'practice' AND result IN ('won', 'lost')
-                  THEN 1 ELSE 0 END)
-           AS guess_games
-       FROM game_results WHERE user_id = ? AND mode_id = 'playable'
-         AND activity_id IN ('daily', 'practice')`,
+         SUM(CASE WHEN activity_id = 'practice' AND result = 'won' THEN 1 ELSE 0 END) AS practice_won
+       FROM game_results result
+       JOIN users owner ON owner.id = result.user_id
+       WHERE (result.user_id = ? OR owner.merged_into_user_id = ?)
+         AND mode_id = 'playable' AND activity_id IN ('daily', 'practice')`,
     )
-      .bind(auth.user.id)
+      .bind(auth.user.id, auth.user.id)
       .first<AggregateRow>(),
     context.env.DB.prepare(
       `SELECT
@@ -172,6 +200,82 @@ analyticsRoutes.get("/stats/me", async (context) => {
     )
       .bind(today)
       .first<CountRow>(),
+    context.env.DB.prepare(
+      `WITH regular_ranked AS (
+         SELECT CASE WHEN result.result = 'won' THEN 1 ELSE 0 END AS won,
+                result.guess_count AS guess_count,
+                ROW_NUMBER() OVER (
+                  PARTITION BY CASE WHEN result.activity_id = 'daily'
+                                    THEN 'daily:' || result.date_key
+                                    ELSE result.game_id END
+                  ORDER BY CASE WHEN result.user_id = ? THEN 0 ELSE 1 END,
+                           result.completed_at DESC
+                ) AS attempt_no
+         FROM game_results result
+         JOIN users owner ON owner.id = result.user_id
+         WHERE (result.user_id = ? OR owner.merged_into_user_id = ?)
+           AND result.mode_id = 'playable'
+           AND result.activity_id IN ('daily', 'practice')
+           AND result.result IN ('won', 'lost')
+       ), endless_rounds AS (
+         SELECT MAX(CASE WHEN json_extract(guess.result_json, '$.isCorrect') = 1
+                         THEN 1 ELSE 0 END) AS won,
+                MAX(guess.ordinal) AS guess_count
+         FROM endless_guesses guess
+         JOIN endless_runs run ON run.id = guess.run_id
+         JOIN users owner ON owner.id = run.user_id
+         WHERE (run.user_id = ? OR owner.merged_into_user_id = ?)
+           AND run.mode_id IN ('playable', 'portrait')
+         GROUP BY run.id, guess.round_number
+       ), graded_rounds AS (
+         SELECT won, guess_count FROM regular_ranked WHERE attempt_no = 1
+         UNION ALL
+         SELECT won, guess_count FROM endless_rounds WHERE won = 1 OR guess_count >= 6
+       )
+       SELECT COALESCE(SUM(won), 0) AS solved,
+              COUNT(*) AS attempted,
+              COALESCE(SUM(CASE WHEN won = 1 THEN guess_count ELSE 0 END), 0)
+                AS solved_guess_sum
+       FROM graded_rounds`,
+    )
+      .bind(auth.user.id, auth.user.id, auth.user.id, auth.user.id, auth.user.id)
+      .first<LifetimeStatsRow>(),
+    context.env.DB.prepare(
+      `WITH regular_ranked AS (
+         SELECT game.target_character_id AS character_id,
+                result.result AS result,
+                ROW_NUMBER() OVER (
+                  PARTITION BY CASE WHEN result.activity_id = 'daily'
+                                    THEN 'daily:' || result.date_key
+                                    ELSE result.game_id END
+                  ORDER BY CASE WHEN result.user_id = ? THEN 0 ELSE 1 END,
+                           result.completed_at DESC
+                ) AS attempt_no
+         FROM game_results result
+         JOIN games game ON game.id = result.game_id
+         JOIN users owner ON owner.id = result.user_id
+         WHERE (result.user_id = ? OR owner.merged_into_user_id = ?)
+           AND result.mode_id = 'playable'
+           AND result.activity_id IN ('daily', 'practice')
+           AND result.result IN ('won', 'lost')
+       ), solved_characters AS (
+         SELECT character_id FROM regular_ranked WHERE attempt_no = 1 AND result = 'won'
+         UNION ALL
+         SELECT guess.character_id
+         FROM endless_guesses guess
+         JOIN endless_runs run ON run.id = guess.run_id
+         JOIN users owner ON owner.id = run.user_id
+         WHERE (run.user_id = ? OR owner.merged_into_user_id = ?)
+           AND run.mode_id IN ('playable', 'portrait')
+           AND json_extract(guess.result_json, '$.isCorrect') = 1
+       )
+       SELECT character.path, character.element, COUNT(*) AS solved_count
+       FROM solved_characters solved
+       JOIN characters character ON character.id = solved.character_id
+       GROUP BY character.path, character.element`,
+    )
+      .bind(auth.user.id, auth.user.id, auth.user.id, auth.user.id, auth.user.id)
+      .all<SpecialtyRow>(),
   ]);
   const dailyByDate = new Map<string, DailyCompletionRow>();
   for (const row of dailyRows.results) {
@@ -187,8 +291,8 @@ analyticsRoutes.get("/stats/me", async (context) => {
     count: uniqueDaily.filter((row) => row.result === "won" && row.guess_count === index + 1)
       .length,
   }));
-  const dailyGuessSum = uniqueDaily.reduce((sum, row) => sum + row.guess_count, 0);
-  const totalGuessGames = (aggregate?.guess_games ?? 0) + uniqueDaily.length;
+  const totalSolved = lifetime?.solved ?? 0;
+  const attempted = lifetime?.attempted ?? 0;
   const replayGames = await getReplayGames(
     context.env.DB,
     recentRows.results.map((row) => row.game_id),
@@ -210,6 +314,10 @@ analyticsRoutes.get("/stats/me", async (context) => {
     };
   });
   return ok(context, {
+    totalSolved,
+    accuracy: attempted === 0 ? 0 : totalSolved / attempted,
+    strongestPath: strongestSpecialty(specialtyRows.results, "path"),
+    strongestElement: strongestSpecialty(specialtyRows.results, "element"),
     dailyPlayed: uniqueDaily.length,
     dailyWon: uniqueDaily.filter((row) => row.result === "won").length,
     currentStreak: dailyStreak.current,
@@ -218,8 +326,7 @@ analyticsRoutes.get("/stats/me", async (context) => {
     practiceWon: aggregate?.practice_won ?? 0,
     rankedPlayed: ranked?.ranked_played ?? 0,
     rankedWon: ranked?.ranked_won ?? 0,
-    averageGuesses:
-      totalGuessGames === 0 ? 0 : ((aggregate?.guess_sum ?? 0) + dailyGuessSum) / totalGuessGames,
+    averageGuesses: totalSolved === 0 ? 0 : (lifetime?.solved_guess_sum ?? 0) / totalSolved,
     dailyHistory: uniqueDaily.map((row) => ({
       id: row.game_id,
       dateKey: row.date_key,

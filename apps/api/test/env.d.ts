@@ -3,5 +3,6 @@ declare namespace Cloudflare {
     TEST_MIGRATIONS: import("cloudflare:test").D1Migration[];
     RESEND_API_KEY: string;
     RELEASE_ANNOUNCEMENT_TOKEN: string;
+    GITHUB_ISSUE_TOKEN: string;
   }
 }

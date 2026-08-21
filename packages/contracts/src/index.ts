@@ -773,6 +773,14 @@ export const GuessDistributionBucketSchema = z.object({
 export type GuessDistributionBucket = z.infer<typeof GuessDistributionBucketSchema>;
 
 export const PersonalStatsSchema = z.object({
+  totalSolved: z.number().int().nonnegative(),
+  accuracy: z.number().min(0).max(1),
+  strongestPath: z
+    .object({ id: z.string().min(1), solved: z.number().int().positive() })
+    .nullable(),
+  strongestElement: z
+    .object({ id: z.string().min(1), solved: z.number().int().positive() })
+    .nullable(),
   dailyPlayed: z.number().int().nonnegative(),
   dailyWon: z.number().int().nonnegative(),
   currentStreak: z.number().int().nonnegative(),

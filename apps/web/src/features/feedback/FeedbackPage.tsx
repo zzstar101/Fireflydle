@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
+import { GitHubMark } from "../../components/GitHubMark";
 import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
 import "./feedback.css";
@@ -14,6 +15,8 @@ type FeedbackItem = {
   status: string;
   createdAt: string;
   resolvedReleaseTag: string | null;
+  githubIssueNumber: number | null;
+  githubIssueUrl: string | null;
 };
 type Attachment = { name: string; mime: string; dataUrl: string };
 
@@ -215,6 +218,11 @@ export default function FeedbackPage() {
               {item.status}
               {item.resolvedReleaseTag ? ` · ${item.resolvedReleaseTag}` : ""}
             </em>
+            {item.githubIssueUrl ? (
+              <a href={item.githubIssueUrl} target="_blank" rel="noreferrer">
+                <GitHubMark /> Issue #{item.githubIssueNumber}
+              </a>
+            ) : null}
           </div>
         ))}
       </section>

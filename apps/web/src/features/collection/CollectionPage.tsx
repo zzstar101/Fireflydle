@@ -100,16 +100,28 @@ function collectionImagePath(character: CollectionCharacter): string {
     : character.assets.portraitPath || character.assets.avatarPath;
 }
 
-const pathRewardImages: Record<string, string> = {
-  destruction: "/assets/aeons/01.webp",
-  hunt: "/assets/aeons/03.webp",
-  erudition: "/assets/aeons/04.webp",
-  harmony: "/assets/aeons/05.webp",
+export const pathRewardImages: Record<string, string> = {
+  destruction: "/assets/aeons/11.webp",
+  hunt: "/assets/aeons/08.webp",
+  erudition: "/assets/aeons/12.webp",
+  harmony: "/assets/aeons/17.webp",
   nihility: "/assets/aeons/07.webp",
-  preservation: "/assets/aeons/08.webp",
-  abundance: "/assets/aeons/10.webp",
-  remembrance: "/assets/aeons/12.webp",
-  elation: "/assets/aeons/14.webp",
+  preservation: "/assets/aeons/14.webp",
+  abundance: "/assets/aeons/18.webp",
+  remembrance: "/assets/aeons/04.webp",
+  elation: "/assets/aeons/01.webp",
+};
+
+export const pathRewardImagePositions: Record<string, string> = {
+  destruction: "50% 42%",
+  hunt: "52% 43%",
+  erudition: "50% 48%",
+  harmony: "50% 42%",
+  nihility: "50% 50%",
+  preservation: "50% 47%",
+  abundance: "50% 44%",
+  remembrance: "50% 48%",
+  elation: "50% 48%",
 };
 
 const characterIntroductions = introductions as Record<string, string>;
@@ -168,6 +180,7 @@ export default function CollectionPage() {
       name: localizedPath(path, locale),
       progress,
       imagePath: pathRewardImages[path] ?? "/assets/aeons/12.webp",
+      imagePosition: pathRewardImagePositions[path] ?? "center",
     })),
     ...Object.entries(data?.factionProgress ?? {})
       .filter(([factionId, progress]) => progress.total >= 3 && factionId !== "fate-stay-night")
@@ -179,6 +192,7 @@ export default function CollectionPage() {
           progress,
           imagePath:
             factionRewardImages[factionId] ?? "/assets/faction-wallpapers/astral-express.jpg",
+          imagePosition: "center",
         };
       }),
   ];
@@ -259,7 +273,12 @@ export default function CollectionPage() {
                   aria-hidden="true"
                 >
                   {reward.imagePath ? (
-                    <img className="collection-reward-image" src={reward.imagePath} alt="" />
+                    <img
+                      className="collection-reward-image"
+                      src={reward.imagePath}
+                      alt=""
+                      style={{ objectPosition: reward.imagePosition }}
+                    />
                   ) : null}
                 </div>
                 <div className="collection-reward-copy">

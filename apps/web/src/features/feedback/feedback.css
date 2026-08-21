@@ -75,7 +75,7 @@
 }
 .feedback-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   gap: 14px;
   padding: 13px 0;
   border-bottom: 1px solid var(--border);
@@ -88,6 +88,12 @@
 .feedback-row em {
   color: var(--gold);
   font-style: normal;
+}
+.feedback-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cyan);
 }
 @media (max-width: 650px) {
   .feedback-row {

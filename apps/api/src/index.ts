@@ -29,6 +29,40 @@ const ALLOWED_PRODUCTION_ORIGINS = new Set([
 ]);
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1"]);
 
+function failureDetails(error: unknown): Record<string, string> {
+  if (error instanceof Error) {
+    const details: Record<string, string> = {
+      errorName: error.name,
+      errorMessage: error.message,
+    };
+    if (error.stack) details.errorStack = error.stack.slice(0, 8_000);
+    if (error.cause instanceof Error) {
+      details.errorCauseName = error.cause.name;
+      details.errorCauseMessage = error.cause.message;
+    } else if (error.cause !== undefined) {
+      details.errorCause = String(error.cause).slice(0, 2_000);
+    }
+    return details;
+  }
+  return { errorMessage: String(error).slice(0, 2_000) };
+}
+
+function logRequestFailure(
+  context: Parameters<MiddlewareHandler<AppContext>>[0],
+  error: unknown,
+): void {
+  console.error(
+    JSON.stringify({
+      event: "request-failed",
+      requestId: context.get("requestId"),
+      method: context.req.method,
+      path: new URL(context.req.url).pathname,
+      responseStatus: 500,
+      ...failureDetails(error),
+    }),
+  );
+}
+
 export function isAllowedOrigin(origin: string): boolean {
   try {
     const url = new URL(origin);
@@ -88,15 +122,7 @@ api.use("*", async (context, next) => {
     const problem = error instanceof ApiProblem ? error : new ApiProblem("INTERNAL_ERROR", 500);
     context.set("errorCode", problem.code);
     if (!(error instanceof ApiProblem)) {
-      console.error(
-        JSON.stringify({
-          event: "request-failed",
-          requestId: context.get("requestId"),
-          method: context.req.method,
-          path: new URL(context.req.url).pathname,
-          error: error instanceof Error ? error.message : String(error),
-        }),
-      );
+      logRequestFailure(context, error);
     }
     context.res = problemResponse(context, problem);
   }
@@ -133,15 +159,7 @@ app.notFound((context) => {
 });
 app.onError((error, context) => {
   if (error instanceof ApiProblem) return problemResponse(context, error);
-  console.error(
-    JSON.stringify({
-      event: "request-failed",
-      requestId: context.get("requestId"),
-      method: context.req.method,
-      path: new URL(context.req.url).pathname,
-      error: error instanceof Error ? error.message : String(error),
-    }),
-  );
+  logRequestFailure(context, error);
   return problemResponse(context, new ApiProblem("INTERNAL_ERROR", 500));
 });
 
