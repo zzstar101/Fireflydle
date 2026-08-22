@@ -7,6 +7,7 @@ import { characters } from "@fireflydle/game-data/playable";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../../api/client";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
+import { assetUrl } from "../../lib/asset-url";
 import { usePreferences } from "../../state/preferences";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { EndlessPage } from "./EndlessPage";
@@ -52,7 +53,8 @@ export default function PortraitChallengePage() {
     const selectedVariant = Math.floor(variantSeed * (variants.length + 1));
     return selectedVariant === 0 ? undefined : variants[selectedVariant - 1];
   }, [skins, target, seed]);
-  const targetImage = targetSkin?.imagePath || (target ? portraitImagePath(target) : undefined);
+  const targetImagePath = targetSkin?.imagePath || (target ? portraitImagePath(target) : undefined);
+  const targetImage = targetImagePath ? assetUrl(targetImagePath) : undefined;
   const [revealed, setRevealed] = useState(() => new Set(INITIAL_REVEALED));
   const [guesses, setGuesses] = useState<string[]>([]);
   const [won, setWon] = useState(false);

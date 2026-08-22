@@ -18,6 +18,7 @@ import type {
 } from "@fireflydle/contracts";
 import { apiRequest, ensureSession } from "../../api/client";
 import { usePreferences } from "../../state/preferences";
+import { assetUrl } from "../../lib/asset-url";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import "./game.css";
@@ -140,7 +141,9 @@ function PortraitEndlessBoard({ run }: { run: PublicEndlessRun }) {
       <div
         className="portrait-board"
         style={{
-          backgroundImage: run.portraitImagePath ? `url(${run.portraitImagePath})` : undefined,
+          backgroundImage: run.portraitImagePath
+            ? `url(${assetUrl(run.portraitImagePath)})`
+            : undefined,
         }}
       >
         {Array.from({ length: 64 }, (_, index) => (

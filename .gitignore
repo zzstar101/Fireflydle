@@ -1,4 +1,8 @@
 node_modules/
+tmp/r2-assets/
+apps/web/public/assets/**
+!apps/web/public/assets/manifest.json
+!apps/web/public/assets/manifest.sha256
 dist/
 .wrangler/
 .dev.vars

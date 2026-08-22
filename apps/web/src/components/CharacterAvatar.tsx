@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { GameEntitySummary } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
+import { assetUrl } from "../lib/asset-url";
 
 const PIXELS_BY_SIZE = { small: 38, medium: 52, large: 88 } as const;
 
@@ -15,8 +16,12 @@ export function getCharacterImageSources(character: GameEntitySummary, pixels: n
     webpPath: selected?.webpPath,
     fallbackPath:
       "avatarPath" in character.assets ? character.assets.avatarPath : character.assets.imagePath,
-    avifSrcSet: responsive?.map((variant) => `${variant.avifPath} ${variant.width}w`).join(", "),
-    webpSrcSet: responsive?.map((variant) => `${variant.webpPath} ${variant.width}w`).join(", "),
+    avifSrcSet: responsive
+      ?.map((variant) => `${assetUrl(variant.avifPath)} ${variant.width}w`)
+      .join(", "),
+    webpSrcSet: responsive
+      ?.map((variant) => `${assetUrl(variant.webpPath)} ${variant.width}w`)
+      .join(", "),
   };
 }
 
@@ -50,7 +55,7 @@ export function CharacterAvatar({
             <source type="image/webp" srcSet={imageSources.webpSrcSet} sizes={`${pixels}px`} />
           )}
           <img
-            src={imageSources.fallbackPath}
+            src={assetUrl(imageSources.fallbackPath)}
             alt=""
             width={pixels}
             height={pixels}

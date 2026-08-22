@@ -15,6 +15,7 @@ import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
 import { localTestMode } from "../../dev/local-test-mode";
+import { assetUrl } from "../../lib/asset-url";
 import introductions from "./introductions.zh-CN.json";
 import "./collection.css";
 
@@ -275,7 +276,7 @@ export default function CollectionPage() {
                   {reward.imagePath ? (
                     <img
                       className="collection-reward-image"
-                      src={reward.imagePath}
+                      src={assetUrl(reward.imagePath)}
                       alt=""
                       style={{ objectPosition: reward.imagePosition }}
                     />
@@ -330,7 +331,7 @@ export default function CollectionPage() {
             >
               <div className="collection-art-wrap">
                 <img
-                  src={collectionImagePath(character)}
+                  src={assetUrl(collectionImagePath(character))}
                   alt={character.unlocked ? name : lockedLabel}
                   loading="lazy"
                 />
@@ -349,7 +350,11 @@ export default function CollectionPage() {
                       .filter((skin) => skin.characterId === character.id)
                       .map((skin) => (
                         <div className="collection-skin" key={skin.id}>
-                          <img src={skin.imagePath} alt={skin.names[locale]} loading="lazy" />
+                          <img
+                            src={assetUrl(skin.imagePath)}
+                            alt={skin.names[locale]}
+                            loading="lazy"
+                          />
                           <span>{skin.names[locale]}</span>
                         </div>
                       ))
@@ -407,7 +412,7 @@ export function CollectionCharacterPage() {
       <section className={`collection-detail${character.unlocked ? "" : " is-locked"}`}>
         <div className="collection-detail-art">
           <img
-            src={collectionImagePath(character)}
+            src={assetUrl(collectionImagePath(character))}
             alt={character.unlocked ? name : "未解锁角色"}
           />
           {!character.unlocked ? <LockKeyhole size={26} aria-hidden="true" /> : null}
@@ -454,7 +459,7 @@ export function CollectionCharacterPage() {
                   <div>
                     {skins.map((skin) => (
                       <figure key={skin.id}>
-                        <img src={skin.imagePath} alt={skin.names[locale]} />
+                        <img src={assetUrl(skin.imagePath)} alt={skin.names[locale]} />
                         <figcaption>{skin.names[locale]}</figcaption>
                       </figure>
                     ))}

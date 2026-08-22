@@ -1,6 +1,7 @@
 import { useMemo, type CSSProperties } from "react";
 import type { AeonSummary, Locale } from "@fireflydle/contracts";
 import { aeonRevealOrder, aeonRevealedCells } from "@fireflydle/game-engine";
+import { assetUrl } from "../../lib/asset-url";
 
 export function AeonGuessBoard({
   gameId,
@@ -26,6 +27,7 @@ export function AeonGuessBoard({
     return ranks;
   }, [gameId]);
   const path = answer?.assets.imagePath ?? imagePath;
+  const resolvedPath = path ? assetUrl(path) : undefined;
   const focus = answer?.assets.focus ?? imageFocus ?? [0.5, 0.5];
   return (
     <section
@@ -35,7 +37,7 @@ export function AeonGuessBoard({
       <div
         className="aeon-image-grid"
         style={{
-          backgroundImage: path ? `url(${path})` : undefined,
+          backgroundImage: resolvedPath ? `url(${resolvedPath})` : undefined,
           backgroundPosition: `${focus[0] * 100}% ${focus[1] * 100}%`,
         }}
       >
