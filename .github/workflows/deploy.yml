@@ -199,11 +199,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if bunx wrangler secret list --format json | jq --exit-status 'any(.[]; .name == "RESEND_API_KEY")'; then
-            echo "Password reset email is configured."
-          else
-            echo "::warning::RESEND_API_KEY is not configured; password reset emails remain unavailable."
-          fi
+          echo "Cloudflare Email Service uses the EMAIL send_email binding; no mail API secret is required."
           if bunx wrangler secret list --format json | jq --exit-status 'any(.[]; .name == "CLOUDFLARE_ANALYTICS_TOKEN")'; then
             echo "Operations analytics is configured."
           else

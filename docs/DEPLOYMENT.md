@@ -2,15 +2,15 @@
 
 本手册部署以下生产拓扑：
 
-| 服务                   | 地址                           | 作用                       |
-| ---------------------- | ------------------------------ | -------------------------- |
-| GitHub Pages           | `https://fireflydle.games`     | React SPA 与同版本角色素材 |
-| Cloudflare Worker      | `https://api.fireflydle.games` | HTTP API、WebSocket、cron  |
-| Cloudflare D1          | `fireflydle`                   | 长期关系数据与角色池       |
-| SQLite Durable Objects | `GameRoom`、`Matchmaker`       | 房间和匹配强一致状态       |
-| Resend                 | `account@fireflydle.games`     | 密码重置邮件发件地址       |
+| 服务                   | 地址                           | 作用                           |
+| ---------------------- | ------------------------------ | ------------------------------ |
+| GitHub Pages           | `https://fireflydle.games`     | React SPA 与同版本角色素材     |
+| Cloudflare Worker      | `https://api.fireflydle.games` | HTTP API、WebSocket、cron      |
+| Cloudflare D1          | `fireflydle`                   | 长期关系数据与角色池           |
+| SQLite Durable Objects | `GameRoom`、`Matchmaker`       | 房间和匹配强一致状态           |
+| Cloudflare Email       | `account@fireflydle.games`     | 验证、密码重置、反馈和告警发信 |
 
-GitHub Pages、Workers、D1、Durable Objects 和 Resend 均可从免费计划起步，但额度和资格会变化；域名注册通常需要付费。不要在未确认计费影响时启用 Workers Paid、额外日志留存或其他付费附加项。
+GitHub Pages、Workers、D1、Durable Objects 和 Cloudflare Email Service 的额度和资格会变化；域名注册通常需要付费。不要在未确认计费影响时启用额外日志留存或其他付费附加项。
 
 ## 1. 准备账号与仓库
 
@@ -19,7 +19,6 @@ GitHub Pages、Workers、D1、Durable Objects 和 Resend 均可从免费计划�
 - 一个包含本仓库的 GitHub 仓库，默认分支为 `main`；使用 GitHub Free 时应为公开仓库，私有仓库 Pages 资格以当前计划为准；
 - 一个 Cloudflare 账号，以及属于该账号的 `fireflydle.games` zone；
 - Bun 版本以根目录 `package.json` 的 `packageManager` 为准；
-- 一个 Resend 账号；
 - 对域名注册商、GitHub 仓库设置和 Cloudflare zone 的管理权限。
 
 先在本地验证仓库：
@@ -158,29 +157,26 @@ bunx wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN
 
 GitHub Pages 使用 `github-pages` Environment。`.github/workflows/deploy.yml` 仅给 Pages job `pages: write` 与 `id-token: write`，其他 job 保持只读仓库权限。
 
-## 6. Resend 与 `account@fireflydle.games`
+## 6. Cloudflare Email Service 与 `account@fireflydle.games`
 
-邮箱验证与密码重置依赖 Resend。未配置 `RESEND_API_KEY` 时，核心游戏和无邮箱账号仍可使用，但不会发送账号邮件，workflow 会给出警告。注册时填写的邮箱必须先通过验证链接确认，只有 `email_verified = 1` 的邮箱才能创建密码重置 token。
+邮箱验证、密码重置、用户反馈和运维告警通过 `apps/api/wrangler.jsonc` 的 `EMAIL` `send_email` binding 发送。binding 只允许 `account@fireflydle.games` 作为 sender，但收件人不受固定地址限制，以支持向任意已注册用户发送验证和重置邮件。缺少 binding 或 Cloudflare 发送失败会明确记录失败并抛错，不会静默报告邮件已发送。
 
-1. 在 Resend 添加发送域 `fireflydle.games`。
-2. 把 Resend 控制台给出的 SPF、DKIM 和 return-path 记录逐条加入 Cloudflare DNS。内容和名称必须以 Resend 当前页面为准，邮件记录均使用 **DNS only**。
-3. 添加 DMARC，例如先使用监控策略并配置报告邮箱；确认合法邮件通过后再逐步收紧策略。不要创建第二条互相冲突的 SPF 记录。
-4. 等待 Resend 将域名标记为 Verified。
-5. 创建仅用于 Fireflydle 发送的 Resend API key。
-6. 在 `apps/api` 下交互式写入 Worker secret：
+1. 进入 Cloudflare Dashboard → **Compute → Email Service → Email Sending → Onboard Domain**，选择 `fireflydle.games`。
+2. 按控制台提供的记录完成 Email Sending 域验证，尤其检查 `cf-bounce` MX、SPF、DKIM 和 DMARC。不要覆盖现有 Email Routing 根域 MX；Email Sending 的 bounce 记录位于 `cf-bounce` 子域。
+3. 在 `apps/api` 运行 `bunx wrangler types`，再部署 Worker：
 
 ```bash
-bunx wrangler secret put RESEND_API_KEY
+bunx wrangler types
+bun run deploy:api
 ```
 
-仓库中的 `apps/api/wrangler.jsonc` 保存两个非秘密 production vars：
+仓库只保存非秘密 production vars：
 
 ```text
-RESEND_FROM=Fireflydle <account@fireflydle.games>
 PUBLIC_WEB_URL=https://fireflydle.games
 ```
 
-不要用 `echo` 把 API key 写进 shell history，也不要把 Resend key 加到 GitHub Actions；Worker secret 会在后续 `wrangler deploy` 时保留。发布流程仅通过 `wrangler secret list` 校验 secret 名称，无法读取或输出 secret 值。
+Email Service binding 在本地 `wrangler dev` 中默认模拟发送并写入日志；不要开启 `remote: true`，除非明确希望本地请求发送真实邮件。正式投递使用 Cloudflare Email Service 的 Worker binding，无需第三方邮件 API secret。
 
 反馈审核发布 GitHub Issue 还需要一个独立的细粒度 GitHub token。仅选择 `zzstar101/Fireflydle` 仓库，并只授予 **Issues / Read and write**；不要复用 GitHub CLI 或部署使用的高权限 token。随后在 `apps/api` 下交互式写入 Worker secret：
 
@@ -201,15 +197,15 @@ POST /api/auth/password-reset/confirm
 
 验证页只应在用户点击确认按钮后提交 token，避免邮件安全扫描器预取链接时自动验证。密码重置 request 接口应对不存在、未验证和已验证邮箱返回不可枚举的统一响应，并受限流保护。不要在生产日志中记录邮箱、验证 token 或重置 token。
 
-Resend 的发送域不会自动创建 `account@fireflydle.games` 收件箱。若该地址需要接收回复，另行配置 Cloudflare Email Routing 或邮箱服务商，并保留其 MX/TXT 记录。
+Email Sending 的 sender identity 不会自动创建 `account@fireflydle.games` 收件箱。若该地址需要接收回复，继续使用 Cloudflare Email Routing 或邮箱服务商，并保留其根域 MX/TXT 记录。
 
 ### 邮件模板维护
 
 账号邮件的 HTML 与纯文本模板以 `apps/api/src/services/account-email-template.ts` 为唯一事实来源，当前包含邮箱验证和密码重置两类；运维预警模板位于 `apps/api/src/services/operations-alert-email-template.ts`。修改模板后必须运行 Worker 测试，并与 Worker 同版本发布；这样模板内容、链接路径、过期提示和安全文案可以在 Pull Request 中审查，也能随 Worker 版本一起回滚。
 
-Resend 支持创建、更新和发布托管模板，并可在发送时通过 template ID 或 alias 传入变量；但是使用托管模板时，请求不能同时提交 `html`、`text` 或 `react`。本项目暂不把 Resend 控制台中的模板作为生产来源，以免网站、Worker 与单独发布的模板发生版本漂移。若未来切换，应先在 CI 中加入从仓库模板到 Resend alias 的幂等同步与发布步骤，再把 Worker 发送载荷切换为 `template` 对象，不要手工维护第二份生产内容。
+邮件模板继续以仓库中的 `account-email-template.ts`、`feedback-email-template.ts` 和 `operations-alert-email-template.ts` 为唯一事实来源；Cloudflare structured Workers API 同时接收 `subject`、`text` 与 `html`，不需要另维护托管模板。
 
-Cloudflare Email Routing 负责收件，与 Resend 的发信域配置互不替代。生产环境目前显式转发：
+Cloudflare Email Routing 负责收件，与 Email Sending 的发信域配置互不替代。生产环境目前显式转发：
 
 ```text
 account@fireflydle.games  -> 已验证的维护者邮箱
@@ -227,7 +223,7 @@ catch-all 保持关闭，避免接收未声明地址的垃圾邮件。修改路�
 3. 检查格式、类型、Worker bindings，运行 engine、Web 和 Worker 测试；
 4. 构建 Pages 与 Worker；
 5. 校验并保存 Pages artifact，以及同次生成的素材 manifest、SHA-256 和 `characters.sql`；
-6. 检查生产 Worker 是否存在可选的 `RESEND_API_KEY` secret，缺失时给出警告；
+6. 确认生产 Worker 已绑定 `EMAIL` `send_email`，并在 Email Service Activity log 检查发送状态；
 7. 应用尚未执行的 D1 migrations；
 8. 执行同版本、幂等的角色 seed；
 9. 发布 Worker，部署时自动处理新的 DO migration；
@@ -348,7 +344,7 @@ bunx wrangler d1 time-travel restore fireflydle --timestamp "<RFC3339>"
 - 不设置独立数据 schedule；新数据只能随经过测试的站点发布。
 - 为账号、猜测、匹配和邮件端点保留应用级限流，避免免费额度被滥用。
 - 将 production environment 设置 reviewer 和 branch protection，禁止未通过 CI 的直接发布。
-- 定期轮换 Cloudflare 与 Resend token；轮换后测试一封密码重置邮件，再删除旧 token。
+- 定期检查 Cloudflare Email Service logs、发送配额和域认证状态；如使用 Cloudflare API token 部署，按最小权限定期轮换。
 
 ## 12. 常见问题
 
@@ -362,7 +358,7 @@ bunx wrangler d1 time-travel restore fireflydle --timestamp "<RFC3339>"
 
 **DO deploy 报 migration tag 错误**：不要改写已经发布的 tag；恢复原 migration 历史并追加新 tag。
 
-**Resend 已验证但收不到回复**：域验证只解决发送认证，不提供收件箱；配置 Email Routing 或邮箱服务商。
+**Email Sending 已验证但收不到回复**：发件域验证只解决出站认证，不提供收件箱；确认 `account@fireflydle.games` 的 Email Routing 或外部收件箱仍然有效。
 
 ## 官方参考
 

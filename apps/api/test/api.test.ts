@@ -2805,7 +2805,7 @@ describe("访客进度合并", () => {
 describe("邮箱验证", () => {
   it("无邮箱注册保持可用，验证邮件发送失败也不会回滚带邮箱注册", async () => {
     const outbound = vi
-      .spyOn(globalThis, "fetch")
+      .spyOn(env.EMAIL, "send")
       .mockRejectedValue(new Error("test-email-delivery-failed"));
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
@@ -2874,20 +2874,11 @@ describe("邮箱验证", () => {
 
   it("重发会使旧 token 失效，确认后刷新会话中的邮箱状态", async () => {
     const emailedTokens: string[] = [];
-    const outbound = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
-      const request = new Request(input, init);
-      expect(request.url).toBe("https://api.resend.com/emails");
-      expect(request.headers.get("authorization")).toBe("Bearer test-resend-key");
-      const body = (await request.json()) as {
-        from?: unknown;
-        to?: unknown;
-        subject?: unknown;
-        text?: unknown;
-        html?: unknown;
-      };
+    const outbound = vi.spyOn(env.EMAIL, "send").mockImplementation(async (message) => {
+      const body = message as EmailMessageBuilder;
       expect(body).toMatchObject({
-        from: "Fireflydle <account@fireflydle.games>",
-        to: ["Verify@Example.com"],
+        from: { email: "account@fireflydle.games", name: "Fireflydle" },
+        to: "Verify@Example.com",
         subject: "[Fireflydle] 验证你的邮箱",
       });
       expect(body.html).toEqual(expect.stringContaining(">验证邮箱</a>"));
@@ -2896,7 +2887,7 @@ describe("邮箱验证", () => {
         const match = /verify-email\?token=([^\s]+)/u.exec(body.text);
         if (match?.[1]) emailedTokens.push(decodeURIComponent(match[1]));
       }
-      return Response.json({ id: "email-verification-test" });
+      return { messageId: "email-verification-test" };
     });
 
     const response = await SELF.fetch("https://fireflydle.games/api/auth/register", {
@@ -3009,7 +3000,7 @@ describe("密码重置", () => {
     expect(stored?.count).toBe(0);
   });
 
-  it("只存 token hash，通过 Resend 发送并且 token 一次性使用", async () => {
+  it("只存 token hash，通过 Cloudflare Email Service 发送并且 token 一次性使用", async () => {
     const now = Date.now();
     const userId = crypto.randomUUID();
     await env.DB.prepare(
@@ -3026,15 +3017,12 @@ describe("密码重置", () => {
       .run();
 
     let emailedToken: string | null = null;
-    const outbound = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
-      const request = new Request(input, init);
-      expect(request.url).toBe("https://api.resend.com/emails");
-      expect(request.headers.get("authorization")).toBe("Bearer test-resend-key");
-      const body: unknown = await request.json();
+    const outbound = vi.spyOn(env.EMAIL, "send").mockImplementation(async (message) => {
+      const body: unknown = message;
       if (typeof body === "object" && body !== null && "text" in body) {
         expect(body).toMatchObject({
-          from: "Fireflydle <account@fireflydle.games>",
-          to: ["reset@example.com"],
+          from: { email: "account@fireflydle.games", name: "Fireflydle" },
+          to: "reset@example.com",
           subject: "[Fireflydle] 重置你的密码",
           html: expect.stringContaining(">重置密码</a>"),
         });
@@ -3043,7 +3031,7 @@ describe("密码重置", () => {
           emailedToken = match?.[1] ? decodeURIComponent(match[1]) : null;
         }
       }
-      return Response.json({ id: "email-test" });
+      return { messageId: "email-test" };
     });
 
     const requested = await SELF.fetch("https://fireflydle.games/api/auth/password-reset/request", {
