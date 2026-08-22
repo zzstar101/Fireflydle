@@ -114,14 +114,14 @@ Pull request 和 `main` push 都会运行格式、类型、测试和构建检查
 
 生产拓扑以免费方案为起点：
 
-| 组件                   | 地址或名称                     | 用途                           |
-| ---------------------- | ------------------------------ | ------------------------------ |
-| GitHub Pages           | `https://fireflydle.games`     | React SPA 与同版本角色素材     |
-| Cloudflare Worker      | `https://api.fireflydle.games` | HTTP API、WebSocket 与定时维护 |
-| Cloudflare D1          | `fireflydle`                   | 账号、对局、排行和角色池       |
-| SQLite Durable Objects | `GameRoom`、`Matchmaker`       | 房间与匹配的强一致实时状态     |
-| Resend                 | `account@fireflydle.games`     | 邮箱验证与密码重置发信         |
-| Cloudflare Email       | `account@fireflydle.games`     | 将站点来信转发到维护者收件箱   |
+| 组件                     | 地址或名称                     | 用途                             |
+| ------------------------ | ------------------------------ | -------------------------------- |
+| GitHub Pages             | `https://fireflydle.games`     | React SPA 与同版本角色素材       |
+| Cloudflare Worker        | `https://api.fireflydle.games` | HTTP API、WebSocket 与定时维护   |
+| Cloudflare D1            | `fireflydle`                   | 账号、对局、排行和角色池         |
+| SQLite Durable Objects   | `GameRoom`、`Matchmaker`       | 房间与匹配的强一致实时状态       |
+| Cloudflare Email Sending | `account@fireflydle.games`     | 邮箱验证、密码重置与运维告警发信 |
+| Cloudflare Email Routing | `account@fireflydle.games`     | 将站点来信转发到维护者收件箱     |
 
 手动发布 GitHub Release 后，`.github/workflows/deploy.yml` 会自动从该 Release 的 tag 构建同一批 Pages artifact 与 D1 seed，依次迁移 D1、发布并验证 Worker，最后发布对应的 Pages 版本。任一步失败都会阻止后续部署；配置与发布步骤见 [部署手册](docs/DEPLOYMENT.md)。
 

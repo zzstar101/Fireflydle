@@ -10,7 +10,6 @@ export default defineConfig(async () => {
         miniflare: {
           bindings: {
             TEST_MIGRATIONS: migrations,
-            RESEND_API_KEY: "test-resend-key",
             RELEASE_ANNOUNCEMENT_TOKEN: "test-release-announcement-token-0001",
             GITHUB_ISSUE_TOKEN: "test-github-issue-token",
           },

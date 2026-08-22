@@ -1,3 +1,5 @@
+import { assetUrl } from "../lib/asset-url";
+
 export type SpecialModeId = "currency-wars" | "aeon";
 export type SpecialModePackInspection = "ready" | "missing" | "unsupported";
 
@@ -44,7 +46,7 @@ export async function inspectSpecialModePack(
     if (!Array.isArray(metadata.assets)) return "missing";
     const entries = await Promise.all(
       metadata.assets.map((asset) =>
-        typeof asset === "string" ? cache.match(asset) : Promise.resolve(undefined),
+        typeof asset === "string" ? cache.match(assetUrl(asset)) : Promise.resolve(undefined),
       ),
     );
     return entries.every(Boolean) ? "ready" : "missing";

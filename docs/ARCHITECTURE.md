@@ -40,7 +40,7 @@ flowchart LR
 `apps/api` 使用 Hono 与 Cloudflare Workers。Worker 负责：
 
 - 访客、注册账号、会话与权限边界；
-- 通过 Resend 发送限流的密码重置邮件；
+- 通过 Cloudflare Email Service 发送限流的密码重置、验证和运维告警邮件；
 - 每日和随机对局、猜测判定、回放及排行；
 - 1v1 房间、匹配与 WebSocket 协调；
 - 定时清理过期的会话和目录数据；
@@ -80,7 +80,7 @@ D1 是长期、可查询的数据源，包含账号、会话、角色、每日�
 2. 对同步后的工作区执行格式、类型、测试和构建检查；
 3. 上传由该工作区生成的 GitHub Pages artifact；
 4. 把同次生成的 manifest、manifest 摘要和 D1 seed 保存为本次 Actions run 专属的 `release-data-*` artifact；
-5. 从该 artifact 检查可选的 `RESEND_API_KEY`，应用 D1 migration 与角色 seed，再发布 Worker；
+5. 从该 artifact 应用 D1 migration 与角色 seed，再发布绑定了 Cloudflare Email Service 的 Worker；
 6. API 健康检查成功后，才发布已经构建好的 Pages artifact。
 
 流水线没有素材专用的 schedule，也没有把图片直接上传到另一个存储服务。即使上游数据发生变化，线上内容也只在完整发布成功后一起变化。跨 GitHub Pages 与 Cloudflare 无法实现真正的分布式原子提交；发布顺序和保留的 artifact 将故障窗口缩小，并为重试与审计提供依据。
@@ -92,7 +92,7 @@ D1 是长期、可查询的数据源，包含账号、会话、角色、每日�
 - GitHub Actions 默认只有 `contents: read`；只有 Pages 发布 job 拥有 `pages: write` 和 OIDC `id-token: write`。
 - Cloudflare 凭据只存在于受保护的 `production-api` GitHub Environment，不写入仓库、构建产物或命令行参数。
 - `api.fireflydle.games` Custom Domain 在首次引导时由 Cloudflare 控制台绑定；生产配置不声明 routes，因此 CD token 不拥有 Zone 权限，也不会在每次代码发布时重复写路由。
-- Resend API key 只作为 Worker secret 保存；发件地址和公开站点 URL 是版本控制中的非秘密配置。
+- 邮件通过 `apps/api/wrangler.jsonc` 的 `EMAIL` `send_email` binding 发送，不保存第三方邮件 API secret；发件地址和公开站点 URL 是版本控制中的非秘密配置。
 - 管理概览使用独立的 `CLOUDFLARE_ANALYTICS_TOKEN` Worker secret，只授予 Account Analytics Read；不会复用部署 token。
 - 生产部署使用并发锁且不取消进行中的发布，避免两个 migration/seed 同时执行。
 - D1 变更优先使用向前修复；破坏性恢复必须先评估会丢失的用户写入。

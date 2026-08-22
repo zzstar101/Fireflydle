@@ -4,6 +4,7 @@ import {
   specialModePackDefinition,
   type SpecialModeId,
 } from "./special-mode-pack";
+import { assetUrls } from "../lib/asset-url";
 
 function assetPaths(manifest: ContentManifest): string[] {
   const paths = new Set<string>();
@@ -45,7 +46,7 @@ export async function downloadSpecialModePack(modeId: SpecialModeId): Promise<vo
   await caches.delete(definition.cacheName);
   const cache = await caches.open(definition.cacheName);
   try {
-    await cache.addAll(assets);
+    await cache.addAll(assetUrls(assets));
     await cache.put(
       definition.metadataPath,
       new Response(

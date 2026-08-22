@@ -1,4 +1,5 @@
 import { playableShell } from "@fireflydle/game-data/playable-shell";
+import { assetUrl } from "./lib/asset-url";
 
 const INSTALL_ELIGIBLE_KEY = "fireflydle-install-eligible";
 const INSTALL_DISMISSED_KEY = "fireflydle-install-dismissed-at";
@@ -104,14 +105,15 @@ export function registerPwaServiceWorker(isDevelopment = import.meta.env.DEV): v
     const registration = await navigator.serviceWorker.ready;
     const location = (window as Window & { location?: Location }).location;
     if (!location) return;
+    const assetOrigin = new URL(assetUrl("/assets/"), location.href).origin;
     const urls = performance
       .getEntriesByType("resource")
       .map((entry) => entry.name)
       .filter((url) => {
         const resource = new URL(url, location.href);
         return (
-          resource.origin === location.origin &&
-          /\.(?:css|js|woff2?)(?:\?|$)/i.test(resource.pathname)
+          (resource.origin === location.origin || resource.origin === assetOrigin) &&
+          /\.(?:avif|css|js|jpe?g|png|webp|woff2?)(?:\?|$)/i.test(resource.pathname)
         );
       });
     registration.active?.postMessage({ type: "CACHE_CURRENT_PAGE_ASSETS", urls });

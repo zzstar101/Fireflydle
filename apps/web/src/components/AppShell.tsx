@@ -24,6 +24,7 @@ import { getDefaultMode } from "../features/modes/mode-registry";
 import { motionModeFromPreference, motionPausedForPage } from "./motion";
 import { PwaInstallPrompt } from "./PwaInstallPrompt";
 import { requestInstallFromMenu } from "../pwa";
+import { assetUrl } from "../lib/asset-url";
 
 const mainNavigation = [
   { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
@@ -50,7 +51,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       ? collectionRewardId.slice(8)
       : "";
     const rewardImage = collectionRewardImage;
-    if (rewardImage) root.style.setProperty("--collection-reward-image", `url("${rewardImage}")`);
+    if (rewardImage)
+      root.style.setProperty("--collection-reward-image", `url("${assetUrl(rewardImage)}")`);
     else root.style.removeProperty("--collection-reward-image");
     const gameplay = /^(\/playable|\/currency-wars|\/aeon|\/room|\/challenge)/.test(
       location.pathname,
