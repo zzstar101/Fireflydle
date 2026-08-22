@@ -133,6 +133,7 @@ curl --fail-with-body https://api.fireflydle.games/api/health
 
 - **Account / Workers Scripts / Edit**；
 - **Account / D1 / Edit**；
+- **Account / R2 Storage Object / Read & Write**（用于同步 `fireflydle-assets`）；
 - 仅选择实际生产账号；
 - workflow 不管理 DNS 或 Worker routes，因此不要授予 Zone DNS Edit 或 Workers Routes Edit。
 
