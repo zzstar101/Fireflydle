@@ -114,12 +114,12 @@ Pull request 和 `main` push 都会运行格式、类型、测试和构建检查
 
 生产拓扑以免费方案为起点：
 
-| 组件                   | 地址或名称                     | 用途                           |
-| ---------------------- | ------------------------------ | ------------------------------ |
-| GitHub Pages           | `https://fireflydle.games`     | React SPA 与同版本角色素材     |
-| Cloudflare Worker      | `https://api.fireflydle.games` | HTTP API、WebSocket 与定时维护 |
-| Cloudflare D1          | `fireflydle`                   | 账号、对局、排行和角色池       |
-| SQLite Durable Objects | `GameRoom`、`Matchmaker`       | 房间与匹配的强一致实时状态     |
+| 组件                     | 地址或名称                     | 用途                             |
+| ------------------------ | ------------------------------ | -------------------------------- |
+| GitHub Pages             | `https://fireflydle.games`     | React SPA 与同版本角色素材       |
+| Cloudflare Worker        | `https://api.fireflydle.games` | HTTP API、WebSocket 与定时维护   |
+| Cloudflare D1            | `fireflydle`                   | 账号、对局、排行和角色池         |
+| SQLite Durable Objects   | `GameRoom`、`Matchmaker`       | 房间与匹配的强一致实时状态       |
 | Cloudflare Email Sending | `account@fireflydle.games`     | 邮箱验证、密码重置与运维告警发信 |
 | Cloudflare Email Routing | `account@fireflydle.games`     | 将站点来信转发到维护者收件箱     |
 

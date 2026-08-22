@@ -3,9 +3,7 @@ import { sendEmail } from "../src/services/email";
 import { sendFeedbackEmail } from "../src/services/feedback-email";
 import { sendOperationsAlertEmail } from "../src/services/operations-alert-email";
 
-type EmailSendMock = (
-  message: EmailMessage | EmailMessageBuilder,
-) => Promise<EmailSendResult>;
+type EmailSendMock = (message: EmailMessage | EmailMessageBuilder) => Promise<EmailSendResult>;
 
 function makeEnv(send: EmailSendMock): Env {
   return {
