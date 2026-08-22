@@ -1,0 +1,18 @@
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "https://fireflydle.games",
+          "https://www.fireflydle.games",
+          "http://localhost:5173",
+          "http://127.0.0.1:5173"
+        ],
+        "methods": ["GET", "HEAD"],
+        "headers": ["Accept", "Content-Type", "Range"]
+      },
+      "exposeHeaders": ["ETag", "Content-Length", "Content-Type", "Cache-Control"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}
