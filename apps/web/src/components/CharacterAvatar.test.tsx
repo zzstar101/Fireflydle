@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { PlayableGameEntitySummary } from "@fireflydle/contracts";
 import { CharacterAvatar, getCharacterImageSources } from "./CharacterAvatar";
+import { assetUrl } from "../lib/asset-url";
 
 const character = {
   id: "firefly",
@@ -73,7 +74,7 @@ describe("响应式头像来源", () => {
     expect(markup).toContain('type="image/avif"');
     expect(markup).toContain('type="image/webp"');
     expect(markup).toContain('sizes="38px"');
-    expect(markup).toContain('src="/assets/characters/firefly-avatar.png"');
+    expect(markup).toContain(`src="${assetUrl(character.assets.avatarPath)}"`);
     expect(markup).toContain('loading="lazy"');
     expect(markup).toContain('fetchPriority="auto"');
 
