@@ -70,7 +70,7 @@ describe("普通角色内容 manifest 迁移", () => {
     expect(manifest.activities.find((activity) => activity.id === "endless")?.enabled).toBeTrue();
     expect(
       manifest.activities.find((activity) => activity.id === "ranked-match")?.enabled,
-    ).toBeFalse();
+    ).toBeTrue();
   });
 
   test("同一输入生成稳定排序和一致 manifest 版本内容", () => {

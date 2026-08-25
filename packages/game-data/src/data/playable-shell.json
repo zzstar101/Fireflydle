@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.0.369257378",
+  "manifestVersion": "1.0.3866847995",
   "modes": [
     {
       "id": "playable",
@@ -161,7 +161,7 @@
         "ja": "ランクマッチ"
       },
       "modeIds": ["playable"],
-      "enabled": false
+      "enabled": true
     }
   ]
 }

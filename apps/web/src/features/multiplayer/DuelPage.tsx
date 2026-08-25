@@ -295,7 +295,13 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
             <div className="elo-band">
               <span>ELO</span>
               <strong>{session.data?.user.elo ?? 1000}</strong>
-              <small>±100 → ±600</small>
+              <small>
+                {locale === "zh-CN"
+                  ? "±100 → 90 秒后不限"
+                  : locale === "ja"
+                    ? "±100 → 90秒後は無制限"
+                    : "±100 → open after 90s"}
+              </small>
             </div>
             <button
               className="ticket-button"

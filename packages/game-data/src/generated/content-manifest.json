@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.0.369257378",
+  "manifestVersion": "1.0.3866847995",
   "generatedAt": "2026-07-18T17:08:44.000Z",
   "modes": [
     {
@@ -162,7 +162,7 @@
         "ja": "ランクマッチ"
       },
       "modeIds": ["playable"],
-      "enabled": false
+      "enabled": true
     }
   ],
   "pools": [

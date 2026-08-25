@@ -487,15 +487,15 @@ export function calculateElo(
   loserMatches: number,
 ): EloResult {
   const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
-  const winnerK = winnerMatches < 10 ? 48 : 32;
-  const loserK = loserMatches < 10 ? 48 : 32;
-  const winnerDelta = Math.max(1, Math.round(winnerK * (1 - expectedWinner)));
-  const loserDelta = Math.max(1, Math.round(loserK * expectedWinner));
+  // 一局使用同一个 K，避免临时玩家和老玩家对局时 Elo 凭空增加或减少。
+  const k = winnerMatches < 10 || loserMatches < 10 ? 48 : 32;
+  const requestedDelta = Math.max(1, Math.round(k * (1 - expectedWinner)));
+  const loserDelta = Math.min(requestedDelta, Math.max(0, loserRating - 100));
 
   return {
-    winnerRating: winnerRating + winnerDelta,
-    loserRating: Math.max(100, loserRating - loserDelta),
-    delta: winnerDelta,
+    winnerRating: winnerRating + loserDelta,
+    loserRating: loserRating - loserDelta,
+    delta: loserDelta,
   };
 }
 
@@ -503,7 +503,8 @@ export function getMatchmakingRange(waitingMs: number): number {
   if (waitingMs < 15_000) return 100;
   if (waitingMs < 30_000) return 200;
   if (waitingMs < 60_000) return 350;
-  return 600;
+  if (waitingMs < 90_000) return 600;
+  return Number.POSITIVE_INFINITY;
 }
 
 export function canMatchRatings(left: number, right: number, longestWaitingMs: number): boolean {

@@ -4,7 +4,7 @@ import { forfeitWeeklyGame, submitGameGuess } from "../src/services/games";
 import { getWeeklyRun, startWeeklyRun } from "../src/services/weekly";
 import { SELF } from "cloudflare:test";
 import { env } from "cloudflare:workers";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const characters: Character[] = Array.from({ length: 7 }, (_, index) => ({
   id: `weekly-character-${index}`,
@@ -126,6 +126,15 @@ async function guess(cookie: string, run: WeeklyRun, characterId: string): Promi
 }
 
 describe("普通角色周赛核心", () => {
+  beforeEach(() => {
+    // 第一组用例固定在普通角色周，避免随自然日期轮换到其他模式。
+    vi.useFakeTimers({ now: new Date("2026-08-17T12:00:00+08:00") });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("固定全球五题，失败继续；游客可分享但不上榜，账号首成绩锁定", async () => {
     await seedCharacters();
     const guest = await createGuest();

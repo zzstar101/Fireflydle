@@ -104,8 +104,8 @@ const ACTIVITIES = [
   {
     id: "ranked-match" as const,
     label: { "zh-CN": "排位匹配", en: "Ranked match", ja: "ランクマッチ" },
-    // 保留既有无段位 ELO/PvP 的兼容 ID，但不在 T02 manifest 中启用对外入口。
-    enabled: false,
+    // 排位只允许注册账号，并计入永久 Elo。
+    enabled: true,
   },
 ] as const;
 

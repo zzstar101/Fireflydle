@@ -26,7 +26,7 @@ describe("内容模式注册表", () => {
       modes: [
         {
           definition: playableDefinition,
-          activities: ["daily", "practice", "weekly", "endless", "private-room"],
+          activities: ["daily", "practice", "weekly", "endless", "private-room", "ranked-match"],
           navigation: [
             {
               id: "daily",
@@ -50,7 +50,7 @@ describe("内容模式注册表", () => {
               id: "duel",
               segment: "duel",
               path: "/playable/duel",
-              activityIds: ["private-room"],
+              activityIds: ["private-room", "ranked-match"],
             },
           ],
         },

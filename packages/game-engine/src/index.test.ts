@@ -4,12 +4,14 @@ import { describe, expect, test } from "bun:test";
 import type { Character, CurrencyWarsUnit } from "@fireflydle/contracts";
 import {
   calculateElo,
+  canMatchRatings,
   compareCharacters,
   createGuessResult,
   createSpoilerFreeShareText,
   getBeijingDateKey,
   getBeijingWeekEnd,
   getBeijingWeekKey,
+  getMatchmakingRange,
   getWeeklyModeId,
   hasDuplicateGuess,
   pickFromShuffleBag,
@@ -433,6 +435,19 @@ describe("游戏规则", () => {
     const upset = calculateElo(900, 1300, 20, 20);
     const expected = calculateElo(1300, 900, 20, 20);
     expect(upset.delta).toBeGreaterThan(expected.delta);
+  });
+
+  test("临时玩家与老玩家使用同一个 K 值并保持零和", () => {
+    const result = calculateElo(1000, 1000, 0, 20);
+    expect(result).toMatchObject({ winnerRating: 1024, loserRating: 976, delta: 24 });
+    expect(result.winnerRating + result.loserRating).toBe(2000);
+  });
+
+  test("匹配等待 90 秒后允许跨越更大的 Elo 分差", () => {
+    expect(getMatchmakingRange(89_999)).toBe(600);
+    expect(getMatchmakingRange(90_000)).toBe(Number.POSITIVE_INFINITY);
+    expect(canMatchRatings(100, 1000, 89_999)).toBe(false);
+    expect(canMatchRatings(100, 1000, 90_000)).toBe(true);
   });
 });
 

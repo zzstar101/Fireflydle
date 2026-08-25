@@ -115,12 +115,21 @@ export class Matchmaker extends DurableObject<Env> {
         player.player_id,
       )
       .toArray();
-    return (
-      candidates.find((candidate) => {
-        const longestWaiting = Math.max(now - player.enqueued_at, now - candidate.enqueued_at);
-        return canMatchRatings(player.rating, candidate.rating, longestWaiting);
-      }) ?? null
-    );
+    const eligible = candidates.filter((candidate) => {
+      const longestWaiting = Math.max(now - player.enqueued_at, now - candidate.enqueued_at);
+      return canMatchRatings(player.rating, candidate.rating, longestWaiting);
+    });
+    // 先选 Elo 差距最小的对手，再用入队时间保证同分差时的公平性。
+    eligible.sort((left, right) => {
+      const ratingDistance =
+        Math.abs(left.rating - player.rating) - Math.abs(right.rating - player.rating);
+      return (
+        ratingDistance ||
+        left.enqueued_at - right.enqueued_at ||
+        left.ticket_id.localeCompare(right.ticket_id)
+      );
+    });
+    return eligible[0] ?? null;
   }
 
   private reservePair(left: QueueRow, right: QueueRow, now: number): ReservedPair {
