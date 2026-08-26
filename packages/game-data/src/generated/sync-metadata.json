@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-20",
-  "sourceRevision": "hoyo-content-v2-3781791b32e6+starrailres-b95e75c7e127+overrides-807bb1fe4bef",
-  "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+  "asOf": "2026-08-26",
+  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-5a5038ab9afa",
+  "sourceUpdatedAt": "2026-08-26T07:00:00.000Z",
   "policy": {
-    "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
-    "exclusions": "No leak-only, future-dated, expired, or unmatched community-only character is admitted.",
+    "roster": "HoYoverse character channel entries active by asOf, excluding audited visual-variant entries, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
+    "exclusions": "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded visual variant is admitted.",
     "factions": "Official HoYoverse character-page tabs seed the parent groups; reviewed BWiki Character Atlas faction values select the published faction.",
     "subfactions": "Each character publishes one factionId from BWiki's faction field, never its initial-faction or organization fields. factionGroupId is only the related-group hint.",
     "assets": "A single official/local fallback thumbnail is downloaded and used for both avatar and portrait to avoid hotlinking and minimize redistribution."
@@ -311,15 +311,15 @@
   "sources": {
     "reviewedOverrides": {
       "path": "packages/game-data/src/data/sync-overrides.json",
-      "sha256": "807bb1fe4befe942f7c6893be0cc223d020bad413beb269880820786380f526f",
-      "use": "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
+      "sha256": "5a5038ab9afa8f3f72d3abf35aa4f9a4bb7f64f1fee78fb47248842eda9ff254",
+      "use": "Ambiguous IDs, explicit visual-variant exclusions, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
     },
     "bwiki": {
       "characterAtlas": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",
       "semanticApi": "https://wiki.biligame.com/sr/api.php?action=ask&format=json",
       "field": "阵营",
       "excludedFields": ["初始阵营", "派系"],
-      "reviewedAt": "2026-08-20"
+      "reviewedAt": "2026-08-26"
     },
     "hoyoverse": {
       "characterPage": "https://hsr.hoyoverse.com/en-us/character",
@@ -334,7 +334,7 @@
         "ja": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=241&iPage=1&iPageSize=500&sLangKey=ja-jp"
       },
       "versionNoticeApi": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
-      "contentDigestSha256": "3781791b32e68f75e96f5bbd0eeb1ac0dcf85a5487250dda9d65f804518b9105",
+      "contentDigestSha256": "cd6dbfdbdbf006076a82d454b663f356d5c7a2f3c18e5ff1a8ce2dc25702659b",
       "rights": "No open-data or asset license is asserted. Names and images remain with their respective rights holders."
     },
     "starRailRes": {
@@ -520,6 +520,12 @@
       "releasedAt": "2026-07-15T07:00:00.000Z",
       "sourceTitle": "Version 4.4 \"In Ravages Does the Whistle Sound\" Update Details",
       "version": "4.4"
+    },
+    {
+      "infoId": 165767,
+      "releasedAt": "2026-08-26T07:00:00.000Z",
+      "sourceTitle": "Version 4.5 \"To Roll the Stars in Astropolis\" Update Details",
+      "version": "4.5"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-20",
-  "sourceRevision": "hoyo-content-v2-3781791b32e6+starrailres-b95e75c7e127+overrides-807bb1fe4bef",
+  "asOf": "2026-08-26",
+  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-5a5038ab9afa",
   "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
   "policy": "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
   "files": [
@@ -6787,6 +6787,69 @@
       "sourceKind": "official-hoyowiki",
       "sourceUrl": "https://act-upload.hoyoverse.com/event-ugc-hoyowiki/2025/04/02/130460543/c71d269489f82ca6328147dc5e7528db_3234009202597711329.png",
       "sourceUpdatedAt": "2026-08-16T08:00:00.000Z"
+    },
+    {
+      "bytes": 61207,
+      "mimeType": "image/png",
+      "path": "/assets/skins/aventurine-waveflair.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "065d75ab338c226770c370644064a287cbfe7f12e5a087163b84d97fca89942f",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png"
+    },
+    {
+      "bytes": 46880,
+      "mimeType": "image/png",
+      "path": "/assets/skins/castorice-dream-butterfly.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "8b16a3858a29339c231ce3892dd03546c41768e77873d5283081ee53ab6f32fe",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://wiki.biligame.com/sr/幽梦翩跹"
+    },
+    {
+      "bytes": 51062,
+      "mimeType": "image/png",
+      "path": "/assets/skins/firefly-spring-postcard.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "bc313cc0c023eaf06791bdf0f6a6d15abf0ffe9b4d54b3951bc781ef1632ce31",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://wiki.biligame.com/sr/春日手信"
+    },
+    {
+      "bytes": 159452,
+      "mimeType": "image/png",
+      "path": "/assets/skins/march-winter-warmth.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "bed5a1046082ef175d3aa5377430f642a7cf70c3443bd4b9ec4a62256d41091f",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://wiki.biligame.com/sr/冬去煦至"
+    },
+    {
+      "bytes": 67017,
+      "mimeType": "image/png",
+      "path": "/assets/skins/robin-summeretto.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "13163e99fe13ce627aceb6927c06146c5ffef36671b0a42e6a1167a45130c7b2",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png"
+    },
+    {
+      "bytes": 118291,
+      "mimeType": "image/png",
+      "path": "/assets/skins/ruan-mei-snow-plum.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "93cb1ffb5354155380c8d63fd5b377c1167967cd03984d3bd8590182a40ef5a2",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://wiki.biligame.com/sr/雪绽梅笺"
+    },
+    {
+      "bytes": 59688,
+      "mimeType": "image/png",
+      "path": "/assets/skins/sparkle-sweet-dream.png",
+      "roles": ["skin", "fallback"],
+      "sha256": "6ab1f7d8fc971586f42e785b70311739b2e7d37eb5286180441f5cd7a1c94ec7",
+      "sourceKind": "audited-skin",
+      "sourceUrl": "https://wiki.biligame.com/sr/甜梦电波"
     }
   ]
 }

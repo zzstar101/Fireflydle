@@ -52,7 +52,7 @@ describe("角色输入搜索", () => {
 
 describe("角色时装视觉变体", () => {
   test("每套时装都绑定到现有角色并使用本地官方素材", () => {
-    expect(characterSkins).toHaveLength(5);
+    expect(characterSkins).toHaveLength(7);
     for (const skin of characterSkins) {
       expect(characters.some((character) => character.id === skin.characterId)).toBeTrue();
       expect(skin.imagePath).toMatch(/^\/assets\/skins\/.+\.png$/);

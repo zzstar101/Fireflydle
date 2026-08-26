@@ -19,6 +19,7 @@ import {
 } from "../packages/contracts/src/index.ts";
 import overridesJson from "../packages/game-data/src/data/sync-overrides.json";
 import { buildPlayableManifest } from "../packages/game-data/src/content-manifest.ts";
+import { characterSkins } from "../packages/game-data/src/skins.ts";
 import { generateResponsiveVariants, type ResponsiveVariantResult } from "./responsive-assets.ts";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -77,6 +78,7 @@ interface SyncOverrides {
   schemaVersion: number;
   minimumOfficialRosterSize: number;
   minimumVersionNoticeCount: number;
+  excludedHoyoCharacterIds: string[];
   ambiguousOfficialContentIds: Record<string, string>;
   canonicalIdOverrides: Record<string, string>;
   baseCharacterIdOverrides: Record<string, string>;
@@ -767,15 +769,27 @@ function alignOfficialLocales(
     }
   }
 
+  const excludedIds = new Set(overrides.excludedHoyoCharacterIds);
+  for (const excludedId of excludedIds) {
+    const presentLocales = (Object.keys(HOYO_LOCALES) as Array<keyof typeof HOYO_LOCALES>).filter(
+      (locale) => localized[locale].has(excludedId),
+    );
+    if (presentLocales.length > 0 && presentLocales.length < Object.keys(HOYO_LOCALES).length) {
+      throw new Error(`配置排除的 HoYoverse cha-id ${excludedId} 未在所有语言的已发布数据中出现。`);
+    }
+  }
+
   return new Map(
-    referenceIds.map((id) => [
-      id,
-      {
-        "zh-CN": requireMapValue(localized["zh-CN"], id, `zh-CN cha-id ${id}`),
-        en: requireMapValue(localized.en, id, `en cha-id ${id}`),
-        ja: requireMapValue(localized.ja, id, `ja cha-id ${id}`),
-      },
-    ]),
+    referenceIds
+      .filter((id) => !excludedIds.has(id))
+      .map((id) => [
+        id,
+        {
+          "zh-CN": requireMapValue(localized["zh-CN"], id, `zh-CN cha-id ${id}`),
+          en: requireMapValue(localized.en, id, `en cha-id ${id}`),
+          ja: requireMapValue(localized.ja, id, `ja cha-id ${id}`),
+        },
+      ]),
   );
 }
 
@@ -1518,6 +1532,28 @@ async function replaceFile(temporary: string, target: string): Promise<void> {
   }
 }
 
+async function auditedSkinManifestEntries(): Promise<Record<string, unknown>[]> {
+  return Promise.all(
+    characterSkins.map(async (skin) => {
+      const path = skin.imagePath;
+      const localPath = join(PUBLIC_ASSET_DIR, path.slice("/assets/".length));
+      const bytes = await readFile(localPath).catch(() => null);
+      if (!bytes) {
+        throw new Error(`时装素材不存在：${path}`);
+      }
+      return {
+        bytes: bytes.byteLength,
+        mimeType: "image/png",
+        path,
+        roles: ["skin", "fallback"],
+        sha256: sha256(bytes),
+        sourceKind: "audited-skin",
+        sourceUrl: skin.sourceUrl,
+      };
+    }),
+  );
+}
+
 async function writePublishedOutputs(
   characters: Character[],
   factions: Faction[],
@@ -1572,6 +1608,9 @@ async function writePublishedOutputs(
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
+  const skinManifestFiles = await auditedSkinManifestEntries();
+  const skinPaths = new Set(skinManifestFiles.map((file) => file.path));
+  preservedFiles = preservedFiles.filter((file) => !skinPaths.has(file.path));
 
   const manifest = {
     schemaVersion: 1,
@@ -1582,6 +1621,7 @@ async function writePublishedOutputs(
       "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
     files: preservedFiles
       .concat(
+        skinManifestFiles,
         assets.flatMap((asset) => [
           {
             bytes: asset.bytes.byteLength,
@@ -1802,9 +1842,9 @@ async function main(): Promise<void> {
     ).toISOString(),
     policy: {
       roster:
-        "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
+        "HoYoverse character channel entries active by asOf, excluding audited visual-variant entries, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
       exclusions:
-        "No leak-only, future-dated, expired, or unmatched community-only character is admitted.",
+        "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded visual variant is admitted.",
       factions:
         "Official HoYoverse character-page tabs seed the parent groups; reviewed BWiki Character Atlas faction values select the published faction.",
       subfactions:
@@ -1835,7 +1875,7 @@ async function main(): Promise<void> {
       reviewedOverrides: {
         path: "packages/game-data/src/data/sync-overrides.json",
         sha256: overrideDigest,
-        use: "Ambiguous IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings.",
+        use: "Ambiguous IDs, explicit visual-variant exclusions, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings.",
       },
       bwiki: {
         characterAtlas: "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",

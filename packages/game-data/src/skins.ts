@@ -51,6 +51,24 @@ export const characterSkins: readonly CharacterSkin[] = Object.freeze([
     imagePath: "/assets/skins/sparkle-sweet-dream.png",
     sourceUrl: "https://wiki.biligame.com/sr/甜梦电波",
   },
+  {
+    id: "robin-summeretto",
+    characterId: "robin",
+    names: { "zh-CN": "晴歌", en: "Summeretto", ja: "夏空の歌" },
+    version: "4.5",
+    imagePath: "/assets/skins/robin-summeretto.png",
+    sourceUrl:
+      "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+  },
+  {
+    id: "aventurine-waveflair",
+    characterId: "aventurine",
+    names: { "zh-CN": "戏浪", en: "Waveflair", ja: "波と戯れる夏" },
+    version: "4.5",
+    imagePath: "/assets/skins/aventurine-waveflair.png",
+    sourceUrl:
+      "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+  },
 ]);
 
 export function getCharacterSkins(characterId: string): readonly CharacterSkin[] {

@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "minimumOfficialRosterSize": 85,
   "minimumVersionNoticeCount": 29,
+  "excludedHoyoCharacterIds": ["86", "87"],
   "ambiguousOfficialContentIds": {
     "2": "1001",
     "53": "1224"
