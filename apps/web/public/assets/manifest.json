@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asOf": "2026-08-26",
-  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-5a5038ab9afa",
+  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0",
   "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
   "policy": "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
   "files": [
@@ -679,6 +679,81 @@
       "sha256": "0ff97f4299729f5311a6acf81d3250d58e6d1fbb07e9397bc91994528772af26",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122838/03821220467396a333cd5362ebe0e1d1_6315724069120210502.png"
+    },
+    {
+      "bytes": 5528,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c-160.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "5d0b5ace7562de23b877157d4099db7b888933714cb5d67a6523dd8e7f8b2153",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+      "width": 160
+    },
+    {
+      "bytes": 7426,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c-160.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "0f33ccf3d0b674ce66efca20d2af6e5c7475f5e940a2b7b1b234cbe7cfe4027c",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+      "width": 160
+    },
+    {
+      "bytes": 1107,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c-40.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "e44ad9372b8ff932875b124ea56ce3d50b24115b95d745cad02cec7eaf3b3740",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+      "width": 40
+    },
+    {
+      "bytes": 1136,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c-40.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "9d1dc4e779c31679d471c56c99a84a8db2ca850b644c542126afc124ae4f3307",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+      "width": 40
+    },
+    {
+      "bytes": 2290,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c-80.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "a3b164d3e42f6ec4022a5a610516ae1918ab2d7bcfd8f0d141c56ef9a0f5e4d7",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+      "width": 80
+    },
+    {
+      "bytes": 2600,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c-80.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "e7778c0f767d53615d0eda9cc4dc92956f534d6bc0f1f32f63735fb4c842410f",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
+      "width": 80
+    },
+    {
+      "bytes": 61207,
+      "mimeType": "image/png",
+      "path": "/assets/characters/aventurine-waveflair-avatar-065d75ab338c.png",
+      "roles": ["avatar", "portrait", "fallback"],
+      "sha256": "065d75ab338c226770c370644064a287cbfe7f12e5a087163b84d97fca89942f",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png"
     },
     {
       "bytes": 5815,
@@ -4731,6 +4806,81 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123309/ff40360a998bb038bb8336d56bf11318_5103405246540367373.png"
     },
     {
+      "bytes": 6344,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-160.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "afd024d52a2dd067b7d60dfb113384a7731a5378aaabc67ccc4c8d96b91c967e",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+      "width": 160
+    },
+    {
+      "bytes": 8432,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-160.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "8bbdb7ee344a1d57a632f89f3c053a4065f2d7147dd1523371b379a7485b71ab",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+      "width": 160
+    },
+    {
+      "bytes": 1106,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-40.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "a408667be25995d95b3fc982331bc6dc85f20b1235ec6be453648b0654d7764b",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+      "width": 40
+    },
+    {
+      "bytes": 1190,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-40.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "6cf8d0b3c6b5f1609c0c3a3b51d7a4d04c8476381abeb3c04947d42f2d14207f",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+      "width": 40
+    },
+    {
+      "bytes": 2537,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-80.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "cabc09303a7e509e0660e478b52b204b5e2d46e069df7480aadbc7e80864b5d5",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+      "width": 80
+    },
+    {
+      "bytes": 2828,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-80.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "b7742d3cfadefea2bc6083bf42e4d7d06651e1983e4daad4f3ecd090abac52f4",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
+      "width": 80
+    },
+    {
+      "bytes": 67017,
+      "mimeType": "image/png",
+      "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13.png",
+      "roles": ["avatar", "portrait", "fallback"],
+      "sha256": "13163e99fe13ce627aceb6927c06146c5ffef36671b0a42e6a1167a45130c7b2",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png"
+    },
+    {
       "bytes": 4769,
       "format": "avif",
       "mimeType": "image/avif",
@@ -6789,15 +6939,6 @@
       "sourceUpdatedAt": "2026-08-16T08:00:00.000Z"
     },
     {
-      "bytes": 61207,
-      "mimeType": "image/png",
-      "path": "/assets/skins/aventurine-waveflair.png",
-      "roles": ["skin", "fallback"],
-      "sha256": "065d75ab338c226770c370644064a287cbfe7f12e5a087163b84d97fca89942f",
-      "sourceKind": "audited-skin",
-      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png"
-    },
-    {
       "bytes": 46880,
       "mimeType": "image/png",
       "path": "/assets/skins/castorice-dream-butterfly.png",
@@ -6823,15 +6964,6 @@
       "sha256": "bed5a1046082ef175d3aa5377430f642a7cf70c3443bd4b9ec4a62256d41091f",
       "sourceKind": "audited-skin",
       "sourceUrl": "https://wiki.biligame.com/sr/冬去煦至"
-    },
-    {
-      "bytes": 67017,
-      "mimeType": "image/png",
-      "path": "/assets/skins/robin-summeretto.png",
-      "roles": ["skin", "fallback"],
-      "sha256": "13163e99fe13ce627aceb6927c06146c5ffef36671b0a42e6a1167a45130c7b2",
-      "sourceKind": "audited-skin",
-      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png"
     },
     {
       "bytes": 118291,

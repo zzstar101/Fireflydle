@@ -1,27 +1,27 @@
 {
   "schemaVersion": 1,
   "asOf": "2026-08-26",
-  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-5a5038ab9afa",
+  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0",
   "sourceUpdatedAt": "2026-08-26T07:00:00.000Z",
   "policy": {
-    "roster": "HoYoverse character channel entries active by asOf, excluding audited visual-variant entries, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
-    "exclusions": "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded visual variant is admitted.",
+    "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
+    "exclusions": "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded entry is admitted.",
     "factions": "Official HoYoverse character-page tabs seed the parent groups; reviewed BWiki Character Atlas faction values select the published faction.",
     "subfactions": "Each character publishes one factionId from BWiki's faction field, never its initial-faction or organization fields. factionGroupId is only the related-group hint.",
     "assets": "A single official/local fallback thumbnail is downloaded and used for both avatar and portrait to avoid hotlinking and minimize redistribution."
   },
   "coverage": {
-    "officialContentCharacters": 85,
+    "officialContentCharacters": 87,
     "mergedTrailblazerForms": 5,
-    "publishedCharacters": 90,
-    "localizedNames": "270/270",
-    "pinyinSearchAliases": "90/90",
-    "romajiSearchAliases": "90/90",
-    "elementPathRarity": "90/90",
-    "faction": "90/90",
+    "publishedCharacters": 92,
+    "localizedNames": "276/276",
+    "pinyinSearchAliases": "92/92",
+    "romajiSearchAliases": "92/92",
+    "elementPathRarity": "92/92",
+    "faction": "92/92",
     "distinctFactionHierarchyPairs": 21,
-    "releaseVersion": "90/90",
-    "localAssets": "90/90"
+    "releaseVersion": "92/92",
+    "localAssets": "92/92"
   },
   "mergedOfficialIds": {
     "trailblazer-destruction": ["8001", "8002"],
@@ -311,8 +311,8 @@
   "sources": {
     "reviewedOverrides": {
       "path": "packages/game-data/src/data/sync-overrides.json",
-      "sha256": "5a5038ab9afa8f3f72d3abf35aa4f9a4bb7f64f1fee78fb47248842eda9ff254",
-      "use": "Ambiguous IDs, explicit visual-variant exclusions, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
+      "sha256": "06a4df764fa029be64bac8f8e38cac650e6732259f943b53494fe218bd83fd98",
+      "use": "Ambiguous IDs, manual metadata for newly published game IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
     },
     "bwiki": {
       "characterAtlas": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",

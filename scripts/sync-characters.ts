@@ -79,6 +79,7 @@ interface SyncOverrides {
   minimumOfficialRosterSize: number;
   minimumVersionNoticeCount: number;
   excludedHoyoCharacterIds: string[];
+  manualCharacterOverridesByHoyoId: Record<string, ManualCharacterOverride>;
   ambiguousOfficialContentIds: Record<string, string>;
   canonicalIdOverrides: Record<string, string>;
   baseCharacterIdOverrides: Record<string, string>;
@@ -92,6 +93,15 @@ interface SyncOverrides {
   subfactionDefinitions: SubfactionOverride[];
   subfactionByOfficialId: Record<string, string>;
   trailblazerForms: TrailblazerOverride[];
+}
+
+interface ManualCharacterOverride {
+  officialId: string;
+  id: string;
+  baseCharacterId: string;
+  element: Element;
+  path: Path;
+  rarity: 4 | 5;
 }
 
 interface SubfactionOverride {
@@ -806,6 +816,10 @@ function officialIdForRecord(
   localized: Record<keyof typeof HOYO_LOCALES, OfficialLocalizedRecord>,
   starEnglish: Record<string, StarRailCharacter>,
 ): string {
+  const manual = overrides.manualCharacterOverridesByHoyoId[webCharacterId];
+  if (manual) {
+    return manual.officialId;
+  }
   const explicit = overrides.ambiguousOfficialContentIds[webCharacterId];
   if (explicit) {
     if (!starEnglish[explicit]) {
@@ -1051,13 +1065,16 @@ function buildDrafts(
     }
     usedOfficialIds.add(officialId);
     officialContentIds[officialId] = localized.en.contentId;
+    const manual = overrides.manualCharacterOverridesByHoyoId[webCharacterId];
     const star = starByLocale.en[officialId];
-    if (!star) {
-      throw new Error(`StarRailRes en 缺少 ${officialId}。`);
-    }
-    for (const locale of ["zh-CN", "ja"] as const) {
-      if (!starByLocale[locale][officialId]) {
-        throw new Error(`StarRailRes ${locale} 缺少 ${officialId}。`);
+    if (!manual) {
+      if (!star) {
+        throw new Error(`StarRailRes en 缺少 ${officialId}。`);
+      }
+      for (const locale of ["zh-CN", "ja"] as const) {
+        if (!starByLocale[locale][officialId]) {
+          throw new Error(`StarRailRes ${locale} 缺少 ${officialId}。`);
+        }
       }
     }
 
@@ -1066,7 +1083,13 @@ function buildDrafts(
       en: localized.en.name,
       ja: localized.ja.name,
     };
-    const id = overrides.canonicalIdOverrides[officialId] ?? slugifyEnglishName(star.name);
+    const id =
+      overrides.canonicalIdOverrides[officialId] ??
+      manual?.id ??
+      (star ? slugifyEnglishName(star.name) : undefined);
+    if (!id) {
+      throw new Error(`${officialId} 缺少可生成稳定 ID 的角色名称。`);
+    }
     if (usedCanonicalIds.has(id)) {
       throw new Error(`角色稳定 ID 重复：${id}`);
     }
@@ -1098,7 +1121,8 @@ function buildDrafts(
     if (!latestCreatedAt) {
       throw new Error(`${officialId} 缺少来源时间。`);
     }
-    const baseCharacterId = overrides.baseCharacterIdOverrides[officialId] ?? id;
+    const baseCharacterId =
+      manual?.baseCharacterId ?? overrides.baseCharacterIdOverrides[officialId] ?? id;
     drafts.push({
       aliases: generatedAliases(
         officialId,
@@ -1109,15 +1133,15 @@ function buildDrafts(
       assetSourceKind: "hoyoverse-content-api",
       assetSourceUrl: officialAvatarUrl(localized["zh-CN"]),
       baseCharacterId,
-      element: gameElement(star.element),
+      element: manual?.element ?? (star ? gameElement(star.element) : undefined),
       enabled: true,
       factionGroupId,
       factionId,
       id,
       names,
       officialId,
-      path: gamePath(star.path),
-      rarity: star.rarity as 4 | 5,
+      path: manual?.path ?? (star ? gamePath(star.path) : undefined),
+      rarity: manual?.rarity ?? star?.rarity,
       releaseOrder,
       releaseVersionId,
       sourceRevision,
@@ -1603,7 +1627,11 @@ async function writePublishedOutputs(
     ) as { files?: Record<string, unknown>[] };
     preservedFiles = (existing.files ?? []).filter((file) => {
       const path = file.path;
-      return typeof path === "string" && !path.startsWith("/assets/characters/");
+      return (
+        typeof path === "string" &&
+        !path.startsWith("/assets/characters/") &&
+        !path.startsWith("/assets/skins/")
+      );
     });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
@@ -1842,9 +1870,9 @@ async function main(): Promise<void> {
     ).toISOString(),
     policy: {
       roster:
-        "HoYoverse character channel entries active by asOf, excluding audited visual-variant entries, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
+        "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
       exclusions:
-        "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded visual variant is admitted.",
+        "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded entry is admitted.",
       factions:
         "Official HoYoverse character-page tabs seed the parent groups; reviewed BWiki Character Atlas faction values select the published faction.",
       subfactions:
@@ -1875,7 +1903,7 @@ async function main(): Promise<void> {
       reviewedOverrides: {
         path: "packages/game-data/src/data/sync-overrides.json",
         sha256: overrideDigest,
-        use: "Ambiguous IDs, explicit visual-variant exclusions, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings.",
+        use: "Ambiguous IDs, manual metadata for newly published game IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings.",
       },
       bwiki: {
         characterAtlas: "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",

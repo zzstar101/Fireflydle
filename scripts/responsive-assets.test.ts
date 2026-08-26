@@ -16,7 +16,7 @@ describe("响应式头像发布物", () => {
       format?: string;
     }>;
     const variants = files.filter((file) => file.width !== undefined);
-    expect(variants).toHaveLength(90 * 3 * 2);
+    expect(variants).toHaveLength(92 * 3 * 2);
     expect(new Set(variants.map((file) => file.width))).toEqual(new Set([40, 80, 160]));
     expect(new Set(variants.map((file) => file.format))).toEqual(new Set(["avif", "webp"]));
 

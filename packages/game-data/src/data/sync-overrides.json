@@ -1,8 +1,26 @@
 {
   "schemaVersion": 1,
-  "minimumOfficialRosterSize": 85,
+  "minimumOfficialRosterSize": 87,
   "minimumVersionNoticeCount": 29,
-  "excludedHoyoCharacterIds": ["86", "87"],
+  "excludedHoyoCharacterIds": [],
+  "manualCharacterOverridesByHoyoId": {
+    "86": {
+      "officialId": "1511",
+      "id": "robin-summeretto",
+      "baseCharacterId": "robin-summeretto",
+      "element": "wind",
+      "path": "remembrance",
+      "rarity": 5
+    },
+    "87": {
+      "officialId": "1512",
+      "id": "aventurine-waveflair",
+      "baseCharacterId": "aventurine-waveflair",
+      "element": "quantum",
+      "path": "elation",
+      "rarity": 5
+    }
+  },
   "ambiguousOfficialContentIds": {
     "2": "1001",
     "53": "1224"

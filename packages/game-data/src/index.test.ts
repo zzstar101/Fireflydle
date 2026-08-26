@@ -52,12 +52,32 @@ describe("角色输入搜索", () => {
 
 describe("角色时装视觉变体", () => {
   test("每套时装都绑定到现有角色并使用本地官方素材", () => {
-    expect(characterSkins).toHaveLength(7);
+    expect(characterSkins).toHaveLength(5);
     for (const skin of characterSkins) {
       expect(characters.some((character) => character.id === skin.characterId)).toBeTrue();
       expect(skin.imagePath).toMatch(/^\/assets\/skins\/.+\.png$/);
       expect(skin.sourceUrl).toMatch(/^https:\/\//);
     }
+  });
+});
+
+describe("4.5 独立角色", () => {
+  test("晴歌与戏浪使用独立角色身份而不是时装绑定", () => {
+    const robin = characters.find((character) => character.id === "robin-summeretto");
+    const aventurine = characters.find((character) => character.id === "aventurine-waveflair");
+
+    expect(robin).toBeDefined();
+    expect(aventurine).toBeDefined();
+    expect(robin?.officialId).toBe("1511");
+    expect(robin?.baseCharacterId).toBe(robin?.id);
+    expect(robin?.element).toBe("wind");
+    expect(robin?.path).toBe("remembrance");
+    expect(aventurine?.officialId).toBe("1512");
+    expect(aventurine?.baseCharacterId).toBe(aventurine?.id);
+    expect(aventurine?.element).toBe("quantum");
+    expect(aventurine?.path).toBe("elation");
+    expect(characterSkins.some((skin) => skin.id === robin?.id)).toBeFalse();
+    expect(characterSkins.some((skin) => skin.id === aventurine?.id)).toBeFalse();
   });
 });
 
