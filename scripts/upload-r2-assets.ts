@@ -4,6 +4,8 @@ import { extname, join, relative, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
 const assetsDir = join(root, "apps", "web", "public", "assets");
+// 直接调用工作区内的 Wrangler，避免并发 bunx 进程争用临时安装缓存。
+const wranglerEntry = join(root, "apps", "api", "node_modules", "wrangler", "bin", "wrangler.js");
 await mkdir(join(root, "tmp"), { recursive: true });
 const probeDir = await mkdtemp(join(root, "tmp", "r2-probe-"));
 const bucket = process.env.R2_BUCKET_NAME?.trim();
@@ -39,7 +41,7 @@ function runWrangler(
   options: { logStderr?: boolean } = {},
 ): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn("bunx", ["wrangler", ...args], {
+    const child = spawn(process.execPath, [wranglerEntry, ...args], {
       cwd: root,
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
