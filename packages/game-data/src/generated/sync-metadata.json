@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "asOf": "2026-08-26",
-  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0",
-  "sourceUpdatedAt": "2026-08-26T07:00:00.000Z",
+  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530",
+  "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
   "policy": {
     "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
     "exclusions": "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded entry is admitted.",
@@ -311,7 +311,7 @@
   "sources": {
     "reviewedOverrides": {
       "path": "packages/game-data/src/data/sync-overrides.json",
-      "sha256": "06a4df764fa029be64bac8f8e38cac650e6732259f943b53494fe218bd83fd98",
+      "sha256": "c09562637530c9b49cd2bb0cf987105ff8c5c5e5949c6cc6b4b4b0d8301d4d5e",
       "use": "Ambiguous IDs, manual metadata for newly published game IDs, presentation names, search aliases, merged Trailblazer forms, pre-launch release corrections, and reviewed BWiki faction mappings."
     },
     "bwiki": {
@@ -338,10 +338,10 @@
       "rights": "No open-data or asset license is asserted. Names and images remain with their respective rights holders."
     },
     "starRailRes": {
-      "commit": "b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
-      "commitUrl": "https://github.com/Mar-7th/StarRailRes/commit/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
+      "commit": "f1b643637554019f6d611ac9240410bbe9698da8",
+      "commitUrl": "https://github.com/Mar-7th/StarRailRes/commit/f1b643637554019f6d611ac9240410bbe9698da8",
       "repository": "https://github.com/Mar-7th/StarRailRes",
-      "license": "https://github.com/Mar-7th/StarRailRes/blob/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/LICENSE",
+      "license": "https://github.com/Mar-7th/StarRailRes/blob/f1b643637554019f6d611ac9240410bbe9698da8/LICENSE",
       "use": "Only ID/path/element/rarity facts and Trailblazer fallback thumbnails; official HoYoverse content controls roster membership and public names.",
       "rights": "Repository code/data is marked AGPL-3.0; the license does not grant rights to underlying HoYoverse game materials."
     }

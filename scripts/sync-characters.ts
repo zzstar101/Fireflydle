@@ -151,12 +151,12 @@ interface HoyoCharacterExt {
 
 interface StarRailCharacter {
   element: string;
-  icon: string;
+  icon: string | null;
   id: string;
   name: string;
   path: string;
-  portrait: string;
-  preview: string;
+  portrait: string | null;
+  preview: string | null;
   rarity: number;
   tag: string;
 }
@@ -521,7 +521,9 @@ function validateStarCharacters(value: unknown, label: string): Record<string, S
       typeof record.element !== "string" ||
       typeof record.path !== "string" ||
       (record.rarity !== 4 && record.rarity !== 5) ||
-      typeof record.icon !== "string"
+      (record.icon !== null && typeof record.icon !== "string") ||
+      (record.portrait !== null && typeof record.portrait !== "string") ||
+      (record.preview !== null && typeof record.preview !== "string")
     ) {
       throw new Error(`${label} 的角色 ${id} 结构异常。`);
     }

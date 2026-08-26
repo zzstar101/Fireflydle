@@ -68,11 +68,11 @@ describe("4.5 独立角色", () => {
 
     expect(robin).toBeDefined();
     expect(aventurine).toBeDefined();
-    expect(robin?.officialId).toBe("1511");
+    expect(robin?.officialId).toBe("1512");
     expect(robin?.baseCharacterId).toBe(robin?.id);
     expect(robin?.element).toBe("wind");
     expect(robin?.path).toBe("remembrance");
-    expect(aventurine?.officialId).toBe("1512");
+    expect(aventurine?.officialId).toBe("1513");
     expect(aventurine?.baseCharacterId).toBe(aventurine?.id);
     expect(aventurine?.element).toBe("quantum");
     expect(aventurine?.path).toBe("elation");

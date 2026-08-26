@@ -5,7 +5,7 @@
   "excludedHoyoCharacterIds": [],
   "manualCharacterOverridesByHoyoId": {
     "86": {
-      "officialId": "1511",
+      "officialId": "1512",
       "id": "robin-summeretto",
       "baseCharacterId": "robin-summeretto",
       "element": "wind",
@@ -13,7 +13,7 @@
       "rarity": 5
     },
     "87": {
-      "officialId": "1512",
+      "officialId": "1513",
       "id": "aventurine-waveflair",
       "baseCharacterId": "aventurine-waveflair",
       "element": "quantum",

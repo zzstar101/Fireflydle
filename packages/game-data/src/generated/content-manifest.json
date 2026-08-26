@@ -1,6 +1,6 @@
 {
-  "manifestVersion": "1.0.2901899714",
-  "generatedAt": "2026-07-30T15:45:03.000Z",
+  "manifestVersion": "1.0.27173987",
+  "generatedAt": "2026-08-26T15:43:40.000Z",
   "modes": [
     {
       "id": "playable",
@@ -566,7 +566,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/7213a47385a0b5c05e68b564733f2b19_6873881480647261389.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -601,7 +601,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/99bb21e5ceb72b3f76c0a3b5148dfe08_8925972045760071235.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -636,7 +636,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/1ce1708b783a06ad419257b4be29ea99_202970771385396270.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -671,7 +671,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/c6ab1f4cd2ece504b02e16d5f7a5af44_8279603082960819796.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -706,7 +706,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/e4a5b2e737c5c59f7f0ddde372fa8ea2_146075503384718263.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -741,7 +741,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/10/0ee824040a139252d0e2037e52ab7755_7639207854703609873.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -776,7 +776,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/a511485984be482bea05136de81b3b7b_8774670648688901664.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -811,7 +811,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8f38072eccd10ce1b4df485c9d9f34d3_7138207484725960049.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -846,7 +846,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/906705d02e536b45b29285f6d80c6f34_6762729813999787667.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -881,7 +881,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/15/b6aeab86bea6ec7770817da70da341bc_7127072739336792149.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -916,7 +916,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/20/ccb4b3e5d44ab5c35510bd5fce11fbf2_8339230249921865099.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -951,7 +951,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/01/20/ebf0f79b50bb0b1668fe9f801fcde898_6619280582358456926.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -986,7 +986,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/e9691b64bd3a0449d12265a659d5b301_2800750704985905201.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1021,7 +1021,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/01/20/8eb8fe9b661c44c15018e750e94678ba_7455952861324727421.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1056,7 +1056,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/22/2ce85064a040397a94b9633ba9ffc08b_4345980989372534083.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1091,7 +1091,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8bec1b8404758c78c799ae109e97ba68_9077892686689126095.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1126,7 +1126,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/41b2379465748b66c324949833871a37_3791760123368611675.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1161,7 +1161,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/2c3c7f171f5ef5d8d210286b317baffc_6729124396776018550.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1196,7 +1196,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/56757405fd0bb121c4aa4dddb000d9c0_2139642753198143676.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1231,7 +1231,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/5a5179d65cfb06d1d015c87799e2e740_8514351923560523609.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1287,8 +1287,8 @@
         ]
       },
       "source": {
-        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8001.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8001.png",
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1347,8 +1347,8 @@
         ]
       },
       "source": {
-        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8003.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8003.png",
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1383,7 +1383,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/bd5a57d0d35792277c457a067fc72492_8449768500674894029.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1418,7 +1418,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/34a4acaaf047598b582f86cfcf0a6893_8415297720164363304.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1453,7 +1453,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/0df33e59f26280cb1f79227f9660a174_249196615581888334.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1488,7 +1488,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/cf17c2dad074b88a6dbfa33446138c73_2646503772588786193.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1523,7 +1523,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/1108fb690e4e3f3739f126aa511c0c0c_6949917502973102490.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1558,7 +1558,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/03683ce37738b0d682a557671e301eae_6658615399410788925.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1593,7 +1593,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/a27a7f23e023aeea841d151ca864f6d7_8275876235530321253.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1628,7 +1628,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/b14015c52224fdb12e9479c15415df45_9163441622556196278.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1678,7 +1678,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/0ca26d025d72bd31944a00600f700a99_5701144537156840973.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1713,7 +1713,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/bc0e8b39012e1e51b7f1e1bd2c78ddde_7333911698729337874.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1748,7 +1748,7 @@
       },
       "source": {
         "url": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/25/5d370b56f9b501cd9ceece492bda2757_7669076470419531973.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1783,7 +1783,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113258/e90d16f57aca708b2806dc17fe5fd85a_8376468351414248938.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1818,7 +1818,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113257/6b1caa6dcac86b51754256a626d7089a_6047546758250201368.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1872,7 +1872,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113259/aec4e9e1f59e78ff72d8d1b8b9dd0712_4605153740160210783.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1907,7 +1907,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113551/2bd119b8c3be5a8981f21e308d0ff9df_6080004376791968215.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1942,7 +1942,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113552/2b71f46b9d67d3ffc1d889fd4e967e9a_3247476334578569723.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -1977,7 +1977,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113549/6241e29b78992e78f7be09ecc9a095d8_9119778655003994988.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2012,7 +2012,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114134/a6c86498e909f09945664a1e5b4d20be_7065933365556000987.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2047,7 +2047,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114133/13f82e11d0a64fc4a7765a11e52ce63d_553982494913934113.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2082,7 +2082,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114135/015f96e57ba7744d32137dc761104eb4_8612953409015173590.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2117,7 +2117,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122114/e09b820993f140deb0f552391784cb7e_2387142678634153379.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2152,7 +2152,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122125/1f6734903188a4e52392a944b7038424_4429179718536429240.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2187,7 +2187,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122124/418ee59a48e96cb3a8f5dbfd009200a1_2144754028775142076.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2222,7 +2222,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122837/7bbabff9dde54156d00585fc1d45605b_4199325960554656142.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2257,7 +2257,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122838/03821220467396a333cd5362ebe0e1d1_6315724069120210502.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2292,7 +2292,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122839/72f42969256b2877af1b5bb5bd5b9f3d_1868580186070340307.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2327,7 +2327,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123310/52a05c95d460a51ffd0b26d5cccc95cb_5771592969358909617.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2362,7 +2362,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123309/ff40360a998bb038bb8336d56bf11318_5103405246540367373.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2418,8 +2418,8 @@
         ]
       },
       "source": {
-        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8005.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8005.png",
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2454,7 +2454,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123957/863ae8d7ebc3a8ccba6d1500f105793f_2481513828224126028.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2489,7 +2489,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123958/da750d7c75fc93eee15d7a2a9ced7b60_459052514305755111.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2524,7 +2524,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124840/68ece84e57c8a8b35ea5e3c1f3faab2c_6392230512755725938.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2589,7 +2589,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124841/10bd1dcd95f5749cdc16b088bb98ff5f_2845915467121228499.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2624,7 +2624,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124839/d759b33d72c0bec02a1293d3155d820f_8871451623128806042.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2659,7 +2659,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125609/951a91c3fe715d0240d2206613f7c919_5034276035636498391.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2694,7 +2694,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125610/932874b29ac1dfb4bdfe63d7ff4dea8f_3082176141300282450.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2729,7 +2729,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125611/29163c8057be125dbb30bf1cc95df68e_11877494415624128.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2764,7 +2764,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/126410/a7c1fe9cf5cde28ea3ab57886e7b3a79_575417614613269360.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2799,7 +2799,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127090/7f01d89e3a8713ddeb2e1348e3975af8_3993190531595481161.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2834,7 +2834,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127020/f3bb89ca79422032f554aaf7086178d7_5070348504428165390.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2869,7 +2869,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127763/9c07eb1ba64c09da024c8c255083b3a0_3379089841159520258.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2904,7 +2904,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127762/1280169cd0d65d40da34be92c242455f_7196380219881853106.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2960,8 +2960,8 @@
         ]
       },
       "source": {
-        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8007.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8007.png",
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -2996,7 +2996,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/154335/65e716ba532efb6f0ad20631965cf604_3824046770472296744.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3031,7 +3031,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/154334/de3fc6c9646b5567a92280e27b672b39_2277495775685534409.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3066,7 +3066,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155154/48d81bdfd6d7feca4edcc9f27d776b06_1716219330657468352.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3101,7 +3101,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155153/74dcae39b1317c6a7add3a4b96af5076_3249311660615806732.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3136,7 +3136,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155820/88e3029fd6043521440d24d2a9e048db_4294339742656763641.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3171,7 +3171,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155819/365635a3493e9523cf3c3769e0169721_4924415025585271982.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3206,7 +3206,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156035/01020be8a2962c7709466c6232f2591f_2398576073763782685.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3241,7 +3241,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/157029/19f6ae9cdb8cc618ec9bfefce3e462a3_4906914154538392654.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3276,7 +3276,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156034/d5079fea19bd9bf28fbefaf2f18860bd_1399164401629468736.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3311,7 +3311,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/158016/d44fdd4747f6bd1ec01243ad0be0ebb0_6403409388996483867.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3346,7 +3346,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/158011/85a30e672476c4112ad06839f673bd6d_615516595358800112.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3381,7 +3381,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159044/67a1543c3383367986b19471148bdefe_8194524210788351868.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3416,7 +3416,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159043/9afd392f1b8068e06832559fe4163529_3491875745193218742.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3451,7 +3451,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/160346/54fb37ea230e2f6b9b7cc8a12e79329b_1607694867232341960.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3486,7 +3486,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/161288/5c29fb2f28836327dac5c1e86ad3d120_2015456143368643014.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3521,7 +3521,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/162607/46ddcca9e2579e4878ef46e4231ae781_3507480203580811267.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3556,7 +3556,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/162605/d09846c74f92d39cfdc502b8e237a46f_6203802696928497301.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3591,7 +3591,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163118/3dc92660fc87730376952fbb62e48c43_9152923416788276017.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3626,7 +3626,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163485/5504bc6527fc4074d6743dab62f2be25_6605944294444025287.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3661,7 +3661,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163484/f9ec0f43294492ae8a4834bdb5274a58_7208557037416297672.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3717,8 +3717,8 @@
         ]
       },
       "source": {
-        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8009.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "url": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8009.png",
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3753,7 +3753,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163908/3f039b805844fef13149dc64fbb8da24_8872487716010108739.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3788,7 +3788,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164608/eab97a7d20f2e622c78a8cbe2cd02792_3717636757217679747.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3823,7 +3823,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164773/c5b7769a158a07bd6a2b80ac2e4cfd67_5579859607159442001.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3858,7 +3858,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164607/0e8ff84f06000f23307c1aed931ea68e_4824633473356387700.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3893,7 +3893,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165438/4230467ccb497b066f1641ff693b9e25_4037609123022717053.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",
@@ -3928,7 +3928,7 @@
       },
       "source": {
         "url": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
-        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+        "revision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
       },
       "reviewStatus": "approved",
       "kind": "playable",

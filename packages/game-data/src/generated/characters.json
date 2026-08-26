@@ -59,7 +59,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "asta",
@@ -121,7 +121,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "bailu",
@@ -183,7 +183,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "bronya",
@@ -245,7 +245,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "clara",
@@ -307,7 +307,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "dan-heng",
@@ -369,7 +369,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "gepard",
@@ -431,7 +431,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "herta",
@@ -493,7 +493,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "himeko",
@@ -555,7 +555,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "hook",
@@ -617,7 +617,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "jing-yuan",
@@ -679,7 +679,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "march-7th",
@@ -741,7 +741,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "natasha",
@@ -803,7 +803,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "pela",
@@ -865,7 +865,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "qingque",
@@ -927,7 +927,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "sampo",
@@ -989,7 +989,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "seele",
@@ -1051,7 +1051,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "serval",
@@ -1113,7 +1113,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "sushang",
@@ -1175,7 +1175,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "tingyun",
@@ -1237,7 +1237,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "trailblazer-destruction",
@@ -1285,8 +1285,8 @@
     "assets": {
       "avatarPath": "/assets/characters/trailblazer-destruction-avatar-e8ee5e05c9c1.png",
       "portraitPath": "/assets/characters/trailblazer-destruction-avatar-e8ee5e05c9c1.png",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8001.png",
-      "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8001.png",
+      "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
       "sha256": "e8ee5e05c9c12239e7260f3b2949c2d1e76d1985c1515bf16b889fc550d5f0de",
       "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
       "responsive": [
@@ -1321,7 +1321,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "trailblazer-preservation",
@@ -1372,8 +1372,8 @@
     "assets": {
       "avatarPath": "/assets/characters/trailblazer-preservation-avatar-d52e840e15c3.png",
       "portraitPath": "/assets/characters/trailblazer-preservation-avatar-d52e840e15c3.png",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8003.png",
-      "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8003.png",
+      "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
       "sha256": "d52e840e15c3605f71c6c5acb22beace03edef00d1a3cf71229a0e23a4491422",
       "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
       "responsive": [
@@ -1408,7 +1408,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "welt",
@@ -1470,7 +1470,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "yanqing",
@@ -1532,7 +1532,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "luocha",
@@ -1594,7 +1594,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "silver-wolf",
@@ -1656,7 +1656,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "yukong",
@@ -1718,7 +1718,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "blade",
@@ -1780,7 +1780,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "kafka",
@@ -1842,7 +1842,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "luka",
@@ -1904,7 +1904,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "dan-heng-il",
@@ -1981,7 +1981,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "fu-xuan",
@@ -2043,7 +2043,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "lynx",
@@ -2105,7 +2105,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "guinaifen",
@@ -2167,7 +2167,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "jingliu",
@@ -2229,7 +2229,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "topaz-and-numby",
@@ -2310,7 +2310,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "argenti",
@@ -2372,7 +2372,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "hanya",
@@ -2434,7 +2434,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "huohuo",
@@ -2496,7 +2496,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "dr-ratio",
@@ -2558,7 +2558,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "ruan-mei",
@@ -2620,7 +2620,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "xueyi",
@@ -2682,7 +2682,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "black-swan",
@@ -2744,7 +2744,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "misha",
@@ -2806,7 +2806,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "sparkle",
@@ -2868,7 +2868,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "acheron",
@@ -2930,7 +2930,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "aventurine",
@@ -2992,7 +2992,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "gallagher",
@@ -3054,7 +3054,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "boothill",
@@ -3116,7 +3116,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "robin",
@@ -3178,7 +3178,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "trailblazer-harmony",
@@ -3226,8 +3226,8 @@
     "assets": {
       "avatarPath": "/assets/characters/trailblazer-harmony-avatar-8ab0f9082b98.png",
       "portraitPath": "/assets/characters/trailblazer-harmony-avatar-8ab0f9082b98.png",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8005.png",
-      "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8005.png",
+      "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
       "sha256": "8ab0f9082b9840d46d21d0cee9cb090cb24fe61c5b964d6954a384ca110e8a2d",
       "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
       "responsive": [
@@ -3262,7 +3262,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "firefly",
@@ -3324,7 +3324,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "jade",
@@ -3386,7 +3386,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "jiaoqiu",
@@ -3448,7 +3448,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "march-7th-hunt",
@@ -3540,7 +3540,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "yunli",
@@ -3602,7 +3602,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "feixiao",
@@ -3664,7 +3664,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "lingsha",
@@ -3726,7 +3726,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "moze",
@@ -3788,7 +3788,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "rappa",
@@ -3850,7 +3850,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "fugue",
@@ -3912,7 +3912,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "sunday",
@@ -3974,7 +3974,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "aglaea",
@@ -4036,7 +4036,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "the-herta",
@@ -4098,7 +4098,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "trailblazer-remembrance",
@@ -4146,8 +4146,8 @@
     "assets": {
       "avatarPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
       "portraitPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8007.png",
-      "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8007.png",
+      "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
       "sha256": "38ba6a863c7dcce077ec6b02f84d994ae88c9aba526881460028a8ec99eb1831",
       "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
       "responsive": [
@@ -4182,7 +4182,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "mydei",
@@ -4244,7 +4244,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "tribbie",
@@ -4306,7 +4306,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "anaxa",
@@ -4368,7 +4368,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "castorice",
@@ -4430,7 +4430,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "cipher",
@@ -4492,7 +4492,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "hyacine",
@@ -4554,7 +4554,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "archer",
@@ -4616,7 +4616,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "phainon",
@@ -4678,7 +4678,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "saber",
@@ -4740,7 +4740,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "cerydra",
@@ -4802,7 +4802,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "hysilens",
@@ -4864,7 +4864,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "dan-heng-permansor-terrae",
@@ -4926,7 +4926,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "evernight",
@@ -4988,7 +4988,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "cyrene",
@@ -5050,7 +5050,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "the-dahlia",
@@ -5112,7 +5112,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "sparxie",
@@ -5174,7 +5174,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "yao-guang",
@@ -5236,7 +5236,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "ashveil",
@@ -5298,7 +5298,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "evanescia",
@@ -5360,7 +5360,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "silver-wolf-lv-999",
@@ -5422,7 +5422,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "trailblazer-elation",
@@ -5470,8 +5470,8 @@
     "assets": {
       "avatarPath": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
       "portraitPath": "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/b95e75c7e1273d819d20c530c0b7e13a3ef19fb4/icon/character/8009.png",
-      "sourceUpdatedAt": "2026-07-18T17:08:44.000Z",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/f1b643637554019f6d611ac9240410bbe9698da8/icon/character/8009.png",
+      "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
       "sha256": "5e5432f4e42a39993153381252360518e0ec62ef6f93b4f493122b27b3d0e6d2",
       "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
       "responsive": [
@@ -5506,7 +5506,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "mortenax-blade",
@@ -5568,7 +5568,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "gilgamesh",
@@ -5630,7 +5630,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "himeko-nova",
@@ -5692,7 +5692,7 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "rin-tohsaka",
@@ -5754,11 +5754,11 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "aventurine-waveflair",
-    "officialId": "1512",
+    "officialId": "1513",
     "baseCharacterId": "aventurine-waveflair",
     "names": {
       "zh-CN": "砂金•戏浪",
@@ -5816,11 +5816,11 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   },
   {
     "id": "robin-summeretto",
-    "officialId": "1511",
+    "officialId": "1512",
     "baseCharacterId": "robin-summeretto",
     "names": {
       "zh-CN": "知更鸟•晴歌",
@@ -5878,6 +5878,6 @@
     },
     "enabled": true,
     "targetEligible": true,
-    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-b95e75c7e127+overrides-06a4df764fa0"
+    "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530"
   }
 ]
