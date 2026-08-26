@@ -15,7 +15,7 @@
     "dev:web": "bun --cwd apps/web dev",
     "dev:api": "bun --cwd apps/api dev",
     "dev": "bun run --parallel dev:web dev:api",
-    "build:web": "bun --cwd apps/web build && bun scripts/configure-web-shell.ts && bun scripts/prune-web-assets.ts",
+    "build:web": "bun --cwd apps/web build && bun scripts/configure-web-shell.ts && bun scripts/prune-web-assets.ts && bun scripts/verify-web-artifact.ts",
     "build:api": "bun --cwd apps/api build",
     "build": "bun run typecheck && bun run --parallel build:web build:api",
     "test:contracts": "bun --cwd packages/contracts test",
@@ -48,6 +48,7 @@
     "assets:validate": "bun scripts/validate-assets.ts",
     "assets:upload": "bun scripts/upload-r2-assets.ts",
     "test:assets": "bun run assets:build && bunx vitest run scripts/responsive-assets.test.ts",
+    "test:web-artifact": "bun scripts/verify-web-artifact.ts",
     "test:web-budget": "bun scripts/verify-web-bundle.ts",
     "deploy:api": "bun --cwd apps/api deploy"
   },
