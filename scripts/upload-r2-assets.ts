@@ -34,7 +34,7 @@ async function filesIn(directory: string): Promise<string[]> {
   return result;
 }
 
-function runWrangler(args: string[]): Promise<{ code: number; stdout: string }> {
+function runWrangler(args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((resolvePromise, reject) => {
     const child = spawn("bunx", ["wrangler", ...args], {
       cwd: root,
@@ -48,7 +48,7 @@ function runWrangler(args: string[]): Promise<{ code: number; stdout: string }> 
     child.on("error", reject);
     child.on("close", (code) => {
       if (code && stderr) process.stderr.write(stderr);
-      resolvePromise({ code: code ?? 1, stdout });
+      resolvePromise({ code: code ?? 1, stdout, stderr });
     });
   });
 }
@@ -98,7 +98,12 @@ try {
     const mimeType = mimeTypes[extension];
     if (mimeType) args.push(`--content-type=${mimeType}`);
     const result = await runWrangler(args);
-    if (result.code !== 0) throw new Error(`R2 上传失败：${key}`);
+    if (result.code !== 0) {
+      const hint = result.stderr.includes("403")
+        ? "请确认仓库 Secret CLOUDFLARE_API_TOKEN 对 CLOUDFLARE_ACCOUNT_ID 拥有 R2 Object Read & Write 权限，且 Token 尚未过期。"
+        : "请检查仓库中的 Cloudflare 账号、Token 和 R2_BUCKET_NAME 配置。";
+      throw new Error(`R2 上传失败：${key}。${hint}`);
+    }
     uploaded += 1;
     console.log(`已上传 ${key}`);
   }
