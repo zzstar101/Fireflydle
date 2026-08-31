@@ -17,7 +17,8 @@
     "dev": "bun run --parallel dev:web dev:api",
     "build:web": "bun --cwd apps/web build && bun scripts/configure-web-shell.ts && bun scripts/prune-web-assets.ts && bun scripts/verify-web-artifact.ts",
     "build:api": "bun --cwd apps/api build",
-    "build": "bun run typecheck && bun run --parallel build:web build:api",
+    "build": "bun run --parallel build:web build:api",
+    "verify": "bun run worker:types:check && bun run format:check && bun run typecheck && bun run assets:build && bun run assets:validate && bun run test && bun run build",
     "test:contracts": "bun --cwd packages/contracts test",
     "test:game-data": "bun --cwd packages/game-data test",
     "test:game-engine": "bun --cwd packages/game-engine test",
@@ -34,6 +35,8 @@
     "typecheck:packages": "bun run typecheck:contracts && bun run --parallel typecheck:game-data typecheck:game-engine",
     "typecheck:apps": "bun run --parallel typecheck:web typecheck:api",
     "typecheck": "bun run typecheck:packages && bun run typecheck:apps",
+    "worker:types": "bun --cwd apps/api types:generate",
+    "worker:types:check": "bun --cwd apps/api types:check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "sync:data": "bun scripts/sync-characters.ts",
@@ -53,9 +56,9 @@
     "deploy:api": "bun --cwd apps/api deploy"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.14",
+    "@types/bun": "^1.4.0",
     "prettier": "^3.9.6",
-    "sharp": "0.35.2",
+    "sharp": "0.35.4",
     "typescript": "7.0.2",
     "zod": "^4.4.3"
   }

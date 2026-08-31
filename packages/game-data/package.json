@@ -20,7 +20,7 @@
     "@fireflydle/contracts": "workspace:*"
   },
   "devDependencies": {
-    "pinyin-pro": "^3.28.2",
+    "pinyin-pro": "^3.29.3",
     "wanakana": "^5.3.1"
   }
 }

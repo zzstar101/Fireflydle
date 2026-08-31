@@ -7,15 +7,7 @@ const assetsDir = join(root, "apps", "web", "public", "assets");
 const manifestPath = join(assetsDir, "manifest.json");
 
 // 直接调用工作区内 Wrangler，避免并发 bunx 进程争用临时安装缓存。
-const wranglerEntry = join(
-  root,
-  "apps",
-  "api",
-  "node_modules",
-  "wrangler",
-  "bin",
-  "wrangler.js",
-);
+const wranglerEntry = join(root, "apps", "api", "node_modules", "wrangler", "bin", "wrangler.js");
 
 const bucket = process.env.R2_BUCKET_NAME?.trim();
 
@@ -150,9 +142,7 @@ function manifestPathToLocalPath(path: string): string {
  *   firefly_aabbccddeeff-160.avif
  */
 function isHashedAsset(key: string): boolean {
-  return /(?:-[a-f0-9]{10,}|_[a-f0-9]{10,})(?:-\d+)?\.[a-z0-9]+$/i.test(
-    key,
-  );
+  return /(?:-[a-f0-9]{10,}|_[a-f0-9]{10,})(?:-\d+)?\.[a-z0-9]+$/i.test(key);
 }
 
 /**
@@ -182,9 +172,7 @@ async function loadManifest(): Promise<AssetManifest> {
     manifest = JSON.parse(raw) as AssetManifest;
   } catch (error) {
     throw new Error(
-      `无法解析 assets manifest：${
-        error instanceof Error ? error.message : String(error)
-      }`,
+      `无法解析 assets manifest：${error instanceof Error ? error.message : String(error)}`,
     );
   }
 
@@ -244,40 +232,29 @@ async function loadRemoteState(tempDir: string): Promise<SyncState> {
   const statePath = join(tempDir, "remote-assets-sync-state.json");
 
   const result = await runWrangler(
-    [
-      "r2",
-      "object",
-      "get",
-      `${bucket}/${STATE_KEY}`,
-      `--file=${statePath}`,
-      "--remote",
-    ],
+    ["r2", "object", "get", `${bucket}/${STATE_KEY}`, `--file=${statePath}`, "--remote"],
     {
       logStderr: false,
     },
   );
 
   if (result.code !== 0) {
-  const stderr = result.stderr.toLowerCase();
+    const stderr = result.stderr.toLowerCase();
 
-  const looksMissing =
-    stderr.includes("404") ||
-    stderr.includes("not found") ||
-    stderr.includes("no such");
+    const looksMissing =
+      stderr.includes("404") || stderr.includes("not found") || stderr.includes("no such");
 
-  if (!looksMissing) {
-    throw new Error(
-      `无法读取 R2 同步状态 ${STATE_KEY}：${result.stderr.trim()}`,
-    );
+    if (!looksMissing) {
+      throw new Error(`无法读取 R2 同步状态 ${STATE_KEY}：${result.stderr.trim()}`);
+    }
+
+    console.log("R2 同步状态尚不存在，执行首次全量同步。");
+
+    return {
+      schemaVersion: STATE_SCHEMA_VERSION,
+      files: {},
+    };
   }
-
-  console.log("R2 同步状态尚不存在，执行首次全量同步。");
-
-  return {
-    schemaVersion: STATE_SCHEMA_VERSION,
-    files: {},
-  };
-}
 
   let state: SyncState;
 
@@ -286,9 +263,7 @@ async function loadRemoteState(tempDir: string): Promise<SyncState> {
     state = JSON.parse(raw) as SyncState;
   } catch (error) {
     throw new Error(
-      `R2 同步状态无法解析：${
-        error instanceof Error ? error.message : String(error)
-      }`,
+      `R2 同步状态无法解析：${error instanceof Error ? error.message : String(error)}`,
     );
   }
 
@@ -298,11 +273,7 @@ async function loadRemoteState(tempDir: string): Promise<SyncState> {
     );
   }
 
-  if (
-    !state.files ||
-    typeof state.files !== "object" ||
-    Array.isArray(state.files)
-  ) {
+  if (!state.files || typeof state.files !== "object" || Array.isArray(state.files)) {
     throw new Error("R2 同步状态中的 files 非法。");
   }
 
@@ -336,10 +307,7 @@ function isUnchanged(entry: UploadEntry, state: SyncState): boolean {
     return false;
   }
 
-  return (
-    remote.sha256.toLowerCase() === entry.sha256 &&
-    remote.bytes === entry.bytes
-  );
+  return remote.sha256.toLowerCase() === entry.sha256 && remote.bytes === entry.bytes;
 }
 
 /**
@@ -382,10 +350,7 @@ async function uploadAsset(entry: UploadEntry): Promise<void> {
  *
  * 最重要的是：调用方不会更新 sync state。
  */
-async function uploadWithConcurrency(
-  entries: UploadEntry[],
-  concurrency: number,
-): Promise<void> {
+async function uploadWithConcurrency(entries: UploadEntry[], concurrency: number): Promise<void> {
   if (entries.length === 0) {
     return;
   }
@@ -415,9 +380,7 @@ async function uploadWithConcurrency(
 
   const workerCount = Math.min(concurrency, entries.length);
 
-  await Promise.all(
-    Array.from({ length: workerCount }, () => worker()),
-  );
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
   if (firstError) {
     throw firstError;
@@ -451,17 +414,10 @@ function createNextState(entries: UploadEntry[]): SyncState {
 /**
  * 所有 asset PUT 成功后，最后更新远端同步状态。
  */
-async function uploadState(
-  tempDir: string,
-  state: SyncState,
-): Promise<void> {
+async function uploadState(tempDir: string, state: SyncState): Promise<void> {
   const localStatePath = join(tempDir, "next-assets-sync-state.json");
 
-  await writeFile(
-    localStatePath,
-    `${JSON.stringify(state, null, 2)}\n`,
-    "utf8",
-  );
+  await writeFile(localStatePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 
   const result = await runWrangler([
     "r2",
@@ -491,9 +447,7 @@ async function main(): Promise<void> {
     recursive: true,
   });
 
-  const tempDir = await mkdtemp(
-    join(root, "tmp", "r2-sync-"),
-  );
+  const tempDir = await mkdtemp(join(root, "tmp", "r2-sync-"));
 
   try {
     const manifest = await loadManifest();
@@ -503,20 +457,13 @@ async function main(): Promise<void> {
 
     const previousState = await loadRemoteState(tempDir);
 
-    const changedEntries = entries.filter(
-      (entry) => !isUnchanged(entry, previousState),
-    );
+    const changedEntries = entries.filter((entry) => !isUnchanged(entry, previousState));
 
     const skipped = entries.length - changedEntries.length;
 
-    console.log(
-      `R2 增量计划：上传 ${changedEntries.length}，跳过 ${skipped}。`,
-    );
+    console.log(`R2 增量计划：上传 ${changedEntries.length}，跳过 ${skipped}。`);
 
-    const requestedConcurrency = Number.parseInt(
-      process.env.R2_UPLOAD_CONCURRENCY ?? "8",
-      10,
-    );
+    const requestedConcurrency = Number.parseInt(process.env.R2_UPLOAD_CONCURRENCY ?? "8", 10);
 
     const concurrency = Number.isFinite(requestedConcurrency)
       ? Math.min(Math.max(requestedConcurrency, 1), 16)
@@ -525,10 +472,7 @@ async function main(): Promise<void> {
     if (changedEntries.length > 0) {
       console.log(`R2 上传并发：${concurrency}。`);
 
-      await uploadWithConcurrency(
-        changedEntries,
-        concurrency,
-      );
+      await uploadWithConcurrency(changedEntries, concurrency);
     }
 
     //

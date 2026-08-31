@@ -33,14 +33,19 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Generate and validate runtime assets
-        run: bun run assets:build && bun run assets:validate
+      # 便宜且容易失败的检查前置：Worker types 过期会立即暴露，而不是混在 typecheck 里
+      - name: Check generated Worker types
+        run: bun run worker:types:check
 
       - name: Check formatting
         run: bun run format:check
 
-      - name: Check types and Worker bindings
+      - name: TypeScript typecheck
         run: bun run typecheck
+
+      # 昂贵的运行时素材生成放到便宜检查之后
+      - name: Generate and validate runtime assets
+        run: bun run assets:build && bun run assets:validate
 
       - name: Test game data
         run: bun --cwd packages/game-data test
