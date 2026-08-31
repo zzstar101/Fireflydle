@@ -12,15 +12,76 @@ updates:
       timezone: "Asia/Tokyo"
 
     # 避免一次产生太多 PR
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 8
 
-    # minor / patch 合并为一个 PR
-    # major 保持独立 PR，方便单独 review
+    # 按风险等级拆分 minor / patch 更新：
+    # - 独立分组便于集中 review / 重新生成 worker-configuration.d.ts
+    # - major 更新不在任何 group 的 update-types 内，保持独立 PR
     groups:
-      minor-and-patch:
+      # Cloudflare Worker 工具链
+      # 更新后通常需要重新生成 worker-configuration.d.ts，独立分组可集中验证
+      cloudflare:
+        patterns:
+          - "@cloudflare/*"
+          - "wrangler"
         update-types:
           - "minor"
           - "patch"
+
+      # Vite / Vitest 构建测试工具链
+      vite-toolchain:
+        patterns:
+          - "vite"
+          - "vitest"
+          - "@vitejs/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # React 前端生态
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@tanstack/*"
+          - "zustand"
+          - "lucide-react"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # 国际化
+      i18n:
+        patterns:
+          - "i18next"
+          - "react-i18next"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # 剩余普通依赖（catch-all，排除了上面的工具链与 sharp）
+      minor-and-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@cloudflare/*"
+          - "wrangler"
+          - "vite"
+          - "vitest"
+          - "@vitejs/*"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@tanstack/*"
+          - "zustand"
+          - "lucide-react"
+          - "i18next"
+          - "react-i18next"
+          # sharp 涉及 native/libvips 二进制，单独升级，避免和普通依赖混在一个 PR
+          - "sharp"
 
     commit-message:
       prefix: "chore"
@@ -39,7 +100,6 @@ updates:
       time: "10:00"
       timezone: "Asia/Tokyo"
 
-    # Actions 通常一起升级即可
     groups:
       actions:
         patterns:
