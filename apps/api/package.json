@@ -19,7 +19,7 @@
     "@fireflydle/game-data": "workspace:*",
     "@fireflydle/game-engine": "workspace:*",
     "hono": "^4.13.5",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.22.0",
