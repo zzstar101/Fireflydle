@@ -56,10 +56,10 @@
     "deploy:api": "bun --cwd apps/api deploy"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.0",
+    "@types/bun": "^1.4.2",
     "prettier": "^3.9.6",
     "sharp": "0.35.4",
     "typescript": "7.0.2",
-    "zod": "^4.4.3"
+    "zod": "^4.6.2"
   }
 }
