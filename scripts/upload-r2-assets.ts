@@ -242,7 +242,10 @@ async function loadRemoteState(tempDir: string): Promise<SyncState> {
     const stderr = result.stderr.toLowerCase();
 
     const looksMissing =
-      stderr.includes("404") || stderr.includes("not found") || stderr.includes("no such");
+      stderr.includes("404") ||
+      stderr.includes("not found") ||
+      stderr.includes("no such") ||
+      stderr.includes("specified key does not exist");
 
     if (!looksMissing) {
       throw new Error(`无法读取 R2 同步状态 ${STATE_KEY}：${result.stderr.trim()}`);
