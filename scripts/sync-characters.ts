@@ -22,6 +22,13 @@ import { buildPlayableManifest } from "../packages/game-data/src/content-manifes
 import { characterSkins } from "../packages/game-data/src/skins.ts";
 import { generateResponsiveVariants, type ResponsiveVariantResult } from "./responsive-assets.ts";
 
+import {
+  WIKI_CHARACTER_URL,
+  validateWikiPayload,
+  wikiCharacterFacts,
+  type WikiPayload,
+} from "./wiki-characters.ts";
+
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, "..");
 const GAME_DATA_PACKAGE_PATH = join(REPO_ROOT, "packages", "game-data", "package.json");
@@ -145,6 +152,7 @@ interface HoyoCharacterExt {
   avatarActivePC?: Array<{ name?: string; url?: string }>;
   avatarPC?: Array<{ name?: string; url?: string }>;
   name?: string;
+  property?: Array<{ name?: string; url?: string }>;
   poster?: Array<{ name?: string; url?: string }>;
   posterPC?: Array<{ name?: string; url?: string }>;
 }
@@ -221,6 +229,7 @@ interface SourceBundle {
   noticePayload: CachedJson<HoyoContentPayload>;
   starCharacters: Record<keyof typeof HOYO_LOCALES, CachedJson<Record<string, StarRailCharacter>>>;
   starCommit: CachedJson<GitHubCommitResponse>;
+  wiki: CachedJson<WikiPayload>;
 }
 
 const overrides = overridesJson as unknown as SyncOverrides;
@@ -557,6 +566,9 @@ async function fetchWithRetry(url: string, init: RequestInit = {}): Promise<Resp
           accept: "application/json, image/*;q=0.9, */*;q=0.1",
           referer: "https://hsr.hoyoverse.com/",
           "user-agent": "Fireflydle-data-sync/1.0 (unofficial non-commercial fan project)",
+          ...(new URL(url).hostname === "api.github.com" && process.env.GITHUB_TOKEN
+            ? { authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+            : {}),
           ...init.headers,
         },
         signal: AbortSignal.timeout(45_000),
@@ -703,6 +715,12 @@ async function loadSources(options: CliOptions): Promise<SourceBundle> {
     noticePayload,
     starCharacters: Object.fromEntries(starCharacterEntries) as SourceBundle["starCharacters"],
     starCommit,
+    wiki: await fetchJsonCached(
+      options,
+      "bwiki-characters",
+      WIKI_CHARACTER_URL,
+      validateWikiPayload,
+    ),
   };
 }
 
@@ -833,6 +851,8 @@ function officialIdForRecord(
   const matches = Object.values(starEnglish).filter(
     (record) => normalizedEnglishName(record.name) === target,
   );
+  // 官网已发布但社区游戏索引尚未收录时，使用明确命名空间，不臆造游戏 ID。
+  if (matches.length === 0) return `hoyo:${webCharacterId}`;
   if (matches.length !== 1) {
     throw new Error(
       `cha-id ${webCharacterId} (${localized.en.name}) 匹配到 ${matches.length} 个 StarRailRes 角色；请在 ambiguousOfficialContentIds 审核后覆盖。`,
@@ -1069,7 +1089,29 @@ function buildDrafts(
     officialContentIds[officialId] = localized.en.contentId;
     const manual = overrides.manualCharacterOverridesByHoyoId[webCharacterId];
     const star = starByLocale.en[officialId];
-    if (!manual) {
+    const wiki =
+      !manual && !star
+        ? wikiCharacterFacts(
+            sources.wiki.body,
+            localized["zh-CN"].name,
+            releaseVersionForRecord(officialId, localized.en.startAt, notices),
+          )
+        : undefined;
+    if (wiki) {
+      const officialElement = localized["zh-CN"].ext.property?.[0]?.name?.replace(/\.[^.]+$/, "");
+      const elementNames: Record<Element, string> = {
+        physical: "物理",
+        fire: "火",
+        ice: "冰",
+        lightning: "雷",
+        wind: "风",
+        quantum: "量子",
+        imaginary: "虚数",
+      };
+      if (officialElement !== elementNames[wiki.element])
+        throw new Error(`BWiki ${localized["zh-CN"].name} 与官网属性不一致。`);
+    }
+    if (!manual && !wiki) {
       if (!star) {
         throw new Error(`StarRailRes en 缺少 ${officialId}。`);
       }
@@ -1088,7 +1130,11 @@ function buildDrafts(
     const id =
       overrides.canonicalIdOverrides[officialId] ??
       manual?.id ??
-      (star ? slugifyEnglishName(star.name) : undefined);
+      (star
+        ? slugifyEnglishName(star.name)
+        : wiki
+          ? slugifyEnglishName(localized.en.name)
+          : undefined);
     if (!id) {
       throw new Error(`${officialId} 缺少可生成稳定 ID 的角色名称。`);
     }
@@ -1135,15 +1181,15 @@ function buildDrafts(
       assetSourceKind: "hoyoverse-content-api",
       assetSourceUrl: officialAvatarUrl(localized["zh-CN"]),
       baseCharacterId,
-      element: manual?.element ?? (star ? gameElement(star.element) : undefined),
+      element: manual?.element ?? wiki?.element ?? (star ? gameElement(star.element) : undefined),
       enabled: true,
       factionGroupId,
       factionId,
       id,
       names,
       officialId,
-      path: manual?.path ?? (star ? gamePath(star.path) : undefined),
-      rarity: manual?.rarity ?? star?.rarity,
+      path: manual?.path ?? wiki?.path ?? (star ? gamePath(star.path) : undefined),
+      rarity: manual?.rarity ?? wiki?.rarity ?? star?.rarity,
       releaseOrder,
       releaseVersionId,
       sourceRevision,
@@ -1779,6 +1825,7 @@ async function main(): Promise<void> {
         ]),
       ),
       notices: sources.noticePayload.bodySha256,
+      wiki: sources.wiki.bodySha256,
     }),
   );
   const overrideDigest = sha256(compactJson(overrides));
@@ -1910,6 +1957,20 @@ async function main(): Promise<void> {
       bwiki: {
         characterAtlas: "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",
         semanticApi: "https://wiki.biligame.com/sr/api.php?action=ask&format=json",
+        contentSha256: sources.wiki.bodySha256,
+        fetchedAt: sources.wiki.fetchedAt,
+        sourceUrl: sources.wiki.sourceUrl,
+        fallbackCharacters: characters
+          .filter((character) => character.officialId.startsWith("hoyo:"))
+          .map((character) => ({
+            id: character.id,
+            officialId: character.officialId,
+            ...wikiCharacterFacts(
+              sources.wiki.body,
+              character.names["zh-CN"],
+              character.releaseVersionId,
+            ),
+          })),
         field: "阵营",
         excludedFields: ["初始阵营", "派系"],
         reviewedAt: options.asOfLabel,

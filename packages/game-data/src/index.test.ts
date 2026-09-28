@@ -81,6 +81,21 @@ describe("4.5 独立角色", () => {
   });
 });
 
+describe("4.6 角色同步", () => {
+  test("真珠进入普通角色题池并保留 Wiki 校验后的属性", () => {
+    const pearl = characters.find((character) => character.id === "pearl");
+    expect(pearl).toMatchObject({
+      officialId: "hoyo:88",
+      names: { "zh-CN": "真珠", en: "Pearl" },
+      element: "ice",
+      path: "elation",
+      rarity: 5,
+      releaseVersionId: "4.6",
+    });
+    expect(pearl?.targetEligible).toBeTrue();
+  });
+});
+
 describe("NPC 正式题池", () => {
   test("只发布审核通过的三名正式 target", () => {
     const mode = npcManifest.modes.find((entry) => entry.id === "npc");

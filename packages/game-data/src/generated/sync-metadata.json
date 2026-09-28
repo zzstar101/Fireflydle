@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-08-26",
-  "sourceRevision": "hoyo-content-v2-cd6dbfdbdbf0+starrailres-f1b643637554+overrides-c09562637530",
-  "sourceUpdatedAt": "2026-08-26T15:43:40.000Z",
+  "asOf": "2026-09-28",
+  "sourceRevision": "hoyo-content-v2-8382780d4b2e+starrailres-d226befe3db1+overrides-c09562637530",
+  "sourceUpdatedAt": "2026-09-28T07:00:00.000Z",
   "policy": {
     "roster": "HoYoverse character channel entries active by asOf, plus five audited Trailblazer path forms; male/female IDs are merged per path.",
     "exclusions": "No leak-only, future-dated, expired, unmatched community-only character, or explicitly excluded entry is admitted.",
@@ -11,17 +11,17 @@
     "assets": "A single official/local fallback thumbnail is downloaded and used for both avatar and portrait to avoid hotlinking and minimize redistribution."
   },
   "coverage": {
-    "officialContentCharacters": 87,
+    "officialContentCharacters": 88,
     "mergedTrailblazerForms": 5,
-    "publishedCharacters": 92,
-    "localizedNames": "276/276",
-    "pinyinSearchAliases": "92/92",
-    "romajiSearchAliases": "92/92",
-    "elementPathRarity": "92/92",
-    "faction": "92/92",
+    "publishedCharacters": 93,
+    "localizedNames": "279/279",
+    "pinyinSearchAliases": "93/93",
+    "romajiSearchAliases": "93/93",
+    "elementPathRarity": "93/93",
+    "faction": "93/93",
     "distinctFactionHierarchyPairs": 21,
-    "releaseVersion": "92/92",
-    "localAssets": "92/92"
+    "releaseVersion": "93/93",
+    "localAssets": "93/93"
   },
   "mergedOfficialIds": {
     "trailblazer-destruction": ["8001", "8002"],
@@ -317,9 +317,22 @@
     "bwiki": {
       "characterAtlas": "https://wiki.biligame.com/sr/%E8%A7%92%E8%89%B2%E5%9B%BE%E9%89%B4",
       "semanticApi": "https://wiki.biligame.com/sr/api.php?action=ask&format=json",
+      "contentSha256": "f3e9fb703d0fd60b5fd24aa7780f79e5cd8443f690135e65e34854cf1a9a28b1",
+      "fetchedAt": "2026-09-28T15:22:44.927Z",
+      "sourceUrl": "https://wiki.biligame.com/sr/api.php?action=ask&query=%5B%5B%E5%88%86%E7%B1%BB%3A%E8%A7%92%E8%89%B2%5D%5D%7C%3F%E5%85%83%E7%B4%A0%E5%B1%9E%E6%80%A7%7C%3F%E5%91%BD%E9%80%94%7C%3F%E7%A8%80%E6%9C%89%E5%BA%A6%7C%3F%E5%AE%9E%E8%A3%85%E7%89%88%E6%9C%AC%7C%3F%E9%98%B5%E8%90%A5%7Climit%3D500&format=json",
+      "fallbackCharacters": [
+        {
+          "id": "pearl",
+          "officialId": "hoyo:88",
+          "element": "ice",
+          "path": "elation",
+          "rarity": 5,
+          "sourceUrl": "https://wiki.biligame.com/sr/%E7%9C%9F%E7%8F%A0"
+        }
+      ],
       "field": "阵营",
       "excludedFields": ["初始阵营", "派系"],
-      "reviewedAt": "2026-08-26"
+      "reviewedAt": "2026-09-28"
     },
     "hoyoverse": {
       "characterPage": "https://hsr.hoyoverse.com/en-us/character",
@@ -334,14 +347,14 @@
         "ja": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=241&iPage=1&iPageSize=500&sLangKey=ja-jp"
       },
       "versionNoticeApi": "https://sg-public-api-static.hoyoverse.com/content_v2_user/app/113fe6d3b4514cdd/getContentList?iChanId=250&iPage=1&iPageSize=500&sLangKey=en-us",
-      "contentDigestSha256": "cd6dbfdbdbf006076a82d454b663f356d5c7a2f3c18e5ff1a8ce2dc25702659b",
+      "contentDigestSha256": "8382780d4b2e48409abd369409b93df75cdae4224832cec7cfb50c421629659b",
       "rights": "No open-data or asset license is asserted. Names and images remain with their respective rights holders."
     },
     "starRailRes": {
-      "commit": "f1b643637554019f6d611ac9240410bbe9698da8",
-      "commitUrl": "https://github.com/Mar-7th/StarRailRes/commit/f1b643637554019f6d611ac9240410bbe9698da8",
+      "commit": "d226befe3db13f2ec15f4161d5f34b1b607643fe",
+      "commitUrl": "https://github.com/Mar-7th/StarRailRes/commit/d226befe3db13f2ec15f4161d5f34b1b607643fe",
       "repository": "https://github.com/Mar-7th/StarRailRes",
-      "license": "https://github.com/Mar-7th/StarRailRes/blob/f1b643637554019f6d611ac9240410bbe9698da8/LICENSE",
+      "license": "https://github.com/Mar-7th/StarRailRes/blob/d226befe3db13f2ec15f4161d5f34b1b607643fe/LICENSE",
       "use": "Only ID/path/element/rarity facts and Trailblazer fallback thumbnails; official HoYoverse content controls roster membership and public names.",
       "rights": "Repository code/data is marked AGPL-3.0; the license does not grant rights to underlying HoYoverse game materials."
     }
@@ -526,6 +539,12 @@
       "releasedAt": "2026-08-26T07:00:00.000Z",
       "sourceTitle": "Version 4.5 \"To Roll the Stars in Astropolis\" Update Details",
       "version": "4.5"
+    },
+    {
+      "infoId": 166468,
+      "releasedAt": "2026-09-28T07:00:00.000Z",
+      "sourceTitle": "Version 4.6 \"Dance With the Beast Before Moonrise\" Update Details",
+      "version": "4.6"
     }
   ]
 }

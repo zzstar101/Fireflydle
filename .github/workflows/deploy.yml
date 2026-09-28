@@ -7,6 +7,9 @@ on:
 
   workflow_dispatch:
 
+  schedule:
+    - cron: "23 4 * * *"
+
 permissions:
   contents: read
 
@@ -18,12 +21,15 @@ jobs:
   build_release:
     name: Synchronize, verify, and build
     runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.detect.outputs.changed }}
     timeout-minutes: 35
     permissions:
       contents: read
       pages: read
 
     env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       VITE_API_URL: https://api.fireflydle.games
       VITE_ASSET_BASE_URL: ${{ vars.VITE_ASSET_BASE_URL || 'https://assets.fireflydle.games' }}
 
@@ -73,7 +79,32 @@ jobs:
       - name: Synchronize character data and assets
         run: bun run sync:data
 
+      - name: Compare production roster and prepare data announcement
+        id: detect
+        run: bun scripts/prepare-data-announcement.ts
+
+      - name: Prepare release or manual announcement
+        if: github.event_name != 'schedule'
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            export RELEASE_BODY="$(cat docs/release-announcement.md)"
+            export RELEASE_NAME="$(head -n 1 docs/release-announcement.md | cut -c 3-)"
+            export RELEASE_TAG="v$(bun -p 'require("./package.json").version')"
+          fi
+          bun scripts/extract-release-announcement.ts release-announcement.json
+
+      - name: Verify announcement credentials
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
+        env:
+          RELEASE_ANNOUNCEMENT_TOKEN: ${{ secrets.RELEASE_ANNOUNCEMENT_TOKEN }}
+        run: test -n "$RELEASE_ANNOUNCEMENT_TOKEN"
+
       - name: Check synchronized output
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: |
           test -s apps/web/public/assets/manifest.json
           test -s apps/web/public/assets/manifest.sha256
@@ -82,33 +113,47 @@ jobs:
           (cd apps/web/public/assets && sha256sum --check manifest.sha256)
 
       - name: Check formatting
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun run format:check
 
       - name: TypeScript typecheck
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun run typecheck
 
       - name: Test game data
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun test packages/game-data/src/index.test.ts
 
       - name: Test NPC release manifest
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun run validate:npc-census && bun run test:npc-manifest
 
+      - name: Test synchronization safeguards
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
+        run: bun test scripts/wiki-characters.test.ts scripts/prepare-data-announcement.test.ts
+
       - name: Test game engine
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun --cwd packages/game-engine test
 
       - name: Test web application
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun --cwd apps/web test
 
       - name: Test Worker
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun run test:worker
 
       - name: Build web application and Worker
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun run build
 
       - name: Validate production asset set
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         run: bun run assets:validate
 
       - name: Upload runtime assets to Cloudflare R2
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -116,15 +161,18 @@ jobs:
         run: bun run assets:upload
 
       - name: Configure GitHub Pages
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
 
       - name: Upload GitHub Pages artifact
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
           path: apps/web/dist
           retention-days: 30
 
       - name: Preserve synchronized release data
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-data-${{ github.run_id }}-${{ github.run_attempt }}
@@ -142,7 +190,7 @@ jobs:
           retention-days: 30
 
       - name: Preserve release announcement
-        if: github.event_name == 'release'
+        if: github.event_name != 'schedule' || steps.detect.outputs.changed == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-announcement-${{ github.run_id }}-${{ github.run_attempt }}
@@ -153,6 +201,7 @@ jobs:
   deploy_api:
     name: Migrate data and deploy API
     needs: build_release
+    if: github.event_name != 'schedule' || needs.build_release.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -276,7 +325,7 @@ jobs:
 
   publish_announcement:
     name: Publish release announcement
-    if: github.event_name == 'release'
+    if: github.event_name != 'schedule' || needs.build_release.outputs.publish == 'true'
     needs:
       - build_release
       - deploy_api
