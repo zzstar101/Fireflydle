@@ -47,6 +47,9 @@ jobs:
       - name: Generate and validate runtime assets
         run: bun run assets:build && bun run assets:validate
 
+      - name: Test synchronization safeguards
+        run: bun test scripts/wiki-characters.test.ts scripts/prepare-data-announcement.test.ts
+
       - name: Test game data
         run: bun --cwd packages/game-data test
 
