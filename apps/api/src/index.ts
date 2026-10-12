@@ -10,6 +10,7 @@ import { challengeRoutes } from "./routes/challenges";
 import { gameRoutes } from "./routes/games";
 import { endlessRoutes } from "./routes/endless";
 import { matchmakingRoutes } from "./routes/matchmaking";
+import { partyRoutes } from "./routes/parties";
 import { replayRoutes } from "./routes/replays";
 import { roomRoutes } from "./routes/rooms";
 import { weeklyRoutes } from "./routes/weekly";
@@ -22,6 +23,7 @@ import type { AppContext } from "./types";
 
 export { GameRoom } from "./durable-objects/game-room";
 export { Matchmaker } from "./durable-objects/matchmaker";
+export { PartyRoom } from "./durable-objects/party-room";
 
 const ALLOWED_PRODUCTION_ORIGINS = new Set([
   "https://fireflydle.games",
@@ -143,6 +145,7 @@ api.route("/", challengeRoutes);
 api.route("/", gameRoutes);
 api.route("/", endlessRoutes);
 api.route("/", roomRoutes);
+api.route("/", partyRoutes);
 api.route("/", matchmakingRoutes);
 api.route("/", analyticsRoutes);
 api.route("/", replayRoutes);

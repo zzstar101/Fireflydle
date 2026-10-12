@@ -550,15 +550,24 @@ function createModeInferenceReview(row: GameRow, guesses: GuessResult[]) {
   if (!candidates) return null;
   if (row.mode_id === "npc") {
     const npcCandidates = candidates as NpcSummary[];
-    return createInferenceReviewForEntities(npcCandidates, guesses, (target, guess) =>
-      compareNpcEntities(target, guess),
-    );
+    return createInferenceReviewForEntities(npcCandidates, guesses, compareNpcEntities, {
+      toSummary: (npc) => NpcSummarySchema.parse(npc),
+    });
   }
   if (row.mode_id === "currency-wars") {
     const currencyCandidates = candidates as CurrencyWarsUnit[];
-    return createInferenceReviewForEntities(currencyCandidates, guesses, (target, guess) =>
-      compareCurrencyWarsUnits(target, guess),
-    );
+    return createInferenceReviewForEntities(currencyCandidates, guesses, compareCurrencyWarsUnits, {
+      toSummary: (unit) =>
+        CurrencyWarsUnitSummarySchema.parse({
+          id: unit.id,
+          names: unit.names,
+          aliases: unit.aliases,
+          cost: unit.cost,
+          position: unit.position,
+          synergies: unit.synergies,
+          assets: unit.assets,
+        }),
+    });
   }
   return createInferenceReview(candidates as Character[], guesses, readFieldRules(row));
 }
