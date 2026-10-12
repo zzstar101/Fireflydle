@@ -1,219 +1,405 @@
+/*
+ * 周赛（docs/design/redesign-v2/README.md）。
+ *
+ * v2 语汇：1px --line 描边 + --r-card / --r-tile 圆角 + --panel 底板。
+ * 旧版的等宽大写金色小标题、切角票券按钮（clip-path）、上下通栏细线计分条
+ * 都换成了 v2 小标题 / 金色胶囊主按钮 / 圆角指标块。
+ */
+
 .weekly-page {
-  width: min(calc(100% - 40px), 1120px);
+  width: min(calc(100% - 40px), var(--reading));
   margin: 0 auto;
-  padding: 64px 0 88px;
+  padding: 48px 0 88px;
 }
+
+/* ── 页头 ───────────────────────────────────────────────── */
 
 .weekly-header {
   display: flex;
   align-items: end;
   justify-content: space-between;
-  padding-bottom: 30px;
   gap: 24px;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.weekly-header > div {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  max-width: 62ch;
+}
+
+/* v2 小标题：muted 常规字重，不用 v1 的等宽大写 + 金色 + 前置横线。 */
+.weekly-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .weekly-header h1,
 .weekly-unavailable h1 {
-  margin: 8px 0 12px;
-  font-size: clamp(2.3rem, 5vw, 4.8rem);
-  line-height: 1;
+  margin: 0;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 
 .weekly-header > svg {
-  color: var(--gold);
+  flex: 0 0 auto;
+  color: var(--lit);
+  opacity: 0.9;
 }
+
 .weekly-snapshot {
-  display: block;
-  margin-top: 12px;
-  color: var(--text-faint);
+  color: var(--faint);
   font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
 }
+
 .weekly-header p:last-child,
 .weekly-start p,
 .weekly-unavailable > p {
-  color: var(--text-muted);
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
 }
+
+/* ── 开始 / 完成 / 未开放 ───────────────────────────────── */
 
 .weekly-start,
-.weekly-complete,
-.weekly-unavailable {
-  padding: 54px 0;
+.weekly-complete {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  margin-top: 30px;
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
 }
 
-.weekly-start .ticket-button,
-.weekly-complete .ticket-button,
-.weekly-unavailable .ticket-button {
-  margin-top: 20px;
+.weekly-start strong {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.weekly-complete {
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.weekly-complete svg {
+  color: var(--lit);
+}
+
+.weekly-complete h2 {
+  margin: 10px 0 4px;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.weekly-complete p {
+  margin: 0;
 }
 
 .weekly-spinner {
   animation: weekly-spin 800ms linear infinite;
 }
 
+/* v1 的切角票券按钮 → v2 金色胶囊主按钮（保留原类名，避免波及其它页面）。 */
+.weekly-page .ticket-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cta);
+  color: var(--cta-ink);
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  clip-path: none;
+  transition:
+    transform 180ms var(--ease),
+    filter 180ms var(--ease);
+}
+
+.weekly-page .ticket-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.weekly-page .ticket-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.weekly-page .ticket-button:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 3px;
+}
+
+/* ── 计分块 ─────────────────────────────────────────────── */
+
 .weekly-score {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  margin-top: 28px;
 }
 
 .weekly-score div {
-  display: flex;
+  display: grid;
+  gap: 7px;
   min-width: 0;
-  padding: 20px 18px;
-  flex-direction: column;
-  gap: 5px;
-  border-right: 1px solid var(--border);
+  padding: 15px 17px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
 }
 
-.weekly-score div:last-child {
-  border-right: 0;
-}
 .weekly-score span {
-  color: var(--text-faint);
-  font-size: 0.65rem;
+  color: var(--muted);
+  font-size: 0.76rem;
 }
+
 .weekly-score strong {
-  color: var(--gold);
+  color: var(--lit);
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
+
+/* ── 题间过渡 ───────────────────────────────────────────── */
 
 .weekly-game {
-  padding-top: 34px;
+  padding-top: 30px;
 }
+
 .weekly-round-transition {
   display: grid;
-  min-height: 320px;
+  min-height: 300px;
   place-content: center;
   justify-items: center;
+  margin-top: 30px;
   padding: 42px 20px;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
   text-align: center;
 }
+
 .weekly-round-transition > span {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lit) 8%, transparent);
+  color: var(--muted);
+  font-size: 0.76rem;
 }
+
 .weekly-round-transition h2 {
-  margin: 12px 0 20px;
-  font-size: 1.8rem;
+  margin: 14px 0 18px;
+  font-size: 1.6rem;
+  font-weight: 700;
 }
+
 .weekly-round-transition > div {
   display: flex;
   align-items: center;
   gap: 14px;
-  color: var(--gold);
-}
-.weekly-round-transition p {
-  margin: 14px 0 0;
-  color: var(--text-muted);
-}
-.weekly-round-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-.weekly-round-heading span {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-}
-.weekly-round-heading h2 {
-  margin: 6px 0 0;
-  font-size: 1.7rem;
-}
-.weekly-forfeit,
-.weekly-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.weekly-forfeit {
-  padding: 10px 0;
-  color: var(--text-muted);
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-.weekly-forfeit:disabled {
-  cursor: wait;
-  opacity: 0.55;
-}
-.weekly-back {
-  margin-top: 32px;
-  color: var(--text-muted);
-  font-size: 0.76rem;
-}
-.weekly-complete {
-  text-align: center;
-}
-.weekly-complete svg {
-  color: var(--gold);
-}
-.weekly-complete h2 {
-  margin: 14px 0 8px;
-  font-size: 2rem;
-}
-.weekly-complete p {
-  color: var(--text-muted);
+  color: var(--lit);
 }
 
-.weekly-leaderboard {
-  padding-top: 58px;
-  margin-top: 40px;
-  border-top: 1px solid var(--border);
+.weekly-round-transition p {
+  margin: 14px 0 0;
+  color: var(--muted);
 }
-.weekly-leaderboard-heading {
+
+/* ── 当前题 ─────────────────────────────────────────────── */
+
+.weekly-round-heading {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 22px;
 }
+
+.weekly-round-heading span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.weekly-round-heading h2 {
+  margin: 8px 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.weekly-forfeit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: border-color 180ms var(--ease);
+}
+
+.weekly-forfeit:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--lit) 45%, var(--line-2));
+}
+
+.weekly-forfeit:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.weekly-forfeit:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 3px;
+}
+
+.weekly-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+
+.weekly-back:hover {
+  color: var(--ink);
+}
+
+/* ── 未开放（非当周模式） ───────────────────────────────── */
+
+.weekly-page.weekly-unavailable {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 34px 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.weekly-unavailable h1 {
+  margin: 0;
+}
+
+/* ── 统一排名 ───────────────────────────────────────────── */
+
+.weekly-leaderboard {
+  margin-top: 44px;
+  padding-top: 34px;
+  border-top: 1px solid var(--line);
+}
+
+.weekly-leaderboard-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .weekly-leaderboard-heading h2 {
-  margin: 6px 0 0;
-  font-size: 1.65rem;
+  margin: 8px 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
+
 .weekly-leaderboard-heading > span {
-  color: var(--text-faint);
+  color: var(--faint);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
 }
+
 .weekly-leaderboard-scroll {
   overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
 }
+
 .weekly-leaderboard table {
   width: 100%;
   min-width: 580px;
   border-collapse: collapse;
 }
+
 .weekly-leaderboard th,
 .weekly-leaderboard td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border);
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
   text-align: left;
 }
+
+.weekly-leaderboard tbody tr:last-child th,
+.weekly-leaderboard tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .weekly-leaderboard thead th {
-  color: var(--text-faint);
-  font-size: 0.62rem;
-  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
+
 .weekly-leaderboard tbody td {
-  color: var(--text-muted);
+  color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-}
-.weekly-leaderboard tbody th {
   font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
 }
+
+.weekly-leaderboard tbody th {
+  color: var(--ink);
+  font-size: 0.86rem;
+}
+
+/* 第一名用金色标注，同时保留名次数字。 */
+.weekly-leaderboard tbody tr:first-child td:first-child {
+  color: var(--lit);
+  font-weight: 700;
+}
+
 .weekly-leaderboard-empty {
-  padding: 28px 0;
-  color: var(--text-muted);
+  margin: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  color: var(--muted);
 }
+
+/* ── 动画 ───────────────────────────────────────────────── */
 
 @keyframes weekly-spin {
   to {
@@ -221,39 +407,75 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .weekly-spinner {
-    animation: none;
+/* ── 响应式 ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .weekly-score {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
   .weekly-page {
-    width: min(calc(100% - 24px), 1120px);
+    width: min(calc(100% - 24px), var(--reading));
     padding-top: 42px;
   }
+
   .weekly-header {
     align-items: start;
   }
+
   .weekly-header > svg {
     width: 32px;
     height: 32px;
-    flex: 0 0 auto;
   }
+
   .weekly-score {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .weekly-score div {
-    border-bottom: 1px solid var(--border);
-  }
-  .weekly-score div:nth-child(even) {
-    border-right: 0;
-  }
-  .weekly-score div:last-child {
+
+  /* 5 个计分块在 2 列下会剩一个孤块，最后一块通栏收尾。 */
+  .weekly-score > div:last-child {
     grid-column: 1 / -1;
-    border-bottom: 0;
   }
+
   .weekly-round-heading {
     align-items: start;
   }
+
+  .weekly-page.weekly-unavailable {
+    padding: 26px 20px;
+  }
+}
+
+/* ── 减少动态效果（双开关） ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .weekly-spinner {
+    animation: none;
+  }
+
+  .weekly-page .ticket-button,
+  .weekly-forfeit {
+    transition: none;
+  }
+
+  .weekly-page .ticket-button:hover {
+    transform: none;
+    filter: none;
+  }
+}
+
+:root[data-motion="reduced"] .weekly-spinner {
+  animation: none;
+}
+
+:root[data-motion="reduced"] .weekly-page .ticket-button,
+:root[data-motion="reduced"] .weekly-forfeit {
+  transition: none;
+}
+
+:root[data-motion="reduced"] .weekly-page .ticket-button:hover {
+  transform: none;
+  filter: none;
 }

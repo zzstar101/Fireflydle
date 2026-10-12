@@ -1,107 +1,258 @@
+/*
+ * 立绘挑战 / 立绘无尽（docs/design/redesign-v2/README.md）。
+ *
+ * v2 语汇：1px --line 描边 + --r-card / --r-tile 圆角 + --panel 底板 + 金色胶囊按钮。
+ * 旧版的等宽大写金色小标题、切角遮罩板、切角票券按钮都换掉了；
+ * 立绘页的结算卡来自 game.css（那里还留着 v1 切角），在本文件里按 v2 覆盖。
+ */
+
 .portrait-page {
-  max-width: 980px;
+  width: min(100%, 1040px);
   margin: 0 auto;
-  padding: 52px 22px 80px;
+  padding: 40px 22px 80px;
 }
+
+/* ── 页头 ───────────────────────────────────────────────── */
+
 .portrait-head {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line);
 }
+
+.portrait-head > div {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  max-width: 60ch;
+}
+
+/* v2 小标题：muted 常规字重，不用 v1 的等宽大写 + 金色。 */
+.portrait-kicker {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .portrait-head h1 {
-  margin: 10px 0 8px;
-  font-size: clamp(2rem, 6vw, 4.3rem);
-}
-.portrait-head p {
-  max-width: 520px;
   margin: 0;
-  color: var(--text-muted);
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
+
+.portrait-head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
 .portrait-actions {
   display: flex;
-  align-items: start;
+  flex: 0 0 auto;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 9px;
 }
+
 .portrait-actions a,
 .portrait-actions button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  min-height: 38px;
-  padding: 0 12px;
-  color: var(--text);
-  border: 1px solid var(--border);
-  background: var(--surface);
-}
-.portrait-actions button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
+  transition: border-color 180ms var(--ease);
 }
+
+.portrait-actions a:hover,
+.portrait-actions button:hover {
+  border-color: color-mix(in srgb, var(--lit) 45%, var(--line-2));
+}
+
+.portrait-actions a:focus-visible,
+.portrait-actions button:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 3px;
+}
+
+/* ── 遮罩棋盘 ───────────────────────────────────────────── */
+
 .portrait-board-wrap {
   max-width: 520px;
-  margin: 34px auto 0;
+  margin: 32px auto 0;
 }
+
 .portrait-board {
   position: relative;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background-color: #0b0f15;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background-color: var(--panel-2);
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  box-shadow: 0 20px 80px rgb(0 0 0 / 35%);
+  box-shadow: var(--shadow);
 }
+
 .portrait-board.has-skin {
   box-shadow:
-    0 20px 80px rgb(231 185 79 / 28%),
-    0 0 0 1px rgb(231 185 79 / 24%);
+    var(--shadow),
+    0 0 0 1px color-mix(in srgb, var(--lit) 34%, transparent);
 }
+
 .portrait-board i {
-  background: #0b0f15;
-  transition: opacity 0.3s ease;
+  background: var(--bg);
+  transition: opacity 0.3s var(--ease);
 }
+
 .portrait-board i.is-revealed {
   opacity: 0;
 }
+
 .portrait-loading {
   position: absolute;
   inset: 50% auto auto 50%;
   display: inline-flex;
-  gap: 6px;
-  color: var(--gold);
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.84rem;
   transform: translate(-50%, -50%);
 }
+
+/* 猜错反馈：面板 + 字形，不只靠颜色。 */
 .portrait-feedback {
-  margin: 14px 0 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 16px 0 0;
+  padding: 13px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-tile);
+  background: var(--panel);
   font-weight: 600;
   text-align: center;
 }
-.portrait-feedback.is-wrong {
-  color: var(--text-muted);
+
+.portrait-feedback::before {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  color: var(--danger);
+  font-size: 0.78rem;
+  content: "✕";
 }
+
+.portrait-feedback.is-wrong {
+  color: var(--ink);
+}
+
 .portrait-meta {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  color: var(--text-muted);
+  gap: 16px;
+  padding: 12px 2px 0;
+  color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
 }
+
 .portrait-picker {
   max-width: 620px;
-  margin: 18px auto 0;
+  margin: 20px auto 0;
 }
+
+/* ── 结算卡（game.css 的 v1 切角改回 v2 圆角面板） ─────── */
+
+.portrait-page .game-result {
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--lit) 13%, var(--panel)),
+    var(--panel) 55%
+  );
+  clip-path: none;
+}
+
+.portrait-page .game-result .result-copy p {
+  color: var(--lit);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.portrait-page .result-actions .ticket-button {
+  min-height: 46px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cta);
+  color: var(--cta-ink);
+  font-weight: 700;
+  clip-path: none;
+}
+
+/* ── 响应式 ─────────────────────────────────────────────── */
+
 @media (max-width: 650px) {
   .portrait-head {
     display: grid;
+    align-items: start;
   }
+
   .portrait-actions {
     justify-content: space-between;
   }
+}
+
+/* ── 减少动态效果（双开关） ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-board i {
+    transition: none;
+  }
+
+  .portrait-actions a,
+  .portrait-actions button {
+    transition: none;
+  }
+}
+
+:root[data-motion="reduced"] .portrait-board i {
+  transition: none;
+}
+
+:root[data-motion="reduced"] .portrait-actions a,
+:root[data-motion="reduced"] .portrait-actions button {
+  transition: none;
 }

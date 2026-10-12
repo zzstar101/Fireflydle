@@ -90,7 +90,9 @@ export default function PortraitChallengePage() {
     <main className="portrait-page">
       <section className="portrait-head">
         <div>
-          <span className="eyebrow">{locale === "zh-CN" ? "立绘挑战" : "PORTRAIT CHALLENGE"}</span>
+          <span className="portrait-kicker">
+            {locale === "zh-CN" ? "立绘挑战" : "PORTRAIT CHALLENGE"}
+          </span>
           <h1>{locale === "zh-CN" ? "猜角色 · 立绘" : "Guess the character"}</h1>
           <p>
             {locale === "zh-CN"

@@ -1,0 +1,126 @@
+/*
+ * 玩法卡线稿（ModeArt）—— 纯线稿装饰，颜色全部来自 currentColor。
+ *
+ * 动效契约（与 ModeArt.tsx 对应，调用方必须遵守）：
+ *   1. 所有 keyframes 默认 `animation-play-state: paused`，只在父卡片同时满足
+ *      「可见」与「悬停 / 键盘聚焦」时才运行：
+ *        [data-visible="true"] 由调用方在卡片滚入视口时设置（IntersectionObserver）；
+ *        悬停或 `:focus-within` 由父卡片提供（`.mode-board`、`.hub-secondary-link` 等）。
+ *      只判断 `:hover` 而不判断 `[data-visible="true"]` 是不够的——离屏卡片不应耗电。
+ *   2. 动画只改 transform / opacity / offset-distance，不触发重排。
+ *   3. 减少动态效果时完全关闭动画，几何图形保持与静态渲染一致：
+ *        系统偏好 `@media (prefers-reduced-motion: reduce)`
+ *        站内开关 `:root[data-motion="reduced"]`（见 components/quality-flags.ts）
+ */
+
+.mode-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── 动画定义：默认暂停，闸门在下方统一打开 ───────────────────────────── */
+
+/* 光点沿无限轨道行进：offset-path 让 dot 贴合 ModeArt.tsx 里的双纽线路径。 */
+.mode-art__dot {
+  offset-path: path(
+    "M48 48 C42 39 35 34 28 35 C20 36 16 42 16 48 C16 54 20 60 28 61 C35 62 42 57 48 48 C54 39 61 34 68 35 C76 36 80 42 80 48 C80 54 76 60 68 61 C61 62 54 57 48 48 Z"
+  );
+  offset-rotate: auto;
+  offset-distance: 50%;
+  animation: mode-art-travel var(--motion-signal, 3.4s) linear infinite;
+  animation-play-state: paused;
+}
+
+/* 双星轨道反向旋转（transform-origin 取 viewBox 用户单位）。 */
+.mode-art__orbit-a {
+  transform-origin: 48px 48px;
+  animation: mode-art-spin 24s linear infinite;
+  animation-play-state: paused;
+}
+
+.mode-art__orbit-b {
+  transform-origin: 48px 48px;
+  animation: mode-art-spin 18s linear infinite reverse;
+  animation-play-state: paused;
+}
+
+/* 周赛进行中的弧段柔和呼吸。 */
+.mode-art__ring--active {
+  transform-origin: 48px 48px;
+  animation: mode-art-pulse 2.6s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+/* ── 动画闸门：父卡片可见 + 悬停 / 键盘聚焦 ───────────────────────────── */
+
+.mode-board[data-visible="true"]:hover .mode-art__orbit-a,
+.mode-board[data-visible="true"]:focus-within .mode-art__orbit-a,
+.hub-secondary-link[data-visible="true"]:hover .mode-art__orbit-a,
+.hub-secondary-link[data-visible="true"]:focus-within .mode-art__orbit-a,
+.mode-board[data-visible="true"]:hover .mode-art__orbit-b,
+.mode-board[data-visible="true"]:focus-within .mode-art__orbit-b,
+.hub-secondary-link[data-visible="true"]:hover .mode-art__orbit-b,
+.hub-secondary-link[data-visible="true"]:focus-within .mode-art__orbit-b,
+.mode-board[data-visible="true"]:hover .mode-art__ring--active,
+.mode-board[data-visible="true"]:focus-within .mode-art__ring--active,
+.hub-secondary-link[data-visible="true"]:hover .mode-art__ring--active,
+.hub-secondary-link[data-visible="true"]:focus-within .mode-art__ring--active,
+.mode-board[data-visible="true"]:hover .mode-art__dot,
+.mode-board[data-visible="true"]:focus-within .mode-art__dot,
+.hub-secondary-link[data-visible="true"]:hover .mode-art__dot,
+.hub-secondary-link[data-visible="true"]:focus-within .mode-art__dot {
+  animation-play-state: running;
+}
+
+@keyframes mode-art-travel {
+  from {
+    offset-distance: 0%;
+  }
+
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes mode-art-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mode-art-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ── 减少动态效果：系统偏好 ───────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-art__orbit-a,
+  .mode-art__orbit-b,
+  .mode-art__ring--active,
+  .mode-art__dot {
+    animation: none;
+  }
+}
+
+/* ── 减少动态效果：站内开关（?reduce，见 components/quality-flags.ts） ─── */
+
+:root[data-motion="reduced"] .mode-art__orbit-a,
+:root[data-motion="reduced"] .mode-art__orbit-b,
+:root[data-motion="reduced"] .mode-art__ring--active,
+:root[data-motion="reduced"] .mode-art__dot {
+  animation: none;
+}

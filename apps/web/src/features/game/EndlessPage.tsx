@@ -116,6 +116,9 @@ function formatTime(milliseconds: number): string {
     .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
 
+// 回合结果用字形区分（答对 / 失败 / 跳过），颜色只作补充。
+const roundResultGlyphs = { won: "✓", lost: "✕", skipped: "⏭" } as const;
+
 const AeonGuessBoard = lazy(() =>
   import("./AeonGuessBoard").then((module) => ({ default: module.AeonGuessBoard })),
 );
@@ -305,7 +308,7 @@ export function EndlessPage({
     <main className="endless-page">
       <header className="endless-hero">
         <div>
-          <p>
+          <p className="endless-kicker">
             {contentModeId === "playable"
               ? labels.eyebrow
               : contentModeId === "portrait"
@@ -325,7 +328,7 @@ export function EndlessPage({
                   : "How many portraits can you name?"
               : labels.title}
           </h1>
-          <span>
+          <span className="endless-intro">
             {contentModeId === "portrait"
               ? locale === "zh-CN"
                 ? "每题展示一张角色立绘或皮肤。每次猜错会揭示更多区域，失败或跳过扣除一条生命。"
@@ -421,7 +424,12 @@ export function EndlessPage({
                 </div>
               )
             ) : (
-              <button type="button" disabled={busy} onClick={() => void start()}>
+              <button
+                className="is-primary"
+                type="button"
+                disabled={busy}
+                onClick={() => void start()}
+              >
                 <RotateCcw size={17} /> {labels.restart}
               </button>
             )}
@@ -429,10 +437,15 @@ export function EndlessPage({
 
           {run.lastRound ? (
             <div className={`endless-round-result result-${run.lastRound.result}`} role="status">
-              <strong>{run.status === "finished" ? labels.finished : roundLabel}</strong>
-              <span>
-                {labels.answer}: {run.lastRound.answer.names[locale]}
-              </span>
+              <b className="endless-result-glyph" aria-hidden="true">
+                {roundResultGlyphs[run.lastRound.result as keyof typeof roundResultGlyphs]}
+              </b>
+              <div className="endless-result-copy">
+                <strong>{run.status === "finished" ? labels.finished : roundLabel}</strong>
+                <span>
+                  {labels.answer}: {run.lastRound.answer.names[locale]}
+                </span>
+              </div>
             </div>
           ) : null}
 
