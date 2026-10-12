@@ -10,29 +10,39 @@ import {
   Info,
   RadioTower,
   RotateCcw,
-  Signal,
   Share2,
-  Sparkles,
   Trophy,
   WifiOff,
 } from "lucide-react";
 import type {
   AeonSummary,
+  Character,
   FriendChallenge,
-  PersonalStats,
+  PlayableGameEntitySummary,
   PublicGame,
   PublicUser,
   ReplayShareResponse,
   SessionPayload,
 } from "@fireflydle/contracts";
-import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
+import {
+  compareCharactersWithRules,
+  getBeijingDateKey,
+  selectSnapshotFieldDefinitions,
+  snapshotRulesFromFieldDefinitions,
+} from "@fireflydle/game-engine";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { apiRequest, ensureSession } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
+import { useCharacterPortrait, useCharacterSprite } from "../../lib/character-art";
+import { fx } from "../../fx/fx";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
+import { InferenceReplay } from "./InferenceReplay";
 import { InferenceReview } from "./InferenceReview";
+import { ResultReveal } from "./ResultReveal";
+import { buildInferenceReplayFrames } from "./inference-replay-model";
+import { hasSeenResultReveal } from "./reveal-memory";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
 import { PlayableTutorial } from "./PlayableTutorial";
@@ -401,12 +411,6 @@ function ActiveGame({
   const rulePoolSize =
     modeManifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
       .length ?? 0;
-  const playerStats = useQuery({
-    queryKey: ["stats", "game-rail"],
-    queryFn: () => apiRequest<PersonalStats>("/stats/me"),
-    enabled: source === "server",
-    retry: false,
-  });
 
   useEffect(() => {
     setConfirmAbandon(false);
@@ -425,6 +429,30 @@ function ActiveGame({
 
     const latestGuess = game.guesses.at(-1);
     triggerGameHaptic(latestGuess?.isCorrect ? "win" : "life-lost");
+
+    // 一致格依次亮起时，把金色星尘洒进背景（错峰与 CSS 的 --cell-delay 对齐）。
+    const row = document.querySelector<HTMLElement>(".guess-board .guess-row.is-latest");
+    if (!row) return;
+    const timers = Array.from(row.querySelectorAll<HTMLElement>("td.state-exact")).map(
+      (cell, index) =>
+        window.setTimeout(
+          () => {
+            const rect = cell.getBoundingClientRect();
+            fx.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, {
+              count: 24,
+              speed: 0.44,
+              tone: 0,
+            });
+          },
+          110 + index * 105,
+        ),
+    );
+    return () => {
+      for (const timer of timers) window.clearTimeout(timer);
+    };
+    // game.guesses 每次渲染都是新数组，加进依赖会让上面的错峰定时器被反复清掉；
+    // 这里只靠 guessCount 变化触发一次。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentModeId, guessCount]);
 
   useEffect(() => {
@@ -458,6 +486,41 @@ function ActiveGame({
   );
   const finished = game.status !== "active";
   const shareable = game.status === "won" || game.status === "lost";
+  // 结算立绘：超分后的半身像，索引里没有时回退到头像
+  const answerPortrait = useCharacterPortrait(finished ? game.answer?.id : null);
+  // 推理回放的 93 个头像走一张构建期合成图；拿不到索引时组件自己回退到逐个头像。
+  const replaySprite = useCharacterSprite();
+
+  // 结算演出只在对局刚结束时播一次；同一局再次渲染（计时、分享等）不能中断它，
+  // 所以用 ref 记住第一次判定结果，而不是每次渲染重新算。
+  const revealKey = game.status === "won" ? game.id : null;
+  const revealRef = useRef<{ key: string; active: boolean } | null>(null);
+  if (revealKey && revealRef.current?.key !== revealKey) {
+    revealRef.current = { key: revealKey, active: !hasSeenResultReveal(revealKey) };
+  }
+  const revealActive = revealRef.current?.key === revealKey && revealRef.current.active;
+
+  // 推理回放的每步候选集合：Worker 只公开计数，这里用同一套判题器在本地重放。
+  const replayFrames = useMemo(() => {
+    if (contentModeId !== "playable" || game.guesses.length === 0) return [];
+    const rules = snapshotRulesFromFieldDefinitions(game.fieldDefinitions ?? ruleFields);
+    if (rules.length === 0) return [];
+    const pool = roster.filter(
+      (entity): entity is PlayableGameEntitySummary => "releaseOrder" in entity,
+    );
+    return buildInferenceReplayFrames(pool, game.guesses, (target, guess) =>
+      compareCharactersWithRules(target as Character, guess as Character, rules),
+    );
+  }, [contentModeId, game.guesses, game.fieldDefinitions, ruleFields, roster]);
+
+  const replayCharacters = useMemo(
+    () => roster.filter((entity): entity is PlayableGameEntitySummary => "releaseOrder" in entity),
+    [roster],
+  );
+  const activityLabel =
+    activityId === "daily"
+      ? `${t("game.daily")} ${(game.dateKey ?? getBeijingDateKey()).slice(5).replace("-", ".")}`
+      : t("game.random");
 
   const closeSharePreview = useCallback(() => {
     setSharePreview(null);
@@ -574,30 +637,30 @@ function ActiveGame({
   };
 
   return (
-    <main className="game-page running-game-page">
-      <section className="game-hero running-game-hero">
-        <div className="hero-track" aria-hidden="true">
-          <span />
-          <i />
-          <span />
-          <i />
-          <span />
-        </div>
-        <div className="hero-copy">
-          <Link className="game-hub-link" to="/">
-            <ArrowLeft size={15} /> {t("hub.backToHub")}
-          </Link>
-          <p className="eyebrow">
-            {contentModeId === "npc"
-              ? "NPC · TRACER"
-              : contentModeId === "aeon"
-                ? "AEON · IMAGE"
-                : contentModeId === "currency-wars"
-                  ? "CURRENCY WARS · TRACER"
-                  : activityId === "daily"
-                    ? t("prep.dailyEyebrow")
-                    : t("prep.randomEyebrow")}
-          </p>
+    <main
+      className={`game-page running-game-page sr-game${finished ? " is-finished" : ""}${
+        contentModeId === "aeon" ? " is-aeon" : ""
+      }`}
+    >
+      <header className="sr-game-head">
+        <div className="sr-game-title">
+          <nav className="sr-crumb" aria-label={t("hub.backToHub")}>
+            <Link className="game-hub-link" to="/">
+              <ArrowLeft size={14} /> {t("hub.backToHub")}
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span>
+              {contentModeId === "npc"
+                ? "NPC · TRACER"
+                : contentModeId === "aeon"
+                  ? "AEON · IMAGE"
+                  : contentModeId === "currency-wars"
+                    ? "CURRENCY WARS"
+                    : activityId === "daily"
+                      ? t("prep.dailyEyebrow")
+                      : t("prep.randomEyebrow")}
+            </span>
+          </nav>
           <h1 ref={gameHeadingRef} tabIndex={-1}>
             {contentModeId === "npc"
               ? "NPC"
@@ -616,311 +679,346 @@ function ActiveGame({
                   : activityId === "daily"
                     ? t("game.daily")
                     : t("game.random")}
+            <small>
+              {activityId === "daily"
+                ? (game.dateKey ?? getBeijingDateKey()).slice(5).replace("-", ".")
+                : "∞"}
+            </small>
           </h1>
-          <p>
-            {contentModeId === "aeon"
-              ? locale === "en"
+          {contentModeId === "aeon" ? (
+            <p className="sr-game-intro">
+              {locale === "en"
                 ? "Identify the Aeon from the gradually revealed image."
                 : locale === "ja"
                   ? "少しずつ開示される画像から星神を当てます。"
-                  : "只根据逐步揭示的图片猜测星神。"
-              : t("prep.activeIntro")}
-          </p>
+                  : "只根据逐步揭示的图片猜测星神。"}
+            </p>
+          ) : null}
         </div>
-        <div className="hero-stamp">
-          <span>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
-          <strong>
-            {activityId === "daily"
-              ? (game.dateKey ?? getBeijingDateKey()).slice(5).replace("-", ".")
-              : "∞"}
+        <div className="sr-game-meta">
+          <div
+            className="sr-pips"
+            role="img"
+            aria-label={`${t("game.attempts")} ${remaining} / ${game.maxAttempts}`}
+          >
+            {Array.from({ length: game.maxAttempts }, (_, index) => (
+              <i key={index} className={index < remaining ? "on" : ""} />
+            ))}
+          </div>
+          <strong className="sr-timer mono" aria-label={t("game.elapsed")}>
+            {formatTime(elapsedMs)}
           </strong>
-          <small>{activityId === "daily" ? "UTC+8 · 00:00" : t("game.unlimited")}</small>
+          <span
+            className={`sr-net ${source === "server" ? "online" : "local"}`}
+            title={source === "server" ? t("common.online") : t("prep.offlinePractice")}
+          >
+            <i />
+            {source === "server" ? t("common.online") : t("prep.offlinePractice")}
+          </span>
+          <details className="sr-rules">
+            <summary>{t("prep.rulesTitle")}</summary>
+            <div className="sr-rules-pop">
+              <RulesPanel
+                locale={locale}
+                title={t("prep.rulesTitle")}
+                intro={t("prep.rulesIntro")}
+                poolSize={rulePoolSize}
+                maxAttempts={game.maxAttempts}
+                fields={ruleFields}
+                labels={ruleLabels(t, locale)}
+                {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
+                  ? { onReplayTutorial }
+                  : {})}
+              />
+            </div>
+          </details>
         </div>
-      </section>
+      </header>
 
-      <section className="game-workspace">
-        <aside className="game-left-rail">
-          <div className="rail-section">
-            <span className="rail-number">01</span>
-            <h2>{locale === "zh-CN" ? "猜测次数" : locale === "ja" ? "推測回数" : "ATTEMPTS"}</h2>
-            <div className="fixed-attempts">
-              <span>{locale === "zh-CN" ? "固定" : locale === "ja" ? "固定" : "FIXED"}</span>
-              <strong>{game.maxAttempts}</strong>
-              <small>
-                {locale === "zh-CN"
-                  ? "所有活动统一"
-                  : locale === "ja"
-                    ? "全アクティビティ共通"
-                    : "SAME FOR EVERY ACTIVITY"}
-              </small>
+      {activityId === "practice" && game.status === "active" && (
+        <div className="active-game-tools">
+          {!confirmAbandon ? (
+            <button
+              ref={abandonButtonRef}
+              type="button"
+              disabled={busy}
+              onClick={() => setConfirmAbandon(true)}
+            >
+              {t("prep.abandon")}
+            </button>
+          ) : (
+            <div className="abandon-confirm" role="alert">
+              <span>
+                <strong>{t("prep.abandonTitle")}</strong>
+                {t("prep.abandonBody")}
+              </span>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setConfirmAbandon(false);
+                  window.requestAnimationFrame(() => abandonButtonRef.current?.focus());
+                }}
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                ref={confirmAbandonButtonRef}
+                className="confirm-abandon"
+                type="button"
+                disabled={busy}
+                onClick={() => void abandonAndRestart()}
+              >
+                {t("prep.abandonConfirm")}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {finished && game.answer && (
+        <section
+          ref={resultRef}
+          className={`game-result sr-result result-${game.status}${
+            contentModeId === "playable" ? " result-animated" : ""
+          }${answerPortrait ? " has-portrait" : ""}`}
+          role="status"
+          aria-live="polite"
+          tabIndex={-1}
+        >
+          <div className="sr-result-art">
+            {answerPortrait ? (
+              <ResultReveal
+                characterId={game.answer.id}
+                portraitSrc={answerPortrait}
+                rarity={"rarity" in game.answer ? game.answer.rarity : 4}
+                active={game.status === "won"}
+                revealKey={revealKey ?? game.id}
+              />
+            ) : (
+              <CharacterAvatar character={game.answer} size="large" priority />
+            )}
+            <div className="sr-result-name">
+              {"rarity" in game.answer ? (
+                <span className={`sr-result-stars r${game.answer.rarity}`} aria-hidden="true">
+                  {"★".repeat(game.answer.rarity)}
+                </span>
+              ) : null}
+              <small>{t("game.answer")}</small>
+              <h2>{game.answer.names[locale]}</h2>
             </div>
           </div>
-          <div className="rail-section compact">
-            <span className="rail-number">02</span>
-            <RulesPanel
-              locale={locale}
-              title={t("prep.rulesTitle")}
-              intro={t("prep.rulesIntro")}
-              poolSize={rulePoolSize}
-              maxAttempts={game.maxAttempts}
-              fields={ruleFields}
-              labels={ruleLabels(t, locale)}
-              {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
-                ? { onReplayTutorial }
-                : {})}
-            />
-          </div>
-        </aside>
-
-        <div className="game-main-column">
-          <div className="metric-strip">
-            <div>
-              <span>
-                <Gauge size={16} /> {t("game.attempts")}
-              </span>
-              <strong>
-                {remaining}
-                <small> / {game.maxAttempts}</small>
-              </strong>
-            </div>
-            <div>
-              <span>
-                <Clock3 size={16} /> {t("game.elapsed")}
-              </span>
-              <strong className="mono">{formatTime(elapsedMs)}</strong>
-            </div>
-            <div>
-              <span>
-                <Signal size={16} />{" "}
-                {activityId === "daily"
-                  ? t("home.dailyNumber", { date: game.dateKey })
-                  : t("game.random")}
-              </span>
-              <strong className="service-state">
-                <i className={source === "server" ? "online" : "local"} />
-                {source === "server" ? t("common.online") : t("prep.offlinePractice")}
-              </strong>
-            </div>
-          </div>
-
-          {activityId === "practice" && game.status === "active" && (
-            <div className="active-game-tools">
-              {!confirmAbandon ? (
+          <div className="sr-result-panel">
+            <p className="sr-result-meta mono">
+              {activityLabel} · {formatTime(game.elapsedMs)}
+            </p>
+            <h3 className="sr-result-title">
+              {game.status === "won" ? (
+                locale === "en" ? (
+                  <>
+                    Solved in <b>{game.guesses.length}</b>
+                  </>
+                ) : locale === "ja" ? (
+                  <>
+                    <b>{game.guesses.length}</b> 回目で正解
+                  </>
+                ) : (
+                  <>
+                    第 <b>{game.guesses.length}</b> 次猜中
+                  </>
+                )
+              ) : (
+                t("game.lostTitle")
+              )}
+            </h3>
+            {contentModeId !== "aeon" && game.guesses.length > 0 ? (
+              <div className="sr-share-grid" aria-hidden="true">
+                {game.guesses.map((guess, row) => (
+                  <div key={row}>
+                    {guess.cells.map((cell, col) => (
+                      <i key={col} className={cell.state} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            {contentModeId !== "aeon" && replayFrames.length > 0 ? (
+              <InferenceReplay
+                characters={replayCharacters}
+                steps={replayFrames}
+                locale={locale}
+                sprite={replaySprite}
+                final={!revealActive}
+              />
+            ) : null}
+            {contentModeId !== "aeon" && game.inferenceReview ? (
+              <InferenceReview review={game.inferenceReview} locale={locale} />
+            ) : null}
+            <div className="result-actions">
+              {shareable && source === "server" ? (
                 <button
-                  ref={abandonButtonRef}
+                  ref={shareButtonRef}
+                  className="ticket-button"
+                  type="button"
+                  disabled={challengeBusy}
+                  onClick={() => void shareFriendChallenge()}
+                >
+                  {challengeBusy ? (
+                    <span className="button-spinner" aria-hidden="true" />
+                  ) : (
+                    <Share2 size={17} />
+                  )}
+                  {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
+                </button>
+              ) : null}
+              {activityId === "daily" ? (
+                <Link className="ticket-button" to="/">
+                  <ArrowLeft size={17} /> {t("hub.backToHub")}
+                </Link>
+              ) : (
+                <button
+                  className="ticket-button"
                   type="button"
                   disabled={busy}
-                  onClick={() => setConfirmAbandon(true)}
+                  onClick={() => void restart()}
                 >
-                  {t("prep.abandon")}
+                  <RotateCcw size={17} /> {t("game.playAgain")}
                 </button>
-              ) : (
-                <div className="abandon-confirm" role="alert">
-                  <span>
-                    <strong>{t("prep.abandonTitle")}</strong>
-                    {t("prep.abandonBody")}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => {
-                      setConfirmAbandon(false);
-                      window.requestAnimationFrame(() => abandonButtonRef.current?.focus());
-                    }}
-                  >
-                    {t("common.cancel")}
-                  </button>
-                  <button
-                    ref={confirmAbandonButtonRef}
-                    className="confirm-abandon"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void abandonAndRestart()}
-                  >
-                    {t("prep.abandonConfirm")}
-                  </button>
-                </div>
               )}
-            </div>
-          )}
-
-          {contentModeId === "aeon" ? (
-            <AeonGuessBoard
-              gameId={game.aeonRevealSeed ?? game.id}
-              wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
-              answer={
-                game.answer && "imagePath" in game.answer.assets
-                  ? (game.answer as AeonSummary)
-                  : null
-              }
-              imagePath={game.aeonImagePath}
-              imageFocus={game.aeonImageFocus}
-              locale={locale}
-              finished={finished}
-            />
-          ) : null}
-
-          {!finished && (
-            <CharacterCombobox
-              characters={roster}
-              locale={locale}
-              {...(contentModeId === "playable"
-                ? { searchIndex: runtime.manifest.searchIndex }
-                : {})}
-              {...(contentModeId === "aeon"
-                ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
-                : {})}
-              excludedIds={guessedIds}
-              disabled={busy}
-              onSubmit={(id) => {
-                if (contentModeId === "playable") triggerGameHaptic("submit");
-                void submitGuess(id);
-              }}
-            />
-          )}
-
-          {errorCode && (
-            <div className="inline-error" role="alert">
-              <Info size={17} /> {t(`error.${errorCode}`, { defaultValue: t("error.generic") })}
-            </div>
-          )}
-
-          {finished && game.answer && (
-            <>
-              {contentModeId === "playable" && game.status === "won" ? (
-                <div className="settlement-energy" aria-hidden="true">
-                  <i />
-                  <span />
-                  <i />
-                </div>
+              {activityId === "practice" ? (
+                <Link className="ticket-button-secondary" to="/">
+                  <ArrowLeft size={17} /> {t("hub.backToHub")}
+                </Link>
               ) : null}
-              <section
-                ref={resultRef}
-                className={`game-result result-${game.status}${contentModeId === "playable" ? " result-animated" : ""}`}
-                role="status"
-                aria-live="polite"
-                tabIndex={-1}
-              >
-                <div className="result-icon">
-                  <Sparkles size={25} />
-                </div>
-                <CharacterAvatar character={game.answer} size="large" priority />
-                <div className="result-copy">
-                  <p>{game.status === "won" ? t("game.wonTitle") : t("game.lostTitle")}</p>
-                  <h2>{game.answer.names[locale]}</h2>
-                  <small>
-                    {t("game.answer")} · {game.guesses.length}/{game.maxAttempts} ·{" "}
-                    {formatTime(game.elapsedMs)}
-                  </small>
-                </div>
-                <div className="result-actions">
-                  {shareable && source === "server" && (
-                    <button
-                      ref={shareButtonRef}
-                      className="ticket-button"
-                      type="button"
-                      disabled={challengeBusy}
-                      onClick={() => void shareFriendChallenge()}
-                    >
-                      {challengeBusy ? (
-                        <span className="button-spinner" aria-hidden="true" />
-                      ) : (
-                        <Share2 size={17} />
-                      )}{" "}
-                      {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
-                    </button>
-                  )}
-                  {activityId === "daily" ? (
-                    <Link className="ticket-button" to="/">
-                      <ArrowLeft size={17} /> {t("hub.backToHub")}
-                    </Link>
+              {shareable && source !== "server" ? (
+                <button
+                  ref={shareButtonRef}
+                  className="result-share-button"
+                  type="button"
+                  disabled={shareBusy}
+                  onClick={() => void createShareImage()}
+                >
+                  {shareBusy ? (
+                    <span className="button-spinner" aria-hidden="true" />
                   ) : (
-                    <button
-                      className="ticket-button"
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void restart()}
-                    >
-                      <RotateCcw size={17} /> {t("game.playAgain")}
-                    </button>
+                    <ImageDown size={17} />
                   )}
-                  {activityId === "practice" && (
-                    <Link className="ticket-button-secondary" to="/">
-                      <ArrowLeft size={17} /> {t("hub.backToHub")}
-                    </Link>
-                  )}
-                  {shareable && source !== "server" && (
-                    <button
-                      ref={shareButtonRef}
-                      className="result-share-button"
-                      type="button"
-                      disabled={shareBusy}
-                      onClick={() => void createShareImage()}
-                    >
-                      {shareBusy ? (
-                        <span className="button-spinner" aria-hidden="true" />
-                      ) : (
-                        <ImageDown size={17} />
-                      )}{" "}
-                      {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
-                    </button>
-                  )}
-                </div>
-                {shareError && (
-                  <p className="share-image-error" role="alert">
-                    {t("game.shareImageError")}
-                  </p>
-                )}
-                {challengeError && (
-                  <p className="share-image-error" role="alert">
-                    {t("game.challengeShareError")}
-                  </p>
-                )}
-              </section>
-            </>
-          )}
-
-          {contentModeId !== "aeon" ? (
-            <>
-              {game.inferenceReview ? (
-                <InferenceReview review={game.inferenceReview} locale={locale} />
+                  {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
+                </button>
               ) : null}
-              <GuessBoard
-                guesses={game.guesses}
-                locale={locale}
-                fields={game.fieldDefinitions}
-                synergyDefinitions={modeManifest.currencyWars?.synergyDefinitions}
-                animateLatest={contentModeId === "playable"}
-              />
-            </>
-          ) : null}
-        </div>
+              {activityId === "practice" && source === "server" ? (
+                <Link className="ticket-button-secondary" to="/leaderboard">
+                  <Trophy size={17} /> {t("prep.viewLeaderboard")}
+                </Link>
+              ) : null}
+            </div>
+            {shareError ? (
+              <p className="share-image-error" role="alert">
+                {t("game.shareImageError")}
+              </p>
+            ) : null}
+            {challengeError ? (
+              <p className="share-image-error" role="alert">
+                {t("game.challengeShareError")}
+              </p>
+            ) : null}
+          </div>
+        </section>
+      )}
 
-        <aside className="game-right-rail">
-          <div className="game-index-label">{t("game.gameInfo")}</div>
-          <div className="rail-metric">
-            <span>{t("home.streak")}</span>
-            <strong>{playerStats.data?.currentStreak ?? 0}</strong>
-            <small>{t("game.daysUnit")}</small>
-          </div>
-          <div className="rail-metric">
-            <span>{t("game.guessed")}</span>
-            <strong>{game.guesses.length}</strong>
-            <small>{t("prep.attemptUnit")}</small>
-          </div>
-          <div className="rail-metric">
-            <span>{t("hub.nextReset")}</span>
-            <strong>{activityId === "daily" ? "00:00" : "∞"}</strong>
-            <small>{activityId === "daily" ? "UTC+8" : t("game.unlimited")}</small>
-          </div>
-          {activityId === "practice" && source === "server" ? (
-            <Link className="leaderboard-callout" to="/leaderboard">
-              <Trophy size={18} />
-              <span>{t("prep.viewLeaderboard")}</span>
-            </Link>
-          ) : null}
-        </aside>
+      <section className="sr-board-wrap game-workspace">
+        {contentModeId === "aeon" ? (
+          <AeonGuessBoard
+            gameId={game.aeonRevealSeed ?? game.id}
+            wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
+            answer={
+              game.answer && "imagePath" in game.answer.assets ? (game.answer as AeonSummary) : null
+            }
+            imagePath={game.aeonImagePath}
+            imageFocus={game.aeonImageFocus}
+            locale={locale}
+            finished={finished}
+          />
+        ) : (
+          <GuessBoard
+            guesses={game.guesses}
+            locale={locale}
+            fields={game.fieldDefinitions}
+            synergyDefinitions={modeManifest.currencyWars?.synergyDefinitions}
+            animateLatest={contentModeId === "playable"}
+          />
+        )}
+        {!finished && contentModeId !== "aeon"
+          ? Array.from(
+              { length: Math.max(0, game.maxAttempts - game.guesses.length) },
+              (_, index) => (
+                <div
+                  key={index}
+                  className="sr-ghost-row"
+                  aria-hidden="true"
+                  style={{ "--sr-cols": ruleFields.length || 6 } as React.CSSProperties}
+                >
+                  {Array.from({ length: (ruleFields.length || 6) + 1 }, (_, cell) => (
+                    <span key={cell} />
+                  ))}
+                </div>
+              ),
+            )
+          : null}
       </section>
+
+      {!finished && (
+        <div className="sr-composer">
+          <CharacterCombobox
+            characters={roster}
+            locale={locale}
+            {...(contentModeId === "playable" ? { searchIndex: runtime.manifest.searchIndex } : {})}
+            {...(contentModeId === "aeon"
+              ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
+              : {})}
+            {...(contentModeId === "playable"
+              ? { label: t("game.guessPrompt", { number: game.guesses.length + 1 }) }
+              : {})}
+            excludedIds={guessedIds}
+            disabled={busy}
+            onSubmit={(id) => {
+              if (contentModeId === "playable") triggerGameHaptic("submit");
+              void submitGuess(id);
+            }}
+          />
+        </div>
+      )}
+
+      {errorCode && (
+        <div className="inline-error" role="alert">
+          <Info size={17} /> {t(`error.${errorCode}`, { defaultValue: t("error.generic") })}
+        </div>
+      )}
+
+      {contentModeId !== "aeon" && !finished ? (
+        <p className="sr-legend" aria-hidden="true">
+          <span>
+            <i className="exact" />
+            {locale === "en" ? "Match" : locale === "ja" ? "一致" : "一致"}
+          </span>
+          <span>
+            <i className="close" />
+            {locale === "en" ? "Close" : locale === "ja" ? "近い" : "接近"}
+          </span>
+          <span>
+            <i className="miss" />
+            {locale === "en" ? "Miss" : locale === "ja" ? "不一致" : "不符"}
+          </span>
+          <span>
+            ↑ ↓{" "}
+            {locale === "en"
+              ? "answer is newer / older"
+              : locale === "ja"
+                ? "正解の版が新しい / 古い"
+                : "答案版本更晚 / 更早"}
+          </span>
+        </p>
+      ) : null}
       {sharePreview ? (
         <ShareResultDialog
           imageUrl={sharePreview.imageUrl}
@@ -1103,7 +1201,12 @@ export function ModeGamePage({
             onRetryOfflinePack: () => void offlinePack.retry(),
           }
         : {})}
-      onStart={() => (offlinePack.online ? void session.start() : session.startOffline())}
+      onStart={() => {
+        // 跃迁：开始今日题时径向拉长 + 沿 z 轴飞行。
+        fx.warp();
+        if (offlinePack.online) void session.start();
+        else session.startOffline();
+      }}
       onRetry={retry}
       onOffline={() => session.startOffline()}
       onReplayTutorial={replayTutorial}

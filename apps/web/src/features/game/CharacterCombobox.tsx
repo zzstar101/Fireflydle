@@ -13,6 +13,7 @@ export function CharacterCombobox({
   disabled,
   onSubmit,
   entityLabel,
+  label,
   showImages = true,
 }: {
   characters: readonly GameEntitySummary[];
@@ -22,6 +23,8 @@ export function CharacterCombobox({
   disabled: boolean;
   onSubmit: (characterId: string) => void;
   entityLabel?: string;
+  /** 覆盖输入框上方的可见标签（例如「第 3 猜：角色名、英文或拼音」）。 */
+  label?: string;
   showImages?: boolean;
 }) {
   const { t } = useTranslation();
@@ -77,7 +80,7 @@ export function CharacterCombobox({
   return (
     <div className="guess-composer">
       <label className="combobox-label" htmlFor="character-search">
-        {entityLabel ?? t("game.prompt")}
+        {label ?? entityLabel ?? t("game.prompt")}
       </label>
       <div className="combobox-row">
         <div className="character-combobox">

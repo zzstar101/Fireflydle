@@ -1,4 +1,3 @@
-import { ArrowDown, ArrowUp, Check, CircleDot, CloudFog, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type {
   FieldDefinition,
@@ -21,13 +20,20 @@ const legacyFields = selectSnapshotFieldDefinitions(
   contentManifest.modes.find((mode) => mode.id === "playable")?.fields ?? [],
 );
 
+// v2 规定状态不只靠颜色：一致 ✓、接近 ≈、不符 ✗，未知字段用 ?。
+const STATE_GLYPH: Record<string, string> = {
+  exact: "✓",
+  close: "≈",
+  unavailable: "?",
+  fog: "?",
+};
+
 function StatusIcon({ cell }: { cell: GuessCell }) {
-  if (cell.state === "fog") return <CloudFog size={17} aria-hidden="true" />;
-  if (cell.direction === "higher") return <ArrowUp size={17} aria-hidden="true" />;
-  if (cell.direction === "lower") return <ArrowDown size={17} aria-hidden="true" />;
-  if (cell.state === "exact") return <Check size={17} aria-hidden="true" />;
-  if (cell.state === "close") return <CircleDot size={16} aria-hidden="true" />;
-  return <X size={16} aria-hidden="true" />;
+  return (
+    <span className="feedback-glyph" aria-hidden="true">
+      {STATE_GLYPH[cell.state] ?? "✗"}
+    </span>
+  );
 }
 
 function cellValue(

@@ -1,0 +1,142 @@
+/*
+ * 结算 · 推理回放（docs/design/redesign-v2/README.md §3）。
+ *
+ * 性能硬要求：92 个头像只允许动 transform / opacity。
+ * 位置信息放在内联自定义属性 --replay-left / --replay-top 里，
+ * 单位是 cqw / cqh（舞台是 size container，1cqw = 舞台宽度的 1%），
+ * 由 transform: translate(...) 消费，不碰 width / height / left / top，
+ * 所以重新排布不会触发逐帧重排。
+ */
+
+.replay {
+  display: grid;
+  gap: 12px;
+}
+
+.replay-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.replay-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+.replay-counter b {
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.replay-skip {
+  flex: none;
+  padding: 6px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.replay-skip:hover {
+  border-color: var(--lit);
+  color: var(--lit);
+}
+
+.replay-skip:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 2px;
+}
+
+.replay-stage {
+  position: relative;
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(circle at 50% 50%, rgb(144 119 238 / 12%), transparent 62%), var(--panel);
+  /* 头像的 cqw / cqh 就量这个盒子；尺寸由 width + aspect-ratio 决定，
+     与内容无关，所以 size containment 不会造成塌陷。 */
+  container-type: size;
+}
+
+.replay-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 1;
+  /* 坠落的位移与翻转角，可在此统一调参。 */
+  --replay-fall: 18cqh;
+  --replay-tilt: 16deg;
+  /* -50% 把 38px 的头像摆到格点中心；cqw / cqh 把它放到舞台的百分比位置。
+     这里刻意不写 will-change：92 个常驻图层反而更吃内存。 */
+  transform: translate(calc(var(--replay-left) - 50%), calc(var(--replay-top) - 50%));
+  transition:
+    transform 620ms var(--motion-ease),
+    opacity 420ms var(--motion-ease);
+  transition-delay: var(--replay-delay, 0ms);
+}
+
+/* 被淘汰：向下坠落、轻微翻转并淡出；保留在原格点上，让下降从原地开始。 */
+.replay-avatar.is-fallen {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(
+      calc(var(--replay-left) - 50%),
+      calc(var(--replay-top) - 50% + var(--replay-fall))
+    )
+    rotate(var(--replay-tilt));
+}
+
+/* 只剩最后一位候选：给他一圈金光。雪碧图格子与头像组件都要覆盖。 */
+.replay-avatar.is-lone .character-avatar,
+.replay-avatar.is-lone .replay-avatar-art {
+  border-color: var(--lit);
+  box-shadow:
+    0 0 0 2px rgb(242 205 122 / 32%),
+    0 0 28px rgb(242 205 122 / 28%);
+}
+
+/* 雪碧图取格：一张图里 93 个头像只请求一次。尺寸与圆角对齐 CharacterAvatar 的 size="small"。 */
+.replay-avatar-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 12px;
+  background-repeat: no-repeat;
+}
+
+.replay-avatar-art::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  content: "";
+  background: var(--avatar-accent, var(--lit));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .replay-avatar {
+    transition: none;
+  }
+}

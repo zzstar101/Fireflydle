@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { ArrowUp, Check, CircleDot, GraduationCap, X } from "lucide-react";
+import { Check, GraduationCap } from "lucide-react";
 import type { Locale } from "@fireflydle/contracts";
 
 const copy = {
@@ -14,8 +14,8 @@ const copy = {
     path: "命途",
     faction: "阵营",
     version: "版本 2.1",
-    exact: "绿色：完全一致",
-    close: "黄色：部分接近",
+    exact: "金色：完全一致",
+    close: "紫色：部分接近",
     miss: "灰色：不一致",
     direction: "目标版本更高",
     skip: "跳过教学",
@@ -33,8 +33,8 @@ const copy = {
     path: "Path",
     faction: "Faction",
     version: "Version 2.1",
-    exact: "Green: exact match",
-    close: "Yellow: close match",
+    exact: "Gold: exact match",
+    close: "Violet: close match",
     miss: "Gray: no match",
     direction: "Target version is higher",
     skip: "Skip tutorial",
@@ -52,8 +52,8 @@ const copy = {
     path: "運命",
     faction: "陣営",
     version: "Ver. 2.1",
-    exact: "緑：完全一致",
-    close: "黄：一部一致",
+    exact: "金：完全一致",
+    close: "紫：一部一致",
     miss: "灰：不一致",
     direction: "正解のバージョンは上",
     skip: "ガイドをスキップ",
@@ -136,19 +136,31 @@ export function PlayableTutorial({
           <div className="tutorial-example" aria-label={labels.spoiler}>
             <strong>{labels.character}</strong>
             <span className="tutorial-state-exact">
-              <Check size={15} aria-hidden="true" /> {labels.element}
+              <span className="feedback-glyph" aria-hidden="true">
+                ✓
+              </span>{" "}
+              {labels.element}
               <small>{labels.exact}</small>
             </span>
             <span className="tutorial-state-close">
-              <CircleDot size={15} aria-hidden="true" /> {labels.path}
+              <span className="feedback-glyph" aria-hidden="true">
+                ≈
+              </span>{" "}
+              {labels.path}
               <small>{labels.close}</small>
             </span>
             <span className="tutorial-state-miss">
-              <X size={15} aria-hidden="true" /> {labels.faction}
+              <span className="feedback-glyph" aria-hidden="true">
+                ✗
+              </span>{" "}
+              {labels.faction}
               <small>{labels.miss}</small>
             </span>
             <span className="tutorial-state-direction">
-              <ArrowUp size={15} aria-hidden="true" /> {labels.version}
+              <span className="feedback-glyph" aria-hidden="true">
+                ↑
+              </span>{" "}
+              {labels.version}
               <small>{labels.direction}</small>
             </span>
           </div>
