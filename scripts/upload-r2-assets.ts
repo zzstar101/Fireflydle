@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
@@ -132,6 +132,16 @@ function manifestPathToR2Key(path: string): string {
  */
 function manifestPathToLocalPath(path: string): string {
   return join(assetsDir, manifestPathToR2Key(path));
+}
+
+/**
+ * 本地素材是否存在。
+ *
+ * manifest 里登记的 path 对应到本地文件；缺失时提前失败，
+ * 避免上传到一半才发现忘记运行 assets:build / assets:art。
+ */
+async function localFileExists(path: string): Promise<boolean> {
+  return (await stat(path).catch(() => null)) !== null;
 }
 
 /**
@@ -457,6 +467,25 @@ async function main(): Promise<void> {
     const entries = createUploadEntries(manifest);
 
     console.log(`本地 manifest：${entries.length} 个素材。`);
+
+    // 高清角色图（character-art）和响应式变体一样由 manifest 驱动：
+    // 缺失时先提示生成命令，而不是让 Wrangler 逐个报文件不存在。
+    const missing = [];
+
+    for (const entry of entries) {
+      if (!(await localFileExists(entry.localPath))) {
+        missing.push(entry.key);
+      }
+    }
+
+    if (missing.length > 0) {
+      const preview = missing.slice(0, 5).join("、");
+
+      throw new Error(
+        `有 ${missing.length} 个素材在本地缺失：${preview}${missing.length > 5 ? " 等" : ""}。` +
+          "请先运行 bun run assets:build 与 bun run assets:art 生成素材。",
+      );
+    }
 
     const previousState = await loadRemoteState(tempDir);
 
