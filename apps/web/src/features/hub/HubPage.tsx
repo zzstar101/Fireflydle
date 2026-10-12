@@ -1,60 +1,69 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import {
-  ArrowUpRight,
-  CalendarDays,
-  Clock3,
-  Coins,
-  Infinity,
-  RadioTower,
-  Shuffle,
-  Sparkles,
-  Swords,
-  Trophy,
-} from "lucide-react";
-import type { PersonalStats, PublicGame } from "@fireflydle/contracts";
+import { ArrowRight, Clock3, RadioTower } from "lucide-react";
+import type { PersonalStats, WeeklyRun } from "@fireflydle/contracts";
 import { getWeeklyModeId } from "@fireflydle/game-engine";
 import { apiRequest } from "../../api/client";
-import { useCurrentGames } from "../game/useCurrentGames";
-import { getDefaultModeNavigation } from "../modes/mode-registry";
-import { usePreferences } from "../../state/preferences";
 import { useNetworkStatus } from "../../offline/network-status";
 import { useSpecialModePack, type SpecialModePackState } from "../../offline/use-special-mode-pack";
+import { usePreferences } from "../../state/preferences";
+import { useCurrentGames } from "../game/useCurrentGames";
+import { ModeArt, type ModeArtKind } from "../modes/ModeArt";
+import { getDefaultModeNavigation } from "../modes/mode-registry";
+import {
+  beijingDateKey,
+  beijingDaysLeftInWeek,
+  beijingWeekKeys,
+  dailyIssueNumber,
+  formatCountdown,
+  millisecondsUntilBeijingMidnight,
+} from "./daily-issue";
+import { useHeroStarfield } from "./use-hero-starfield";
 import "./hub.css";
 
-type HubMode = "daily" | "practice" | "endless" | "duel" | "currency-wars" | "aeon" | "weekly";
+type HubLocale = "zh-CN" | "en" | "ja";
+
+/** 每日题固定 6 次机会；服务端还没返回对局时用这个值占位。 */
+const DAILY_ATTEMPTS = 6;
+/** 无尽模式的初始生命条数，纯规则展示。 */
+const ENDLESS_LIVES = 5;
+/** 与 beijingWeekKeys 的顺序一一对应。 */
+const WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
 const dailyActivity = getDefaultModeNavigation("daily");
 const practiceActivity = getDefaultModeNavigation("practice");
 const endlessActivity = getDefaultModeNavigation("endless");
 const duelActivity = getDefaultModeNavigation("duel");
 
-function formatTime(milliseconds: number): string {
-  const total = Math.max(0, Math.floor(milliseconds / 1000));
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const seconds = total % 60;
-  return [hours, minutes, seconds]
-    .slice(hours > 0 ? 0 : 1)
-    .map((value) => value.toString().padStart(2, "0"))
-    .join(":");
+/**
+ * 卡片进入视口时打开装饰动画（README §7：动画只在卡片可见时运行）。
+ * 不支持 IntersectionObserver 时直接算可见，保证静态几何一致。
+ */
+function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) setVisible(entry.isIntersecting);
+      },
+      { rootMargin: "80px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return { ref, visible };
 }
 
-function millisecondsUntilBeijingMidnight(now: number): number {
-  const shifted = new Date(now + 8 * 60 * 60 * 1_000);
-  const next =
-    Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate() + 1) -
-    8 * 60 * 60 * 1_000;
-  return Math.max(0, next - now);
-}
-
-function elapsedFor(game: PublicGame, now: number): number {
-  return game.status === "active" ? now - Date.parse(game.startedAt) : game.elapsedMs;
-}
-
-function packStatus(locale: "zh-CN" | "en" | "ja", state: SpecialModePackState): string {
+function packStatus(locale: HubLocale, state: SpecialModePackState): string {
   if (state === "ready")
     return locale === "en" ? "Offline ready" : locale === "ja" ? "オフライン利用可" : "可离线使用";
   if (state === "checking")
@@ -66,124 +75,129 @@ function packStatus(locale: "zh-CN" | "en" | "ja", state: SpecialModePackState):
       : "需联网打开一次";
 }
 
-function ModeBoard({
+function formatAverage(value: number | undefined): string {
+  if (!value) return "0";
+  return value.toFixed(1);
+}
+
+function formatDateLabel(locale: HubLocale, dateKey: string): string {
+  const parsed = Date.parse(`${dateKey}T00:00:00.000Z`);
+  if (!Number.isFinite(parsed)) return dateKey;
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(parsed);
+}
+
+function HubModeCard({
   mode,
+  kind,
   to,
-  icon,
-  status,
+  badge,
   title,
   description,
-  metricLabel,
-  metricValue,
-  action,
-  active = false,
+  metric,
   disabled = false,
 }: {
-  mode: HubMode;
+  mode: string;
+  kind: ModeArtKind;
   to: string;
-  icon: ReactNode;
-  status: string;
+  badge: string;
   title: string;
   description: string;
-  metricLabel: string;
-  metricValue: string;
-  action: string;
-  active?: boolean;
+  metric: ReactNode;
   disabled?: boolean;
 }) {
-  const content = (
+  const { ref, visible } = useReveal<HTMLDivElement>();
+  const body = (
     <>
-      <div className="mode-board-head">
-        <span className="mode-index">
-          0
-          {mode === "daily"
-            ? 1
-            : mode === "practice"
-              ? 2
-              : mode === "endless"
-                ? 3
-                : mode === "duel"
-                  ? 3
-                  : mode === "currency-wars"
-                    ? 4
-                    : 5}
-        </span>
-        <span className="mode-status">
-          <i /> {status}
-        </span>
-      </div>
-      <div className="mode-symbol" aria-hidden="true">
-        {icon}
-      </div>
-      <h2>{title}</h2>
-      <p>{description}</p>
-      <div className="mode-metric">
-        <span>{metricLabel}</span>
-        <strong>{metricValue}</strong>
-      </div>
-      <span className="mode-action">
-        {action} <ArrowUpRight size={18} aria-hidden="true" />
+      <span className="mode-board-badge">{badge}</span>
+      <span className="mode-board-art" aria-hidden="true">
+        <ModeArt kind={kind} />
+      </span>
+      <strong className="mode-board-title">{title}</strong>
+      <span className="mode-board-description">{description}</span>
+      <span className="mode-board-metric">{metric}</span>
+      <span className="mode-board-go" aria-hidden="true">
+        <ArrowRight size={18} />
       </span>
     </>
   );
-
-  const className = `mode-board mode-${mode}${active ? " is-active" : ""}${disabled ? " is-disabled" : ""}`;
-  return disabled ? (
-    <article className={className} aria-disabled="true">
-      {content}
-    </article>
-  ) : (
-    <Link className={className} to={to} aria-label={`${title}，${status}，${action}`}>
-      {content}
-    </Link>
+  const className = `mode-board mode-${mode}`;
+  return (
+    <div className="hub-card-shell" ref={ref}>
+      {disabled ? (
+        <div className={`${className} is-disabled`} data-visible="false" aria-disabled="true">
+          {body}
+        </div>
+      ) : (
+        <Link className={className} data-visible={visible ? "true" : "false"} to={to}>
+          {body}
+        </Link>
+      )}
+    </div>
   );
 }
 
-function SecondaryLink({
+function HubRow({
   to,
-  icon,
+  kind,
   title,
   detail,
   disabled = false,
 }: {
   to: string;
-  icon: ReactNode;
+  kind: ModeArtKind;
   title: string;
   detail: string;
   disabled?: boolean;
 }) {
-  const content = (
+  const { ref, visible } = useReveal<HTMLDivElement>();
+  const body = (
     <>
-      <span className="secondary-link-icon" aria-hidden="true">
-        {icon}
+      <span className="hub-secondary-icon" aria-hidden="true">
+        <ModeArt kind={kind} />
       </span>
       <strong>{title}</strong>
-      <span>{detail}</span>
-      <ArrowUpRight className="secondary-link-arrow" size={16} aria-hidden="true" />
+      <span className="hub-secondary-detail">{detail}</span>
+      <span className="hub-secondary-go" aria-hidden="true">
+        <ArrowRight size={18} />
+      </span>
     </>
   );
-  return disabled ? (
-    <div className="hub-secondary-link is-disabled" aria-disabled="true">
-      {content}
+  return (
+    <div className="hub-row-shell" ref={ref}>
+      {disabled ? (
+        <div className="hub-secondary-link is-disabled" data-visible="false" aria-disabled="true">
+          {body}
+        </div>
+      ) : (
+        <Link className="hub-secondary-link" data-visible={visible ? "true" : "false"} to={to}>
+          {body}
+        </Link>
+      )}
     </div>
-  ) : (
-    <Link className="hub-secondary-link" to={to}>
-      {content}
-    </Link>
   );
 }
 
 export default function HubPage() {
   const { t } = useTranslation();
-  const locale = usePreferences((state) => state.language);
+  const locale = usePreferences((state) => state.language) as HubLocale;
   const online = useNetworkStatus();
   const currencyWarsPack = useSpecialModePack("currency-wars");
   const aeonPack = useSpecialModePack("aeon");
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const currentGames = useCurrentGames(online);
   const stats = useQuery({
     queryKey: ["stats", "hub"],
     queryFn: () => apiRequest<PersonalStats>("/stats/me"),
+    enabled: online && currentGames.isSuccess,
+    retry: false,
+  });
+  const weekly = useQuery({
+    queryKey: ["weekly", "current"],
+    queryFn: () => apiRequest<WeeklyRun | null>("/weekly/runs/current"),
     enabled: online && currentGames.isSuccess,
     retry: false,
   });
@@ -192,213 +206,236 @@ export default function HubPage() {
     return () => window.clearInterval(interval);
   }, []);
 
+  const brand = t("brand.name");
+  useHeroStarfield({ text: brand });
+
   const daily = currentGames.data?.daily ?? null;
-  const weeklyModeId = getWeeklyModeId(now);
-  const weeklyModeLabel =
-    weeklyModeId === "playable"
-      ? locale === "en"
-        ? "Characters"
-        : locale === "ja"
-          ? "キャラクター"
-          : "普通角色"
-      : weeklyModeId === "currency-wars"
-        ? locale === "en"
-          ? "Currency Wars"
-          : locale === "ja"
-            ? "コイン戦争"
-            : "货币战争"
-        : locale === "en"
-          ? "Aeons"
-          : "星神";
+  const dateKey = currentGames.data?.dateKey ?? beijingDateKey(now);
+  const todayKey = beijingDateKey(now);
+  const issue = dailyIssueNumber(dateKey);
+  const countdown = formatCountdown(millisecondsUntilBeijingMidnight(now));
+  const attempts = daily?.maxAttempts ?? DAILY_ATTEMPTS;
+
   const serviceOnline = online && currentGames.isSuccess;
   const serviceChecking = online && currentGames.isPending;
   const dailyStatus = serviceChecking
     ? t("hub.statusSyncing")
     : daily?.status === "active"
-      ? t("hub.statusProgress", { current: daily.guesses.length, total: daily.maxAttempts })
+      ? t("hub.statusProgress", { current: daily.guesses.length, total: attempts })
       : daily
         ? t("hub.statusCompleted")
         : t("hub.statusNotStarted");
-  const dailyMetric = daily
-    ? t("hub.gameSummary", {
-        guesses: daily.guesses.length,
-        time: formatTime(elapsedFor(daily, now)),
-      })
-    : t("hub.streakValue", { count: stats.data?.currentStreak ?? 0 });
+  const dailyHref = dailyActivity
+    ? daily
+      ? `${dailyActivity.path}?game=${daily.id}`
+      : dailyActivity.path
+    : "/playable/daily";
+  const dailyAction =
+    daily?.status === "active"
+      ? t("hub.continueToday")
+      : daily
+        ? t("hub.viewToday")
+        : t("hub.startToday");
+
+  const history = new Map((stats.data?.dailyHistory ?? []).map((entry) => [entry.dateKey, entry]));
+  const yesterdayKey = beijingDateKey(now - 24 * 60 * 60 * 1_000);
+  const yesterday = history.get(yesterdayKey) ?? null;
+
+  const weekKeys = beijingWeekKeys(now);
+  const weeklyRun = weekly.data ?? null;
+  const weeklyDaysLeft = weeklyRun
+    ? Math.max(0, Math.ceil((Date.parse(weeklyRun.weekEndsAt) - now) / (24 * 60 * 60 * 1_000)))
+    : beijingDaysLeftInWeek(now);
+  const weeklyModeId = getWeeklyModeId(now);
+
   return (
     <main className="hub-page">
-      <section className="hub-intro" aria-labelledby="hub-title">
-        <div className="hub-particles" aria-hidden="true">
-          {Array.from({ length: 6 }, (_, index) => (
-            <i key={index} style={{ ["--particle-index" as string]: index }} />
-          ))}
-        </div>
-        <div className="hub-ambient" aria-hidden="true">
-          {Array.from({ length: 3 }, (_, index) => (
-            <i key={index} style={{ ["--ambient-index" as string]: index }} />
-          ))}
-        </div>
-        <div className="hub-orbit" aria-hidden="true">
-          <span />
-          <i />
-          <span />
-        </div>
-        <p className="eyebrow">{t("hub.eyebrow")}</p>
-        <h1 id="hub-title">{t("hub.title")}</h1>
-        <p>{t("hub.intro")}</p>
-      </section>
-
-      <div className="hub-section-heading">
-        <span>01</span>
-        <div>
-          <h2>
-            {locale === "zh-CN" ? "核心入口" : locale === "ja" ? "メインモード" : "Main modes"}
-          </h2>
-          <p>
-            {locale === "zh-CN"
-              ? "从这里开始一局游戏"
-              : locale === "ja"
-                ? "ここからゲームを始めます"
-                : "Start a game here"}
+      <section className="hub-hero" aria-labelledby="hub-title">
+        <div className="hub-hero-copy">
+          {/* 粒子字只在 WebGL 可用且未减少动效时存在；降级时用同字号的 DOM 文字补上品牌字，
+              否则首屏会剩下一大块空白。 */}
+          <p className="hub-hero-brand" aria-hidden="true">
+            {brand}
+          </p>
+          <span className="hub-badge">
+            <i aria-hidden="true" />
+            {t("hub.dailyIssue", { number: issue })}
+            <span aria-hidden="true">·</span>
+            {dailyStatus}
+          </span>
+          <h1 id="hub-title">{t("hub.heroTitle")}</h1>
+          <p className="hub-hero-intro">
+            <Trans
+              i18nKey="hub.heroIntro"
+              values={{ attempts, time: countdown }}
+              components={{ time: <b className="num" /> }}
+            />
           </p>
         </div>
-      </div>
-      <section className="mode-board-grid mode-board-grid-primary" aria-label={t("hub.modesLabel")}>
-        {dailyActivity ? (
-          <ModeBoard
-            mode="daily"
-            to={daily ? `${dailyActivity.path}?game=${daily.id}` : dailyActivity.path}
-            icon={<CalendarDays size={30} />}
-            status={dailyStatus}
-            title={t("game.daily")}
-            description={t("hub.dailyDescription")}
-            metricLabel={daily ? t("hub.currentRecord") : t("home.streak")}
-            metricValue={dailyMetric}
-            action={
-              daily?.status === "active"
-                ? t("hub.continueGame")
-                : daily
-                  ? t("hub.viewResult")
-                  : t("hub.startDaily")
-            }
-            active={daily?.status === "active"}
-            disabled={!online}
-          />
-        ) : null}
-        {practiceActivity ? (
-          <ModeBoard
-            mode="practice"
-            to={practiceActivity.path}
-            icon={<Shuffle size={30} />}
-            status={locale === "en" ? "READY" : locale === "ja" ? "準備完了" : "随时可玩"}
-            title={
-              locale === "en" ? "Normal challenge" : locale === "ja" ? "通常チャレンジ" : "普通挑战"
-            }
-            description={
-              locale === "en"
-                ? "Practice one character at a time with the full feedback rules."
-                : locale === "ja"
-                  ? "完全なヒントルールでキャラクター問題を1問ずつ練習します。"
-                  : "使用完整提示规则，逐题练习普通角色。"
-            }
-            metricLabel={t("game.attempts")}
-            metricValue="6"
-            action={t("hub.startRandom")}
-          />
-        ) : null}
-        {endlessActivity ? (
-          <ModeBoard
-            mode="endless"
-            to={endlessActivity.path}
-            icon={<Infinity size={30} />}
-            status={locale === "en" ? "5 lives" : locale === "ja" ? "5 ライフ" : "5 条命"}
-            title={
-              locale === "en"
-                ? "Endless challenge"
-                : locale === "ja"
-                  ? "エンドレス挑戦"
-                  : "无尽挑战"
-            }
-            description={
-              locale === "en"
-                ? "Keep the streak alive across a shuffle bag of characters."
-                : locale === "ja"
-                  ? "シャッフルされた問題を、ライフが尽きるまで続けます。"
-                  : "在洗牌题袋中持续猜题，直到生命耗尽。"
-            }
-            metricLabel={locale === "en" ? "LIVES" : locale === "ja" ? "ライフ" : "生命"}
-            metricValue="5"
-            action={locale === "en" ? "Start endless" : locale === "ja" ? "開始" : "开始无尽"}
-            active={false}
-          />
-        ) : null}
+        <div className="hub-hero-side">
+          <dl className="hub-metrics">
+            <div>
+              <dt>{t("hub.metricStreak")}</dt>
+              <dd className="num">{stats.data?.currentStreak ?? 0}</dd>
+            </div>
+            <div>
+              <dt>{t("hub.metricSolvedToday")}</dt>
+              <dd className="num">{stats.data?.todayCompletions ?? 0}</dd>
+            </div>
+            <div>
+              <dt>{t("hub.metricAverage")}</dt>
+              <dd className="num">{formatAverage(stats.data?.averageGuesses)}</dd>
+            </div>
+          </dl>
+          <p className="hub-yesterday">
+            <span className="hub-yesterday-label">{t("hub.yesterday")}</span>
+            {yesterday ? (
+              <>
+                <strong>{formatDateLabel(locale, yesterday.dateKey)}</strong>
+                <span aria-hidden="true">·</span>
+                <span>
+                  {yesterday.result === "won"
+                    ? t("hub.yesterdaySolved", { guesses: yesterday.guesses })
+                    : t("hub.yesterdayFailed")}
+                </span>
+              </>
+            ) : (
+              <span>{t("hub.yesterdayEmpty")}</span>
+            )}
+          </p>
+          <Link className="hub-cta" to={dailyHref}>
+            {dailyAction}
+            <ArrowRight size={20} aria-hidden="true" />
+          </Link>
+        </div>
       </section>
 
-      <div className="hub-section-heading hub-section-heading-secondary">
-        <span>02</span>
-        <div>
-          <h2>
-            {locale === "zh-CN" ? "更多玩法" : locale === "ja" ? "その他のモード" : "More modes"}
-          </h2>
-          <p>
-            {locale === "zh-CN"
-              ? "活动、对战与收藏玩法"
-              : locale === "ja"
-                ? "イベント、対戦、コレクション"
-                : "Events, duels, and collections"}
-          </p>
+      <section className="hub-block" aria-labelledby="hub-open-round">
+        <header className="hub-block-head">
+          <h2 id="hub-open-round">{t("hub.openRound")}</h2>
+          <p>{t("hub.openRoundHint")}</p>
+        </header>
+        <div className="mode-board-grid">
+          {practiceActivity ? (
+            <HubModeCard
+              mode="practice"
+              kind="practice"
+              to={practiceActivity.path}
+              badge={t("hub.badgeUnranked")}
+              title={t("hub.modePractice")}
+              description={t("hub.practiceDescription")}
+              metric={t("hub.practiceRuns", { count: stats.data?.practicePlayed ?? 0 })}
+            />
+          ) : null}
+          {endlessActivity ? (
+            <HubModeCard
+              mode="endless"
+              kind="endless"
+              to={endlessActivity.path}
+              badge={t("hub.badgeLives")}
+              title={t("hub.modeEndless")}
+              description={t("hub.endlessDescription")}
+              metric={
+                <span className="hub-lives" aria-hidden="true">
+                  {Array.from({ length: ENDLESS_LIVES }, (_, index) => (
+                    <i key={index} />
+                  ))}
+                </span>
+              }
+            />
+          ) : null}
+          <HubModeCard
+            mode="weekly"
+            kind="weekly"
+            to={`/${weeklyModeId}/weekly`}
+            badge={t("hub.badgeWeeklyDays", { count: weeklyDaysLeft })}
+            title={t("hub.modeWeekly")}
+            description={t("hub.weeklyDescription")}
+            metric={t("hub.weekProgress", {
+              done: weeklyRun?.correctCount ?? 0,
+              total: weeklyRun?.questionCount ?? 5,
+            })}
+          />
+          <HubModeCard
+            mode="duel"
+            kind="duel"
+            to={duelActivity?.path ?? "/playable/duel"}
+            badge={serviceOnline ? t("hub.statusReady") : t("hub.statusUnavailable")}
+            title={t("hub.modeDuel")}
+            description={t("hub.duelDescription")}
+            metric={t("hub.duelFormat")}
+            disabled={!online || (!serviceChecking && !serviceOnline)}
+          />
         </div>
-      </div>
-      <section
-        className="hub-secondary-grid"
-        aria-label={locale === "zh-CN" ? "更多玩法" : "More modes"}
-      >
-        <SecondaryLink
-          to={`/${weeklyModeId}/weekly`}
-          icon={<Trophy size={20} />}
-          title={locale === "en" ? "Weekly" : locale === "ja" ? "ウィークリー" : "周赛"}
-          detail={`${weeklyModeLabel} · 5 ${locale === "zh-CN" ? "题" : "questions"}`}
-        />
-        <SecondaryLink
-          to={duelActivity?.path ?? "/playable/duel"}
-          icon={<Swords size={20} />}
-          title={t("nav.duel")}
-          detail={serviceOnline ? t("hub.statusReady") : t("hub.statusUnavailable")}
-          disabled={!online || (!serviceChecking && !serviceOnline)}
-        />
-        <SecondaryLink
-          to="/currency-wars/practice"
-          icon={<Coins size={20} />}
-          title={locale === "en" ? "Currency Wars" : locale === "ja" ? "コイン戦争" : "货币战争"}
-          detail={packStatus(locale, currencyWarsPack.state)}
-          disabled={!online && currencyWarsPack.state !== "ready"}
-        />
-        <SecondaryLink
-          to="/aeon/practice"
-          icon={<Sparkles size={20} />}
-          title={locale === "en" ? "Aeons" : "星神"}
-          detail={packStatus(locale, aeonPack.state)}
-          disabled={!online && aeonPack.state !== "ready"}
-        />
-        <SecondaryLink
-          to="/playable/portrait"
-          icon={<Infinity size={20} />}
-          title={
-            locale === "zh-CN"
-              ? "立绘挑战"
-              : locale === "ja"
-                ? "立ち絵チャレンジ"
-                : "Portrait challenge"
-          }
-          detail={locale === "zh-CN" ? "单局、无尽与时装" : "Practice, endless, and skins"}
-        />
+      </section>
+
+      <section className="hub-block" aria-labelledby="hub-more-ways">
+        <header className="hub-block-head">
+          <h2 id="hub-more-ways">{t("hub.moreWays")}</h2>
+          <p>{t("hub.moreWaysHint")}</p>
+        </header>
+        <div className="hub-secondary-grid">
+          <HubRow
+            to="/playable/portrait"
+            kind="portrait"
+            title={t("hub.modePortrait")}
+            detail={t("hub.modePortraitHint")}
+          />
+          <HubRow
+            to="/currency-wars/practice"
+            kind="currency-wars"
+            title={t("hub.modeCurrencyWars")}
+            detail={`${t("hub.modeCurrencyWarsHint")} · ${packStatus(locale, currencyWarsPack.state)}`}
+            disabled={!online && currencyWarsPack.state !== "ready"}
+          />
+          <HubRow
+            to="/aeon/practice"
+            kind="aeon"
+            title={t("hub.modeAeon")}
+            detail={`${t("hub.modeAeonHint")} · ${packStatus(locale, aeonPack.state)}`}
+            disabled={!online && aeonPack.state !== "ready"}
+          />
+        </div>
+      </section>
+
+      <section className="hub-block" aria-labelledby="hub-this-week">
+        <header className="hub-block-head">
+          <h2 id="hub-this-week">{t("hub.thisWeek")}</h2>
+          <p>{t("hub.beijingTime")}</p>
+        </header>
+        <ol className="hub-week">
+          {weekKeys.map((key, index) => {
+            const entry = history.get(key) ?? null;
+            const isToday = key === todayKey;
+            const won = entry?.result === "won";
+            return (
+              <li className={`hub-week-day${isToday ? " is-today" : ""}`} key={key}>
+                <span className="hub-week-name">
+                  {isToday ? t("hub.today") : t(`hub.weekday.${WEEKDAY_KEYS[index]}`)}
+                </span>
+                <strong className="num">
+                  {entry
+                    ? won
+                      ? `${entry.guesses}/${DAILY_ATTEMPTS}`
+                      : `X/${DAILY_ATTEMPTS}`
+                    : "—"}
+                </strong>
+                <span className="hub-week-bars" aria-hidden="true">
+                  {Array.from({ length: DAILY_ATTEMPTS }, (_, bar) => (
+                    <i key={bar} className={won && bar < entry.guesses ? "is-on" : undefined} />
+                  ))}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
       </section>
 
       <section className="station-status" aria-label={t("hub.stationStatus")}>
         <div>
           <Clock3 size={16} aria-hidden="true" />
           <span>{t("hub.nextReset")}</span>
-          <strong className="mono">{formatTime(millisecondsUntilBeijingMidnight(now))}</strong>
+          <strong className="num">{countdown}</strong>
         </div>
         <div className={online ? "status-online" : "status-offline"}>
           <RadioTower size={16} aria-hidden="true" />
