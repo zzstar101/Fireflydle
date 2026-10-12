@@ -24,7 +24,8 @@ function initialLanguage(): Locale {
 export const usePreferences = create<PreferencesState>()(
   persist(
     (set) => ({
-      theme: "system",
+      // 星穹主题以深色为基准；浅色需要玩家显式切换。
+      theme: "dark",
       language: initialLanguage(),
       collectionRewardId: null,
       collectionRewardImage: null,

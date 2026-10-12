@@ -13,10 +13,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--text);
-  background:
-    radial-gradient(circle at 75% -5%, rgb(121 215 232 / 9%), transparent 28rem),
-    radial-gradient(circle at 8% 25%, rgb(216 182 107 / 6%), transparent 30rem),
-    linear-gradient(180deg, var(--canvas-deep) 0, var(--canvas) 20rem, var(--canvas) 100%);
+  background: var(--bg);
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
@@ -24,18 +21,56 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 星云底色：WebGL 星空加载前 / 不支持时的兜底，WebGL 画布叠在其上 */
 body::before {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   content: "";
   pointer-events: none;
-  opacity: 0.42;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 1.8%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 1.4%) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: linear-gradient(to bottom, black, transparent 76%);
+  background:
+    radial-gradient(60rem 40rem at 88% 92%, rgb(118 84 220 / 22%), transparent 70%),
+    radial-gradient(48rem 32rem at 70% 70%, rgb(54 72 190 / 16%), transparent 70%),
+    radial-gradient(40rem 30rem at 6% 4%, rgb(60 90 200 / 14%), transparent 70%),
+    linear-gradient(180deg, #03050f, var(--bg) 40%, #070a1e);
+}
+
+:root[data-theme="light"] body::before {
+  background: linear-gradient(180deg, #efe9da, var(--bg));
+}
+
+/* ?nogl 时没有 WebGL 烘焙的星云，兜底渐变要更实一些，否则页面会塌成纯色。 */
+:root[data-gl="off"] body::before {
+  background:
+    radial-gradient(52rem 34rem at 24% 14%, rgb(126 92 224 / 30%), transparent 68%),
+    radial-gradient(44rem 30rem at 84% 78%, rgb(96 72 210 / 26%), transparent 68%),
+    radial-gradient(38rem 26rem at 22% 88%, rgb(60 84 190 / 20%), transparent 70%),
+    linear-gradient(180deg, #060a1c, var(--bg) 42%, #080c22);
+}
+
+.starfield-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms var(--ease);
+}
+
+.starfield-canvas.is-ready {
+  opacity: 1;
+}
+
+:root[data-theme="light"] .starfield-canvas {
+  display: none;
+}
+
+.num,
+.tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 button,
@@ -78,28 +113,29 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 h1 {
   margin-bottom: 16px;
-  font-size: clamp(2.4rem, 5vw, 5rem);
-  line-height: 1.04;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 1.08;
 }
 
 h2 {
-  font-size: clamp(1.45rem, 2.4vw, 2.25rem);
-  line-height: 1.15;
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  line-height: 1.2;
 }
 
 button:focus-visible,
 a:focus-visible,
 select:focus-visible,
-input:focus-visible,
+input:focus-visible:not(.sr-composer input),
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid rgb(121 215 232 / 72%) !important;
+  /* .sr-composer 的输入框由外层 .combobox-row:focus-within 光晕充当焦点指示 */
+  outline: 2px solid rgb(242 205 122 / 80%) !important;
   outline-offset: 3px;
 }
 
@@ -183,9 +219,11 @@ textarea:focus-visible,
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--canvas-deep) 86%, transparent);
-  backdrop-filter: blur(18px) saturate(130%);
+  background: linear-gradient(180deg, rgb(3 5 15 / 82%), rgb(3 5 15 / 0%));
+}
+
+:root[data-theme="light"] .site-header {
+  background: linear-gradient(180deg, rgb(244 241 232 / 92%), rgb(244 241 232 / 0%));
 }
 
 .header-inner {
@@ -200,25 +238,22 @@ textarea:focus-visible,
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
 }
 
+/* 金色四芒星品牌点 */
 .brand-sigil {
   position: relative;
-  display: inline-grid;
-  width: 38px;
-  height: 38px;
-  overflow: hidden;
-  place-items: center;
-  border: 1px solid rgb(216 182 107 / 55%);
-  border-radius: 10px;
-  box-shadow: 0 0 0 3px rgb(216 182 107 / 7%);
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: var(--lit);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  filter: drop-shadow(0 0 6px rgb(242 205 122 / 70%));
 }
 
 .brand-sigil-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  display: none;
 }
 
 .brand-copy {
@@ -228,56 +263,52 @@ textarea:focus-visible,
 
 .brand-copy strong {
   font-family: var(--font-display);
-  font-size: 1.24rem;
-  letter-spacing: 0.04em;
+  font-size: 1.28rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .brand-copy small {
-  margin-top: 5px;
-  color: var(--text-muted);
-  font-size: 0.65rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  display: none;
 }
 
+/* 居中胶囊导航 */
 .desktop-nav {
+  position: absolute;
+  left: 50%;
   display: flex;
-  align-self: stretch;
-  gap: 4px;
-  margin-left: clamp(30px, 5vw, 82px);
+  align-items: center;
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  translate: -50% 0;
 }
 
 .desktop-nav a {
   position: relative;
   display: grid;
-  padding: 0 13px;
+  min-height: 36px;
+  padding: 0 18px;
   place-items: center;
+  border-radius: 999px;
   color: var(--text-muted);
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  transition: color 160ms ease;
+  transition:
+    color 160ms ease,
+    background-color 200ms var(--ease);
 }
 
-.desktop-nav a::after {
-  position: absolute;
-  right: 13px;
-  bottom: -1px;
-  left: 13px;
-  height: 2px;
-  content: "";
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 180ms ease;
-}
-
-.desktop-nav a:hover,
-.desktop-nav a.active {
+.desktop-nav a:hover {
   color: var(--text);
 }
 
-.desktop-nav a.active::after {
-  transform: scaleX(1);
+.desktop-nav a.active {
+  color: var(--cta-ink);
+  background: var(--cta);
+  box-shadow: 0 4px 18px rgb(242 205 122 / 18%);
 }
 
 .header-actions {
@@ -375,8 +406,10 @@ textarea:focus-visible,
   padding: 0 15px;
   gap: 8px;
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: 22px;
+  /* v2：面板不用 backdrop-filter，改用更高的不透明度分层。 */
+  background: color-mix(in srgb, var(--panel-2) 86%, transparent);
   font-size: 0.82rem;
 }
 
@@ -395,7 +428,8 @@ textarea:focus-visible,
 }
 
 .route-transition {
-  animation: route-arrive var(--motion-page) var(--motion-ease) both;
+  /* backwards：动画结束后不保留 transform，否则会让内部 position:fixed 的输入条失效 */
+  animation: route-arrive var(--motion-page) var(--motion-ease) backwards;
 }
 
 .announcement-trigger {
@@ -427,8 +461,8 @@ textarea:focus-visible,
   z-index: 210;
   display: flex;
   justify-content: flex-end;
-  background: rgb(0 0 0 / 62%);
-  backdrop-filter: blur(4px);
+  /* v2：遮罩不用 backdrop-filter，改用更高的不透明度。 */
+  background: rgb(0 0 0 / 78%);
 }
 
 .announcement-overlay.is-popup {
@@ -694,24 +728,16 @@ textarea:focus-visible,
   max-width: 900px;
 }
 
+/* v2：不再用金色大写 + 前缀横线的「编号小标题」，改成静音标签。 */
 .eyebrow {
   display: flex;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   gap: 12px;
-  color: var(--gold-bright);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  width: 32px;
-  height: 1px;
-  content: "";
-  background: currentcolor;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .page-intro {
@@ -725,6 +751,7 @@ textarea:focus-visible,
   padding-bottom: 8px;
 }
 
+/* v2：切角票券按钮换成圆角胶囊，主按钮用奶油金渐变。 */
 .ticket-button,
 .ticket-button-secondary,
 .danger-button {
@@ -733,42 +760,40 @@ textarea:focus-visible,
   align-items: center;
   justify-content: center;
   min-height: 48px;
-  padding: 0 22px;
+  padding: 0 24px;
   gap: 9px;
   cursor: pointer;
-  border-radius: 2px;
-  font-size: 0.88rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  letter-spacing: 0.01em;
   transition:
-    transform 160ms ease,
-    background 160ms ease,
-    border-color 160ms ease;
+    transform 160ms var(--ease),
+    background 160ms var(--ease),
+    border-color 160ms var(--ease);
 }
 
 .ticket-button {
-  color: #101826;
-  border: 1px solid var(--gold-bright);
-  background: var(--gold-bright);
-  box-shadow: 0 8px 30px rgb(216 182 107 / 15%);
+  color: var(--cta-ink);
+  background: var(--cta);
+  box-shadow: 0 10px 30px rgb(232 193 113 / 18%);
 }
 
 .ticket-button:hover,
 .ticket-button-secondary:hover,
 .danger-button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .ticket-button-secondary {
-  color: var(--text);
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
 }
 
 .danger-button {
   color: #fff;
-  border: 1px solid var(--danger);
   background: var(--danger);
 }
 
@@ -981,8 +1006,8 @@ textarea:focus-visible,
   z-index: 100;
   display: flex;
   justify-content: flex-end;
-  background: rgb(0 0 0 / 56%);
-  backdrop-filter: blur(4px);
+  /* v2：遮罩不用 backdrop-filter，改用更高的不透明度。 */
+  background: rgb(0 0 0 / 74%);
 }
 
 .mobile-drawer {
@@ -1089,11 +1114,8 @@ textarea:focus-visible,
 }
 
 @media (max-width: 1100px) {
-  .desktop-nav {
-    margin-left: 24px;
-  }
   .desktop-nav a {
-    padding: 0 8px;
+    padding: 0 12px;
   }
   .account-link span {
     display: none;

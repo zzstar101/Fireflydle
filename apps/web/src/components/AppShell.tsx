@@ -22,9 +22,13 @@ import { GitHubMark } from "./GitHubMark";
 import { AnnouncementCenter } from "./AnnouncementCenter";
 import { getDefaultMode } from "../features/modes/mode-registry";
 import { motionModeFromPreference, motionPausedForPage } from "./motion";
+import { qualityFlags } from "./quality-flags";
 import { PwaInstallPrompt } from "./PwaInstallPrompt";
 import { requestInstallFromMenu } from "../pwa";
 import { assetUrl } from "../lib/asset-url";
+import { StarField } from "../fx/StarField";
+
+const gameplayPathPattern = /^(\/playable|\/currency-wars|\/aeon|\/room|\/challenge|\/party)/;
 
 const mainNavigation = [
   { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
@@ -44,6 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const collectionRewardImage = usePreferences((state) => state.collectionRewardImage);
   const session = useSession();
   const location = useLocation();
+  const gameplay = gameplayPathPattern.test(location.pathname);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -54,9 +59,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (rewardImage)
       root.style.setProperty("--collection-reward-image", `url("${assetUrl(rewardImage)}")`);
     else root.style.removeProperty("--collection-reward-image");
-    const gameplay = /^(\/playable|\/currency-wars|\/aeon|\/room|\/challenge)/.test(
-      location.pathname,
-    );
     root.dataset.rewardVisible = String(Boolean(collectionRewardId) && !gameplay);
     if (factionTheme) root.dataset.collectionFaction = factionTheme;
     else delete root.dataset.collectionFaction;
@@ -69,14 +71,15 @@ export function AppShell({ children }: { children: ReactNode }) {
       delete root.dataset.collectionTheme;
       root.style.removeProperty("--collection-reward-image");
     };
-  }, [collectionRewardId, collectionRewardImage, location.pathname]);
+  }, [collectionRewardId, collectionRewardImage, gameplay]);
 
   useEffect(() => {
     const root = document.documentElement;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     let hasFocus = document.hasFocus();
     const sync = () => {
-      root.dataset.motion = motionModeFromPreference(media.matches);
+      // `?reduce` 用来在截图回归里强制降级，与系统偏好取并集
+      root.dataset.motion = motionModeFromPreference(media.matches || qualityFlags().reduceMotion);
       root.dataset.motionPaused = String(
         motionPausedForPage(document.visibilityState === "visible", hasFocus),
       );
@@ -190,6 +193,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-frame" data-motion-scope="app">
+      <StarField intensity={gameplay ? "calm" : "full"} />
       <a className="skip-link" href="#main-content">
         {language === "zh-CN"
           ? "跳到主要内容"
