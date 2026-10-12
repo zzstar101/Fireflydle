@@ -1,0 +1,3783 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>萤一把 · 重设计原型「萤光」</title>
+    <style>
+      /* =========================================================
+   萤一把 · Redesign prototype "萤光 / Lumen"
+   原则：界面单色，颜色只属于判题；萤光绿 = 猜中 = 品牌。
+   ========================================================= */
+      :root {
+        --sans:
+          "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC",
+          system-ui, sans-serif;
+        --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+        --bg: #0b0c0e;
+        --bg-2: #111316;
+        --bg-3: #171a1e;
+        --line: rgb(255 255 255 / 7%);
+        --line-2: rgb(255 255 255 / 13%);
+        --text: #ecedef;
+        --muted: #8f949b;
+        --faint: #5d6269;
+
+        --lit: #4fe3a3; /* 萤光：唯一品牌色，同时也是“一致” */
+        --lit-rgb: 79 227 163;
+        --lit-ink: #03150c;
+        --near: #f0b44c; /* 接近 */
+        --near-ink: #1f1402;
+        --miss: #1b1e22; /* 不符 */
+        --miss-ink: #80858c;
+        --danger: #ff6b6b;
+
+        --glow: 0 0 0 1px rgb(var(--lit-rgb) / 55%), 0 10px 32px -10px rgb(var(--lit-rgb) / 70%);
+        --r: 14px;
+        --r-tile: 10px;
+        --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+        --nav-h: 60px;
+      }
+      :root[data-theme="light"] {
+        --bg: #f1f2f0;
+        --bg-2: #ffffff;
+        --bg-3: #e7e9e6;
+        --line: rgb(12 14 16 / 8%);
+        --line-2: rgb(12 14 16 / 15%);
+        --text: #0e1012;
+        --muted: #5d636a;
+        --faint: #9a9fa5;
+        --lit: #2fcf89;
+        --lit-rgb: 47 207 137;
+        --lit-ink: #04170d;
+        --near: #f2b13f;
+        --near-ink: #231602;
+        --miss: #e2e4e1;
+        --miss-ink: #6b7178;
+        --glow: 0 0 0 1px rgb(var(--lit-rgb) / 60%), 0 10px 26px -12px rgb(var(--lit-rgb) / 80%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.55 var(--sans);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100dvh;
+      }
+      button,
+      input {
+        font: inherit;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .num {
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+      }
+      :focus-visible {
+        outline: 2px solid var(--lit);
+        outline-offset: 2px;
+        border-radius: 6px;
+      }
+
+      /* ---------- Top bar ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        height: var(--nav-h);
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 0 24px;
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        backdrop-filter: blur(14px) saturate(140%);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 2px;
+        font-weight: 900;
+        font-size: 19px;
+        letter-spacing: 0.02em;
+      }
+      .fly {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--lit);
+        box-shadow: 0 0 10px 2px rgb(var(--lit-rgb) / 70%);
+        transform: translateY(-1px);
+        margin-left: 3px;
+        animation: breathe 3.6s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        50% {
+          opacity: 0.45;
+          box-shadow: 0 0 4px 1px rgb(var(--lit-rgb) / 40%);
+        }
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 999px;
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+      }
+      .tabs button {
+        border: 0;
+        background: transparent;
+        padding: 6px 16px;
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+        transition:
+          color 0.15s,
+          background 0.15s;
+      }
+      .tabs button:hover {
+        color: var(--text);
+      }
+      .tabs button[aria-current="page"] {
+        background: var(--text);
+        color: var(--bg);
+      }
+      .tools {
+        justify-self: end;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+      }
+      .icon-btn:hover {
+        color: var(--text);
+        background: var(--bg-2);
+        border-color: var(--line);
+      }
+      .icon-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+      .me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px 4px 4px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .me img {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--bg-3);
+      }
+
+      /* mobile bottom tabbar */
+      .tabbar {
+        display: none;
+      }
+
+      /* ---------- Generic ---------- */
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 46px;
+        padding: 0 22px;
+        border-radius: 999px;
+        border: 1px solid var(--line-2);
+        background: transparent;
+        font-weight: 700;
+        font-size: 15px;
+        white-space: nowrap;
+        transition:
+          transform 0.12s var(--ease),
+          background 0.15s,
+          border-color 0.15s;
+      }
+      .btn:hover {
+        border-color: var(--text);
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: var(--text);
+        color: var(--bg);
+        border-color: var(--text);
+      }
+      .btn-primary:hover {
+        background: color-mix(in srgb, var(--text) 88%, var(--lit));
+      }
+      .btn svg {
+        width: 17px;
+        height: 17px;
+      }
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .chip {
+        justify-self: start;
+        align-self: start;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: var(--bg-3);
+        color: var(--muted);
+      }
+      .chip.live {
+        color: var(--lit);
+        background: rgb(var(--lit-rgb) / 12%);
+      }
+      .chip.live::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--lit);
+        box-shadow: 0 0 8px var(--lit);
+      }
+      .chip.warn {
+        color: var(--near);
+        background: color-mix(in srgb, var(--near) 14%, transparent);
+      }
+
+      /* ---------- HUB ---------- */
+      .hub {
+        padding-block: 36px 120px;
+      }
+      .bento {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 1.55fr 1fr;
+        grid-template-rows: auto auto;
+      }
+      .today {
+        grid-row: span 2;
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        min-height: 440px;
+      }
+      .today-copy {
+        padding: 34px 34px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        position: relative;
+        z-index: 2;
+      }
+      .today h1 {
+        font-size: clamp(40px, 5.2vw, 64px);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+        font-weight: 900;
+        margin: 6px 0 0;
+      }
+      .today .sub {
+        color: var(--muted);
+        margin: 0;
+        max-width: 26ch;
+        font-size: 16px;
+      }
+      .today .cta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: auto;
+      }
+      .today-meta {
+        display: flex;
+        gap: 28px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+      }
+      .today-meta div {
+        display: grid;
+        gap: 2px;
+      }
+      .today-meta strong {
+        font-size: 22px;
+        font-weight: 800;
+      }
+      .mini-board {
+        display: grid;
+        grid-template-columns: repeat(6, 14px);
+        gap: 4px;
+      }
+      .mini-board i {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        background: var(--bg-3);
+        border: 1px solid var(--line);
+      }
+
+      .yesterday {
+        position: relative;
+        isolation: isolate;
+        border-left: 1px solid var(--line);
+        background: var(--bg-3);
+      }
+      .yesterday img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 12%;
+        z-index: -1;
+        -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+      }
+      .yesterday::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(90deg, var(--bg-2) 0%, transparent 28%);
+      }
+      .yesterday figcaption {
+        position: absolute;
+        left: 22px;
+        right: 22px;
+        bottom: 20px;
+        display: grid;
+        gap: 4px;
+      }
+      .yesterday figcaption strong {
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+      }
+      .yesterday figcaption .label {
+        color: var(--muted);
+      }
+
+      .side-tile {
+        border-radius: 22px;
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        padding: 24px;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 14px;
+        min-height: 213px;
+        transition:
+          border-color 0.2s,
+          transform 0.2s var(--ease);
+      }
+      .side-tile:hover {
+        border-color: var(--line-2);
+        transform: translateY(-2px);
+      }
+      .side-tile h2 {
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin: 0;
+      }
+      .side-tile p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .side-tile .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+      }
+      .lives {
+        display: flex;
+        gap: 6px;
+      }
+      .lives i {
+        width: 12px;
+        height: 22px;
+        border-radius: 4px;
+        background: var(--lit);
+        box-shadow: 0 0 10px rgb(var(--lit-rgb) / 50%);
+      }
+      .lives i.off {
+        background: var(--bg-3);
+        box-shadow: none;
+      }
+      .bignum {
+        font-size: 34px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .arrow {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        border: 1px solid var(--line-2);
+      }
+      .arrow svg {
+        width: 18px;
+        height: 18px;
+      }
+      .side-tile:hover .arrow {
+        background: var(--text);
+        color: var(--bg);
+        border-color: var(--text);
+      }
+
+      .section-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin: 52px 0 14px;
+      }
+      .section-title h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .more {
+        border-top: 1px solid var(--line);
+      }
+      .more a {
+        display: grid;
+        grid-template-columns: 56px 1fr auto 40px;
+        gap: 18px;
+        align-items: center;
+        padding: 16px 4px;
+        border-bottom: 1px solid var(--line);
+        transition:
+          background 0.15s,
+          padding 0.2s var(--ease);
+      }
+      .more a:hover {
+        background: var(--bg-2);
+        padding-left: 14px;
+      }
+      .more .thumb {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: var(--bg-3);
+      }
+      .more .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .more strong {
+        font-size: 17px;
+        font-weight: 800;
+        display: block;
+      }
+      .more small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .more .chip {
+        align-self: center;
+      }
+
+      .week {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+      }
+      .day {
+        border-radius: 14px;
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+      .day .label {
+        display: flex;
+        justify-content: space-between;
+      }
+      .day .res {
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .day.won .res {
+        color: var(--lit);
+      }
+      .day.lost .res {
+        color: var(--faint);
+      }
+      .day.is-today {
+        border-color: var(--line-2);
+      }
+      .day .bar {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 3px;
+      }
+      .day .bar i {
+        height: 6px;
+        border-radius: 2px;
+        background: var(--bg-3);
+      }
+      .day .bar i.e {
+        background: var(--lit);
+      }
+      .day .bar i.c {
+        background: var(--near);
+      }
+      .day .bar i.m {
+        background: var(--miss-ink);
+        opacity: 0.45;
+      }
+
+      /* ---------- GAME ---------- */
+      .game {
+        padding-block: 26px 140px;
+      }
+      .game-head {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: end;
+        margin-bottom: 22px;
+      }
+      .game-head .crumbs {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .game-head h1 {
+        margin: 6px 0 0;
+        font-size: 34px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+      .status {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+      .pips {
+        display: flex;
+        gap: 5px;
+      }
+      .pips i {
+        width: 9px;
+        height: 22px;
+        border-radius: 3px;
+        background: var(--bg-3);
+        border: 1px solid var(--line-2);
+        transition: background 0.3s;
+      }
+      .pips i.used {
+        background: var(--text);
+        border-color: transparent;
+        opacity: 0.35;
+      }
+      .pips i.win {
+        background: var(--lit);
+        box-shadow: 0 0 10px rgb(var(--lit-rgb) / 60%);
+        opacity: 1;
+      }
+      .timer {
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .board {
+        --cols: 190px repeat(6, minmax(0, 1fr));
+        display: grid;
+        gap: 8px;
+      }
+      .board-head,
+      .row {
+        display: grid;
+        grid-template-columns: var(--cols);
+        gap: 8px;
+      }
+      .board-head span {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--faint);
+        text-align: center;
+        padding-bottom: 2px;
+      }
+      .board-head span:first-child {
+        text-align: left;
+        padding-left: 4px;
+      }
+      .who {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 6px 10px 6px 6px;
+        border-radius: var(--r-tile);
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+      }
+      .who img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: var(--bg-3);
+        flex: none;
+      }
+      .who b {
+        display: block;
+        font-size: 15px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .who small {
+        display: block;
+        font-size: 11px;
+        color: var(--faint);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tile {
+        position: relative;
+        height: 64px;
+        border-radius: var(--r-tile);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 4px 6px;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.15;
+        background: var(--miss);
+        color: var(--miss-ink);
+        transform-style: preserve-3d;
+      }
+      .tile .v {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .tile .dir {
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .tile[data-s="exact"] {
+        background: var(--lit);
+        color: var(--lit-ink);
+        box-shadow: var(--glow);
+      }
+      .tile[data-s="close"] {
+        background: var(--near);
+        color: var(--near-ink);
+        background-image: repeating-linear-gradient(
+          135deg,
+          rgb(0 0 0 / 0%) 0 7px,
+          rgb(0 0 0 / 7%) 7px 9px
+        );
+      }
+      .tile[data-s="miss"] {
+        box-shadow: inset 0 0 0 1px var(--line);
+      }
+      /* non-color cue: corner glyph */
+      .tile::after {
+        position: absolute;
+        top: 5px;
+        right: 7px;
+        font-size: 10px;
+        font-weight: 900;
+        opacity: 0.7;
+      }
+      .tile[data-s="exact"]::after {
+        content: "✓";
+      }
+      .tile[data-s="close"]::after {
+        content: "≈";
+      }
+
+      .row.empty .slot {
+        height: 64px;
+        border-radius: var(--r-tile);
+        border: 1px dashed var(--line-2);
+        opacity: 0.55;
+      }
+      .row.empty .slot:first-child {
+        border-style: solid;
+      }
+
+      /* reveal animation */
+      .row.reveal .tile {
+        animation: flip 0.52s var(--ease) both;
+        animation-delay: calc(var(--i) * 110ms);
+      }
+      .row.reveal .tile[data-s="exact"] {
+        animation:
+          flip 0.52s var(--ease) both,
+          lit 1.1s ease-out both;
+        animation-delay: calc(var(--i) * 110ms), calc(var(--i) * 110ms + 0.35s);
+      }
+      .row.reveal .who {
+        animation: slidein 0.35s var(--ease) both;
+      }
+      @keyframes flip {
+        0% {
+          transform: rotateX(90deg);
+          background: var(--bg-3);
+          color: transparent;
+          box-shadow: none;
+        }
+        45% {
+          transform: rotateX(90deg);
+        }
+        100% {
+          transform: rotateX(0);
+        }
+      }
+      @keyframes lit {
+        0% {
+          box-shadow: 0 0 0 0 rgb(var(--lit-rgb) / 0%);
+        }
+        30% {
+          box-shadow:
+            0 0 0 3px rgb(var(--lit-rgb) / 45%),
+            0 0 42px 6px rgb(var(--lit-rgb) / 55%);
+        }
+        100% {
+          box-shadow: var(--glow);
+        }
+      }
+      @keyframes slidein {
+        from {
+          opacity: 0;
+          transform: translateX(-8px);
+        }
+      }
+      .row.win .tile {
+        animation: winrun 0.9s var(--ease) both;
+        animation-delay: calc(var(--i) * 70ms + 0.9s);
+      }
+      @keyframes winrun {
+        40% {
+          transform: translateY(-6px);
+          box-shadow:
+            0 0 0 2px rgb(var(--lit-rgb) / 70%),
+            0 0 48px 10px rgb(var(--lit-rgb) / 60%);
+        }
+      }
+      .row.shake {
+        animation: shake 0.36s;
+      }
+      @keyframes shake {
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* composer = the active row */
+      .row.active {
+        position: relative;
+      }
+      .composer {
+        grid-column: 1 / -1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 64px;
+        padding: 0 8px 0 18px;
+        border-radius: var(--r-tile);
+        background: var(--bg-2);
+        border: 1px solid var(--line-2);
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .composer:focus-within {
+        border-color: rgb(var(--lit-rgb) / 70%);
+        box-shadow: 0 0 0 4px rgb(var(--lit-rgb) / 12%);
+      }
+      .composer svg {
+        width: 19px;
+        height: 19px;
+        color: var(--faint);
+        flex: none;
+      }
+      .composer input {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .composer input::-webkit-search-cancel-button {
+        display: none;
+      }
+      .composer input::placeholder {
+        color: var(--faint);
+        font-weight: 500;
+      }
+      .composer kbd {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--faint);
+        border: 1px solid var(--line-2);
+        border-radius: 6px;
+        padding: 2px 6px;
+      }
+      .composer .btn {
+        height: 46px;
+      }
+      .results {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 8px);
+        z-index: 10;
+        max-height: 340px;
+        overflow: auto;
+        padding: 6px;
+        background: var(--bg-2);
+        border: 1px solid var(--line-2);
+        border-radius: var(--r);
+        box-shadow: 0 24px 60px -20px rgb(0 0 0 / 60%);
+      }
+      .results button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px;
+        border: 0;
+        background: transparent;
+        border-radius: 10px;
+        text-align: left;
+      }
+      .results button[aria-selected="true"] {
+        background: var(--bg-3);
+      }
+      .results img {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+      .results b {
+        font-weight: 800;
+      }
+      .results small {
+        display: block;
+        color: var(--faint);
+        font-size: 12px;
+      }
+      .results .used {
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .legend i {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+
+      /* ---------- Result sheet ---------- */
+      .scrim {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        background: rgb(0 0 0 / 55%);
+        backdrop-filter: blur(6px);
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        animation: fade 0.3s both;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+      }
+      .sheet {
+        width: min(760px, 100%);
+        max-height: calc(100dvh - 40px);
+        overflow: auto;
+        border-radius: 26px;
+        background: var(--bg-2);
+        border: 1px solid var(--line-2);
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        animation: rise 0.5s var(--ease) both;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(24px) scale(0.98);
+        }
+      }
+      .sheet-art {
+        position: relative;
+        min-height: 420px;
+        background: var(--bg-3);
+        overflow: hidden;
+        border-radius: 26px 0 0 26px;
+      }
+      .sheet-art img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 10%;
+      }
+      .sheet-art::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, var(--bg-2) 0%, transparent 45%);
+      }
+      .sheet-art figcaption {
+        position: absolute;
+        z-index: 2;
+        left: 22px;
+        bottom: 18px;
+      }
+      .sheet-art figcaption strong {
+        display: block;
+        font-size: 30px;
+        font-weight: 900;
+      }
+      .sheet-body {
+        padding: 30px;
+        display: grid;
+        gap: 22px;
+        align-content: start;
+      }
+      .sheet-body h2 {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+      .sheet-body h2 em {
+        font-style: normal;
+        color: var(--lit);
+      }
+      .share-grid {
+        display: grid;
+        gap: 4px;
+      }
+      .share-grid div {
+        display: grid;
+        grid-template-columns: repeat(6, 18px);
+        gap: 4px;
+      }
+      .share-grid i {
+        height: 18px;
+        border-radius: 4px;
+        background: var(--miss);
+        box-shadow: inset 0 0 0 1px var(--line-2);
+      }
+      .share-grid i.e {
+        background: var(--lit);
+        box-shadow: none;
+      }
+      .share-grid i.c {
+        background: var(--near);
+        box-shadow: none;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .stats div {
+        background: var(--bg-2);
+        padding: 12px 14px;
+        display: grid;
+        gap: 2px;
+      }
+      .stats strong {
+        font-size: 22px;
+        font-weight: 800;
+      }
+      .funnel {
+        display: grid;
+        gap: 6px;
+      }
+      .funnel-row {
+        display: grid;
+        grid-template-columns: 54px 1fr 40px;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .funnel-row .track {
+        height: 8px;
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .funnel-row .track i {
+        display: block;
+        height: 100%;
+        border-radius: 99px;
+        background: var(--muted);
+        opacity: 0.5;
+        transform-origin: left;
+        animation: grow 0.8s var(--ease) both;
+      }
+      .funnel-row.last .track i {
+        background: var(--lit);
+        opacity: 1;
+      }
+      @keyframes grow {
+        from {
+          transform: scaleX(0);
+        }
+      }
+      .sheet .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .sheet .close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+      }
+
+      /* fireflies (win only) */
+      .flies {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 39;
+        overflow: hidden;
+      }
+      .flies i {
+        position: absolute;
+        bottom: -10px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--lit);
+        box-shadow: 0 0 12px 3px rgb(var(--lit-rgb) / 70%);
+        animation: drift var(--d) ease-out var(--delay) both;
+      }
+      @keyframes drift {
+        0% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+        15% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--x), -88vh);
+          opacity: 0;
+        }
+      }
+
+      /* ---------- Proto chrome ---------- */
+      .proto-bar {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        z-index: 50;
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 999px;
+        background: #000;
+        color: #fff;
+        border: 1px solid rgb(255 255 255 / 15%);
+        font-size: 12px;
+        box-shadow: 0 10px 30px rgb(0 0 0 / 40%);
+      }
+      .proto-bar button {
+        border: 0;
+        background: transparent;
+        color: #aaa;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+      .proto-bar button.on {
+        background: #fff;
+        color: #000;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      /* ---------- Mobile ---------- */
+      @media (max-width: 760px) {
+        :root {
+          --nav-h: 54px;
+        }
+        .topbar {
+          grid-template-columns: 1fr auto;
+          padding: 0 16px;
+        }
+        .topbar .tabs,
+        .tools .hide-m {
+          display: none;
+        }
+        .wrap {
+          padding: 0 14px;
+        }
+        .tabbar {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 30;
+          padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+          background: color-mix(in srgb, var(--bg) 88%, transparent);
+          backdrop-filter: blur(14px);
+          border-top: 1px solid var(--line);
+        }
+        .tabbar button {
+          border: 0;
+          background: none;
+          display: grid;
+          justify-items: center;
+          gap: 2px;
+          padding: 6px 0;
+          color: var(--faint);
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .tabbar svg {
+          width: 21px;
+          height: 21px;
+        }
+        .tabbar button[aria-current="page"] {
+          color: var(--text);
+        }
+        .proto-bar {
+          bottom: auto;
+          top: 62px;
+          left: auto;
+          right: 10px;
+          transform: none;
+        }
+
+        .hub {
+          padding-top: 16px;
+        }
+        .proto-bar button {
+          white-space: nowrap;
+          padding: 7px 10px;
+        }
+        .bento {
+          grid-template-columns: 1fr;
+        }
+        .today {
+          grid-template-columns: 1fr;
+          grid-row: auto;
+          min-height: 0;
+        }
+        .today-copy {
+          padding: 22px;
+          gap: 14px;
+        }
+        .yesterday {
+          order: -1;
+          height: 210px;
+          border-left: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .yesterday::after {
+          background: linear-gradient(0deg, var(--bg-2) 0%, transparent 55%);
+        }
+        .side-tile {
+          min-height: 0;
+          padding: 20px;
+        }
+        .more a {
+          grid-template-columns: 48px 1fr 32px;
+        }
+        .more .chip {
+          display: none;
+        }
+        .more .thumb {
+          width: 48px;
+          height: 48px;
+        }
+        .week {
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          gap: 6px;
+        }
+        .day {
+          padding: 8px 6px;
+          gap: 6px;
+        }
+        .day .res {
+          font-size: 15px;
+        }
+        .day .label span:last-child {
+          display: none;
+        }
+
+        .game {
+          padding-block: 14px 170px;
+        }
+        .game-head {
+          grid-template-columns: 1fr;
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+        .game-head h1 {
+          font-size: 26px;
+        }
+        .status {
+          justify-content: space-between;
+        }
+        .board {
+          --cols: 44px repeat(6, minmax(0, 1fr));
+          gap: 5px;
+        }
+        .board-head,
+        .row {
+          gap: 4px;
+        }
+        .board-head span {
+          font-size: 10px;
+        }
+        .board-head span:first-child {
+          visibility: hidden;
+        }
+        .who {
+          padding: 0;
+          border: 0;
+          background: none;
+        }
+        .who img {
+          width: 44px;
+          height: 48px;
+          border-radius: 8px;
+        }
+        .who div {
+          display: none;
+        }
+        .tile,
+        .row.empty .slot {
+          height: 48px;
+          border-radius: 8px;
+        }
+        .tile {
+          font-size: 11px;
+          padding: 2px;
+        }
+        .tile .dir {
+          font-size: 11px;
+        }
+        .tile::after {
+          top: 2px;
+          right: 4px;
+          font-size: 8px;
+        }
+        .row.active {
+          grid-template-columns: 1fr;
+        }
+        .row.active .composer {
+          position: fixed;
+          left: 10px;
+          right: 10px;
+          bottom: calc(66px + env(safe-area-inset-bottom));
+          z-index: 25;
+          height: 56px;
+          box-shadow: 0 -10px 40px -10px rgb(0 0 0 / 70%);
+          background: var(--bg-2);
+        }
+        .row.active .composer kbd {
+          display: none;
+        }
+        .row.active .composer .btn {
+          height: 42px;
+          padding: 0 16px;
+        }
+        .row.active .results {
+          top: auto;
+          bottom: calc(100% + 8px);
+          max-height: 46dvh;
+        }
+        .row.active::before {
+          content: "";
+          display: block;
+          height: 48px;
+          border-radius: 8px;
+          border: 1px solid rgb(var(--lit-rgb) / 50%);
+          background: rgb(var(--lit-rgb) / 5%);
+        }
+        .legend {
+          font-size: 12px;
+          gap: 12px;
+        }
+
+        .sheet {
+          grid-template-columns: 1fr;
+          border-radius: 22px;
+        }
+        .sheet-art {
+          min-height: 230px;
+          border-radius: 22px 22px 0 0;
+        }
+        .sheet-body {
+          padding: 20px;
+        }
+        .sheet-body h2 {
+          font-size: 28px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-delay: 0ms !important;
+          transition-duration: 0.01ms !important;
+        }
+        .flies {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <symbol
+          id="i-search"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </symbol>
+        <symbol
+          id="i-arrow"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </symbol>
+        <symbol
+          id="i-moon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
+        </symbol>
+        <symbol
+          id="i-bell"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a1.9 1.9 0 0 0 3.4 0" />
+        </symbol>
+        <symbol
+          id="i-globe"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </symbol>
+        <symbol
+          id="i-home"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />
+        </symbol>
+        <symbol
+          id="i-trophy"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"
+          />
+        </symbol>
+        <symbol
+          id="i-grid"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linejoin="round"
+        >
+          <rect x="4" y="4" width="7" height="7" rx="1.5" />
+          <rect x="13" y="4" width="7" height="7" rx="1.5" />
+          <rect x="4" y="13" width="7" height="7" rx="1.5" />
+          <rect x="13" y="13" width="7" height="7" rx="1.5" />
+        </symbol>
+        <symbol
+          id="i-user"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </symbol>
+        <symbol
+          id="i-share"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3v13M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+        </symbol>
+        <symbol
+          id="i-x"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M6 6l12 12M18 6 6 18" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <header class="topbar">
+      <a class="brand" href="#" data-go="hub">萤一把<i class="fly" aria-hidden="true"></i></a>
+      <nav class="tabs" aria-label="主导航">
+        <button aria-current="page" data-go="hub">总站</button>
+        <button>排行榜</button>
+        <button>图鉴</button>
+        <button>反馈</button>
+      </nav>
+      <div class="tools">
+        <button class="icon-btn hide-m" aria-label="语言">
+          <svg><use href="#i-globe" /></svg>
+        </button>
+        <button class="icon-btn" aria-label="通知">
+          <svg><use href="#i-bell" /></svg>
+        </button>
+        <button class="icon-btn" aria-label="切换主题" id="themeBtn">
+          <svg><use href="#i-moon" /></svg>
+        </button>
+        <a class="me hide-m" href="#"><img src="" alt="" data-av="firefly" /> 访客</a>
+      </div>
+    </header>
+
+    <!-- ================= HUB ================= -->
+    <main id="view-hub" class="wrap hub">
+      <div class="bento">
+        <section class="today" aria-labelledby="today-h">
+          <div class="today-copy">
+            <span class="chip live">每日 #312 · 尚未开始</span>
+            <h1 id="today-h">今天<br />猜谁？</h1>
+            <p class="sub">
+              全服同一个答案，6 次机会。<span class="num" id="countdown">08:21:39</span> 后换题。
+            </p>
+            <div class="cta">
+              <button class="btn btn-primary" data-go="game">
+                开始今日题 <svg><use href="#i-arrow" /></svg>
+              </button>
+              <button class="btn">玩法说明</button>
+            </div>
+            <div class="today-meta">
+              <div><span class="label">连胜</span><strong class="num">7</strong></div>
+              <div><span class="label">今日已猜中</span><strong class="num">1,284</strong></div>
+              <div><span class="label">平均次数</span><strong class="num">4.2</strong></div>
+            </div>
+          </div>
+          <figure class="yesterday" style="margin: 0">
+            <img id="yImg" alt="昨日答案立绘" />
+            <figcaption>
+              <span class="label">昨日答案</span>
+              <strong id="yName">流萤</strong>
+              <span class="label">61% 的玩家在 4 次内猜中</span>
+            </figcaption>
+          </figure>
+        </section>
+
+        <a class="side-tile" href="#" data-go="game">
+          <span class="chip">随时开一局 · 不计成绩</span>
+          <div>
+            <h2>练习</h2>
+            <p>随机抽题，可离线游玩。</p>
+          </div>
+          <div class="row">
+            <span class="label">本周已练 <b class="num">23</b> 局</span
+            ><span class="arrow"
+              ><svg><use href="#i-arrow" /></svg
+            ></span>
+          </div>
+        </a>
+        <a class="side-tile" href="#">
+          <span class="chip warn">进行中 · 第 9 题</span>
+          <div>
+            <h2>无尽</h2>
+            <p>猜错扣生命，看你能走多远。</p>
+          </div>
+          <div class="row">
+            <div class="lives" aria-label="剩余 3 条生命">
+              <i></i><i></i><i></i><i class="off"></i><i class="off"></i>
+            </div>
+            <span class="arrow"
+              ><svg><use href="#i-arrow" /></svg
+            ></span>
+          </div>
+        </a>
+      </div>
+
+      <div class="section-title">
+        <h3>更多玩法</h3>
+        <span class="label">周赛每周一 00:00 轮换</span>
+      </div>
+      <nav class="more" id="moreList"></nav>
+
+      <div class="section-title">
+        <h3>本周战绩</h3>
+        <span class="label">北京时间</span>
+      </div>
+      <div class="week" id="week"></div>
+    </main>
+
+    <!-- ================= GAME ================= -->
+    <main id="view-game" class="wrap game" hidden>
+      <div class="game-head">
+        <div>
+          <div class="crumbs"><a href="#" data-go="hub">总站</a> / <span>每日</span></div>
+          <h1>
+            每日 #312
+            <span style="color: var(--faint); font-weight: 700; font-size: 0.6em">10月11日</span>
+          </h1>
+        </div>
+        <div class="status">
+          <div class="pips" id="pips" aria-label="已用次数"></div>
+          <span class="timer num" id="timer">00:00</span>
+          <button class="btn" style="height: 38px; padding: 0 14px; font-size: 13px">规则</button>
+        </div>
+      </div>
+
+      <div class="board" id="board" role="grid" aria-label="猜测记录">
+        <div class="board-head" role="row">
+          <span>角色</span><span>属性</span><span>命途</span><span>稀有度</span><span>派系</span
+          ><span>地区</span><span>版本</span>
+        </div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background: var(--lit)"></i>一致</span>
+        <span><i style="background: var(--near)"></i>接近（同阵营组 / 同大版本）</span>
+        <span
+          ><i style="background: var(--miss); box-shadow: inset 0 0 0 1px var(--line-2)"></i
+          >不符</span
+        >
+        <span>↑ ↓ 答案版本更晚 / 更早</span>
+      </div>
+      <div
+        aria-live="polite"
+        class="sr"
+        style="position: absolute; width: 1px; height: 1px; overflow: hidden"
+        id="live"
+      ></div>
+    </main>
+
+    <div id="resultRoot"></div>
+    <div class="flies" id="flies" aria-hidden="true"></div>
+
+    <nav class="tabbar" aria-label="主导航">
+      <button aria-current="page" data-go="hub">
+        <svg><use href="#i-home" /></svg>总站
+      </button>
+      <button>
+        <svg><use href="#i-trophy" /></svg>排行
+      </button>
+      <button>
+        <svg><use href="#i-grid" /></svg>图鉴
+      </button>
+      <button>
+        <svg><use href="#i-user" /></svg>我的
+      </button>
+    </nav>
+
+    <div class="proto-bar" role="toolbar" aria-label="原型控制">
+      <button data-go="hub" class="on">总站</button>
+      <button data-go="game">对局</button>
+      <button id="demoBtn">演示一局</button>
+      <button id="themeBtn2">深 / 浅</button>
+    </div>
+
+    <script>
+      const DATA = {
+        chars: [
+          {
+            id: "arlan",
+            zh: "阿兰",
+            en: "Arlan",
+            al: ["a lan", "alan", "arlan"],
+            el: "lightning",
+            path: "destruction",
+            r: 4,
+            fac: "herta-space-station",
+            facg: "herta-space-station",
+            reg: "herta-space-station",
+            v: "1.0",
+            av: "/assets/characters/arlan-avatar-e6a98c2dc505.png",
+            oid: "1008",
+            pt: true,
+          },
+          {
+            id: "asta",
+            zh: "艾丝妲",
+            en: "Asta",
+            al: ["ai si da", "aisida", "asta"],
+            el: "fire",
+            path: "harmony",
+            r: 4,
+            fac: "herta-space-station",
+            facg: "herta-space-station",
+            reg: "herta-space-station",
+            v: "1.0",
+            av: "/assets/characters/asta-avatar-1f9e66fd19bc.png",
+            oid: "1009",
+            pt: true,
+          },
+          {
+            id: "bailu",
+            zh: "白露",
+            en: "Bailu",
+            al: ["bai lu", "bailu", "bailu"],
+            el: "lightning",
+            path: "abundance",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.0",
+            av: "/assets/characters/bailu-avatar-4f8e23f000e1.png",
+            oid: "1211",
+            pt: true,
+          },
+          {
+            id: "bronya",
+            zh: "布洛妮娅",
+            en: "Bronya",
+            al: ["bu luo ni ya", "buluoniya", "bronya"],
+            el: "wind",
+            path: "harmony",
+            r: 5,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/bronya-avatar-849f365d21d2.png",
+            oid: "1101",
+            pt: true,
+          },
+          {
+            id: "clara",
+            zh: "克拉拉",
+            en: "Clara",
+            al: ["ke la la", "kelala", "clara"],
+            el: "physical",
+            path: "destruction",
+            r: 5,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/clara-avatar-c6dcdc1da181.png",
+            oid: "1107",
+            pt: true,
+          },
+          {
+            id: "dan-heng",
+            zh: "丹恒",
+            en: "Dan Heng",
+            al: ["dan heng", "danheng", "dan heng", "danheng"],
+            el: "wind",
+            path: "hunt",
+            r: 4,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "1.0",
+            av: "/assets/characters/dan-heng-avatar-d99bc0050c2c.png",
+            oid: "1002",
+            pt: true,
+          },
+          {
+            id: "gepard",
+            zh: "杰帕德",
+            en: "Gepard",
+            al: ["jie pa de", "jiepade", "gepard"],
+            el: "ice",
+            path: "preservation",
+            r: 5,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/gepard-avatar-0d99b1ad9c7d.png",
+            oid: "1104",
+            pt: true,
+          },
+          {
+            id: "herta",
+            zh: "黑塔",
+            en: "Herta",
+            al: ["hei ta", "heita", "herta"],
+            el: "ice",
+            path: "erudition",
+            r: 4,
+            fac: "herta-space-station",
+            facg: "herta-space-station",
+            reg: "herta-space-station",
+            v: "1.0",
+            av: "/assets/characters/herta-avatar-fe1944cd8443.png",
+            oid: "1013",
+            pt: true,
+          },
+          {
+            id: "himeko",
+            zh: "姬子",
+            en: "Himeko",
+            al: ["ji zi", "jizi", "himeko"],
+            el: "fire",
+            path: "erudition",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "1.0",
+            av: "/assets/characters/himeko-avatar-e301ca0969fd.png",
+            oid: "1003",
+            pt: true,
+          },
+          {
+            id: "hook",
+            zh: "虎克",
+            en: "Hook",
+            al: ["hu ke", "huke", "hook"],
+            el: "fire",
+            path: "destruction",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/hook-avatar-62ceae5b0d48.png",
+            oid: "1109",
+            pt: true,
+          },
+          {
+            id: "jing-yuan",
+            zh: "景元",
+            en: "Jing Yuan",
+            al: ["jing yuan", "jingyuan", "jing yuan", "jingyuan"],
+            el: "lightning",
+            path: "erudition",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.0",
+            av: "/assets/characters/jing-yuan-avatar-c32a3e9ca445.png",
+            oid: "1204",
+            pt: true,
+          },
+          {
+            id: "march-7th",
+            zh: "三月七",
+            en: "March 7th",
+            al: [
+              "三月",
+              "san yue qi",
+              "sanyueqi",
+              "san yue",
+              "sanyue",
+              "March",
+              "M7",
+              "march 7th",
+              "march7th",
+            ],
+            el: "ice",
+            path: "preservation",
+            r: 4,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "1.0",
+            av: "/assets/characters/march-7th-avatar-9d4e246bc19e.png",
+            oid: "1001",
+            pt: true,
+          },
+          {
+            id: "natasha",
+            zh: "娜塔莎",
+            en: "Natasha",
+            al: ["na ta sha", "natasha", "natasha"],
+            el: "physical",
+            path: "abundance",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/natasha-avatar-332835502261.png",
+            oid: "1105",
+            pt: true,
+          },
+          {
+            id: "pela",
+            zh: "佩拉",
+            en: "Pela",
+            al: ["pei la", "peila", "pela"],
+            el: "ice",
+            path: "nihility",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/pela-avatar-4edf90ea2af8.png",
+            oid: "1106",
+            pt: true,
+          },
+          {
+            id: "qingque",
+            zh: "青雀",
+            en: "Qingque",
+            al: ["qing que", "qingque", "qingque"],
+            el: "quantum",
+            path: "erudition",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.0",
+            av: "/assets/characters/qingque-avatar-fe0137247376.png",
+            oid: "1201",
+            pt: true,
+          },
+          {
+            id: "sampo",
+            zh: "桑博",
+            en: "Sampo",
+            al: ["sang bo", "sangbo", "sampo"],
+            el: "wind",
+            path: "nihility",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/sampo-avatar-c86d956e648f.png",
+            oid: "1108",
+            pt: true,
+          },
+          {
+            id: "seele",
+            zh: "希儿",
+            en: "Seele",
+            al: ["xi er", "xier", "seele"],
+            el: "quantum",
+            path: "hunt",
+            r: 5,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/seele-avatar-878809ffa01c.png",
+            oid: "1102",
+            pt: true,
+          },
+          {
+            id: "serval",
+            zh: "希露瓦",
+            en: "Serval",
+            al: ["xi lu wa", "xiluwa", "serval"],
+            el: "lightning",
+            path: "erudition",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.0",
+            av: "/assets/characters/serval-avatar-d6a71fcbf9ed.png",
+            oid: "1103",
+            pt: true,
+          },
+          {
+            id: "sushang",
+            zh: "素裳",
+            en: "Sushang",
+            al: ["su shang", "sushang", "sushang"],
+            el: "physical",
+            path: "hunt",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.0",
+            av: "/assets/characters/sushang-avatar-171bf00dcaef.png",
+            oid: "1206",
+            pt: true,
+          },
+          {
+            id: "tingyun",
+            zh: "停云",
+            en: "Tingyun",
+            al: ["ting yun", "tingyun", "tingyun"],
+            el: "lightning",
+            path: "harmony",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.0",
+            av: "/assets/characters/tingyun-avatar-11cf39c039a2.png",
+            oid: "1202",
+            pt: true,
+          },
+          {
+            id: "trailblazer-destruction",
+            zh: "开拓者·毁灭",
+            en: "Trailblazer · Destruction",
+            al: [
+              "开拓者",
+              "物理主角",
+              "kai tuo zhe hui mie",
+              "kaituozhehuimie",
+              "kai tuo zhe",
+              "kaituozhe",
+              "wu li zhu jue",
+              "wulizhujue",
+              "Trailblazer",
+              "Physical Trailblazer",
+              "trailblazer destruction",
+              "trailblazerdestruction",
+              "physicaltrailblazer",
+            ],
+            el: "physical",
+            path: "destruction",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "1.0",
+            av: "/assets/characters/trailblazer-destruction-avatar-e8ee5e05c9c1.png",
+            oid: "8001",
+            pt: true,
+          },
+          {
+            id: "trailblazer-preservation",
+            zh: "开拓者·存护",
+            en: "Trailblazer · Preservation",
+            al: [
+              "开拓者",
+              "火主",
+              "存护主角",
+              "kai tuo zhe cun hu",
+              "kaituozhecunhu",
+              "kai tuo zhe",
+              "kaituozhe",
+              "huo zhu",
+              "huozhu",
+              "cun hu zhu jue",
+              "cunhuzhujue",
+              "Trailblazer",
+              "Fire Trailblazer",
+              "trailblazer preservation",
+              "trailblazerpreservation",
+              "firetrailblazer",
+            ],
+            el: "fire",
+            path: "preservation",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "1.0",
+            av: "/assets/characters/trailblazer-preservation-avatar-d52e840e15c3.png",
+            oid: "8003",
+            pt: true,
+          },
+          {
+            id: "welt",
+            zh: "瓦尔特",
+            en: "Welt",
+            al: ["wa er te", "waerte", "welt"],
+            el: "imaginary",
+            path: "nihility",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "1.0",
+            av: "/assets/characters/welt-avatar-b5fce1546a68.png",
+            oid: "1004",
+            pt: true,
+          },
+          {
+            id: "yanqing",
+            zh: "彦卿",
+            en: "Yanqing",
+            al: ["yan qing", "yanqing", "yanqing"],
+            el: "ice",
+            path: "hunt",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.0",
+            av: "/assets/characters/yanqing-avatar-48a950b171f5.png",
+            oid: "1209",
+            pt: true,
+          },
+          {
+            id: "luocha",
+            zh: "罗刹",
+            en: "Luocha",
+            al: ["luo cha", "luocha", "luocha"],
+            el: "imaginary",
+            path: "abundance",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.1",
+            av: "/assets/characters/luocha-avatar-30c268081c6e.png",
+            oid: "1203",
+            pt: true,
+          },
+          {
+            id: "silver-wolf",
+            zh: "银狼",
+            en: "Silver Wolf",
+            al: ["yin lang", "yinlang", "SW", "silver wolf", "silverwolf"],
+            el: "quantum",
+            path: "nihility",
+            r: 5,
+            fac: "stellaron-hunters",
+            facg: "stellaron-hunters",
+            reg: "cosmic",
+            v: "1.1",
+            av: "/assets/characters/silver-wolf-avatar-a0f6dba430cf.png",
+            oid: "1006",
+            pt: true,
+          },
+          {
+            id: "yukong",
+            zh: "驭空",
+            en: "Yukong",
+            al: ["yu kong", "yukong", "yukong"],
+            el: "imaginary",
+            path: "harmony",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.1",
+            av: "/assets/characters/yukong-avatar-777d4b9d9679.png",
+            oid: "1207",
+            pt: true,
+          },
+          {
+            id: "blade",
+            zh: "刃",
+            en: "Blade",
+            al: ["ren", "blade"],
+            el: "wind",
+            path: "destruction",
+            r: 5,
+            fac: "stellaron-hunters",
+            facg: "stellaron-hunters",
+            reg: "cosmic",
+            v: "1.2",
+            av: "/assets/characters/blade-avatar-2e40055896d6.png",
+            oid: "1205",
+            pt: true,
+          },
+          {
+            id: "kafka",
+            zh: "卡芙卡",
+            en: "Kafka",
+            al: ["ka fu ka", "kafuka", "kafka"],
+            el: "lightning",
+            path: "nihility",
+            r: 5,
+            fac: "stellaron-hunters",
+            facg: "stellaron-hunters",
+            reg: "cosmic",
+            v: "1.2",
+            av: "/assets/characters/kafka-avatar-0d83f3fa9f98.png",
+            oid: "1005",
+            pt: true,
+          },
+          {
+            id: "luka",
+            zh: "卢卡",
+            en: "Luka",
+            al: ["lu ka", "luka", "luka"],
+            el: "physical",
+            path: "nihility",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.2",
+            av: "/assets/characters/luka-avatar-386a0a2094bd.png",
+            oid: "1111",
+            pt: true,
+          },
+          {
+            id: "dan-heng-il",
+            zh: "丹恒•饮月",
+            en: "Dan Heng • Imbibitor Lunae",
+            al: [
+              "饮月",
+              "龙丹",
+              "dan heng yin yue",
+              "danhengyinyue",
+              "yin yue",
+              "yinyue",
+              "long dan",
+              "longdan",
+              "DHIL",
+              "Imbibitor Lunae",
+              "dan heng imbibitor lunae",
+              "danhengimbibitorlunae",
+              "imbibitorlunae",
+            ],
+            el: "imaginary",
+            path: "destruction",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.3",
+            av: "/assets/characters/dan-heng-il-avatar-2cf07d2fcb26.png",
+            oid: "1213",
+            pt: true,
+          },
+          {
+            id: "fu-xuan",
+            zh: "符玄",
+            en: "Fu Xuan",
+            al: ["fu xuan", "fuxuan", "fu xuan", "fuxuan"],
+            el: "quantum",
+            path: "preservation",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.3",
+            av: "/assets/characters/fu-xuan-avatar-0eaf018b940e.png",
+            oid: "1208",
+            pt: true,
+          },
+          {
+            id: "lynx",
+            zh: "玲可",
+            en: "Lynx",
+            al: ["ling ke", "lingke", "lynx"],
+            el: "quantum",
+            path: "abundance",
+            r: 4,
+            fac: "belobog",
+            facg: "belobog",
+            reg: "belobog",
+            v: "1.3",
+            av: "/assets/characters/lynx-avatar-69660d7cc9dc.png",
+            oid: "1110",
+            pt: true,
+          },
+          {
+            id: "guinaifen",
+            zh: "桂乃芬",
+            en: "Guinaifen",
+            al: ["gui nai fen", "guinaifen", "guinaifen"],
+            el: "fire",
+            path: "nihility",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.4",
+            av: "/assets/characters/guinaifen-avatar-a3889d33288f.png",
+            oid: "1210",
+            pt: true,
+          },
+          {
+            id: "jingliu",
+            zh: "镜流",
+            en: "Jingliu",
+            al: ["jing liu", "jingliu", "jingliu"],
+            el: "ice",
+            path: "destruction",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.4",
+            av: "/assets/characters/jingliu-avatar-1798d3ee3663.png",
+            oid: "1212",
+            pt: true,
+          },
+          {
+            id: "topaz-and-numby",
+            zh: "托帕&账账",
+            en: "Topaz & Numby",
+            al: [
+              "托帕",
+              "账账",
+              "tuo pa zhang zhang",
+              "tuopazhangzhang",
+              "tuo pa",
+              "tuopa",
+              "zhang zhang",
+              "zhangzhang",
+              "Topaz",
+              "Numby",
+              "topaz numby",
+              "topaznumby",
+            ],
+            el: "fire",
+            path: "hunt",
+            r: 5,
+            fac: "ipc",
+            facg: "ipc",
+            reg: "cosmic",
+            v: "1.4",
+            av: "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff.png",
+            oid: "1112",
+            pt: true,
+          },
+          {
+            id: "argenti",
+            zh: "银枝",
+            en: "Argenti",
+            al: ["yin zhi", "yinzhi", "argenti"],
+            el: "physical",
+            path: "erudition",
+            r: 5,
+            fac: "knights-of-beauty",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "1.5",
+            av: "/assets/characters/argenti-avatar-6e67ada6f633.png",
+            oid: "1302",
+            pt: true,
+          },
+          {
+            id: "hanya",
+            zh: "寒鸦",
+            en: "Hanya",
+            al: ["han ya", "hanya", "hanya"],
+            el: "physical",
+            path: "harmony",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.5",
+            av: "/assets/characters/hanya-avatar-80b6f1b592cd.png",
+            oid: "1215",
+            pt: true,
+          },
+          {
+            id: "huohuo",
+            zh: "藿藿",
+            en: "Huohuo",
+            al: ["huo huo", "huohuo", "huohuo"],
+            el: "wind",
+            path: "abundance",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.5",
+            av: "/assets/characters/huohuo-avatar-3a8f2742bd7a.png",
+            oid: "1217",
+            pt: true,
+          },
+          {
+            id: "dr-ratio",
+            zh: "真理医生",
+            en: "Dr. Ratio",
+            al: [
+              "真理",
+              "zhen li yi sheng",
+              "zhenliyisheng",
+              "zhen li",
+              "zhenli",
+              "Ratio",
+              "Dr Ratio",
+              "drratio",
+            ],
+            el: "imaginary",
+            path: "hunt",
+            r: 5,
+            fac: "intelligentsia-guild",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "1.6",
+            av: "/assets/characters/dr-ratio-avatar-8e8cc1c26b98.png",
+            oid: "1305",
+            pt: true,
+          },
+          {
+            id: "ruan-mei",
+            zh: "阮•梅",
+            en: "Ruan Mei",
+            al: ["ruan mei", "ruanmei", "ruan mei", "ruanmei"],
+            el: "ice",
+            path: "harmony",
+            r: 5,
+            fac: "herta-space-station",
+            facg: "herta-space-station",
+            reg: "herta-space-station",
+            v: "1.6",
+            av: "/assets/characters/ruan-mei-avatar-a1e997242931.png",
+            oid: "1303",
+            pt: true,
+          },
+          {
+            id: "xueyi",
+            zh: "雪衣",
+            en: "Xueyi",
+            al: ["xue yi", "xueyi", "xueyi"],
+            el: "quantum",
+            path: "destruction",
+            r: 4,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "1.6",
+            av: "/assets/characters/xueyi-avatar-3b5c911839ee.png",
+            oid: "1214",
+            pt: true,
+          },
+          {
+            id: "black-swan",
+            zh: "黑天鹅",
+            en: "Black Swan",
+            al: ["hei tian e", "heitiane", "black swan", "blackswan"],
+            el: "wind",
+            path: "nihility",
+            r: 5,
+            fac: "garden-of-recollection",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "2.0",
+            av: "/assets/characters/black-swan-avatar-59452a1c84d4.png",
+            oid: "1307",
+            pt: true,
+          },
+          {
+            id: "misha",
+            zh: "米沙",
+            en: "Misha",
+            al: ["mi sha", "misha", "misha"],
+            el: "ice",
+            path: "destruction",
+            r: 4,
+            fac: "penacony",
+            facg: "penacony",
+            reg: "penacony",
+            v: "2.0",
+            av: "/assets/characters/misha-avatar-82816a770116.png",
+            oid: "1312",
+            pt: true,
+          },
+          {
+            id: "sparkle",
+            zh: "花火",
+            en: "Sparkle",
+            al: ["hua huo", "huahuo", "sparkle"],
+            el: "quantum",
+            path: "harmony",
+            r: 5,
+            fac: "masked-fools",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "2.0",
+            av: "/assets/characters/sparkle-avatar-d4e241c4b49b.png",
+            oid: "1306",
+            pt: true,
+          },
+          {
+            id: "acheron",
+            zh: "黄泉",
+            en: "Acheron",
+            al: ["huang quan", "huangquan", "acheron"],
+            el: "lightning",
+            path: "nihility",
+            r: 5,
+            fac: "self-annihilators",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "2.1",
+            av: "/assets/characters/acheron-avatar-7676548cd1fd.png",
+            oid: "1308",
+            pt: true,
+          },
+          {
+            id: "aventurine",
+            zh: "砂金",
+            en: "Aventurine",
+            al: ["sha jin", "shajin", "aventurine"],
+            el: "imaginary",
+            path: "preservation",
+            r: 5,
+            fac: "ipc",
+            facg: "ipc",
+            reg: "cosmic",
+            v: "2.1",
+            av: "/assets/characters/aventurine-avatar-0ff97f429972.png",
+            oid: "1304",
+            pt: true,
+          },
+          {
+            id: "gallagher",
+            zh: "加拉赫",
+            en: "Gallagher",
+            al: ["jia la he", "jialahe", "gallagher"],
+            el: "fire",
+            path: "abundance",
+            r: 4,
+            fac: "penacony",
+            facg: "penacony",
+            reg: "penacony",
+            v: "2.1",
+            av: "/assets/characters/gallagher-avatar-56e22ff2e836.png",
+            oid: "1301",
+            pt: true,
+          },
+          {
+            id: "boothill",
+            zh: "波提欧",
+            en: "Boothill",
+            al: ["bo ti ou", "botiou", "boothill"],
+            el: "physical",
+            path: "hunt",
+            r: 5,
+            fac: "galaxy-rangers",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "2.2",
+            av: "/assets/characters/boothill-avatar-039177ccda71.png",
+            oid: "1315",
+            pt: true,
+          },
+          {
+            id: "robin",
+            zh: "知更鸟",
+            en: "Robin",
+            al: ["zhi geng niao", "zhigengniao", "robin"],
+            el: "physical",
+            path: "harmony",
+            r: 5,
+            fac: "penacony",
+            facg: "penacony",
+            reg: "penacony",
+            v: "2.2",
+            av: "/assets/characters/robin-avatar-831c516c3714.png",
+            oid: "1309",
+            pt: true,
+          },
+          {
+            id: "trailblazer-harmony",
+            zh: "开拓者·同谐",
+            en: "Trailblazer · Harmony",
+            al: [
+              "开拓者",
+              "同谐主角",
+              "kai tuo zhe tong xie",
+              "kaituozhetongxie",
+              "kai tuo zhe",
+              "kaituozhe",
+              "tong xie zhu jue",
+              "tongxiezhujue",
+              "Trailblazer",
+              "Harmony Trailblazer",
+              "trailblazer harmony",
+              "trailblazerharmony",
+              "harmonytrailblazer",
+            ],
+            el: "imaginary",
+            path: "harmony",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "2.2",
+            av: "/assets/characters/trailblazer-harmony-avatar-8ab0f9082b98.png",
+            oid: "8005",
+            pt: true,
+          },
+          {
+            id: "firefly",
+            zh: "流萤",
+            en: "Firefly",
+            al: [
+              "萤宝",
+              "萨姆",
+              "liu ying",
+              "liuying",
+              "ying bao",
+              "yingbao",
+              "sa mu",
+              "samu",
+              "SAM",
+              "firefly",
+            ],
+            el: "fire",
+            path: "destruction",
+            r: 5,
+            fac: "stellaron-hunters",
+            facg: "stellaron-hunters",
+            reg: "cosmic",
+            v: "2.3",
+            av: "/assets/characters/firefly-avatar-95f3c017e490.png",
+            oid: "1310",
+            pt: true,
+          },
+          {
+            id: "jade",
+            zh: "翡翠",
+            en: "Jade",
+            al: ["fei cui", "feicui", "jade"],
+            el: "quantum",
+            path: "erudition",
+            r: 5,
+            fac: "ipc",
+            facg: "ipc",
+            reg: "cosmic",
+            v: "2.3",
+            av: "/assets/characters/jade-avatar-deea45c1dd61.png",
+            oid: "1314",
+            pt: true,
+          },
+          {
+            id: "jiaoqiu",
+            zh: "椒丘",
+            en: "Jiaoqiu",
+            al: ["jiao qiu", "jiaoqiu", "jiaoqiu"],
+            el: "fire",
+            path: "nihility",
+            r: 5,
+            fac: "xianzhou-yaoqing",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "2.4",
+            av: "/assets/characters/jiaoqiu-avatar-4c8d9c1ba0e0.png",
+            oid: "1218",
+            pt: true,
+          },
+          {
+            id: "march-7th-hunt",
+            zh: "三月七·巡猎",
+            en: "March 7th · The Hunt",
+            al: [
+              "三月七",
+              "巡猎三月七",
+              "剑三月",
+              "san yue qi xun lie",
+              "sanyueqixunlie",
+              "san yue qi",
+              "sanyueqi",
+              "xun lie san yue qi",
+              "xunliesanyueqi",
+              "jian san yue",
+              "jiansanyue",
+              "March 7th",
+              "Hunt March",
+              "M7 Hunt",
+              "march 7th the hunt",
+              "march7ththehunt",
+              "march7th",
+              "huntmarch",
+              "m7hunt",
+            ],
+            el: "imaginary",
+            path: "hunt",
+            r: 4,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "2.4",
+            av: "/assets/characters/march-7th-hunt-avatar-70b58fc7fe3f.png",
+            oid: "1224",
+            pt: true,
+          },
+          {
+            id: "yunli",
+            zh: "云璃",
+            en: "Yunli",
+            al: ["yun li", "yunli", "yunli"],
+            el: "physical",
+            path: "destruction",
+            r: 5,
+            fac: "xianzhou-zhuming",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "2.4",
+            av: "/assets/characters/yunli-avatar-8a2e54b49880.png",
+            oid: "1221",
+            pt: true,
+          },
+          {
+            id: "feixiao",
+            zh: "飞霄",
+            en: "Feixiao",
+            al: ["fei xiao", "feixiao", "feixiao"],
+            el: "wind",
+            path: "hunt",
+            r: 5,
+            fac: "xianzhou-yaoqing",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "2.5",
+            av: "/assets/characters/feixiao-avatar-3979450d3733.png",
+            oid: "1220",
+            pt: true,
+          },
+          {
+            id: "lingsha",
+            zh: "灵砂",
+            en: "Lingsha",
+            al: ["ling sha", "lingsha", "lingsha"],
+            el: "fire",
+            path: "abundance",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "2.5",
+            av: "/assets/characters/lingsha-avatar-e67420fda0c0.png",
+            oid: "1222",
+            pt: true,
+          },
+          {
+            id: "moze",
+            zh: "貊泽",
+            en: "Moze",
+            al: ["mo ze", "moze", "moze"],
+            el: "lightning",
+            path: "hunt",
+            r: 4,
+            fac: "xianzhou-yaoqing",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "2.5",
+            av: "/assets/characters/moze-avatar-00139b2fba69.png",
+            oid: "1223",
+            pt: true,
+          },
+          {
+            id: "rappa",
+            zh: "乱破",
+            en: "Rappa",
+            al: ["luan po", "luanpo", "rappa"],
+            el: "imaginary",
+            path: "erudition",
+            r: 5,
+            fac: "galaxy-rangers",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "2.6",
+            av: "/assets/characters/rappa-avatar-86a21eaf73a3.png",
+            oid: "1317",
+            pt: true,
+          },
+          {
+            id: "fugue",
+            zh: "忘归人",
+            en: "Fugue",
+            al: ["wang gui ren", "wangguiren", "fugue"],
+            el: "fire",
+            path: "nihility",
+            r: 5,
+            fac: "xianzhou-luofu",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "2.7",
+            av: "/assets/characters/fugue-avatar-4fc575471981.png",
+            oid: "1225",
+            pt: true,
+          },
+          {
+            id: "sunday",
+            zh: "星期日",
+            en: "Sunday",
+            al: ["xing qi ri", "xingqiri", "sunday"],
+            el: "imaginary",
+            path: "harmony",
+            r: 5,
+            fac: "cosmic",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "2.7",
+            av: "/assets/characters/sunday-avatar-6419f26d34d2.png",
+            oid: "1313",
+            pt: true,
+          },
+          {
+            id: "aglaea",
+            zh: "阿格莱雅",
+            en: "Aglaea",
+            al: ["a ge lai ya", "agelaiya", "aglaea"],
+            el: "lightning",
+            path: "remembrance",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.0",
+            av: "/assets/characters/aglaea-avatar-1bbe277dab6e.png",
+            oid: "1402",
+            pt: true,
+          },
+          {
+            id: "the-herta",
+            zh: "大黑塔",
+            en: "The Herta",
+            al: [
+              "黑塔",
+              "da hei ta",
+              "daheita",
+              "hei ta",
+              "heita",
+              "Herta",
+              "Madam Herta",
+              "the herta",
+              "theherta",
+              "madamherta",
+            ],
+            el: "ice",
+            path: "erudition",
+            r: 5,
+            fac: "herta-space-station",
+            facg: "herta-space-station",
+            reg: "herta-space-station",
+            v: "3.0",
+            av: "/assets/characters/the-herta-avatar-306da87b6817.png",
+            oid: "1401",
+            pt: true,
+          },
+          {
+            id: "trailblazer-remembrance",
+            zh: "开拓者·记忆",
+            en: "Trailblazer · Remembrance",
+            al: [
+              "开拓者",
+              "记忆主角",
+              "kai tuo zhe ji yi",
+              "kaituozhejiyi",
+              "kai tuo zhe",
+              "kaituozhe",
+              "ji yi zhu jue",
+              "jiyizhujue",
+              "Trailblazer",
+              "Remembrance Trailblazer",
+              "trailblazer remembrance",
+              "trailblazerremembrance",
+              "remembrancetrailblazer",
+            ],
+            el: "ice",
+            path: "remembrance",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "3.0",
+            av: "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d.png",
+            oid: "8007",
+            pt: true,
+          },
+          {
+            id: "mydei",
+            zh: "万敌",
+            en: "Mydei",
+            al: ["wan di", "wandi", "mydei"],
+            el: "imaginary",
+            path: "destruction",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.1",
+            av: "/assets/characters/mydei-avatar-567729274be4.png",
+            oid: "1404",
+            pt: true,
+          },
+          {
+            id: "tribbie",
+            zh: "缇宝",
+            en: "Tribbie",
+            al: ["ti bao", "tibao", "tribbie"],
+            el: "quantum",
+            path: "harmony",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.1",
+            av: "/assets/characters/tribbie-avatar-296b1a123c22.png",
+            oid: "1403",
+            pt: true,
+          },
+          {
+            id: "anaxa",
+            zh: "那刻夏",
+            en: "Anaxa",
+            al: ["na ke xia", "nakexia", "anaxa"],
+            el: "wind",
+            path: "erudition",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.2",
+            av: "/assets/characters/anaxa-avatar-6d50f51d5cf0.png",
+            oid: "1405",
+            pt: true,
+          },
+          {
+            id: "castorice",
+            zh: "遐蝶",
+            en: "Castorice",
+            al: ["xia die", "xiadie", "castorice"],
+            el: "quantum",
+            path: "remembrance",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.2",
+            av: "/assets/characters/castorice-avatar-a05fc9e97efb.png",
+            oid: "1407",
+            pt: true,
+          },
+          {
+            id: "cipher",
+            zh: "赛飞儿",
+            en: "Cipher",
+            al: ["sai fei er", "saifeier", "cipher"],
+            el: "quantum",
+            path: "nihility",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.3",
+            av: "/assets/characters/cipher-avatar-7a3884a7ac08.png",
+            oid: "1406",
+            pt: true,
+          },
+          {
+            id: "hyacine",
+            zh: "风堇",
+            en: "Hyacine",
+            al: ["feng jin", "fengjin", "hyacine"],
+            el: "wind",
+            path: "remembrance",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.3",
+            av: "/assets/characters/hyacine-avatar-23ff80766bcb.png",
+            oid: "1409",
+            pt: true,
+          },
+          {
+            id: "archer",
+            zh: "Archer",
+            en: "Archer",
+            al: ["archer", "archer"],
+            el: "quantum",
+            path: "hunt",
+            r: 5,
+            fac: "fate-stay-night",
+            facg: "another-world",
+            reg: "another-world",
+            v: "3.4",
+            av: "/assets/characters/archer-avatar-0ed79ec7f8fa.png",
+            oid: "1015",
+            pt: true,
+          },
+          {
+            id: "phainon",
+            zh: "白厄",
+            en: "Phainon",
+            al: ["bai e", "baie", "phainon"],
+            el: "physical",
+            path: "destruction",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.4",
+            av: "/assets/characters/phainon-avatar-0b70600027a3.png",
+            oid: "1408",
+            pt: true,
+          },
+          {
+            id: "saber",
+            zh: "Saber",
+            en: "Saber",
+            al: ["saber", "saber"],
+            el: "wind",
+            path: "destruction",
+            r: 5,
+            fac: "fate-stay-night",
+            facg: "another-world",
+            reg: "another-world",
+            v: "3.4",
+            av: "/assets/characters/saber-avatar-7dde152ddf96.png",
+            oid: "1014",
+            pt: true,
+          },
+          {
+            id: "cerydra",
+            zh: "刻律德菈",
+            en: "Cerydra",
+            al: ["ke lu de la", "keludela", "cerydra"],
+            el: "wind",
+            path: "harmony",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.5",
+            av: "/assets/characters/cerydra-avatar-7936a8ec3c37.png",
+            oid: "1412",
+            pt: true,
+          },
+          {
+            id: "hysilens",
+            zh: "海瑟音",
+            en: "Hysilens",
+            al: ["hai se yin", "haiseyin", "hysilens"],
+            el: "physical",
+            path: "nihility",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.5",
+            av: "/assets/characters/hysilens-avatar-24551611879f.png",
+            oid: "1410",
+            pt: true,
+          },
+          {
+            id: "dan-heng-permansor-terrae",
+            zh: "丹恒•腾荒",
+            en: "Dan Heng • Permansor Terrae",
+            al: [
+              "dan heng teng huang",
+              "danhengtenghuang",
+              "dan heng permansor terrae",
+              "danhengpermansorterrae",
+            ],
+            el: "physical",
+            path: "preservation",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.6",
+            av: "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1.png",
+            oid: "1414",
+            pt: true,
+          },
+          {
+            id: "evernight",
+            zh: "长夜月",
+            en: "Evernight",
+            al: ["chang ye yue", "changyeyue", "evernight"],
+            el: "ice",
+            path: "remembrance",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.6",
+            av: "/assets/characters/evernight-avatar-f387ff953a14.png",
+            oid: "1413",
+            pt: true,
+          },
+          {
+            id: "cyrene",
+            zh: "昔涟",
+            en: "Cyrene",
+            al: ["xi lian", "xilian", "cyrene"],
+            el: "ice",
+            path: "remembrance",
+            r: 5,
+            fac: "amphoreus",
+            facg: "amphoreus",
+            reg: "amphoreus",
+            v: "3.7",
+            av: "/assets/characters/cyrene-avatar-ba047a95195b.png",
+            oid: "1415",
+            pt: true,
+          },
+          {
+            id: "the-dahlia",
+            zh: "大丽花",
+            en: "The Dahlia",
+            al: ["da li hua", "dalihua", "the dahlia", "thedahlia"],
+            el: "fire",
+            path: "nihility",
+            r: 5,
+            fac: "the-cremators",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "3.8",
+            av: "/assets/characters/the-dahlia-avatar-516cf749fd35.png",
+            oid: "1321",
+            pt: true,
+          },
+          {
+            id: "sparxie",
+            zh: "火花",
+            en: "Sparxie",
+            al: ["huo hua", "huohua", "sparxie"],
+            el: "fire",
+            path: "elation",
+            r: 5,
+            fac: "masked-fools",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "4.0",
+            av: "/assets/characters/sparxie-avatar-59851d4b7fcc.png",
+            oid: "1501",
+            pt: true,
+          },
+          {
+            id: "yao-guang",
+            zh: "爻光",
+            en: "Yao Guang",
+            al: ["yao guang", "yaoguang", "yao guang", "yaoguang"],
+            el: "physical",
+            path: "elation",
+            r: 5,
+            fac: "xianzhou-yuque",
+            facg: "xianzhou-alliance",
+            reg: "xianzhou",
+            v: "4.0",
+            av: "/assets/characters/yao-guang-avatar-3c09d56ce7ae.png",
+            oid: "1502",
+            pt: true,
+          },
+          {
+            id: "ashveil",
+            zh: "不死途",
+            en: "Ashveil",
+            al: ["bu si tu", "busitu", "ashveil"],
+            el: "lightning",
+            path: "hunt",
+            r: 5,
+            fac: "galaxy-rangers",
+            facg: "cosmic",
+            reg: "cosmic",
+            v: "4.1",
+            av: "/assets/characters/ashveil-avatar-796c6588d0c1.png",
+            oid: "1504",
+            pt: true,
+          },
+          {
+            id: "evanescia",
+            zh: "绯英",
+            en: "Evanescia",
+            al: ["fei ying", "feiying", "evanescia"],
+            el: "physical",
+            path: "elation",
+            r: 5,
+            fac: "planarcadia",
+            facg: "planarcadia",
+            reg: "planarcadia",
+            v: "4.2",
+            av: "/assets/characters/evanescia-avatar-e4446664c7bb.png",
+            oid: "1505",
+            pt: true,
+          },
+          {
+            id: "silver-wolf-lv-999",
+            zh: "银狼LV.999",
+            en: "Silver Wolf LV.999",
+            al: ["yin lang", "yinlang", "silver wolf lv 999", "silverwolflv999"],
+            el: "imaginary",
+            path: "elation",
+            r: 5,
+            fac: "stellaron-hunters",
+            facg: "stellaron-hunters",
+            reg: "cosmic",
+            v: "4.2",
+            av: "/assets/characters/silver-wolf-lv-999-avatar-d86eec550297.png",
+            oid: "1506",
+            pt: true,
+          },
+          {
+            id: "trailblazer-elation",
+            zh: "开拓者·欢愉",
+            en: "Trailblazer · Elation",
+            al: [
+              "开拓者",
+              "欢愉主角",
+              "kai tuo zhe huan yu",
+              "kaituozhehuanyu",
+              "kai tuo zhe",
+              "kaituozhe",
+              "huan yu zhu jue",
+              "huanyuzhujue",
+              "Trailblazer",
+              "Elation Trailblazer",
+              "trailblazer elation",
+              "trailblazerelation",
+              "elationtrailblazer",
+            ],
+            el: "lightning",
+            path: "elation",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "4.2",
+            av: "/assets/characters/trailblazer-elation-avatar-5e5432f4e42a.png",
+            oid: "8009",
+            pt: true,
+          },
+          {
+            id: "mortenax-blade",
+            zh: "千冶•刃",
+            en: "Mortenax Blade",
+            al: ["qian ye ren", "qianyeren", "mortenax blade", "mortenaxblade"],
+            el: "fire",
+            path: "nihility",
+            r: 5,
+            fac: "stellaron-hunters",
+            facg: "stellaron-hunters",
+            reg: "cosmic",
+            v: "4.3",
+            av: "/assets/characters/mortenax-blade-avatar-2e609e325d48.png",
+            oid: "1507",
+            pt: true,
+          },
+          {
+            id: "gilgamesh",
+            zh: "吉尔伽美什",
+            en: "Gilgamesh",
+            al: ["ji er jia mei shen", "jierjiameishen", "gilgamesh"],
+            el: "lightning",
+            path: "destruction",
+            r: 5,
+            fac: "fate-stay-night",
+            facg: "another-world",
+            reg: "another-world",
+            v: "4.4",
+            av: "/assets/characters/gilgamesh-avatar-0f2e8e491b3a.png",
+            oid: "1509",
+            pt: true,
+          },
+          {
+            id: "himeko-nova",
+            zh: "姬子•启行",
+            en: "Himeko • Nova",
+            al: ["ji zi qi xing", "jiziqixing", "himeko nova", "himekonova"],
+            el: "fire",
+            path: "erudition",
+            r: 5,
+            fac: "astral-express",
+            facg: "astral-express",
+            reg: "astral-express",
+            v: "4.4",
+            av: "/assets/characters/himeko-nova-avatar-21948f59b870.png",
+            oid: "1510",
+            pt: true,
+          },
+          {
+            id: "rin-tohsaka",
+            zh: "远坂凛",
+            en: "Rin Tohsaka",
+            al: ["yuan ban lin", "yuanbanlin", "rin tohsaka", "rintohsaka"],
+            el: "quantum",
+            path: "erudition",
+            r: 5,
+            fac: "fate-stay-night",
+            facg: "another-world",
+            reg: "another-world",
+            v: "4.4",
+            av: "/assets/characters/rin-tohsaka-avatar-f7505f0f22a6.png",
+            oid: "1508",
+            pt: true,
+          },
+          {
+            id: "aventurine-waveflair",
+            zh: "砂金•戏浪",
+            en: "Aventurine • Waveflair",
+            al: ["sha jin xi lang", "shajinxilang", "aventurine waveflair", "aventurinewaveflair"],
+            el: "quantum",
+            path: "elation",
+            r: 5,
+            fac: "ipc",
+            facg: "ipc",
+            reg: "cosmic",
+            v: "4.5",
+            av: "/assets/characters/aventurine-waveflair-avatar-065d75ab338c.png",
+            oid: "1513",
+            pt: false,
+          },
+          {
+            id: "robin-summeretto",
+            zh: "知更鸟•晴歌",
+            en: "Robin • Summeretto",
+            al: [
+              "zhi geng niao qing ge",
+              "zhigengniaoqingge",
+              "robin summeretto",
+              "robinsummeretto",
+            ],
+            el: "wind",
+            path: "remembrance",
+            r: 5,
+            fac: "penacony",
+            facg: "penacony",
+            reg: "penacony",
+            v: "4.5",
+            av: "/assets/characters/robin-summeretto-avatar-13163e99fe13.png",
+            oid: "1512",
+            pt: false,
+          },
+        ],
+        names: {
+          "stellaron-hunters": "星核猎手",
+          "xianzhou-luofu": "仙舟「罗浮」",
+          ipc: "星际和平公司",
+          "xianzhou-yaoqing": "仙舟「曜青」",
+          "intelligentsia-guild": "博识学会",
+          "galaxy-rangers": "巡海游侠",
+          "xianzhou-yuque": "仙舟「玉阙」",
+          belobog: "贝洛伯格",
+          "self-annihilators": "自灭者",
+          "herta-space-station": "空间站「黑塔」",
+          amphoreus: "翁法罗斯",
+          planarcadia: "二相乐园",
+          "astral-express": "星穹列车",
+          "garden-of-recollection": "流光忆庭",
+          "another-world": "异界",
+          xianzhou: "仙舟",
+          "the-cremators": "焚化工",
+          "xianzhou-zhuming": "仙舟「朱明」",
+          "knights-of-beauty": "纯美骑士团",
+          cosmic: "银河",
+          penacony: "匹诺康尼",
+          "fate-stay-night": "异界(Fate系列)",
+          "masked-fools": "假面愚者",
+        },
+      };
+      const ASSET = "../../../apps/web/public";
+      const EL = {
+        physical: "物理",
+        fire: "火",
+        ice: "冰",
+        lightning: "雷",
+        wind: "风",
+        quantum: "量子",
+        imaginary: "虚数",
+      };
+      const PATH = {
+        destruction: "毁灭",
+        hunt: "巡猎",
+        erudition: "智识",
+        harmony: "同谐",
+        nihility: "虚无",
+        preservation: "存护",
+        abundance: "丰饶",
+        remembrance: "记忆",
+        elation: "欢愉",
+      };
+      const FAC = Object.assign({}, DATA.names);
+      const chars = DATA.chars;
+      const byId = Object.fromEntries(chars.map((c) => [c.id, c]));
+      const $ = (s, r = document) => r.querySelector(s);
+      const av = (c) => ASSET + c.av;
+      const portrait = (c) => (c.pt ? `${ASSET}/assets/portraits/${c.oid}.png` : av(c));
+      const MAX = 6;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      /* ---------- hub ---------- */
+      document.querySelectorAll("[data-av]").forEach((img) => (img.src = av(byId[img.dataset.av])));
+      const y = byId.firefly;
+      $("#yImg").src = portrait(y);
+      $("#yName").textContent = y.zh;
+
+      const more = [
+        ["周赛", "本周：货币战争 · 5 题全服同序", "剩 3 天", "aventurine", "live"],
+        ["实时对战", "随机匹配计 Elo，好友房可选 BO1–BO7", "Elo 1000", "acheron", ""],
+        ["立绘挑战", "从局部立绘认出角色", "新", "sparkle", ""],
+        ["货币战争", "费用、站位、羁绊三项判题", "可离线", "silver-wolf", ""],
+        ["星神", "从遮罩图像认出星神", "需联网一次", "the-herta", ""],
+      ];
+      $("#moreList").innerHTML = more
+        .map(([t, d, s, img, cls]) => {
+          const c = byId[img] || chars[0];
+          return `<a href="#"><span class="thumb"><img src="${av(c)}" alt="" loading="lazy"></span><span><strong>${t}</strong><small>${d}</small></span><span class="chip ${cls}">${s}</span><span class="arrow"><svg><use href="#i-arrow"/></svg></span></a>`;
+        })
+        .join("");
+
+      const week = [
+        ["一", "won", "3/6", "mmcc,ecem,eeeeee"],
+        ["二", "won", "5/6", ""],
+        ["三", "lost", "X/6", ""],
+        ["四", "won", "2/6", ""],
+        ["五", "won", "4/6", ""],
+        ["六", "today", "—", ""],
+        ["日", "", "", ""],
+      ];
+      const bars = {
+        "3/6": "mmcecm",
+        "5/6": "eemecm",
+        "X/6": "mmmmmm",
+        "2/6": "eceeme",
+        "4/6": "eeecee",
+      };
+      $("#week").innerHTML = week
+        .map(([d, st, r]) => {
+          const b = (bars[r] || "......")
+            .split("")
+            .map((x) => `<i class="${x}"></i>`)
+            .join("");
+          return `<div class="day ${st === "today" ? "is-today" : st}"><div class="label"><span>周${d}</span><span>${st === "today" ? "今天" : ""}</span></div><div class="res num">${r || "&nbsp;"}</div><div class="bar">${b}</div></div>`;
+        })
+        .join("");
+
+      function tickCountdown() {
+        const now = Date.now(),
+          s = new Date(now + 8 * 3600e3);
+        const next = Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate() + 1) - 8 * 3600e3;
+        const t = Math.floor((next - now) / 1000);
+        $("#countdown").textContent = [t / 3600, (t % 3600) / 60, t % 60]
+          .map((v) => String(Math.floor(v)).padStart(2, "0"))
+          .join(":");
+      }
+      tickCountdown();
+      setInterval(tickCountdown, 1000);
+
+      /* ---------- game ---------- */
+      let answer = byId.robin,
+        guesses = [],
+        startedAt = null,
+        done = false,
+        timerId;
+      const vnum = (v) => parseFloat(v);
+      function judge(g) {
+        const a = answer;
+        const eq = (k) => (g[k] === a[k] ? "exact" : "miss");
+        const fac = g.fac === a.fac ? "exact" : g.facg === a.facg ? "close" : "miss";
+        let ver = "miss",
+          dir = "";
+        if (g.v === a.v) ver = "exact";
+        else {
+          if (Math.floor(vnum(g.v)) === Math.floor(vnum(a.v))) ver = "close";
+          dir = vnum(a.v) > vnum(g.v) ? "↑" : "↓";
+        }
+        return [
+          [EL[g.el], eq("el")],
+          [PATH[g.path], eq("path")],
+          [g.r + "★", eq("r")],
+          [FAC[g.fac] || g.fac, fac],
+          [FAC[g.reg] || g.reg, eq("reg")],
+          [g.v, ver, dir],
+        ];
+      }
+
+      function renderPips() {
+        const won = done && guesses.at(-1) === answer;
+        $("#pips").innerHTML = Array.from(
+          { length: MAX },
+          (_, i) =>
+            `<i class="${i < guesses.length ? (won && i === guesses.length - 1 ? "win" : "used") : ""}"></i>`,
+        ).join("");
+      }
+
+      function rowHTML(g, cls = "") {
+        const cells = judge(g)
+          .map(
+            ([v, s, d], i) =>
+              `<div class="tile" role="gridcell" data-s="${s}" style="--i:${i}"><span class="v">${v}${d ? `<span class="dir">${d}</span>` : ""}</span></div>`,
+          )
+          .join("");
+        return `<div class="row ${cls}" role="row"><div class="who"><img src="${av(g)}" alt=""><div><b>${g.zh}</b><small>${g.en}</small></div></div>${cells}</div>`;
+      }
+
+      function renderBoard(animateLast = false) {
+        const head = $(".board-head").outerHTML;
+        let html = head;
+        guesses.forEach((g, i) => {
+          const last = i === guesses.length - 1;
+          const win = last && g === answer;
+          html += rowHTML(g, animateLast && last ? "reveal" + (win ? " win" : "") : "");
+        });
+        if (!done) {
+          html += `<div class="row active" role="row"><div class="composer">
+      <svg><use href="#i-search"/></svg>
+      <input id="q" type="search" role="combobox" aria-expanded="false" aria-controls="res" autocomplete="off" placeholder="第 ${guesses.length + 1} 猜：输入角色名、英文或拼音" />
+      <kbd>Enter</kbd>
+      <button class="btn btn-primary" id="go">猜</button>
+      <div class="results" id="res" role="listbox" hidden></div></div></div>`;
+        }
+        for (let i = guesses.length + (done ? 0 : 1); i < MAX; i++) {
+          html += `<div class="row empty" aria-hidden="true">${'<div class="slot"></div>'.repeat(7)}</div>`;
+        }
+        $("#board").innerHTML = html;
+        renderPips();
+        if (!done) wireComposer();
+      }
+
+      let hl = 0,
+        results = [];
+      function search(q) {
+        q = q.trim().toLowerCase();
+        if (!q) return [];
+        const used = new Set(guesses.map((g) => g.id));
+        const score = (c) => {
+          const n = c.zh.toLowerCase(),
+            e = c.en.toLowerCase();
+          if (n === q || e === q) return 0;
+          if (n.startsWith(q) || e.startsWith(q)) return 1;
+          if (c.al.some((a) => a.replace(/\s/g, "").startsWith(q.replace(/\s/g, "")))) return 2;
+          if (n.includes(q) || e.includes(q)) return 3;
+          return 9;
+        };
+        return chars
+          .map((c) => [score(c), c])
+          .filter(([s]) => s < 9)
+          .sort((a, b) => a[0] - b[0])
+          .slice(0, 8)
+          .map(([, c]) => ({ c, used: used.has(c.id) }));
+      }
+      function wireComposer() {
+        const q = $("#q"),
+          res = $("#res");
+        const draw = () => {
+          results = search(q.value);
+          res.hidden = !results.length;
+          q.setAttribute("aria-expanded", String(!res.hidden));
+          res.innerHTML = results
+            .map(
+              ({ c, used }, i) =>
+                `<button role="option" aria-selected="${i === hl}" class="${used ? "used" : ""}" data-id="${c.id}"><img src="${av(c)}" alt=""><span><b>${c.zh}</b><small>${c.en}${used ? " · 已猜过" : ""}</small></span></button>`,
+            )
+            .join("");
+        };
+        q.addEventListener("input", () => {
+          hl = 0;
+          draw();
+        });
+        q.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            hl = Math.min(hl + 1, results.length - 1);
+            draw();
+          }
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            hl = Math.max(hl - 1, 0);
+            draw();
+          }
+          if (e.key === "Enter") {
+            e.preventDefault();
+            pick(results[hl]?.c);
+          }
+          if (e.key === "Escape") {
+            res.hidden = true;
+          }
+        });
+        res.addEventListener("mousedown", (e) => e.preventDefault());
+        res.addEventListener("click", (e) => {
+          const b = e.target.closest("button");
+          if (b) pick(byId[b.dataset.id]);
+        });
+        $("#go").addEventListener("click", () => pick(results[hl]?.c));
+        if (!matchMedia("(max-width: 760px)").matches) q.focus({ preventScroll: true });
+      }
+
+      function pick(c) {
+        if (!c || done) return;
+        if (guesses.includes(c)) {
+          const r = $(".row.active");
+          r.classList.remove("shake");
+          void r.offsetWidth;
+          r.classList.add("shake");
+          return;
+        }
+        if (!startedAt) {
+          startedAt = Date.now();
+          timerId = setInterval(tick, 1000);
+        }
+        guesses.push(c);
+        const won = c === answer;
+        if (won || guesses.length >= MAX) {
+          done = true;
+          clearInterval(timerId);
+        }
+        renderBoard(true);
+        $("#live").textContent =
+          `${c.zh}：` +
+          judge(c)
+            .map(([v, s]) => `${v}${s === "exact" ? "一致" : s === "close" ? "接近" : "不符"}`)
+            .join("，");
+        if (done) setTimeout(() => showResult(won), reduce ? 200 : 6 * 110 + 1300);
+      }
+      function tick() {
+        const t = Math.floor((Date.now() - startedAt) / 1000);
+        $("#timer").textContent =
+          `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+      }
+
+      function showResult(won) {
+        const grid = guesses
+          .map(
+            (g) =>
+              `<div>${judge(g)
+                .map(([, s]) => `<i class="${s === "exact" ? "e" : s === "close" ? "c" : ""}"></i>`)
+                .join("")}</div>`,
+          )
+          .join("");
+        // funnel = remaining candidates after each guess (consistent with judge)
+        let pool = chars.slice();
+        const steps = [["开局", pool.length]];
+        guesses.forEach((g, i) => {
+          const sig = JSON.stringify(judge(g).map(([, s, d]) => s + (d || "")));
+          const saved = answer;
+          pool = pool.filter((cand) => {
+            answer = cand;
+            const ok = JSON.stringify(judge(g).map(([, s, d]) => s + (d || ""))) === sig;
+            answer = saved;
+            return ok;
+          });
+          steps.push([`第 ${i + 1} 猜`, pool.length]);
+        });
+        const max = steps[0][1];
+        const funnel = steps
+          .map(
+            ([l, n], i) =>
+              `<div class="funnel-row ${i === steps.length - 1 ? "last" : ""}"><span>${l}</span><span class="track"><i style="width:${Math.max(3, (n / max) * 100)}%;animation-delay:${i * 120}ms"></i></span><span class="num">${n}</span></div>`,
+          )
+          .join("");
+        $("#resultRoot").innerHTML =
+          `<div class="scrim" role="dialog" aria-modal="true" aria-labelledby="rh">
+    <div class="sheet" style="position:relative">
+      <figure class="sheet-art" style="margin:0"><img src="${portrait(answer)}" alt=""><figcaption><span class="label">今日答案</span><strong>${answer.zh}</strong></figcaption></figure>
+      <div class="sheet-body">
+        <div>
+          <span class="label">每日 #312 · 用时 <span class="num">${$("#timer").textContent}</span></span>
+          <h2 id="rh">${won ? `第 <em>${guesses.length}</em> 次猜中` : "这次没猜到"}</h2>
+        </div>
+        <div style="display:flex;gap:26px;align-items:start;flex-wrap:wrap">
+          <div class="share-grid" aria-label="结果图">${grid}</div>
+          <div class="funnel" style="flex:1;min-width:220px"><span class="label">推理复盘 · 每一猜后剩余候选</span>${funnel}</div>
+        </div>
+        <div class="stats">
+          <div><span class="label">连胜</span><strong class="num">8</strong></div>
+          <div><span class="label">胜率</span><strong class="num">86%</strong></div>
+          <div><span class="label">超过玩家</span><strong class="num">72%</strong></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary"><svg><use href="#i-share"/></svg>分享结果</button>
+          <button class="btn">发起好友挑战</button>
+          <button class="btn" data-go="hub">回到总站</button>
+        </div>
+      </div>
+      <button class="icon-btn close" aria-label="关闭" id="closeRes"><svg><use href="#i-x"/></svg></button>
+    </div></div>`;
+        $("#closeRes").onclick = () => ($("#resultRoot").innerHTML = "");
+        bindGo($("#resultRoot"));
+        if (won && !reduce) {
+          $("#flies").innerHTML = Array.from({ length: 22 }, () => {
+            const l = Math.random() * 100,
+              d = 3.5 + Math.random() * 3,
+              dl = Math.random() * 1.6,
+              x = (Math.random() - 0.5) * 160;
+            return `<i style="left:${l}%;--d:${d}s;--delay:${dl}s;--x:${x}px;transform:scale(${0.5 + Math.random()})"></i>`;
+          }).join("");
+          setTimeout(() => ($("#flies").innerHTML = ""), 8000);
+        }
+      }
+
+      function reset() {
+        guesses = [];
+        done = false;
+        startedAt = null;
+        clearInterval(timerId);
+        $("#timer").textContent = "00:00";
+        $("#resultRoot").innerHTML = "";
+        renderBoard();
+      }
+
+      /* ---------- views / theme ---------- */
+      function go(v) {
+        $("#view-hub").hidden = v !== "hub";
+        $("#view-game").hidden = v !== "game";
+        document
+          .querySelectorAll(".proto-bar [data-go]")
+          .forEach((b) => b.classList.toggle("on", b.dataset.go === v));
+        if (v === "game" && !guesses.length) reset();
+        if (v === "hub") $("#resultRoot").innerHTML = "";
+        scrollTo(0, 0);
+      }
+      function bindGo(root) {
+        root.querySelectorAll("[data-go]").forEach((el) =>
+          el.addEventListener("click", (e) => {
+            e.preventDefault();
+            go(el.dataset.go);
+          }),
+        );
+      }
+      bindGo(document);
+      const toggleTheme = () =>
+        (document.documentElement.dataset.theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+      $("#themeBtn").onclick = toggleTheme;
+      $("#themeBtn2").onclick = toggleTheme;
+      async function demo() {
+        go("game");
+        reset();
+        for (const id of ["kafka", "sparkle", "robin"]) {
+          await new Promise((r) => setTimeout(r, reduce ? 50 : 1100));
+          pick(byId[id]);
+        }
+      }
+      $("#demoBtn").onclick = demo;
+
+      const params = new URLSearchParams(location.search);
+      if (params.get("theme")) document.documentElement.dataset.theme = params.get("theme");
+      if (params.get("view") === "game") {
+        go("game");
+        if (params.get("demo")) demo();
+      } else if (params.get("demo")) demo();
+    </script>
+  </body>
+</html>
