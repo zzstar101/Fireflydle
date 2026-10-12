@@ -1,4 +1,5 @@
 import { usePreferences } from "../../state/preferences";
+import "./account.css";
 
 const copy = {
   "zh-CN": {

@@ -1,3 +1,9 @@
+/*
+ * 图鉴「星轨」v2 皮肤。
+ * 命途/阵营奖励通过 :root[data-collection-theme] / [data-collection-faction]
+ * 覆写 --gold/--gold-bright/--cyan/--border，所以这些主题色变量必须保留，
+ * 只把 v1 的直角硬边、引线小标题换成 v2 的圆角面板 + 胶囊。
+ */
 .collection-counter {
   display: grid;
   gap: 3px;
@@ -6,13 +12,15 @@
 }
 .collection-counter strong {
   color: var(--gold-bright);
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 2rem;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 .collection-counter span {
   color: var(--text-muted);
   font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
 }
 .collection-progress {
   display: grid;
@@ -25,7 +33,8 @@
   gap: 8px;
   padding: 13px 14px;
   border: 1px solid var(--border);
-  background: var(--surface);
+  border-radius: var(--r-tile);
+  background: var(--panel);
 }
 .collection-progress-item span {
   color: var(--text-muted);
@@ -35,15 +44,18 @@
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
 }
 .collection-progress-item i {
   height: 3px;
   overflow: hidden;
-  background: rgb(255 255 255 / 9%);
+  border-radius: 999px;
+  background: var(--miss);
 }
 .collection-progress-item b {
   display: block;
   height: 100%;
+  border-radius: 999px;
   background: var(--gold);
 }
 .collection-rewards {
@@ -68,6 +80,7 @@
   color: var(--gold-bright);
   font-family: var(--font-mono);
   font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .collection-reward-grid {
@@ -82,11 +95,12 @@
   overflow: hidden;
   flex-direction: column;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-radius: var(--r-card);
+  background: var(--panel);
 }
 .collection-reward-card.is-unlocked {
-  border-color: var(--border-strong);
-  box-shadow: 0 12px 35px rgb(0 0 0 / 12%);
+  border-color: color-mix(in srgb, var(--gold) 46%, var(--border));
+  box-shadow: 0 18px 44px rgb(0 0 0 / 26%);
 }
 .collection-reward-card.is-selected {
   border-color: var(--gold);
@@ -101,7 +115,7 @@
   flex: 0 0 142px;
   place-items: center;
   overflow: hidden;
-  background-color: #0a101b;
+  background-color: var(--bg);
   filter: saturate(1.05);
 }
 .collection-reward-image {
@@ -111,8 +125,8 @@
   min-height: 142px;
   object-fit: cover;
   transition:
-    transform 0.45s ease,
-    filter 0.45s ease;
+    transform 0.45s var(--ease),
+    filter 0.45s var(--ease);
 }
 .collection-reward-card.is-unlocked:hover .collection-reward-image {
   transform: scale(1.02);
@@ -147,6 +161,12 @@
 .collection-reward-progress {
   color: var(--text-muted);
   font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+/* 状态不只靠颜色：解锁的奖励在进度前补一个 ✓（与对局判题同一套字形） */
+.collection-reward-card.is-unlocked .collection-reward-progress::before {
+  content: "✓ ";
+  color: var(--gold);
 }
 .collection-reward-apply {
   display: inline-flex;
@@ -156,15 +176,20 @@
   gap: 5px;
   min-height: 28px;
   margin-top: 3px;
-  padding: 0 9px;
+  padding: 0 12px;
   border: 1px solid var(--border-strong);
-  background: transparent;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
   color: var(--gold-bright);
   cursor: pointer;
   font: inherit;
   font-size: 0.66rem;
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 }
 .collection-reward-apply:hover {
+  border-color: var(--gold);
   background: color-mix(in srgb, var(--gold) 14%, transparent);
 }
 .collection-grid {
@@ -179,12 +204,13 @@
   overflow: hidden;
   flex-direction: column;
   border: 1px solid var(--border);
-  background: var(--surface);
+  border-radius: var(--r-tile);
+  background: var(--panel);
   text-decoration: none;
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease),
+    transform 0.2s var(--ease);
 }
 .collection-card:hover {
   border-color: var(--gold);
@@ -198,10 +224,10 @@
   background:
     radial-gradient(
       circle at 50% 20%,
-      color-mix(in srgb, var(--cyan) 18%, transparent),
+      color-mix(in srgb, var(--cyan) 16%, transparent),
       transparent 58%
     ),
-    #0d1117;
+    var(--bg);
 }
 .collection-art-wrap img {
   width: 100%;
@@ -209,8 +235,8 @@
   object-fit: contain;
   object-position: center;
   transition:
-    transform 0.35s ease,
-    filter 0.35s ease;
+    transform 0.35s var(--ease),
+    filter 0.35s var(--ease);
 }
 .collection-card.is-unlocked:hover img {
   transform: scale(1.06);
@@ -233,7 +259,7 @@
   color: var(--gold);
   opacity: 0;
   transform: none !important;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s var(--ease);
 }
 .collection-card:hover .collection-card-arrow {
   opacity: 1;
@@ -271,11 +297,13 @@
   width: 32px;
   height: 32px;
   flex: 0 0 auto;
-  border: 1px solid rgb(231 185 79 / 42%);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-tile);
   object-fit: cover;
 }
 .collection-skin span {
   color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
 }
 .collection-error {
   color: var(--text-muted);
@@ -308,13 +336,14 @@
   place-items: center;
   overflow: hidden;
   border: 1px solid var(--border);
+  border-radius: var(--r-card);
   background:
     radial-gradient(
       circle at 50% 20%,
-      color-mix(in srgb, var(--cyan) 18%, transparent),
+      color-mix(in srgb, var(--cyan) 16%, transparent),
       transparent 62%
     ),
-    #0d1117;
+    var(--bg);
 }
 .collection-detail-art img {
   width: 100%;
@@ -330,7 +359,8 @@
 }
 .collection-detail-copy h1 {
   margin: 10px 0;
-  font-size: clamp(2.6rem, 7vw, 5.4rem);
+  font-size: clamp(2.2rem, 4.6vw, 3.4rem);
+  line-height: 1.08;
 }
 .collection-detail-meta {
   color: var(--gold);
@@ -398,8 +428,9 @@
 .collection-skin-gallery img {
   width: 100px;
   height: 100px;
-  object-fit: cover;
   border: 1px solid var(--border);
+  border-radius: var(--r-tile);
+  object-fit: cover;
 }
 .collection-skin-gallery figcaption {
   margin-top: 5px;
@@ -408,6 +439,15 @@
 }
 .collection-detail-locked {
   color: var(--text-muted);
+}
+/* v2：去掉 v1 小标题左侧的引线装饰 */
+.collection-page .eyebrow::before,
+.collection-detail-page .eyebrow::before {
+  content: none;
+}
+.collection-page .eyebrow,
+.collection-detail-page .eyebrow {
+  letter-spacing: 0.1em;
 }
 @media (max-width: 1000px) {
   .collection-progress {
@@ -438,4 +478,21 @@
   .collection-detail-art img {
     min-height: min(78vw, 420px);
   }
+}
+/* 减少动态效果：关掉卡片上浮与图片缩放（全局已把过渡时长压到 0） */
+@media (prefers-reduced-motion: reduce) {
+  .collection-card:hover {
+    transform: none;
+  }
+  .collection-card.is-unlocked:hover img,
+  .collection-reward-card.is-unlocked:hover .collection-reward-image {
+    transform: none;
+  }
+}
+:root[data-motion="reduced"] .collection-card:hover {
+  transform: none;
+}
+:root[data-motion="reduced"] .collection-card.is-unlocked:hover img,
+:root[data-motion="reduced"] .collection-reward-card.is-unlocked:hover .collection-reward-image {
+  transform: none;
 }

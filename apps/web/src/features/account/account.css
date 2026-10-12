@@ -1,3 +1,8 @@
+/*
+ * 账号 / 战绩 / 找回密码 / 邮箱验证 / 法务页「星轨」v2 皮肤。
+ * 这些页面大量复用全局的 .ticket-button 切角票券（global.css:753-798），
+ * 本文件不重命名 class，只在功能域内覆盖成 v2 胶囊。
+ */
 .auth-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.75fr);
@@ -10,7 +15,7 @@
 }
 .auth-intro > p:last-of-type {
   max-width: 680px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 1.05rem;
 }
 .auth-intro ul {
@@ -19,7 +24,7 @@
   padding: 25px 0 0;
   margin: 35px 0 0;
   gap: 18px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
   list-style: none;
 }
 .auth-intro li {
@@ -27,48 +32,48 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 13px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 0.8rem;
 }
 .auth-intro li svg {
-  color: var(--gold);
+  color: var(--lit);
 }
+/* v1 的切角票券面板 → v2 圆角面板（overflow 保证内部标签/报错被圆角裁切） */
 .auth-panel {
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel-2);
   box-shadow: var(--shadow);
-  clip-path: polygon(
-    14px 0,
-    100% 0,
-    100% calc(100% - 14px),
-    calc(100% - 14px) 100%,
-    0 100%,
-    0 14px
-  );
 }
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid var(--border);
+  gap: 4px;
+  padding: 6px;
+  border-bottom: 1px solid var(--line);
 }
 .auth-tabs button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 58px;
+  min-height: 46px;
   gap: 8px;
-  color: var(--text-muted);
+  color: var(--muted);
   cursor: pointer;
   border: 0;
-  border-bottom: 2px solid transparent;
+  border-radius: 999px;
   background: transparent;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease);
 }
 .auth-tabs button + button {
-  border-left: 1px solid var(--border);
+  border-left: 0;
 }
 .auth-tabs button.active {
-  color: var(--text);
-  border-bottom-color: var(--gold);
+  background: var(--cta);
+  color: var(--cta-ink);
 }
 .auth-form {
   display: grid;
@@ -82,14 +87,13 @@
 .auth-form label > span {
   display: flex;
   justify-content: space-between;
-  color: var(--text-muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 .auth-form label small {
-  color: var(--text-faint);
+  color: var(--faint);
   font-family: var(--font-mono);
   font-size: 0.5rem;
 }
@@ -97,13 +101,14 @@
   width: 100%;
   height: 48px;
   padding: 0 13px;
-  border: 1px solid var(--border);
-  border-radius: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
   outline: 0;
-  background: var(--canvas);
+  background: var(--surface-soft);
+  color: var(--ink);
 }
 .auth-form input:focus {
-  border-color: var(--gold);
+  border-color: color-mix(in srgb, var(--lit) 70%, transparent);
 }
 .auth-form .ticket-button {
   width: 100%;
@@ -111,9 +116,10 @@
 }
 .text-button {
   justify-self: center;
-  color: var(--gold);
+  color: var(--lit);
   cursor: pointer;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   font-size: 0.7rem;
 }
@@ -130,20 +136,22 @@
   align-items: center;
   padding: 45px 0;
   gap: 24px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
+/* v2 头像用圆角方块（README §7），不再是 v1 的圆形描边 */
 .profile-avatar {
   display: grid;
   width: 90px;
   height: 90px;
   place-items: center;
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
-  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel-2);
+  color: var(--lit);
 }
 .profile-banner h1 {
   margin: 0;
-  font-size: clamp(2.3rem, 5vw, 4rem);
+  font-size: clamp(2rem, 3.6vw, 3rem);
 }
 .profile-banner .eyebrow {
   margin-bottom: 5px;
@@ -152,14 +160,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--exact);
+  color: var(--lit);
   font-size: 0.62rem;
 }
 .profile-banner .profile-email-state-pending {
   color: var(--gold-bright);
 }
 .profile-banner .profile-email-state-missing {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .profile-actions {
   display: flex;
@@ -177,15 +185,15 @@
   font-size: 0.78rem;
 }
 .guest-stats-link:hover {
-  color: var(--text);
+  color: var(--ink);
 }
+/* v1 的共享硬边网格 → v2 独立圆角磁贴 */
 .account-metrics,
 .stats-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   margin: 38px 0;
-  border-top: 1px solid var(--border);
-  border-left: 1px solid var(--border);
 }
 
 .achievements-section {
@@ -205,18 +213,21 @@
   gap: 0.65rem;
 }
 .achievements-list > div {
-  border: 1px solid var(--line);
-  padding: 0.8rem;
   display: flex;
   justify-content: space-between;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
   gap: 0.5rem;
 }
 .achievements-list > div span {
   color: var(--muted);
   white-space: nowrap;
 }
+/* v1 这里引用了一个不存在的 --accent，一直没生效；改成 v2 的星光金描边 */
 .achievements-list > .is-unlocked {
-  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--lit) 55%, var(--line));
 }
 @media (max-width: 680px) {
   .achievements-list {
@@ -229,24 +240,29 @@
   min-height: 150px;
   padding: 26px;
   align-content: center;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
 }
 .account-metrics span,
 .stats-metrics span {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 0.62rem;
 }
+/* 数字统一等宽 + tabular-nums（README §2） */
 .account-metrics strong,
 .stats-metrics strong {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 2.4rem;
+  font-variant-numeric: tabular-nums;
 }
 .account-metrics .small-value {
+  font-family: var(--font-display);
   font-size: 1.5rem;
+  font-variant-numeric: normal;
 }
 .account-metrics small {
-  color: var(--text-faint);
+  color: var(--faint);
   font-family: var(--font-mono);
   font-size: 0.53rem;
 }
@@ -256,8 +272,9 @@
   padding: 22px 24px;
   margin-bottom: 18px;
   gap: 18px;
-  border: 1px solid color-mix(in srgb, var(--gold) 48%, var(--border));
-  background: color-mix(in srgb, var(--gold) 7%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--lit) 48%, var(--line));
+  border-radius: var(--r-tile);
+  background: color-mix(in srgb, var(--lit) 7%, var(--panel));
 }
 .email-verification-notice > div {
   display: flex;
@@ -272,7 +289,7 @@
   display: grid;
 }
 .email-verification-notice small {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .email-verification-notice button {
   flex: 0 0 auto;
@@ -284,6 +301,7 @@
   padding: 24px;
   gap: 15px;
   border: 1px solid color-mix(in srgb, var(--danger) 36%, transparent);
+  border-radius: var(--r-tile);
 }
 .danger-zone > div {
   display: grid;
@@ -299,7 +317,7 @@
   display: grid;
 }
 .danger-zone small {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .danger-zone button {
   margin-left: auto;
@@ -311,7 +329,9 @@
   padding: 22px 24px;
   margin-bottom: 18px;
   gap: 15px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
 }
 .profile-settings label {
   display: grid;
@@ -320,17 +340,19 @@
   font-weight: 700;
 }
 .profile-settings label small {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .profile-settings input {
   height: 45px;
   padding: 0 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
   outline: 0;
-  background: var(--canvas);
+  background: var(--surface-soft);
+  color: var(--ink);
 }
 .profile-settings input:focus {
-  border-color: var(--gold);
+  border-color: color-mix(in srgb, var(--lit) 70%, transparent);
 }
 .profile-settings button {
   min-height: 45px;
@@ -339,25 +361,30 @@
   padding: 12px 16px;
   margin-bottom: 18px;
   color: var(--gold-bright);
-  border-left: 2px solid var(--gold);
-  background: rgb(216 182 107 / 7%);
+  border-left: 2px solid var(--lit);
+  border-radius: var(--r-tile);
+  background: color-mix(in srgb, var(--lit) 8%, transparent);
 }
 .stats-metrics {
   grid-template-columns: repeat(3, 1fr);
 }
 .stats-metrics svg {
-  color: var(--gold);
+  color: var(--lit);
 }
 .stats-metrics strong {
   margin-top: 10px;
 }
 .stats-metrics small {
   margin-top: 3px;
-  color: var(--text-faint);
+  color: var(--faint);
   font-size: 0.62rem;
 }
+/* v1 的通栏硬边框容器 → v2 圆角面板 */
 .daily-stats-section {
-  border: 1px solid var(--border);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
 }
 .daily-stats-section > header {
   display: flex;
@@ -365,7 +392,7 @@
   justify-content: space-between;
   min-height: 55px;
   padding: 0 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 .daily-stats-section > header span {
   display: flex;
@@ -374,7 +401,7 @@
   font-weight: 700;
 }
 .daily-stats-section > header small {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .daily-stats-grid {
   display: grid;
@@ -386,7 +413,7 @@
   padding: 24px 20px;
 }
 .daily-history {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--line);
 }
 .guess-distribution h2,
 .daily-history h2 {
@@ -410,13 +437,16 @@
 .distribution-chart span {
   font-family: var(--font-mono);
   font-size: 0.58rem;
+  font-variant-numeric: tabular-nums;
 }
 .distribution-chart i {
   display: block;
   width: 100%;
   min-height: 4px;
-  background: var(--gold);
+  border-radius: 999px;
+  background: var(--lit);
 }
+/* 最后一档是「未中」，同时带 ✗ 文案标签，不是只靠颜色区分 */
 .distribution-chart > div:last-child i {
   background: var(--danger);
 }
@@ -430,7 +460,7 @@
   align-items: center;
   min-height: 54px;
   gap: 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 .daily-history-list span {
   display: grid;
@@ -438,16 +468,20 @@
 .daily-history-list small,
 .daily-history-list i,
 .daily-history-empty {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 0.65rem;
   font-style: normal;
+  font-variant-numeric: tabular-nums;
 }
 .daily-history-empty {
   margin: 0;
 }
 .history-section {
   margin-top: 35px;
-  border: 1px solid var(--border);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
 }
 .history-section > header {
   display: flex;
@@ -455,7 +489,7 @@
   justify-content: space-between;
   min-height: 55px;
   padding: 0 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 .history-section > header span {
   display: flex;
@@ -464,7 +498,7 @@
   font-weight: 700;
 }
 .history-section > header small {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .history-list a {
   display: grid;
@@ -473,19 +507,20 @@
   min-height: 68px;
   padding: 10px 20px;
   gap: 13px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 .history-list a:hover {
-  background: var(--surface);
+  background: var(--surface-soft);
 }
 .history-list span {
   display: grid;
 }
 .history-list small,
 .history-list i {
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 0.65rem;
   font-style: normal;
+  font-variant-numeric: tabular-nums;
 }
 .history-empty {
   display: grid;
@@ -495,30 +530,30 @@
   text-align: center;
 }
 .history-empty > svg {
-  color: var(--gold);
+  color: var(--lit);
 }
 .history-empty h2 {
   margin: 15px 0 4px;
 }
 .history-empty p {
   margin-bottom: 20px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .legal-page {
   max-width: 900px;
 }
 .legal-page > h1 {
-  margin-bottom: 70px;
+  margin-bottom: 40px;
 }
 .legal-page section {
   padding: 30px 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
 }
 .legal-page section h2 {
   font-size: 1.35rem;
 }
 .legal-page section p {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .recovery-page {
   display: grid;
@@ -530,16 +565,17 @@
   width: min(100%, 560px);
   padding: clamp(30px, 6vw, 60px);
   place-items: center;
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel-2);
   box-shadow: var(--shadow);
   text-align: center;
 }
 .recovery-panel h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
 }
 .recovery-panel > p:not(.eyebrow) {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 .recovery-icon {
   display: grid;
@@ -547,9 +583,10 @@
   height: 70px;
   margin-bottom: 24px;
   place-items: center;
-  color: var(--gold);
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
+  color: var(--lit);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-tile);
+  background: var(--surface-soft);
 }
 .recovery-form {
   width: 100%;
@@ -561,7 +598,7 @@
 }
 .recovery-helper {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.65;
 }
@@ -588,6 +625,51 @@
   border-right-color: transparent;
   border-radius: 50%;
   animation: orbit 700ms linear infinite;
+}
+/*
+ * v1 切角票券按钮 → v2 胶囊。
+ * global.css:753-798 定义了 .ticket-button / .ticket-button-secondary / .danger-button，
+ * styles/** 不在本次改动范围内，所以这里用功能域前缀提高优先级做局部覆盖。
+ */
+.account-page .ticket-button,
+.stats-page .ticket-button,
+.recovery-page .ticket-button,
+.email-verification-page .ticket-button {
+  border: 0;
+  border-radius: 999px;
+  background: var(--cta);
+  color: var(--cta-ink);
+  box-shadow: 0 10px 26px rgb(242 205 122 / 16%);
+  clip-path: none;
+}
+.account-page .ticket-button-secondary,
+.stats-page .ticket-button-secondary,
+.recovery-page .ticket-button-secondary,
+.email-verification-page .ticket-button-secondary,
+.account-page .danger-button {
+  border-radius: 999px;
+  clip-path: none;
+}
+.account-page .ticket-button-secondary,
+.stats-page .ticket-button-secondary,
+.recovery-page .ticket-button-secondary,
+.email-verification-page .ticket-button-secondary {
+  border: 1px solid var(--line-2);
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
+}
+/* v2：去掉 v1 小标题左侧的引线装饰 */
+.account-page .eyebrow::before,
+.stats-page .eyebrow::before,
+.recovery-page .eyebrow::before,
+.legal-page .eyebrow::before {
+  content: none;
+}
+.account-page .eyebrow,
+.stats-page .eyebrow,
+.recovery-page .eyebrow,
+.legal-page .eyebrow {
+  letter-spacing: 0.1em;
 }
 @media (max-width: 850px) {
   .auth-layout {
@@ -618,7 +700,7 @@
     grid-template-columns: 1fr;
   }
   .daily-history {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--line);
     border-left: 0;
   }
   .profile-settings button {
@@ -651,6 +733,7 @@
   .profile-avatar {
     width: 64px;
     height: 64px;
+    border-radius: var(--r-tile);
   }
   .profile-banner {
     gap: 14px;
@@ -675,4 +758,27 @@
   .history-list i {
     display: none;
   }
+}
+/* 减少动态效果：关掉本次新增的过渡与既有的加载旋转（全局已把过渡时长压到 0） */
+@media (prefers-reduced-motion: reduce) {
+  .auth-tabs button,
+  .account-page .ticket-button,
+  .stats-page .ticket-button,
+  .recovery-page .ticket-button,
+  .email-verification-page .ticket-button {
+    transition: none;
+  }
+}
+:root[data-motion="reduced"] .auth-tabs button {
+  transition: none;
+}
+:root[data-motion="reduced"] .account-page .ticket-button,
+:root[data-motion="reduced"] .stats-page .ticket-button,
+:root[data-motion="reduced"] .recovery-page .ticket-button,
+:root[data-motion="reduced"] .email-verification-page .ticket-button {
+  transition: none;
+}
+:root[data-motion="reduced"] .account-page .button-spinner,
+:root[data-motion="reduced"] .recovery-page .button-spinner {
+  animation: none;
 }
