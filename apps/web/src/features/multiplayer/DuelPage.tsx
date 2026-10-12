@@ -270,7 +270,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
           <div className="duel-live">
             <Radio size={17} />
             <span>{locale === "zh-CN" ? "在线" : locale === "ja" ? "オンライン" : "LIVE"}</span>
-            <strong>BO3</strong>
+            <strong className="num">BO3</strong>
           </div>
         }
       />
@@ -288,7 +288,10 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
         </div>
         {rankedMatchEnabled ? (
           <article className="match-card primary-match-card">
-            <div className="match-card-number">01 / RANKED</div>
+            <div className="match-card-badge">
+              <Radio size={12} aria-hidden="true" />{" "}
+              {locale === "zh-CN" ? "天梯匹配" : locale === "ja" ? "ランクマッチ" : "RANKED"}
+            </div>
             <Swords size={34} aria-hidden="true" />
             <h2>{t("duel.matchmaking")}</h2>
             <p>{t("duel.ranked")}</p>
@@ -317,7 +320,10 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
 
         {privateRoomEnabled ? (
           <article className="match-card">
-            <div className="match-card-number">{rankedMatchEnabled ? "02" : "01"} / PRIVATE</div>
+            <div className="match-card-badge">
+              <DoorOpen size={12} aria-hidden="true" />{" "}
+              {locale === "zh-CN" ? "好友房" : locale === "ja" ? "フレンドルーム" : "PRIVATE ROOM"}
+            </div>
             <DoorOpen size={32} aria-hidden="true" />
             <h2>{t("duel.create")}</h2>
             <p>{t("duel.unranked")}</p>
@@ -443,7 +449,14 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
 
         {privateRoomEnabled ? (
           <article className="match-card">
-            <div className="match-card-number">{rankedMatchEnabled ? "03" : "02"} / INVITE</div>
+            <div className="match-card-badge">
+              <Hash size={12} aria-hidden="true" />{" "}
+              {locale === "zh-CN"
+                ? "房间码加入"
+                : locale === "ja"
+                  ? "コードで参加"
+                  : "JOIN BY CODE"}
+            </div>
             <Hash size={32} aria-hidden="true" />
             <h2>{t("duel.join")}</h2>
             <p>
@@ -475,8 +488,8 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                       ? "参加前の確認"
                       : "Confirm settings"}
                 </strong>
-                <span>BO{roomPreview.configuration.format}</span>
-                <span>
+                <span className="num">BO{roomPreview.configuration.format}</span>
+                <span className="num">
                   {roomPreview.configuration.roundTimeSeconds === null
                     ? locale === "zh-CN"
                       ? "不限时"
@@ -485,7 +498,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                         : "Unlimited"
                     : `${roomPreview.configuration.roundTimeSeconds}s`}
                 </span>
-                <span>
+                <span className="num">
                   {roomPreview.configuration.maxAttempts}{" "}
                   {locale === "zh-CN" ? "猜" : locale === "ja" ? "回" : "guesses"}
                 </span>
@@ -505,7 +518,8 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
               </div>
             ) : null}
             <button
-              className="ticket-button-secondary"
+              /* v2：确认房间配置后「加入房间」是主操作，换成金色胶囊主按钮 */
+              className={roomPreview ? "ticket-button" : "ticket-button-secondary"}
               type="button"
               disabled={busy !== null || Boolean(matchTicket) || roomCode.length !== 5}
               onClick={() => void action("join")}

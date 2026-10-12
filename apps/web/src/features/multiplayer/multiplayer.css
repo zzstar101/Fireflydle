@@ -311,8 +311,8 @@
   display: grid;
   padding: 20px;
   place-items: center;
-  background: rgb(0 0 0 / 68%);
-  backdrop-filter: blur(9px);
+  /* v2：不用 backdrop-filter，改用更高的遮罩不透明度。 */
+  background: rgb(0 0 0 / 84%);
 }
 .matchmaking-dialog {
   display: grid;
@@ -1066,4 +1066,685 @@
 :root[data-motion="reduced"] .guess-submit-status,
 :root[data-motion="reduced"] .masked-feedback-grid > div.is-latest i {
   animation: none;
+}
+
+/* ============================================================
+   v2「星轨」表现层
+   对战大厅（DuelPage）/ 好友房（RoomPage）/ 好友同题挑战
+   （FriendChallengePage 复用本表）。
+   与 hub.css、game.css 的 v2 段落保持一致：圆角面板 + 1px 细描边 +
+   奶油金胶囊主按钮；状态不只靠颜色，数字统一等宽（.num）。
+   ============================================================ */
+
+/* --- 通用：清掉 v1 装饰（eyebrow 引线、票券切角），换成胶囊按钮 --- */
+.duel-page .eyebrow::before,
+.room-page .eyebrow::before,
+.friend-challenge-page .eyebrow::before {
+  content: none;
+}
+
+.duel-page .eyebrow,
+.room-page .eyebrow,
+.friend-challenge-page .eyebrow {
+  margin-bottom: 14px;
+  color: var(--lit);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.duel-page .ticket-button,
+.duel-page .ticket-button-secondary,
+.room-page .ticket-button,
+.room-page .ticket-button-secondary,
+.friend-challenge-page .ticket-button,
+.friend-challenge-page .ticket-button-secondary {
+  border-radius: 999px;
+  clip-path: none;
+  transition:
+    transform 180ms var(--ease),
+    border-color 180ms var(--ease),
+    background 180ms var(--ease);
+}
+
+.duel-page .ticket-button,
+.room-page .ticket-button,
+.friend-challenge-page .ticket-button {
+  color: var(--cta-ink);
+  border: 1px solid transparent;
+  background: var(--cta);
+  box-shadow: 0 12px 34px rgb(232 193 113 / 22%);
+}
+
+.duel-page .ticket-button-secondary,
+.room-page .ticket-button-secondary,
+.friend-challenge-page .ticket-button-secondary {
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  background: rgb(255 255 255 / 4%);
+  box-shadow: none;
+}
+
+.duel-page .ticket-button-secondary:hover,
+.room-page .ticket-button-secondary:hover,
+.friend-challenge-page .ticket-button-secondary:hover {
+  border-color: var(--lit);
+}
+
+/* --- 对战大厅 --- */
+.duel-live {
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+}
+
+.duel-live svg {
+  color: var(--lit);
+}
+
+.duel-live span {
+  color: var(--muted);
+  letter-spacing: 0.14em;
+}
+
+.duel-live strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-stage {
+  margin-top: 54px;
+  gap: 20px;
+  border: 0;
+}
+
+.duel-signal {
+  top: -34px;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+}
+
+.duel-signal i {
+  background: var(--line);
+}
+
+.duel-signal b {
+  color: var(--lit);
+  border-color: var(--line-2);
+  background: var(--panel);
+}
+
+.match-card {
+  min-height: 0;
+  padding: clamp(22px, 2.4vw, 32px);
+  overflow: visible;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  transition:
+    border-color 220ms var(--ease),
+    transform 220ms var(--ease);
+}
+
+.match-card:hover {
+  border-color: var(--line-2);
+  transform: translateY(-2px);
+}
+
+/* v1 右下角的同心圆环装饰 */
+.match-card::after {
+  content: none;
+}
+
+.primary-match-card {
+  background: var(--panel);
+}
+
+.match-card > svg {
+  margin: 18px 0 14px;
+  color: var(--lit);
+}
+
+.match-card-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  gap: 6px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 3%);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+
+.match-card h2 {
+  margin-bottom: 8px;
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.match-card p {
+  min-height: 42px;
+  color: var(--muted);
+}
+
+.elo-band {
+  padding: 12px 0;
+  margin: 4px 0 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 0;
+}
+
+.elo-band span {
+  color: var(--lit);
+}
+
+.elo-band strong {
+  font-size: 1.55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.elo-band small {
+  color: var(--muted);
+}
+
+.format-picker {
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 3%);
+}
+
+.format-picker button {
+  color: var(--muted);
+  border-radius: 999px;
+}
+
+.format-picker button + button {
+  border-left: 0;
+}
+
+.format-picker button.active {
+  color: var(--cta-ink);
+  background: var(--cta);
+  font-weight: 700;
+}
+
+.room-config-fields label {
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.68rem;
+}
+
+.room-config-fields select {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.room-config-fields select:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 2px;
+}
+
+.room-code-input input {
+  color: var(--lit);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+  font-variant-numeric: tabular-nums;
+}
+
+.room-code-input input:focus {
+  border-color: var(--line-2);
+}
+
+.room-preview {
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: rgb(255 255 255 / 3%);
+}
+
+.room-preview strong {
+  color: var(--ink);
+}
+
+.duel-error {
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--r-tile);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+.duel-account-notice {
+  border: 1px solid var(--line-2);
+  border-left: 1px solid var(--line-2);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.duel-account-notice > svg {
+  color: var(--lit);
+}
+
+.duel-rules {
+  margin-top: 34px;
+  gap: 16px;
+  border: 0;
+}
+
+.duel-rules > div {
+  min-height: 84px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.duel-rules > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.duel-rules svg {
+  color: var(--lit);
+}
+
+.duel-rules small {
+  color: var(--muted);
+}
+
+.matchmaking-backdrop {
+  background: rgb(3 5 14 / 78%);
+  backdrop-filter: none;
+}
+
+.matchmaking-dialog {
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  clip-path: none;
+}
+
+.matchmaking-dialog .room-radar {
+  border-color: var(--line-2);
+}
+
+.matchmaking-dialog .room-radar i {
+  background: var(--near);
+}
+
+.matchmaking-dialog > p:not(.eyebrow) {
+  color: var(--muted);
+}
+
+/* --- 好友房 --- */
+.room-header {
+  padding-bottom: 26px;
+  border-bottom: 0;
+}
+
+.room-header h1 {
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.connection-badge {
+  padding: 7px 14px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+}
+
+.connection-badge.open {
+  color: var(--lit);
+  border-color: color-mix(in srgb, var(--lit) 45%, transparent);
+}
+
+.connection-badge.closed {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+.room-waiting {
+  min-height: 440px;
+}
+
+.room-waiting p {
+  color: var(--muted);
+}
+
+.room-radar {
+  border: 1px solid var(--line-2);
+}
+
+.room-radar::before,
+.room-radar::after {
+  border-color: var(--line);
+}
+
+.room-radar i {
+  background: var(--near);
+}
+
+.versus-scoreboard {
+  margin: 22px 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.versus-player b {
+  font-variant-numeric: tabular-nums;
+}
+
+.versus-player i {
+  color: var(--lit);
+}
+
+.player-avatar {
+  border: 1px solid var(--line);
+  background: rgb(255 255 255 / 3%);
+}
+
+.round-clock {
+  color: var(--lit);
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background: rgb(255 255 255 / 3%);
+}
+
+.round-clock small {
+  color: var(--muted);
+}
+
+.round-clock.state-paused {
+  color: var(--danger);
+}
+
+.locked-room-config {
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.locked-room-config strong {
+  color: var(--lit);
+  font-variant-numeric: tabular-nums;
+}
+
+.locked-room-config small {
+  color: var(--muted);
+}
+
+.invite-strip,
+.pause-alert {
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.invite-strip strong {
+  color: var(--lit);
+}
+
+.invite-strip button {
+  color: var(--lit);
+}
+
+.pause-alert {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+.skip-controls {
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.skip-controls > svg {
+  color: var(--near);
+}
+
+.skip-controls.state-cancelled {
+  border-color: color-mix(in srgb, var(--near) 45%, transparent);
+  background: var(--panel);
+}
+
+.skip-controls.state-executed {
+  border-color: color-mix(in srgb, var(--lit) 45%, transparent);
+  background: var(--panel);
+}
+
+.guess-submit-status {
+  color: var(--near);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.round-reveal {
+  border: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.round-reveal p {
+  color: var(--lit);
+}
+
+.round-reveal span {
+  color: var(--muted);
+}
+
+.multiplayer-boards {
+  gap: 22px;
+}
+
+.multiplayer-boards section > header {
+  border-bottom: 1px solid var(--line);
+}
+
+.opponent-board {
+  border-left: 1px solid var(--line);
+}
+
+.opponent-board > p {
+  color: var(--muted);
+}
+
+.masked-feedback-grid i,
+.feedback-legend i {
+  border-radius: 6px;
+}
+
+.feedback-legend {
+  color: var(--muted);
+}
+
+.rating-settlement {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+}
+
+.rating-change + .rating-change {
+  border-top: 1px solid var(--line);
+}
+
+.rating-change.positive strong {
+  color: var(--lit);
+}
+
+.match-finished {
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.match-finished > svg {
+  color: var(--lit);
+}
+
+.match-finished p {
+  color: var(--lit);
+}
+
+/* --- 好友同题挑战（复用对战样式表） --- */
+.friend-challenge-page {
+  width: min(calc(100% - 40px), var(--content));
+  padding: clamp(40px, 6vw, 72px) 0 90px;
+}
+
+.friend-challenge-page .challenge-header {
+  max-width: 760px;
+  padding: 0 0 30px;
+  border-bottom: 0;
+}
+
+.friend-challenge-page .challenge-header h1 {
+  margin: 8px 0 14px;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.friend-challenge-page .challenge-header > p:last-child {
+  color: var(--muted);
+}
+
+.friend-challenge-page .challenge-score-strip {
+  gap: 12px;
+  border: 0;
+  background: none;
+}
+
+.friend-challenge-page .challenge-score-strip > div {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-score-strip > div:first-child {
+  padding-left: 18px;
+}
+
+.friend-challenge-page .challenge-score-strip span,
+.friend-challenge-page .challenge-status-line > span:first-child {
+  color: var(--muted);
+}
+
+.friend-challenge-page .challenge-score-strip strong {
+  color: var(--ink);
+}
+
+.friend-challenge-page .challenge-workspace {
+  padding-top: 28px;
+}
+
+.friend-challenge-page .challenge-start {
+  min-height: 300px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-start > svg {
+  color: var(--lit);
+}
+
+.friend-challenge-page .challenge-status-line {
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-status-line > span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.friend-challenge-page .challenge-result {
+  padding: 22px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-result p {
+  color: var(--lit);
+}
+
+.friend-challenge-page .challenge-result h2 {
+  margin: 4px 0 8px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* --- 减少动态效果：与 :root[data-motion="reduced"] 双开关同时生效 --- */
+@media (prefers-reduced-motion: reduce) {
+  .room-radar i,
+  .room-state-signal i,
+  .guess-submit-status,
+  .button-spinner,
+  .masked-feedback-grid > div.is-latest i {
+    animation: none;
+  }
+
+  .match-card,
+  .duel-page .ticket-button,
+  .duel-page .ticket-button-secondary,
+  .room-page .ticket-button,
+  .room-page .ticket-button-secondary,
+  .friend-challenge-page .ticket-button,
+  .friend-challenge-page .ticket-button-secondary {
+    transition: none;
+  }
+
+  .match-card:hover,
+  .duel-page .ticket-button:hover,
+  .duel-page .ticket-button-secondary:hover,
+  .room-page .ticket-button:hover,
+  .room-page .ticket-button-secondary:hover,
+  .friend-challenge-page .ticket-button:hover,
+  .friend-challenge-page .ticket-button-secondary:hover {
+    transform: none;
+  }
+}
+
+:root[data-motion="reduced"] .room-radar i,
+:root[data-motion="reduced"] .button-spinner,
+:root[data-motion="reduced"] .match-card,
+:root[data-motion="reduced"] .duel-page .ticket-button,
+:root[data-motion="reduced"] .duel-page .ticket-button-secondary,
+:root[data-motion="reduced"] .room-page .ticket-button,
+:root[data-motion="reduced"] .room-page .ticket-button-secondary,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button-secondary {
+  animation: none;
+  transition: none;
+}
+
+:root[data-motion="reduced"] .match-card:hover,
+:root[data-motion="reduced"] .duel-page .ticket-button:hover,
+:root[data-motion="reduced"] .duel-page .ticket-button-secondary:hover,
+:root[data-motion="reduced"] .room-page .ticket-button:hover,
+:root[data-motion="reduced"] .room-page .ticket-button-secondary:hover,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button:hover,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button-secondary:hover {
+  transform: none;
 }

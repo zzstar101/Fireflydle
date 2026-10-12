@@ -15,6 +15,8 @@ import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
 import { AeonGuessBoard } from "./AeonGuessBoard";
 import "./game.css";
+// v2：好友同题挑战的星轨表现层与对战共用一套样式表（写入范围只含 multiplayer.css，避免新增文件）。
+import "../multiplayer/multiplayer.css";
 
 function formatTime(milliseconds: number): string {
   const seconds = Math.max(0, Math.floor(milliseconds / 1_000));
@@ -111,7 +113,9 @@ export default function FriendChallengePage() {
   };
 
   if (challengeQuery.isPending) {
-    return <main className="challenge-page challenge-page-centered">LOADING</main>;
+    return (
+      <main className="challenge-page friend-challenge-page challenge-page-centered">LOADING</main>
+    );
   }
   if (!challenge || challengeQuery.isError) {
     const queryError = challengeQuery.error;
@@ -125,7 +129,7 @@ export default function FriendChallengePage() {
         ? `/${expiredModeId}/practice`
         : "/playable";
     return (
-      <main className="challenge-page challenge-page-centered">
+      <main className="challenge-page friend-challenge-page challenge-page-centered">
         <Swords size={28} />
         <h1>
           {expired
@@ -167,7 +171,7 @@ export default function FriendChallengePage() {
 
   const finished = game?.status === "won" || game?.status === "lost";
   return (
-    <main className="challenge-page">
+    <main className="challenge-page friend-challenge-page">
       <header className="challenge-header">
         <Link className="game-hub-link" to={modePath(challenge.modeId)}>
           <ArrowLeft size={15} /> {locale === "zh-CN" ? "返回原模式" : "Back to mode"}
@@ -192,19 +196,19 @@ export default function FriendChallengePage() {
       <section className="challenge-score-strip" aria-label="Challenge rules">
         <div>
           <span>MANIFEST</span>
-          <strong>{challenge.manifestVersion}</strong>
+          <strong className="num">{challenge.manifestVersion}</strong>
         </div>
         <div>
           <span>{locale === "zh-CN" ? "规则" : "RULES"}</span>
-          <strong>{challenge.poolRuleVersion}</strong>
+          <strong className="num">{challenge.poolRuleVersion}</strong>
         </div>
         <div>
           <span>{locale === "zh-CN" ? "次数" : "TRIES"}</span>
-          <strong>{challenge.maxAttempts}</strong>
+          <strong className="num">{challenge.maxAttempts}</strong>
         </div>
         <div>
           <span>{locale === "zh-CN" ? "好友" : "FRIEND"}</span>
-          <strong>
+          <strong className="num">
             {challenge.creatorScore.status === "won"
               ? `${challenge.creatorScore.guessCount}/${challenge.maxAttempts}`
               : "MISS"}
@@ -249,10 +253,10 @@ export default function FriendChallengePage() {
                     ? "练习重玩"
                     : "PRACTICE"}
               </span>
-              <strong>
+              <strong className="num">
                 {game.guesses.length}/{game.maxAttempts}
               </strong>
-              <span>
+              <span className="num">
                 <Clock3 size={14} /> {formatTime(game.elapsedMs)}
               </span>
             </div>

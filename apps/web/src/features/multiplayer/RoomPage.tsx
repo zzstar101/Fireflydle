@@ -262,7 +262,13 @@ export default function RoomPage() {
           </h1>
         </div>
         <div className={`connection-badge ${connection}`}>
-          <Radio size={15} />{" "}
+          {connection === "open" ? (
+            <Wifi size={15} />
+          ) : connection === "connecting" ? (
+            <Radio size={15} />
+          ) : (
+            <WifiOff size={15} />
+          )}{" "}
           {connection === "open"
             ? t("common.online")
             : connection === "connecting"
@@ -327,12 +333,12 @@ export default function RoomPage() {
                       : tr("已离线", "オフライン", "OFFLINE")}
                   </i>
                 </span>
-                <b>{player.score}</b>
+                <b className="num">{player.score}</b>
               </div>
             ))}
             <div className={`round-clock state-${snapshot.state}`}>
               <Clock3 size={18} />
-              <strong>{clockLabel}</strong>
+              <strong className="num">{clockLabel}</strong>
               <small>{roomStateLabel}</small>
             </div>
           </section>
@@ -342,13 +348,13 @@ export default function RoomPage() {
             aria-label={tr("已锁定的房间配置", "固定されたルーム設定", "Locked room settings")}
           >
             <span>{tr("普通角色", "通常キャラクター", "Characters")}</span>
-            <strong>BO{snapshot.configuration.format}</strong>
-            <span>
+            <strong className="num">BO{snapshot.configuration.format}</strong>
+            <span className="num">
               {snapshot.configuration.roundTimeSeconds === null
                 ? tr("不限时", "無制限", "Unlimited")
                 : `${snapshot.configuration.roundTimeSeconds}s`}
             </span>
-            <span>
+            <span className="num">
               {snapshot.configuration.maxAttempts} {tr("猜", "回", "guesses")}
             </span>
             {snapshot.configuration.modifier === "speed" ? (
@@ -376,7 +382,7 @@ export default function RoomPage() {
                 <Copy size={17} />
                 {tr("邀请好友使用房间码", "ルームコードを共有", "Share room code")}
               </span>
-              <strong>{snapshot.code}</strong>
+              <strong className="num">{snapshot.code}</strong>
               <button type="button" aria-live="polite" onClick={() => void copyRoomCode()}>
                 {codeCopied
                   ? t("common.copied")
@@ -590,7 +596,7 @@ export default function RoomPage() {
             <section>
               <header>
                 <span>{tr("你的猜测", "あなたの回答", "YOUR GUESSES")}</span>
-                <strong>
+                <strong className="num">
                   {snapshot.ownGuesses.length} / {snapshot.configuration.maxAttempts}
                 </strong>
               </header>
@@ -599,7 +605,7 @@ export default function RoomPage() {
             <section className="opponent-board">
               <header>
                 <span>{tr("对手反馈", "相手のフィードバック", "RIVAL SIGNALS")}</span>
-                <strong>
+                <strong className="num">
                   {snapshot.opponentFeedback.length} / {snapshot.configuration.maxAttempts}
                 </strong>
               </header>
@@ -726,10 +732,10 @@ export default function RoomPage() {
                     return (
                       <div className={`rating-change ${tone}`} key={player.playerId}>
                         <span>{player.displayName}</span>
-                        <b>
+                        <b className="num">
                           {change.before} → {change.after}
                         </b>
-                        <strong>
+                        <strong className="num">
                           {change.delta > 0 ? "+" : ""}
                           {change.delta}
                         </strong>
