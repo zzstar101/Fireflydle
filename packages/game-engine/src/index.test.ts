@@ -351,7 +351,7 @@ describe("游戏规则", () => {
       createGuessResultWithRules(alpha, delta, rules),
       createGuessResultWithRules(alpha, beta, rules),
     ];
-    expect(createInferenceReview([alpha, beta, gamma, delta], guesses, rules)).toEqual({
+    expect(createInferenceReview([alpha, beta, gamma, delta], guesses, rules)).toMatchObject({
       initialCandidates: 4,
       bestGuessNumber: 1,
       steps: [

@@ -50,9 +50,9 @@
           "width": 160,
           "avifPath": "/assets/characters/arlan-avatar-e6a98c2dc505-160.avif",
           "webpPath": "/assets/characters/arlan-avatar-e6a98c2dc505-160.webp",
-          "avifBytes": 4962,
+          "avifBytes": 4977,
           "webpBytes": 7092,
-          "avifSha256": "1b76c6c5d6f32d6a7cd7b80b47f90074d6b84f10ab6809cf959255572dcc6036",
+          "avifSha256": "794efdb4fa7d82415a0d566e84abfcdbcbaaed5850e0c60e7bde09a58842bb85",
           "webpSha256": "bc81d222e14b8899d747f03043def482ba410a0dbd73468955c2a7edc0cb794e"
         }
       ]
@@ -112,9 +112,9 @@
           "width": 160,
           "avifPath": "/assets/characters/asta-avatar-1f9e66fd19bc-160.avif",
           "webpPath": "/assets/characters/asta-avatar-1f9e66fd19bc-160.webp",
-          "avifBytes": 4814,
+          "avifBytes": 4810,
           "webpBytes": 6712,
-          "avifSha256": "ae4058790a80f434f81e92603128032035d80c3cddea6bea78fcd7b2535548f7",
+          "avifSha256": "7af8ffc1aa77d4ec1e12fd9d30f0e1f8f057ee9167a3ecf6772c1a0e8ef69f1a",
           "webpSha256": "85b5822c48d725127569d55daf116de727682fe6407e4f5b4f48533125f726c2"
         }
       ]
@@ -236,9 +236,9 @@
           "width": 160,
           "avifPath": "/assets/characters/bronya-avatar-849f365d21d2-160.avif",
           "webpPath": "/assets/characters/bronya-avatar-849f365d21d2-160.webp",
-          "avifBytes": 5606,
+          "avifBytes": 5609,
           "webpBytes": 7894,
-          "avifSha256": "6d8298f73db4631a4f496911c8ef1d8a88628b95c69bbb7ff10afbd8f91d590a",
+          "avifSha256": "6fce069641d0fd0af6e6cbc01f18b399506047ef715946868eb658624b50b1b5",
           "webpSha256": "09dc628580fb7a447851520905cc94e3d8b97703683f5417db41690175388229"
         }
       ]
@@ -298,9 +298,9 @@
           "width": 160,
           "avifPath": "/assets/characters/clara-avatar-c6dcdc1da181-160.avif",
           "webpPath": "/assets/characters/clara-avatar-c6dcdc1da181-160.webp",
-          "avifBytes": 5409,
+          "avifBytes": 5413,
           "webpBytes": 7236,
-          "avifSha256": "ff395f643d970a8fb94f2bbf248a64fe9678d8f461d1e02074b900df00dc1738",
+          "avifSha256": "e80d111265371236a184284d7042ac07103327f7bece717454aa67a2bce4b396",
           "webpSha256": "b4a733273eb5eb499ddf465d20914280546cf5a9014f6cb33b27a821877d7b35"
         }
       ]
@@ -466,9 +466,9 @@
           "width": 40,
           "avifPath": "/assets/characters/herta-avatar-fe1944cd8443-40.avif",
           "webpPath": "/assets/characters/herta-avatar-fe1944cd8443-40.webp",
-          "avifBytes": 1045,
+          "avifBytes": 1040,
           "webpBytes": 1116,
-          "avifSha256": "068a1eca56244553401f7bb0ed58a861352c77fe98537adb244d69fc4196e3cc",
+          "avifSha256": "9fe934aef43f882fa7123ff0e0638eb76f7d96120ae99e2ad2ca6c472eb39e7c",
           "webpSha256": "3a14d71a6e99fe4ee154b6307e61fd0019f3d358cc2d205374e1560598b902c9"
         },
         {
@@ -546,9 +546,9 @@
           "width": 160,
           "avifPath": "/assets/characters/himeko-avatar-e301ca0969fd-160.avif",
           "webpPath": "/assets/characters/himeko-avatar-e301ca0969fd-160.webp",
-          "avifBytes": 5968,
+          "avifBytes": 5956,
           "webpBytes": 7956,
-          "avifSha256": "8dd229685c6e0a543da552c4f0d04c084bf41a23739a2802ffed3a7345ec16a6",
+          "avifSha256": "dfbe183530240f81e1acbb7c09a400d8c2c2839066ee40c740707da5beead4e7",
           "webpSha256": "e1a312edc330fdda209443b0abaf1dd485651f80fc1aa0f134cbd3bb7e8702b8"
         }
       ]
@@ -610,7 +610,7 @@
           "webpPath": "/assets/characters/hook-avatar-62ceae5b0d48-160.webp",
           "avifBytes": 6411,
           "webpBytes": 8404,
-          "avifSha256": "6196500f61319405dc3f687fb121120626b51f52bf0d0b27a63a02b1a90be344",
+          "avifSha256": "b336c25261b7995d389fa328a3362450baccc0f1144f5f0b952988fab7963ce6",
           "webpSha256": "8767ee1e78abe39bbf177c2201a2a8a083c773f4736facc9228a9be3e2600d80"
         }
       ]
@@ -856,9 +856,9 @@
           "width": 160,
           "avifPath": "/assets/characters/pela-avatar-4edf90ea2af8-160.avif",
           "webpPath": "/assets/characters/pela-avatar-4edf90ea2af8-160.webp",
-          "avifBytes": 5634,
+          "avifBytes": 5626,
           "webpBytes": 7594,
-          "avifSha256": "fea33988fa46d598c1c006919454c0deb6059e5bb9d821292f5df221a886587b",
+          "avifSha256": "1590c917c2ea537b6f5539839faeb8f8a0ccdc8e66a045c5b0702af74bd6e80f",
           "webpSha256": "90214974817d860f9620f4425562a46896b4d6b77ec3a39e93190084da4b672c"
         }
       ]
@@ -918,9 +918,9 @@
           "width": 160,
           "avifPath": "/assets/characters/qingque-avatar-fe0137247376-160.avif",
           "webpPath": "/assets/characters/qingque-avatar-fe0137247376-160.webp",
-          "avifBytes": 4671,
+          "avifBytes": 4661,
           "webpBytes": 6756,
-          "avifSha256": "c6fc4736a27840bfe5a76c3883574c620a348806511395b7e842bb6092d13665",
+          "avifSha256": "a89d51fdca068374955077a114074af776eec17d63e285d05e83fdfba3bffdee",
           "webpSha256": "896418a3b8ff73768e336961726857d68fe85e3d56bf3534b9daf48c8a5f4567"
         }
       ]
@@ -980,9 +980,9 @@
           "width": 160,
           "avifPath": "/assets/characters/sampo-avatar-c86d956e648f-160.avif",
           "webpPath": "/assets/characters/sampo-avatar-c86d956e648f-160.webp",
-          "avifBytes": 5390,
+          "avifBytes": 5371,
           "webpBytes": 7244,
-          "avifSha256": "7b1bfea13aa7788b808d4c529b87081c95c70f88f676cdd0d105a4d91ea5cc47",
+          "avifSha256": "c79d0db64dfda1894522d4c22aa2eaefa20807f190dabba884610f6b0b16a3c0",
           "webpSha256": "71e2892a3b671216b1d6887b963f4b347e7388c9bc5b688a28a71ec336732ce7"
         }
       ]
@@ -1024,9 +1024,9 @@
           "width": 40,
           "avifPath": "/assets/characters/seele-avatar-878809ffa01c-40.avif",
           "webpPath": "/assets/characters/seele-avatar-878809ffa01c-40.webp",
-          "avifBytes": 1039,
+          "avifBytes": 1046,
           "webpBytes": 966,
-          "avifSha256": "03e45a088b2f732e563bfb8241177e4fdac35e5fbb4e68798eb42a6b17212e73",
+          "avifSha256": "4cee30339cf5fce638e6f4578421cc1d3df864e00c49587c1b597e630e17e48f",
           "webpSha256": "66c87516525faaceb27a348ba09258d452fe794329d54803185787453e3a0d67"
         },
         {
@@ -1042,9 +1042,9 @@
           "width": 160,
           "avifPath": "/assets/characters/seele-avatar-878809ffa01c-160.avif",
           "webpPath": "/assets/characters/seele-avatar-878809ffa01c-160.webp",
-          "avifBytes": 5510,
+          "avifBytes": 5524,
           "webpBytes": 7320,
-          "avifSha256": "673f6a6107e6b0ffede2ac914dd36ac54a9dc912bcd24f44318f7b5142f35b09",
+          "avifSha256": "ecade403f95a9841dabecc815b04638341ad7f15aecfed85051256040672aeeb",
           "webpSha256": "29e186449f394e94dcbd6dd40add5d5cf8aeb142164fe84b5a4d4254dc809f3c"
         }
       ]
@@ -1157,18 +1157,18 @@
           "width": 80,
           "avifPath": "/assets/characters/sushang-avatar-171bf00dcaef-80.avif",
           "webpPath": "/assets/characters/sushang-avatar-171bf00dcaef-80.webp",
-          "avifBytes": 2451,
+          "avifBytes": 2461,
           "webpBytes": 2804,
-          "avifSha256": "5232b79bbcae82c421e082e974151c6f7d98257ded089c77402858e7a1113cb8",
+          "avifSha256": "9130d5aca6476a3d60ba5b5b8222aad45c0e1c8a406d5733174681d67e6ce83e",
           "webpSha256": "931067c85aa8c473d7b4f19fa4598d8f8e11f3cfb872d94640040fbd6f44a5a2"
         },
         {
           "width": 160,
           "avifPath": "/assets/characters/sushang-avatar-171bf00dcaef-160.avif",
           "webpPath": "/assets/characters/sushang-avatar-171bf00dcaef-160.webp",
-          "avifBytes": 5856,
+          "avifBytes": 5875,
           "webpBytes": 8252,
-          "avifSha256": "6ddb7fbec4a88fb0bd93c6e02770eb2930b94e3a75df4fabc4cd80e095e54c72",
+          "avifSha256": "454add47bf47b0cb43dcf3e55a75919e1dd6c6ba072eb3d7466f144771de84c8",
           "webpSha256": "e79143466b5637baece4a2d3457cca670cede07c0f103b43a5729018f7a8627d"
         }
       ]
@@ -1514,18 +1514,18 @@
           "width": 80,
           "avifPath": "/assets/characters/yanqing-avatar-48a950b171f5-80.avif",
           "webpPath": "/assets/characters/yanqing-avatar-48a950b171f5-80.webp",
-          "avifBytes": 2454,
+          "avifBytes": 2441,
           "webpBytes": 2768,
-          "avifSha256": "b7f392813d81015813e5e7cc6ba2b393b65ab26713179827b44c7859a0b4e6ef",
+          "avifSha256": "7718dd657661150e066a08c848869dd96958506d9d462fe40f733f196ed955b9",
           "webpSha256": "4b4420d7b97eb634bc60554d47c38b45379a18207cbc17e3e1990dfb8642b9e7"
         },
         {
           "width": 160,
           "avifPath": "/assets/characters/yanqing-avatar-48a950b171f5-160.avif",
           "webpPath": "/assets/characters/yanqing-avatar-48a950b171f5-160.webp",
-          "avifBytes": 5642,
+          "avifBytes": 5574,
           "webpBytes": 7806,
-          "avifSha256": "0aeb1b54ac00b6d73112535d65b9abdcd98ed650b4a2231d4f9031da7de45161",
+          "avifSha256": "aa0aabe4c6becdb4369c6d51e0698a93eabdf5e3b07236cf59029a445fe5fcbd",
           "webpSha256": "b1762e78a1acb86d957761f88cd99eec14786b63fb902d083fd5e33ca5d959e4"
         }
       ]
@@ -1585,9 +1585,9 @@
           "width": 160,
           "avifPath": "/assets/characters/luocha-avatar-30c268081c6e-160.avif",
           "webpPath": "/assets/characters/luocha-avatar-30c268081c6e-160.webp",
-          "avifBytes": 5379,
+          "avifBytes": 5380,
           "webpBytes": 7654,
-          "avifSha256": "621c0d9c81b74d98e4fec83e96b08231dcc445f37dd2d47bb6b30e5d11335581",
+          "avifSha256": "cf45c8dccd36aae6505367801c63063f9a66b4bf5a528387c14ca0b3dcbaba1b",
           "webpSha256": "4b44c5d5f495a65e0cba2202633e167bd22bf35657f6ca64c5948834c5112b1d"
         }
       ]
@@ -1824,18 +1824,18 @@
           "width": 80,
           "avifPath": "/assets/characters/kafka-avatar-0d83f3fa9f98-80.avif",
           "webpPath": "/assets/characters/kafka-avatar-0d83f3fa9f98-80.webp",
-          "avifBytes": 2118,
+          "avifBytes": 2121,
           "webpBytes": 2366,
-          "avifSha256": "ef432afdb511ad24f5cc916ae98f2505a34ff4fe3001cc6dd9b4e73a169ba2ab",
+          "avifSha256": "85d59c93cc68679527a247bbc1c4584d0cbb35cc8d497de29cae6088aa7a9380",
           "webpSha256": "676d9f465ca49d1ee43bc793b97185cbcb14fce2beb0cec7ccab127919f2ca27"
         },
         {
           "width": 160,
           "avifPath": "/assets/characters/kafka-avatar-0d83f3fa9f98-160.avif",
           "webpPath": "/assets/characters/kafka-avatar-0d83f3fa9f98-160.webp",
-          "avifBytes": 4957,
+          "avifBytes": 5003,
           "webpBytes": 6966,
-          "avifSha256": "523b8913b86f6ba287b7ed4d6654620a3a3c36d3f53702c295d1e8f708a5d931",
+          "avifSha256": "ddebb297710cd0f0eab8aa63096a2f4ee059a068060360f9e3dc58f564c67457",
           "webpSha256": "f81de0ea976434026218bcb727ffc9186e3269dadf016c562fa0f9a311d6bac2"
         }
       ]
@@ -1895,9 +1895,9 @@
           "width": 160,
           "avifPath": "/assets/characters/luka-avatar-386a0a2094bd-160.avif",
           "webpPath": "/assets/characters/luka-avatar-386a0a2094bd-160.webp",
-          "avifBytes": 5190,
+          "avifBytes": 5188,
           "webpBytes": 6960,
-          "avifSha256": "68de8b9658679b7aede5443b7185f8aaf0535010a1c83bc0f78363c718a59a20",
+          "avifSha256": "f076c8d79b010073ec12d05df33a370d8a28b64ef6ab15117373d0db9b4462a6",
           "webpSha256": "eebee722715f6f17070ba4055e2f991b3f987a9bd44e58f7fc6421665810cf26"
         }
       ]
@@ -2025,18 +2025,18 @@
           "width": 80,
           "avifPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e-80.avif",
           "webpPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e-80.webp",
-          "avifBytes": 2308,
+          "avifBytes": 2345,
           "webpBytes": 2656,
-          "avifSha256": "fe8bc860bb3b5c55b471170ef9b3e8f299b238e0bc7c5df7eb33829a39eff701",
+          "avifSha256": "1ec2e4d33ad55d59f37051a88bc51675f0efb08ea8ffd75f28b2d96da29f841b",
           "webpSha256": "388ad0734f17125b4806a171ea5b01fe577612ff7e3da12da9fa0138d3b671cd"
         },
         {
           "width": 160,
           "avifPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e-160.avif",
           "webpPath": "/assets/characters/fu-xuan-avatar-0eaf018b940e-160.webp",
-          "avifBytes": 5397,
+          "avifBytes": 5405,
           "webpBytes": 7304,
-          "avifSha256": "8a671ef8934d0050bfddb405cb92c15d2173665b93ecf94abc94d45db80c48f6",
+          "avifSha256": "f278276f329035204fca5abd6d89c233b3bdbb6abf186f3f61f1e9fc7db5747e",
           "webpSha256": "1f7cdb8a3715b3a278e7c6b92e301774353d956eb635ba84bb5d106f251902ea"
         }
       ]
@@ -2087,9 +2087,9 @@
           "width": 80,
           "avifPath": "/assets/characters/lynx-avatar-69660d7cc9dc-80.avif",
           "webpPath": "/assets/characters/lynx-avatar-69660d7cc9dc-80.webp",
-          "avifBytes": 2345,
+          "avifBytes": 2324,
           "webpBytes": 2624,
-          "avifSha256": "280e5ca5c86bba5e4c3c1740b926bc864caf9d05394682cd6b3463391178894f",
+          "avifSha256": "bceb5454119321cc08821539f2ddf9ba47943137962bff24b1fae16472ff4c31",
           "webpSha256": "6382102583fc449adb9a46018bb0363af3615566b7e3b1814263f200af543836"
         },
         {
@@ -2303,7 +2303,7 @@
           "webpPath": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff-160.webp",
           "avifBytes": 5368,
           "webpBytes": 7306,
-          "avifSha256": "87aa8460ebf5780fa8f208f73c7a93b6c5639a616a15685ce9168b2973f4ad57",
+          "avifSha256": "5550f60ec332758d91e6204af94d05ce36ac77ec49661b40dc742eb06f2d4dd8",
           "webpSha256": "b14d86afddf2285b0c3c4b6e48f6216c0b8d9ffcc67804d5e0dad52eabaad11e"
         }
       ]
@@ -2354,18 +2354,18 @@
           "width": 80,
           "avifPath": "/assets/characters/argenti-avatar-6e67ada6f633-80.avif",
           "webpPath": "/assets/characters/argenti-avatar-6e67ada6f633-80.webp",
-          "avifBytes": 2210,
+          "avifBytes": 2206,
           "webpBytes": 2548,
-          "avifSha256": "ebfa5cc095613d42b5ab588b72898739dfd026917d6a81a4de58d33fc2298c33",
+          "avifSha256": "a11bec4f8943992a2904df64f987728b0d8630943b541bcdbb6a1d902e9774ed",
           "webpSha256": "c4f05854a44f6987ae4c7d8e4d1bf8f4f5cbb9d35d11aae163d0f4fbc3a134f7"
         },
         {
           "width": 160,
           "avifPath": "/assets/characters/argenti-avatar-6e67ada6f633-160.avif",
           "webpPath": "/assets/characters/argenti-avatar-6e67ada6f633-160.webp",
-          "avifBytes": 4902,
+          "avifBytes": 4896,
           "webpBytes": 6692,
-          "avifSha256": "70ee41cebd7d5f6b51ac2fa2876bf08080579035dd6b289ebddda3c6ccd026a5",
+          "avifSha256": "09262dd50f0f205ef7df8423f6c004c1affeccb2afacc68b4945aa35311625cd",
           "webpSha256": "e9913a30c2f9603f3ee6c885ac35e4f0b5d6a886c30eb9869680eeef6149d32a"
         }
       ]
@@ -2487,9 +2487,9 @@
           "width": 160,
           "avifPath": "/assets/characters/huohuo-avatar-3a8f2742bd7a-160.avif",
           "webpPath": "/assets/characters/huohuo-avatar-3a8f2742bd7a-160.webp",
-          "avifBytes": 5294,
+          "avifBytes": 5322,
           "webpBytes": 7412,
-          "avifSha256": "64a2577d8d5acbf957e7d17a7739e4e1622fc9d4f04e81cf33bbe7aa5a3b669b",
+          "avifSha256": "069a2078edd2efeb304870e25f05eae210efd97a81d16b6128594529fc03c92c",
           "webpSha256": "638384b81890378990c551b9d133cea34f03bfd970c14736f7c6c7f5acc589aa"
         }
       ]
@@ -2611,9 +2611,9 @@
           "width": 160,
           "avifPath": "/assets/characters/ruan-mei-avatar-a1e997242931-160.avif",
           "webpPath": "/assets/characters/ruan-mei-avatar-a1e997242931-160.webp",
-          "avifBytes": 4785,
+          "avifBytes": 4758,
           "webpBytes": 6752,
-          "avifSha256": "ac6f834f87166343bdab9c1e8392f3eb32d9e79ba20111dab8bca56858def9af",
+          "avifSha256": "51140071d297b65fd755c2074eadc6e55a9f34c4e69a6a86671d30f49b24c3be",
           "webpSha256": "4ac22cb83cc73af796eeae9a92dc5fe0a8a0c3016189859f4cb600aa24da644c"
         }
       ]
@@ -2673,9 +2673,9 @@
           "width": 160,
           "avifPath": "/assets/characters/xueyi-avatar-3b5c911839ee-160.avif",
           "webpPath": "/assets/characters/xueyi-avatar-3b5c911839ee-160.webp",
-          "avifBytes": 4552,
+          "avifBytes": 4548,
           "webpBytes": 6264,
-          "avifSha256": "928615dc2202d37e384e799805e53985e4b54e9eff2721e11b94fe2229093a58",
+          "avifSha256": "a6ab25f4eb0378e04b7989496126835f82cff7108942be62d8a802dfc83fdd84",
           "webpSha256": "6bf4e7ec9285cb6d5707fa98e0b7e0fea8bf66184a04aeaa097697cedc4a121c"
         }
       ]
@@ -2735,9 +2735,9 @@
           "width": 160,
           "avifPath": "/assets/characters/black-swan-avatar-59452a1c84d4-160.avif",
           "webpPath": "/assets/characters/black-swan-avatar-59452a1c84d4-160.webp",
-          "avifBytes": 5870,
+          "avifBytes": 5885,
           "webpBytes": 7862,
-          "avifSha256": "dd22445917222450f734d6d1a2756c4cd553fc1f2e485745092f2c93b0a3a6f6",
+          "avifSha256": "a970be0f33c4e5e38ecf9ba84e9b1d175fc2450213ecd1bec701d41433c5428d",
           "webpSha256": "79f8a0f473407d7e141dc0eb900d5663cc35036e2b483f167d950e5ee6ab844d"
         }
       ]
@@ -2797,9 +2797,9 @@
           "width": 160,
           "avifPath": "/assets/characters/misha-avatar-82816a770116-160.avif",
           "webpPath": "/assets/characters/misha-avatar-82816a770116-160.webp",
-          "avifBytes": 4859,
+          "avifBytes": 4821,
           "webpBytes": 6796,
-          "avifSha256": "254c6c1d310a6603c5221deaf87cbc8469d62505de60da1c7a7ff484b8835444",
+          "avifSha256": "f9a45874b316c5cc3c9219e6f346969e4f73a0043f9d6aa617e8964c1f195b5f",
           "webpSha256": "e606c76e1082cdf83f80265da875514884f84bdd658bcd551e77146c1ac2fa00"
         }
       ]
@@ -2859,9 +2859,9 @@
           "width": 160,
           "avifPath": "/assets/characters/sparkle-avatar-d4e241c4b49b-160.avif",
           "webpPath": "/assets/characters/sparkle-avatar-d4e241c4b49b-160.webp",
-          "avifBytes": 5443,
+          "avifBytes": 5447,
           "webpBytes": 7470,
-          "avifSha256": "96db830e944abfc8ee93f97359b393b8260eab798f1e3d637f35f1b66dbd304b",
+          "avifSha256": "a8202773c6e1b281832018d042eeb512a61f12ac053eb0b7db5b50dc0704bfd6",
           "webpSha256": "a4b707d6c9a726f1c87926768df5f159db1165d8e533c5829db1e70cd2e50d5a"
         }
       ]
@@ -2921,9 +2921,9 @@
           "width": 160,
           "avifPath": "/assets/characters/acheron-avatar-7676548cd1fd-160.avif",
           "webpPath": "/assets/characters/acheron-avatar-7676548cd1fd-160.webp",
-          "avifBytes": 5299,
+          "avifBytes": 5296,
           "webpBytes": 7188,
-          "avifSha256": "8e27a18f9a726bd42776619ae33acd5f172385a25538c777a420080ab4accd2d",
+          "avifSha256": "5e82e5e2a7f50b094690357d8b8dd3d2829724317bb87505beecd00f08d27f95",
           "webpSha256": "730e8f7bf6da4c07ea8503e4c85d7b1e423e37a15263d6d648da360a83feda0f"
         }
       ]
@@ -2983,9 +2983,9 @@
           "width": 160,
           "avifPath": "/assets/characters/aventurine-avatar-0ff97f429972-160.avif",
           "webpPath": "/assets/characters/aventurine-avatar-0ff97f429972-160.webp",
-          "avifBytes": 4937,
+          "avifBytes": 4941,
           "webpBytes": 7090,
-          "avifSha256": "a16f68ded94c132b7bd22195b4880ee5d5c466aab1b79e7aa7efe1fd36280640",
+          "avifSha256": "171c5b60b32d77edde48efac49d13dab180ead1cc6ccefa74918e2e59fd13088",
           "webpSha256": "2132c52b1a9086eebe80d2e45e323fa335bbfc4f1ee4058d8d54cabf25184add"
         }
       ]
@@ -3169,9 +3169,9 @@
           "width": 160,
           "avifPath": "/assets/characters/robin-avatar-831c516c3714-160.avif",
           "webpPath": "/assets/characters/robin-avatar-831c516c3714-160.webp",
-          "avifBytes": 5989,
+          "avifBytes": 5973,
           "webpBytes": 8092,
-          "avifSha256": "fe5f2177c9196d2d85651fd0a1082a6dda7348a6fedfada3f88899bc6e76ac49",
+          "avifSha256": "031ac0a0d887e37655da09a223e45c5004f089de1e865179902bfd780122e2b7",
           "webpSha256": "c74e2bb5eb486011eedc9d29cf30c79ae567b640ff7ddfcaaeb308e8877282db"
         }
       ]
@@ -3655,9 +3655,9 @@
           "width": 160,
           "avifPath": "/assets/characters/feixiao-avatar-3979450d3733-160.avif",
           "webpPath": "/assets/characters/feixiao-avatar-3979450d3733-160.webp",
-          "avifBytes": 6199,
+          "avifBytes": 6207,
           "webpBytes": 8478,
-          "avifSha256": "833522aa6f66a0cf2a9d868aa4402761111591027945eb35820e883cd619a0b8",
+          "avifSha256": "3497e368c8b3a04f2a0dffe917b6c06b010f05981733ea8c4fadfff5018f080b",
           "webpSha256": "dd6db43cdc32045d2a136f9f070f8524a355887f7c8780a750e1bc586fb483e9"
         }
       ]
@@ -3708,9 +3708,9 @@
           "width": 80,
           "avifPath": "/assets/characters/lingsha-avatar-e67420fda0c0-80.avif",
           "webpPath": "/assets/characters/lingsha-avatar-e67420fda0c0-80.webp",
-          "avifBytes": 2216,
+          "avifBytes": 2205,
           "webpBytes": 2536,
-          "avifSha256": "273481b172975a147d370f31bb88bc29167c2ba197078fd8480c7bf3f617d65c",
+          "avifSha256": "525169828eab0ae0b3924a22bfa7d6b108e5dc9e4c5624269cc97405e7bdcb56",
           "webpSha256": "685965630297554801db42f15999b214f915d19a886cbbe83f7781807df2244d"
         },
         {
@@ -4173,9 +4173,9 @@
           "width": 160,
           "avifPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d-160.avif",
           "webpPath": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d-160.webp",
-          "avifBytes": 7032,
+          "avifBytes": 7019,
           "webpBytes": 12794,
-          "avifSha256": "263a94aa230c93287bf8e8864d71cb899be6d05721b8cac9d5b4b095fd13e822",
+          "avifSha256": "4d156f0fa5540ee10c3e52db0dba77aee2ab70fc5023d536d9f4207f9e5770e1",
           "webpSha256": "44105367eaa4652140e6cebf89332e490cd16af4ad99d7fbd6153c777e82b316"
         }
       ]
@@ -4235,9 +4235,9 @@
           "width": 160,
           "avifPath": "/assets/characters/mydei-avatar-567729274be4-160.avif",
           "webpPath": "/assets/characters/mydei-avatar-567729274be4-160.webp",
-          "avifBytes": 5998,
+          "avifBytes": 6021,
           "webpBytes": 8068,
-          "avifSha256": "9a3bb6cd6109d3adddc0f292b50a964a43041c9253d32ca3d95713ffcadb67d6",
+          "avifSha256": "5c74dc2edd29f5995d81842db6fe3437371ef1c84cb4b181f8b71b0d85e64e16",
           "webpSha256": "9dd7247144f237816d02e15879695d7f223d2ebc24a52af2332dafe4a7016e1e"
         }
       ]
@@ -4598,18 +4598,18 @@
           "width": 80,
           "avifPath": "/assets/characters/archer-avatar-0ed79ec7f8fa-80.avif",
           "webpPath": "/assets/characters/archer-avatar-0ed79ec7f8fa-80.webp",
-          "avifBytes": 2096,
+          "avifBytes": 2106,
           "webpBytes": 2374,
-          "avifSha256": "7db4b6581f6c56879a2004907edfc0d6439be819d85697a0cc64dbaa8391635f",
+          "avifSha256": "6d089649558f2b94c1e3d0dafefbd45d0742b02972336bb80a8066bbd3f94eaf",
           "webpSha256": "fb86a874c09ed7569f31ebb0f825a7b8928b898038b2fff44f16499cc59d03f1"
         },
         {
           "width": 160,
           "avifPath": "/assets/characters/archer-avatar-0ed79ec7f8fa-160.avif",
           "webpPath": "/assets/characters/archer-avatar-0ed79ec7f8fa-160.webp",
-          "avifBytes": 4818,
+          "avifBytes": 4868,
           "webpBytes": 6674,
-          "avifSha256": "90b201e613bedb2f7494cbf70e78882abe68171d211a8800ced6c2fb36b21861",
+          "avifSha256": "d00c95c8bc162378d14db222976a5bdb2fc74fa7eb6dca5374d052f8ac16378d",
           "webpSha256": "c72403eede612cfe212530aa810aa6a55ba758367b3f18c81aa749b661e2f05c"
         }
       ]
@@ -4917,9 +4917,9 @@
           "width": 160,
           "avifPath": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1-160.avif",
           "webpPath": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1-160.webp",
-          "avifBytes": 4946,
+          "avifBytes": 4964,
           "webpBytes": 6718,
-          "avifSha256": "d028c7093cd64c8e58557d6771db7219f0ff7d728bdd8fa32b185914456c5613",
+          "avifSha256": "d38d6ca1dd0fa31d9d092079b9cdbd56cfbc83b4373f4be7b95be5b93821a00c",
           "webpSha256": "70fa6646d3178ba0a48297e41dbeb98dcf912a10955be1d1f4a568228c205b50"
         }
       ]
@@ -4979,9 +4979,9 @@
           "width": 160,
           "avifPath": "/assets/characters/evernight-avatar-f387ff953a14-160.avif",
           "webpPath": "/assets/characters/evernight-avatar-f387ff953a14-160.webp",
-          "avifBytes": 5792,
+          "avifBytes": 5824,
           "webpBytes": 7726,
-          "avifSha256": "f1cec1f7bdaed750b2c569bfe1362dfa1ec0a4c56531f3b17d589b9509f0c96a",
+          "avifSha256": "3158fb434168935f48af957c5d1ccc71d027f5b774792040c4e2fadbe836cd2d",
           "webpSha256": "931e9ffc2f393a495604586acfd7139358745a3a04cb0fc2526f673866dfaaab"
         }
       ]
@@ -5165,9 +5165,9 @@
           "width": 160,
           "avifPath": "/assets/characters/sparxie-avatar-59851d4b7fcc-160.avif",
           "webpPath": "/assets/characters/sparxie-avatar-59851d4b7fcc-160.webp",
-          "avifBytes": 5864,
+          "avifBytes": 5860,
           "webpBytes": 7984,
-          "avifSha256": "f30144fe30852cc72a2881e25569c190880b6f899bde7f63cb0e0d8c919b80b8",
+          "avifSha256": "f80f4666365d765d80fd11a173b3b3355d1d01612646c3605cbdfa49b62a1b55",
           "webpSha256": "c4c0cc23aaed8575109ee3403a7368f0afa604bf388357171141cf1a040fc1ce"
         }
       ]
@@ -5674,9 +5674,9 @@
           "width": 80,
           "avifPath": "/assets/characters/himeko-nova-avatar-21948f59b870-80.avif",
           "webpPath": "/assets/characters/himeko-nova-avatar-21948f59b870-80.webp",
-          "avifBytes": 2509,
+          "avifBytes": 2512,
           "webpBytes": 2814,
-          "avifSha256": "ca49531669709547b0d547c97c115b17ab7225bc6eff9b8f69126a078b3c501f",
+          "avifSha256": "8e1bd35e4cc415728e65a84e9e92b46ee653fef004b4e1451f71a909ab45c693",
           "webpSha256": "359e798f85925765b24b01c47f643ab39af1cf7db0eba02d34365e05f1385b70"
         },
         {
@@ -5871,7 +5871,7 @@
           "webpPath": "/assets/characters/robin-summeretto-avatar-13163e99fe13-160.webp",
           "avifBytes": 6360,
           "webpBytes": 8432,
-          "avifSha256": "005813f4a390e3a07e03d5949e70cd119144f233621c5fbb9d48fadf2e3a6fc4",
+          "avifSha256": "5dd0a82bb4eaf0f933dd9ba2f5033f169cd9a2cd774ab3ece7dfa71b5c8379cb",
           "webpSha256": "8bbdb7ee344a1d57a632f89f3c053a4065f2d7147dd1523371b379a7485b71ab"
         }
       ]
@@ -5931,9 +5931,9 @@
           "width": 160,
           "avifPath": "/assets/characters/pearl-avatar-9cd0c611d16d-160.avif",
           "webpPath": "/assets/characters/pearl-avatar-9cd0c611d16d-160.webp",
-          "avifBytes": 6240,
+          "avifBytes": 6239,
           "webpBytes": 8522,
-          "avifSha256": "5326f64b6369bef1e55a280c342f33b6010a7147b8af8dea86535b7b0054102c",
+          "avifSha256": "cd2789c035f83705d952c98836e3456f5aceada1b600b15305a7f0b40990e3e0",
           "webpSha256": "7fdbc5294cec922b0fbcaecebdd46818d5e77273726ac251d3f717ae843b831b"
         }
       ]

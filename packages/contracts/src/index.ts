@@ -259,11 +259,28 @@ export const GuessResultSchema = z.object({
 });
 export type GuessResult = z.infer<typeof GuessResultSchema>;
 
+/** 推理评分等级：S ≥ 90，A ≥ 75，B ≥ 60，C ≥ 40，D < 40。 */
+export const InferenceGradeSchema = z.enum(["S", "A", "B", "C", "D"]);
+export type InferenceGrade = z.infer<typeof InferenceGradeSchema>;
+
 export const InferenceReviewStepSchema = z.object({
   guessNumber: z.number().int().positive(),
   remainingCandidates: z.number().int().nonnegative(),
   eliminatedCandidates: z.number().int().nonnegative(),
   isBest: z.boolean(),
+  /** 这一猜之前仍然符合全部反馈的候选数。旧复盘没有推理评分字段，因此以下字段都是可选的。 */
+  candidatesBefore: z.number().int().nonnegative().optional(),
+  /** 以剩余候选为均匀先验，这一猜反馈分布的信息量（比特）。 */
+  informationBits: z.number().nonnegative().optional(),
+  /** 同一时刻候选池里信息量最高的一猜能拿到的信息量（比特）。 */
+  bestInformationBits: z.number().nonnegative().optional(),
+  /** 期望剩余候选数：Σ|分组|² / |候选|。 */
+  expectedRemaining: z.number().nonnegative().optional(),
+  bestExpectedRemaining: z.number().nonnegative().optional(),
+  /** 同一时刻信息量最高的一猜；只在对局结束后公开。 */
+  bestGuess: GameEntitySummarySchema.nullable().optional(),
+  /** 0–100，informationBits / bestInformationBits；只剩一个候选时猜中记 100、没猜中记 0。 */
+  skill: z.number().int().min(0).max(100).optional(),
 });
 export type InferenceReviewStep = z.infer<typeof InferenceReviewStepSchema>;
 
@@ -271,6 +288,9 @@ export const InferenceReviewSchema = z.object({
   initialCandidates: z.number().int().positive(),
   bestGuessNumber: z.number().int().positive().nullable(),
   steps: z.array(InferenceReviewStepSchema),
+  /** 推理评分：各步 skill 的平均值，四舍五入为整数。 */
+  score: z.number().int().min(0).max(100).nullable().optional(),
+  grade: InferenceGradeSchema.nullable().optional(),
 });
 export type InferenceReview = z.infer<typeof InferenceReviewSchema>;
 
@@ -1447,3 +1467,184 @@ export type ApiError = z.infer<typeof ApiErrorSchema>;
 
 export type ApiSuccess<T> = { ok: true; data: T };
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+/* ===========================================================================
+   派对房：2–8 人同题竞速，不计 Elo，不写入对局记录。
+   公平性：回合进行中只向其他玩家公开反馈颜色，不公开猜了谁；答案只在回合结束后公开。
+   =========================================================================== */
+
+export const PARTY_MAX_PLAYERS = 8;
+export const PARTY_REACTIONS = ["👍", "😮", "😂", "🔥", "🤔", "🎉"] as const;
+export const PartyReactionSchema = z.enum(PARTY_REACTIONS);
+export type PartyReaction = z.infer<typeof PartyReactionSchema>;
+
+export const PartyModeIdSchema = z.enum(["playable", "currency-wars", "aeon"]);
+export type PartyModeId = z.infer<typeof PartyModeIdSchema>;
+
+export const PartyConfigurationSchema = z.strictObject({
+  modeId: PartyModeIdSchema,
+  rounds: z.union([z.literal(3), z.literal(5), z.literal(10)]),
+  roundTimeSeconds: z.union([z.literal(60), z.literal(90), z.literal(120), z.null()]),
+  maxAttempts: z.union([z.literal(6), z.literal(8)]),
+});
+export type PartyConfiguration = z.infer<typeof PartyConfigurationSchema>;
+
+export const DEFAULT_PARTY_CONFIGURATION: PartyConfiguration = {
+  modeId: "playable",
+  rounds: 5,
+  roundTimeSeconds: 90,
+  maxAttempts: 6,
+};
+
+/**
+ * 回合内状态：
+ * - spectating：回合开始后才加入，下一回合起参加；
+ * - guessing：还在猜；solved：猜中；failed：次数用完或超时。
+ */
+export const PartyRoundStatusSchema = z.enum(["spectating", "guessing", "solved", "failed"]);
+export type PartyRoundStatus = z.infer<typeof PartyRoundStatusSchema>;
+
+export const PartyPlayerSchema = z.object({
+  playerId: z.string().uuid(),
+  displayName: z.string(),
+  isHost: z.boolean(),
+  connected: z.boolean(),
+  /** 累计总分。 */
+  score: z.number().int().nonnegative(),
+  roundStatus: PartyRoundStatusSchema,
+  guessesUsed: z.number().int().nonnegative(),
+  /** 从回合开始到猜中的毫秒数；没猜中为 null。 */
+  solvedAtMs: z.number().int().nonnegative().nullable(),
+  /** 第几个猜中（从 1 开始）；没猜中为 null。 */
+  solveRank: z.number().int().positive().nullable(),
+  /** 本回合得分；回合结束前只计算已猜中的玩家。 */
+  roundPoints: z.number().int().nonnegative(),
+  /** 本回合每一猜的反馈颜色。对其他玩家只公开颜色，不公开猜的是谁。 */
+  feedback: z.array(z.array(GuessCellSchema)),
+});
+export type PartyPlayer = z.infer<typeof PartyPlayerSchema>;
+
+export const PartyRoundPlacementSchema = z.object({
+  playerId: z.string().uuid(),
+  solved: z.boolean(),
+  guessesUsed: z.number().int().nonnegative(),
+  solvedAtMs: z.number().int().nonnegative().nullable(),
+  points: z.number().int().nonnegative(),
+});
+export type PartyRoundPlacement = z.infer<typeof PartyRoundPlacementSchema>;
+
+export const PartyRoundResultSchema = z.object({
+  round: z.number().int().positive(),
+  answer: GameEntitySummarySchema,
+  placements: z.array(PartyRoundPlacementSchema),
+});
+export type PartyRoundResult = z.infer<typeof PartyRoundResultSchema>;
+
+export const PartyStateSchema = z.enum([
+  "lobby",
+  "countdown",
+  "playing",
+  "round-ended",
+  "finished",
+]);
+export type PartyState = z.infer<typeof PartyStateSchema>;
+
+export const PartySnapshotSchema = z.object({
+  partyId: z.string().uuid(),
+  code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
+  /** 接收这份快照的玩家。 */
+  selfPlayerId: z.string().uuid(),
+  hostPlayerId: z.string().uuid(),
+  configuration: PartyConfigurationSchema,
+  state: PartyStateSchema,
+  /** 当前回合，大厅里为 0。 */
+  round: z.number().int().nonnegative(),
+  /** countdown 时为倒计时结束时间；playing 时为回合开始时间。毫秒时间戳。 */
+  roundStartsAt: z.number().int().nullable(),
+  /** 不限时为 null。 */
+  roundEndsAt: z.number().int().nullable(),
+  /** round-ended 时自动进入下一回合的时间。 */
+  nextRoundAt: z.number().int().nullable(),
+  players: z.array(PartyPlayerSchema).max(PARTY_MAX_PLAYERS),
+  /** 自己本回合的完整猜测。 */
+  ownGuesses: z.array(GuessResultSchema),
+  /** 只在 round-ended / finished 时公开。 */
+  roundAnswer: GameEntitySummarySchema.nullable(),
+  /** 已结束回合的结果，按回合升序。 */
+  history: z.array(PartyRoundResultSchema),
+});
+export type PartySnapshot = z.infer<typeof PartySnapshotSchema>;
+
+export const ClientPartyMessageSchema = z.discriminatedUnion("type", [
+  /** 房主：在大厅里修改设置。 */
+  z.object({ type: z.literal("configure"), configuration: PartyConfigurationSchema }),
+  /** 房主：开始游戏（大厅里至少 1 名已连接玩家）。 */
+  z.object({ type: z.literal("start") }),
+  z.object({
+    type: z.literal("guess"),
+    characterId: z.string().min(1),
+    actionId: z.string().uuid().optional(),
+  }),
+  /** 房主：回合结束后跳过等待，立即进入下一回合。 */
+  z.object({ type: z.literal("next") }),
+  /** 房主：结束后带着所有人回到大厅，分数清零。 */
+  z.object({ type: z.literal("rematch") }),
+  /** 房主：把某位玩家移出房间。 */
+  z.object({ type: z.literal("kick"), playerId: z.string().uuid() }),
+  z.object({ type: z.literal("react"), reaction: PartyReactionSchema }),
+  z.object({ type: z.literal("leave") }),
+  z.object({ type: z.literal("ping"), sentAt: z.number().int() }),
+]);
+export type ClientPartyMessage = z.infer<typeof ClientPartyMessageSchema>;
+
+export const ServerPartyMessageSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("snapshot"), snapshot: PartySnapshotSchema }),
+  z.object({
+    type: z.literal("reaction"),
+    playerId: z.string().uuid(),
+    reaction: PartyReactionSchema,
+    at: z.number().int(),
+  }),
+  /** 被房主移出；客户端收到后应断开并提示。 */
+  z.object({ type: z.literal("kicked") }),
+  z.object({ type: z.literal("error"), code: z.string(), requestId: z.string().uuid() }),
+  z.object({ type: z.literal("pong"), sentAt: z.number().int() }),
+]);
+export type ServerPartyMessage = z.infer<typeof ServerPartyMessageSchema>;
+
+export const CreatePartyRequestSchema = PartyConfigurationSchema.partial();
+export type CreatePartyRequest = z.infer<typeof CreatePartyRequestSchema>;
+
+export const JoinPartyRequestSchema = JoinRoomRequestSchema;
+
+export const PartyApiResponseSchema = z.object({
+  partyId: z.string().uuid(),
+  code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
+});
+export type PartyApiResponse = z.infer<typeof PartyApiResponseSchema>;
+
+export const PartyPreviewResponseSchema = z.object({
+  partyId: z.string().uuid(),
+  code: z.string().regex(/^[A-HJ-NP-Z2-9]{5}$/),
+  configuration: PartyConfigurationSchema,
+  state: PartyStateSchema,
+  playerCount: z.number().int().nonnegative(),
+  hostDisplayName: z.string(),
+});
+export type PartyPreviewResponse = z.infer<typeof PartyPreviewResponseSchema>;
+
+/**
+ * 回合计分：猜中得 100 + 15 × 剩余次数 + 名次奖励（第 1/2/3 个猜中分别 +50/+30/+15）；
+ * 没猜中或超时得 0。
+ */
+export function partyRoundPoints(input: {
+  solved: boolean;
+  guessesUsed: number;
+  maxAttempts: number;
+  solveRank: number | null;
+}): number {
+  if (!input.solved) return 0;
+  const rankBonus =
+    input.solveRank === 1 ? 50 : input.solveRank === 2 ? 30 : input.solveRank === 3 ? 15 : 0;
+  return 100 + 15 * Math.max(0, input.maxAttempts - input.guessesUsed) + rankBonus;
+}
