@@ -2,7 +2,7 @@
    v1 的方角控件、border 拼出来的通栏表格/分区、border-left 状态竖条、
    菱形折叠箭头全部替换为「独立圆角面板 + gap + --panel 分层」。
    层次只用面板不透明度，不用 backdrop-filter（设计文档明确禁用）。
-   颜色一律走 tokens.css 的语义令牌，浅色主题由 :root[data-theme="light"] 覆盖。 */
+   颜色一律走 tokens.css 的语义令牌。 */
 
 .admin-page,
 .admin-denied {
@@ -10,9 +10,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 无权限页：与找回密码页同款的小磁贴图标 + 静音标签，不用大写英文标语 */
 .admin-denied > svg {
-  margin-bottom: 22px;
+  box-sizing: content-box;
+  width: 26px;
+  height: 26px;
+  padding: 14px;
+  margin-bottom: 8px;
   color: var(--lit);
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--miss);
 }
 
 .admin-page {
@@ -273,14 +281,11 @@
 .admin-table th {
   height: 38px;
   padding: 0 16px;
-  color: var(--faint);
+  color: var(--muted);
   border: 0;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.04em;
   text-align: left;
-  text-transform: uppercase;
 }
 
 .admin-table td {
@@ -777,11 +782,9 @@
 
 .feedback-review-detail h3 {
   margin: 0 0 8px;
-  color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .feedback-review-detail p {

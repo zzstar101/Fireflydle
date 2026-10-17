@@ -49,8 +49,12 @@ const steps: InferenceReplayStep[] = [
 
 interface RenderedAvatar {
   id: string;
-  left: number;
-  top: number;
+  /** 离舞台中心的横向偏移，单位 cqmin（min(舞台宽, 舞台高) 的 1%）。 */
+  x: number;
+  /** 离舞台中心的纵向偏移，单位 cqmin。 */
+  y: number;
+  /** 该头像的边长声明，例如 `clamp(18.48px, 92.4px, 5.63cqmin)`。 */
+  size: string;
   fallen: boolean;
   hidden: boolean;
 }
@@ -67,8 +71,9 @@ function parseAvatars(markup: string): RenderedAvatar[] {
       const style = /style="([^"]*)"/.exec(tag)?.[1] ?? "";
       return {
         id,
-        left: Number(/--replay-left:([-\d.]+)cqw/.exec(style)?.[1] ?? NaN),
-        top: Number(/--replay-top:([-\d.]+)cqh/.exec(style)?.[1] ?? NaN),
+        x: Number(/--replay-x:([-\d.]+)cqmin/.exec(style)?.[1] ?? NaN),
+        y: Number(/--replay-y:([-\d.]+)cqmin/.exec(style)?.[1] ?? NaN),
+        size: /--replay-size:([^;"]+)/.exec(style)?.[1] ?? "",
         fallen: tag.includes('data-fallen="true"'),
         hidden: tag.includes('aria-hidden="true"'),
       };
@@ -81,10 +86,21 @@ function render(props: Partial<InferenceReplayProps> = {}) {
   );
 }
 
-/** 离舞台中心的距离；缺数据时返回 undefined，让断言直接失败。 */
+/**
+ * 离舞台中心的归一化距离（cqmin），缺数据时返回 undefined，让断言直接失败。
+ * 原型 spiral() 在 y 方向压缩 0.9（葵花阵呈椭圆），这里先还原再量半径。
+ */
 function radiusOf(avatar: RenderedAvatar | undefined) {
   if (!avatar) return undefined;
-  return Math.hypot(avatar.left - 50, avatar.top - 50);
+  return Math.hypot(avatar.x, avatar.y / 0.9);
+}
+
+/**
+ * 原型 spiral() 的半径：`r = c * sqrt(i + 0.5)`，`c = R / sqrt(n)`，`R = 0.36 * min(w, h)`，
+ * 换成 cqmin 就是 `0.36 * sqrt((i + 0.5) / n) * 100`。
+ */
+function expectedRadius(index: number, count: number) {
+  return 0.36 * Math.sqrt((index + 0.5) / count) * 100;
 }
 
 describe("推理回放", () => {
@@ -93,23 +109,25 @@ describe("推理回放", () => {
     const avatars = parseAvatars(markup);
     expect(avatars).toHaveLength(TOTAL);
     expect(avatars.map((avatar) => avatar.id)).toEqual(characters.map((item) => item.id));
-    expect(markup).toContain("剩余候选");
+    expect(markup).toContain("位候选");
     expect(markup).toMatch(/>92<\/b>/);
     // 回放从完整候选池开始：还没有人坠落，跳过按钮可用。
     expect(avatars.every((avatar) => !avatar.fallen)).toBe(true);
     expect(markup).toContain("跳过");
   });
 
-  test("葵花阵：首个候选居中，最外层候选落在舞台半径上", () => {
+  test("葵花阵：半径按 sqrt(i + 0.5) 递增，最外层贴近舞台半径", () => {
     const avatars = parseAvatars(render());
-    expect(avatars[0]?.left).toBeCloseTo(50, 3);
-    expect(avatars[0]?.top).toBeCloseTo(50, 3);
-    // r = 0.5 * sqrt(i / (N - 1)) 归一化后，最外层 i = N - 1 时半径恰好是 0.5，
-    // 映射到百分比即离舞台中心 25。
+    // 原型 spiral() 的第一个候选不在正中（r = c * sqrt(0.5)），这一圈半径都大于 0。
+    expect(radiusOf(avatars[0])).toBeCloseTo(expectedRadius(0, TOTAL), 2);
+    // 最外层 i = N - 1 时半径 ≈ 0.36 * min(舞台宽, 舞台高)，映射到 cqmin 即 35.9。
     const outer = radiusOf(avatars[TOTAL - 1]) ?? 0;
-    expect(outer).toBeCloseTo(25, 2);
+    expect(outer).toBeCloseTo(expectedRadius(TOTAL - 1, TOTAL), 2);
+    expect(outer).toBeGreaterThan(35);
     // 半径随序号单调递增：最后一个一定比中间那个离中心更远。
     expect(outer).toBeGreaterThan(radiusOf(avatars[Math.floor(TOTAL / 2)]) ?? 0);
+    // 同一池里所有头像共用一个缩放（原型 spiral() 的 s 只由 n 与 R 决定）。
+    expect(new Set(avatars.map((avatar) => avatar.size)).size).toBe(1);
   });
 
   test("final 直接呈现最后一步的存活候选，落败者已坠落", () => {
@@ -118,9 +136,9 @@ describe("推理回放", () => {
     expect(avatars).toHaveLength(TOTAL);
     const alive = avatars.filter((avatar) => !avatar.fallen);
     expect(alive.map((avatar) => avatar.id)).toEqual(["c010"]);
-    // 唯一幸存者被摆到舞台正中。
-    expect(alive[0]?.left).toBeCloseTo(50, 3);
-    expect(alive[0]?.top).toBeCloseTo(50, 3);
+    // 只剩一个候选时原型走 n <= 4 的横向一行分支，offset 为 0 所以正好落在舞台中心。
+    expect(alive[0]?.x).toBeCloseTo(0, 3);
+    expect(alive[0]?.y).toBeCloseTo(0, 3);
     // 落败者留在树里但退出可访问性树。
     const fallen = avatars.filter((avatar) => avatar.fallen);
     expect(fallen).toHaveLength(TOTAL - 1);
@@ -148,10 +166,11 @@ describe("推理回放", () => {
 
   test("舞台是装饰性的，计数器与跳过按钮保留给辅助技术", () => {
     const markup = render();
-    expect(markup).toContain('<div class="replay-stage" aria-hidden="true">');
+    expect(markup).toContain('<div class="replay-stage cloud" aria-hidden="true">');
     expect(markup).toContain('role="status"');
     expect(markup).toContain('aria-live="polite"');
-    expect(markup).toContain('<button type="button" class="replay-skip">');
+    // 跳过按钮沿用全局 .btn.sm 的外观（原型 .skip），类名保留 replay-skip 供样式与测试挂钩。
+    expect(markup).toMatch(/<button type="button" class="[^"]*\breplay-skip\b[^"]*">/);
     expect(markup).toContain("推理回放");
   });
 
@@ -170,9 +189,9 @@ describe("推理回放", () => {
       },
     });
     expect(markup).not.toContain("character-avatar");
-    // 38px 显示边长：10 列 10 行 → 380×380；第 12 个候选（index 11）落在第 2 行第 2 列。
-    expect(markup).toContain("background-size:380px 380px");
-    expect(markup).toContain("background-position:-38px -38px");
+    // 百分比取格：10 列 10 行 → 1000%×1000%；第 12 个候选（index 11）落在第 2 行第 2 列 → 1/9。
+    expect(markup).toContain("background-size:1000% 1000%");
+    expect(markup).toContain("background-position:11.1111% 11.1111%");
     expect(parseAvatars(markup)).toHaveLength(TOTAL);
   });
 

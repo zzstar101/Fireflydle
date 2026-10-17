@@ -1,7 +1,10 @@
 /**
- * 星空背景场景（懒加载模块，three 只在这里被静态引入）。
- * 结构：烘焙一次的星云纹理 → 漂移星点（含四芒亮星）→ 三条星轨。
- * 只有一个 draw loop；页面隐藏 / 减少动效 / 浅色主题时由外部暂停。
+ * 星空场景 —— 直接移植自 docs/design/redesign-v2/prototype.html 的 initGL()。
+ *
+ * 一个 Points 同时承担「萤火星场」与「文字 / 立绘形态」（aShape + uMorph 插值），
+ * 再加星云底图（半分辨率烘焙一次）、三条星轨、命中迸发环形缓冲。
+ * 所有逐帧运动都在顶点着色器里；CPU 只在状态切换时写 attribute。
+ * 动画状态 S（morph / scatter / warp …）由 fx.ts 持有并补间，这里每帧采样。
  */
 import {
   AdditiveBlending,
@@ -20,10 +23,7 @@ import {
   WebGLRenderer,
   WebGLRenderTarget,
 } from "three";
-import type { FxBurstOptions, FxScene } from "./fx";
-import { createPointField } from "./point-field";
-import { createStardust } from "./stardust";
-import { glyphBox, sampleTextToPoints } from "./glyph-sampler";
+import type { FxPortraitCloud, FxRect, FxScene, FxSceneHost } from "./fx";
 
 export type StarFieldIntensity = "full" | "calm";
 
@@ -33,162 +33,132 @@ export interface StarFieldHandle extends FxScene {
   dispose(): void;
 }
 
-const CAMERA_Z = 10;
-const FOV = 50;
-
-const STAR_VERTEX = /* glsl */ `
-uniform float uTime;
-uniform float uProj;
-uniform float uPR;
-uniform float uSize;
-uniform float uWarp;
-uniform float uFly;
-uniform vec2 uParallax;
-attribute vec4 aRand;
-varying vec3 vColor;
-varying float vAlpha;
-varying float vSpike;
-varying vec2 vDir;
-void main() {
-  vec3 p = position;
-  float phase = aRand.z * 6.2831;
-  p.x += sin(uTime * 0.05 + phase) * 0.18;
-  p.y += cos(uTime * 0.04 + phase) * 0.14;
-  p.z = mod(p.z + 14.0 + uFly, 16.0) - 14.0;
-  float depth = (p.z + 14.0) / 15.0;
-  p.xy += uParallax * (0.35 + depth);
-  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  gl_Position = projectionMatrix * mv;
-  vec2 ndc = gl_Position.xy / gl_Position.w;
-  vDir = normalize(ndc + 1e-4);
-  float spike = step(1.56, aRand.y);
-  float twinkle = 0.62 + 0.38 * sin(uTime * (0.5 + aRand.x * 1.7) + aRand.z * 40.0);
-  float size = uSize * aRand.y * (1.0 + spike * 2.4) * (1.0 + uWarp * length(ndc) * 2.5);
-  gl_PointSize = min(max(size * uProj * uPR / -mv.z, 1.0), 72.0);
-  vec3 color = vec3(0.82, 0.88, 1.0);
-  if (aRand.z > 0.8) color = vec3(1.0, 0.86, 0.6);
-  if (aRand.z > 0.94) color = vec3(0.78, 0.7, 1.0);
-  vColor = color;
-  vSpike = spike;
-  vAlpha = twinkle * smoothstep(-14.0, -10.5, p.z) * smoothstep(2.5, 0.0, p.z);
-}
-`;
-
-const STAR_FRAGMENT = /* glsl */ `
-uniform float uWarp;
-varying vec3 vColor;
-varying float vAlpha;
-varying float vSpike;
-varying vec2 vDir;
-void main() {
-  vec2 q = gl_PointCoord - 0.5;
-  if (uWarp > 0.01) {
-    vec2 dir = vec2(vDir.x, -vDir.y);
-    float along = dot(q, dir);
-    float across = dot(q, vec2(-dir.y, dir.x));
-    q = vec2(along / (1.0 + uWarp * 3.0), across);
-  }
-  float d = length(q);
-  float dotA = smoothstep(0.5, 0.0, d);
-  dotA = dotA * dotA + smoothstep(0.16, 0.0, d) * 0.45;
-  float cross = exp(-abs(q.x) * 70.0) * smoothstep(0.5, 0.0, abs(q.y))
-              + exp(-abs(q.y) * 70.0) * smoothstep(0.5, 0.0, abs(q.x));
-  float core = smoothstep(0.12, 0.0, d);
-  float a = mix(dotA, max(cross * 0.85, core), vSpike) * vAlpha;
-  if (a < 0.01) discard;
-  gl_FragColor = vec4(vColor * a, a);
-}
-`;
-
-const QUAD_VERTEX = /* glsl */ `
-varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = vec4(position.xy, 0.0, 1.0);
-}
-`;
-
-const NEBULA_FRAGMENT = /* glsl */ `
-uniform vec2 uAspect;
-uniform float uSeed;
-varying vec2 vUv;
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7)) + uSeed) * 43758.5453); }
-float noise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
-             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-}
-float fbm(vec2 p) {
-  float v = 0.0;
-  float a = 0.5;
-  for (int i = 0; i < 6; i++) { v += a * noise(p); p = p * 2.03 + 17.1; a *= 0.5; }
-  return v;
-}
-void main() {
-  vec2 p = (vUv - 0.5) * uAspect;
-  vec2 w = vec2(fbm(p * 1.6 + 3.1), fbm(p * 1.6 - 7.4));
-  float n = fbm(p * 2.2 + w * 1.4);
-  float band = exp(-pow((p.y + p.x * 0.42 - 0.06) * 2.4, 2.0));
-  vec3 col = mix(vec3(0.018, 0.026, 0.075), vec3(0.035, 0.05, 0.13), vUv.y);
-  float cloud = smoothstep(0.35, 0.85, n);
-  col += vec3(0.22, 0.13, 0.45) * cloud * band * 0.85;
-  col += vec3(0.05, 0.17, 0.36) * smoothstep(0.45, 0.9, w.x) * band * 0.7;
-  col += vec3(0.55, 0.38, 0.16) * pow(n, 3.0) * band * 0.35;
-  float vig = smoothstep(1.25, 0.25, length(p * vec2(0.9, 1.2)));
-  col *= 0.55 + 0.45 * vig;
-  gl_FragColor = vec4(col, 1.0);
-}
-`;
-
-const BACKGROUND_FRAGMENT = /* glsl */ `
-uniform sampler2D uTex;
-uniform vec2 uOff;
-uniform float uBright;
-varying vec2 vUv;
-void main() {
-  vec3 c = texture2D(uTex, (vUv - 0.5) * 0.96 + 0.5 + uOff).rgb;
-  gl_FragColor = vec4(c * uBright, 1.0);
-}
-`;
-
-const RAIL_VERTEX = /* glsl */ `
-uniform float uTime;
-uniform float uProj;
-uniform float uPR;
-uniform float uRail;
-uniform vec2 uParallax;
-attribute float aU;
-attribute float aRail;
-varying float vAlpha;
-varying vec3 vColor;
-void main() {
-  vec3 p = position;
-  p.xy += uParallax * 0.6;
-  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  gl_Position = projectionMatrix * mv;
-  float head = fract(uTime * (0.028 + aRail * 0.008) + aRail * 0.37);
-  float g = exp(-fract(head - aU) * 28.0);
-  float ends = smoothstep(0.0, 0.08, aU) * smoothstep(1.0, 0.92, aU);
-  vAlpha = uRail * (0.12 + g * 0.95) * ends;
-  vColor = abs(aRail - 1.0) < 0.5 ? vec3(0.62, 0.82, 1.0) : vec3(1.0, 0.84, 0.55);
-  gl_PointSize = max((0.03 + g * 0.07) * uProj * uPR / -mv.z, 1.0);
-}
-`;
-
-const RAIL_FRAGMENT = /* glsl */ `
-varying float vAlpha;
-varying vec3 vColor;
+const FRAG = /* glsl */ `
+varying vec3 vColor; varying float vAlpha;
 void main() {
   float d = length(gl_PointCoord - 0.5);
-  float a = smoothstep(0.5, 0.0, d) * vAlpha;
-  if (a < 0.008) discard;
-  gl_FragColor = vec4(vColor * a, a);
-}
-`;
+  float a = smoothstep(0.5, 0.0, d); a = a * a + smoothstep(0.16, 0.0, d) * 0.45;
+  a *= vAlpha;
+  if (a < 0.004) discard;
+  gl_FragColor = vec4(vColor, a);
+}`;
 
-const RAILS: [number, number, number][][] = [
+const STAR_FRAG = /* glsl */ `
+varying vec3 vColor; varying float vAlpha; varying float vWarp; varying vec2 vDir; varying float vSpike;
+void main() {
+  vec2 q = gl_PointCoord - 0.5; q.y = -q.y;
+  // 跃迁：沿径向拉成光轨
+  float along = dot(q, vDir), across = dot(q, vec2(-vDir.y, vDir.x));
+  float d = length(vec2(along, across / mix(1.0, 0.05, vWarp))) * mix(1.0, 2.8, vSpike * (1.0 - vWarp));
+  float a = smoothstep(0.5, 0.0, d); a = a * a + smoothstep(0.14, 0.0, d) * 0.5;
+  // 亮星的四芒
+  float sp = exp(-abs(q.x) * 70.0) * smoothstep(0.5, 0.0, abs(q.y)) + exp(-abs(q.y) * 70.0) * smoothstep(0.5, 0.0, abs(q.x));
+  a += sp * vSpike * (1.0 - vWarp);
+  a *= vAlpha;
+  if (a < 0.004) discard;
+  gl_FragColor = vec4(vColor, a);
+}`;
+
+const STAR_VERT = /* glsl */ `
+uniform float uTime, uMorph, uScatter, uDim, uWarm, uProj, uPR, uFieldSize, uShapeSize, uShapeAlpha, uWarp, uFly, uAspect;
+uniform vec2 uMouse, uParallax, uShapeOffset;
+attribute vec3 aShape; attribute vec3 aColor; attribute vec4 aRand;
+varying vec3 vColor; varying float vAlpha; varying float vWarp; varying vec2 vDir; varying float vSpike;
+void main() {
+  float t = uTime, ph = aRand.z * 6.2831;
+  vec3 f = position;
+  f.x += sin(t * 0.05 + ph + f.y * 0.2) * 0.25;
+  f.y += cos(t * 0.04 + ph * 1.3 + f.x * 0.15) * 0.2;
+  f.z = mod(f.z + 14.0 + uFly, 16.0) - 14.0;
+  float depth = clamp((f.z + 14.0) / 16.0, 0.0, 1.0);
+  f.xy += uParallax * (0.2 + depth);
+  vec3 s = aShape;
+  s.xy += uShapeOffset;
+  s.x += sin(t * 1.3 + ph * 5.0) * 0.012;
+  s.y += cos(t * 1.1 + ph * 7.0) * 0.012;
+  vec2 dm = s.xy - uMouse; float dl = length(dm);
+  s.xy += dm / max(dl, 1e-3) * smoothstep(0.9, 0.0, dl) * 0.3;
+  s += vec3((aRand.z - 0.5) * 10.0, (fract(aRand.z * 7.31) - 0.5) * 7.0, 2.0 + aRand.y * 4.0) * uScatter * uScatter;
+  float m = smoothstep(0.0, 1.0, clamp(uMorph * 1.7 - aRand.x * 0.7, 0.0, 1.0)) * aRand.w;
+  vec3 p = mix(f, s, m);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float tw = 0.5 + 0.5 * sin(t * (0.8 + aRand.y * 2.2) + ph * 9.0);
+  float spike = step(1.56, aRand.y) * (1.0 - m);
+  float w = uWarp * (1.0 - m);
+  vec2 sc = gl_Position.xy / gl_Position.w;
+  // 光轨长度随离屏幕中心的距离增长（越靠边越长），只在跃迁的 1 秒多里放大点精灵
+  float size = mix(uFieldSize * aRand.y * (1.0 + spike * 2.2 * (1.0 - w)), uShapeSize * (0.85 + 0.3 * aRand.y), m) * (1.0 + w * 6.0 * min(length(sc), 1.2));
+  gl_PointSize = min(max(size * uProj * uPR / -mv.z, 1.0), 96.0);
+  vDir = normalize(vec2(sc.x * uAspect, sc.y) + 1e-4);
+  vWarp = w; vSpike = spike;
+  vec3 star = mix(vec3(0.82, 0.88, 1.0), vec3(1.0, 0.86, 0.6), step(0.8, aRand.z));
+  star = mix(star, vec3(0.78, 0.7, 1.0), step(0.94, aRand.z));
+  star = mix(star, vec3(1.0, 0.84, 0.5), uWarm * 0.6);
+  vColor = mix(star, aColor, m);
+  float fieldA = (0.35 + 0.65 * tw) * uDim * (0.15 + 0.85 * depth) * (1.0 + uWarm * 0.5) * (1.0 + w * 1.2);
+  vAlpha = mix(fieldA, uShapeAlpha * (0.82 + 0.18 * tw), m) * (1.0 - min(uScatter, 1.0) * 0.75);
+}`;
+
+const QUAD_VERT = /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+
+const NEBULA_FRAG = /* glsl */ `
+varying vec2 vUv; uniform float uAspect;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) { vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }
+float fbm(vec2 p) { float v = 0.0, a = 0.5; mat2 r = mat2(0.8, 0.6, -0.6, 0.8);
+  for (int i = 0; i < 6; i++) { v += a * noise(p); p = r * p * 2.03 + 3.1; a *= 0.5; } return v; }
+void main() {
+  vec2 p = (vUv - 0.5) * vec2(uAspect, 1.0);
+  vec2 q = vec2(fbm(p * 1.5 + 1.7), fbm(p * 1.5 + 9.2));
+  float n = fbm(p * 2.1 + q * 1.9);
+  float band = exp(-pow((p.y + p.x * 0.42 - 0.06) * 2.4, 2.0));
+  vec3 col = mix(vec3(0.018, 0.026, 0.075), vec3(0.035, 0.05, 0.13), vUv.y);
+  col += vec3(0.22, 0.13, 0.45) * smoothstep(0.38, 0.95, n) * (0.3 + band * 0.9);
+  col += vec3(0.05, 0.17, 0.36) * smoothstep(0.45, 1.0, fbm(p * 3.1 - q)) * (0.45 + band * 0.6);
+  col += vec3(0.55, 0.38, 0.16) * pow(smoothstep(0.55, 1.0, n), 3.0) * band * 0.8;
+  col *= 1.0 - 0.5 * length(vUv - 0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+const BG_FRAG = /* glsl */ `uniform sampler2D uTex; uniform vec2 uOff; uniform float uBright; varying vec2 vUv;
+void main() { gl_FragColor = vec4(texture2D(uTex, (vUv - 0.5) * 0.96 + 0.5 + uOff).rgb * uBright, 1.0); }`;
+
+const RAIL_VERT = /* glsl */ `
+uniform float uTime, uProj, uPR, uRail; uniform vec2 uParallax;
+attribute float aU, aRail; varying vec3 vColor; varying float vAlpha;
+void main() {
+  vec3 p = position;
+  p.xy += uParallax * (0.2 + clamp((p.z + 14.0) / 16.0, 0.0, 1.0));
+  float head = fract(uTime * (0.028 + aRail * 0.008) + aRail * 0.37);
+  float d = fract(head - aU);
+  float g = exp(-d * 28.0);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = 0.05 * (1.0 + g * 1.8) * uProj * uPR / -mv.z;
+  vec3 c = aRail == 1.0 ? vec3(0.62, 0.82, 1.0) : vec3(1.0, 0.84, 0.55);
+  vColor = mix(c, vec3(1.0), g * 0.6);
+  vAlpha = uRail * (0.12 + g * 0.95) * smoothstep(0.0, 0.08, aU) * smoothstep(1.0, 0.92, aU);
+}`;
+
+const BURST_VERT = /* glsl */ `
+uniform float uTime, uProj, uPR;
+attribute vec3 aVel; attribute float aBirth; attribute float aSeed;
+varying vec3 vColor; varying float vAlpha;
+void main() {
+  float age = uTime - aBirth, life = 2.0;
+  float alive = step(0.0, age) * step(age, life);
+  float e = (1.0 - exp(-age * 1.8)) / 1.8;
+  vec3 p = position + aVel * e + vec3(sin(age * 2.4 + aSeed * 6.28) * 0.15, age * 0.3, 0.0);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = alive * 0.09 * (0.7 + aSeed * 0.6) * uProj * uPR / -mv.z;
+  vColor = vec3(1.0, 0.86, 0.52);
+  vAlpha = alive * pow(1.0 - clamp(age / life, 0.0, 1.0), 1.4) * smoothstep(0.0, 0.05, age) * (0.75 + 0.25 * sin(age * 9.0 + aSeed * 20.0));
+}`;
+
+const RAIL_DEFS: [number, number, number][][] = [
   [
     [-17, -7.5, -9],
     [-6, -2.8, -6],
@@ -210,427 +180,494 @@ const RAILS: [number, number, number][][] = [
   ],
 ];
 
-function isCompactViewport(): boolean {
-  return window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
+const FONT = (size: number) =>
+  `900 ${size}px "PingFang SC","HarmonyOS Sans SC","MiSans","Noto Sans SC","Microsoft YaHei",sans-serif`;
+
+function pickSubset(total: number, want: number): number[] {
+  const idx = Array.from({ length: total }, (_, i) => i);
+  const n = Math.min(want, total);
+  for (let i = 0; i < n; i++) {
+    const j = i + Math.floor(Math.random() * (total - i));
+    const a = idx[i] ?? 0;
+    idx[i] = idx[j] ?? 0;
+    idx[j] = a;
+  }
+  return idx.slice(0, n);
 }
 
-function isLowEnd(): boolean {
-  const nav = navigator as Navigator & { deviceMemory?: number };
-  return (nav.deviceMemory ?? 8) <= 2 || (navigator.hardwareConcurrency ?? 8) <= 2;
-}
+export function createStarField(
+  canvas: HTMLCanvasElement,
+  host: FxSceneHost,
+): StarFieldHandle | null {
+  const S = host.state;
+  const mobile = window.matchMedia("(max-width: 760px)").matches;
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
+  const lowEnd = (navigator.hardwareConcurrency || 8) <= 4 || nav.connection?.saveData === true;
 
-export function createStarField(canvas: HTMLCanvasElement): StarFieldHandle | null {
   let renderer: WebGLRenderer;
   try {
     renderer = new WebGLRenderer({
       canvas,
       antialias: false,
       alpha: false,
-      powerPreference: "low-power",
-      preserveDrawingBuffer: false,
+      powerPreference: "high-performance",
+      stencil: false,
+      depth: false,
     });
   } catch {
     return null;
   }
-
-  const compact = isCompactViewport();
-  const lowEnd = isLowEnd();
-  const maxRatio = lowEnd ? 1 : compact ? 1.25 : 1.5;
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, maxRatio);
-  renderer.setPixelRatio(pixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight, false);
-  renderer.autoClear = false;
+  let dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(innerWidth, innerHeight, false);
   renderer.setClearColor(0x050817, 1);
+  renderer.autoClear = false;
 
-  const tanHalf = Math.tan((FOV * Math.PI) / 360);
-  const camera = new PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.1, 60);
-  camera.position.z = CAMERA_Z;
   const scene = new Scene();
-  const quadCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const FOV = 40;
+  const CAMZ = 10;
+  const camera = new PerspectiveCamera(FOV, innerWidth / innerHeight, 0.1, 60);
+  camera.position.z = CAMZ;
+  const tanH = Math.tan(((FOV / 2) * Math.PI) / 180);
+  let k = (2 * CAMZ * tanH) / innerHeight; // 每 CSS 像素在 z=0 平面上的世界单位
+  const toWorld = (x: number, y: number): [number, number] => [
+    (x - innerWidth / 2) * k,
+    -(y - innerHeight / 2) * k,
+  ];
 
-  // ── 星点 ──
-  const starCount = lowEnd ? 2600 : compact ? 4800 : 9600;
-  const positions = new Float32Array(starCount * 3);
-  const rands = new Float32Array(starCount * 4);
-  for (let i = 0; i < starCount; i += 1) {
-    positions[i * 3] = (Math.random() * 2 - 1) * 17;
-    positions[i * 3 + 1] = (Math.random() * 2 - 1) * 10;
-    positions[i * 3 + 2] = -14 + Math.random() * 15;
-    rands[i * 4] = Math.random();
-    rands[i * 4 + 1] = 0.35 + Math.pow(Math.random(), 2.2) * 1.3;
-    rands[i * 4 + 2] = Math.random();
-    rands[i * 4 + 3] = Math.random();
+  // —— 萤火 + 形态 ——
+  const N = lowEnd ? 2600 : mobile ? 4200 : 9000;
+  const field = new Float32Array(N * 3);
+  const shape = new Float32Array(N * 3);
+  const color = new Float32Array(N * 3);
+  const rnd = new Float32Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    field[i * 3] = (Math.random() - 0.5) * 34;
+    field[i * 3 + 1] = (Math.random() - 0.5) * 20;
+    field[i * 3 + 2] = -14 + Math.random() * 15;
+    rnd[i * 4] = Math.random();
+    rnd[i * 4 + 1] = 0.35 + Math.random() * 1.3;
+    rnd[i * 4 + 2] = Math.random();
+    rnd[i * 4 + 3] = 0;
   }
-  const starGeometry = new BufferGeometry();
-  starGeometry.setAttribute("position", new BufferAttribute(positions, 3));
-  starGeometry.setAttribute("aRand", new BufferAttribute(rands, 4));
-  const starUniforms = {
+  shape.set(field);
+  color.fill(1);
+  const geo = new BufferGeometry();
+  geo.setAttribute("position", new BufferAttribute(field, 3));
+  const aShape = new BufferAttribute(shape, 3);
+  const aColor = new BufferAttribute(color, 3);
+  const aRand = new BufferAttribute(rnd, 4);
+  geo.setAttribute("aShape", aShape);
+  geo.setAttribute("aColor", aColor);
+  geo.setAttribute("aRand", aRand);
+  const U = {
     uTime: { value: 0 },
-    uProj: { value: window.innerHeight / (2 * tanHalf) },
-    uPR: { value: pixelRatio },
-    uSize: { value: 0.05 },
+    uMorph: { value: 0 },
+    uScatter: { value: 0 },
+    uDim: { value: 1 },
+    uWarm: { value: 0 },
     uWarp: { value: 0 },
     uFly: { value: 0 },
+    uAspect: { value: innerWidth / innerHeight },
+    uProj: { value: innerHeight / (2 * tanH) },
+    uPR: { value: dpr },
+    uFieldSize: { value: 0.05 },
+    uShapeSize: { value: 0.05 },
+    uShapeAlpha: { value: 1 },
+    uMouse: { value: new Vector2(99, 99) },
     uParallax: { value: new Vector2() },
+    uShapeOffset: { value: new Vector2() },
   };
-  const starMaterial = new ShaderMaterial({
-    uniforms: starUniforms,
-    vertexShader: STAR_VERTEX,
-    fragmentShader: STAR_FRAGMENT,
+  const mat = new ShaderMaterial({
+    uniforms: U,
     transparent: true,
-    depthWrite: false,
     depthTest: false,
+    depthWrite: false,
     blending: AdditiveBlending,
+    vertexShader: STAR_VERT,
+    fragmentShader: STAR_FRAG,
   });
-  const stars = new Points(starGeometry, starMaterial);
-  stars.frustumCulled = false;
-  scene.add(stars);
+  const points = new Points(geo, mat);
+  points.frustumCulled = false;
+  scene.add(points);
 
-  // ── 星轨 ──
-  const railPointsPerRail = compact ? 420 : 820;
-  const railPositions: number[] = [];
-  const railU: number[] = [];
-  const railIndex: number[] = [];
-  RAILS.forEach((rail, index) => {
-    const curve = new CatmullRomCurve3(rail.map(([x, y, z]) => new Vector3(x, y, z)));
-    curve.getPoints(railPointsPerRail - 1).forEach((point, step) => {
-      railPositions.push(point.x, point.y, point.z);
-      railU.push(step / (railPointsPerRail - 1));
-      railIndex.push(index);
-    });
-  });
-  const railGeometry = new BufferGeometry();
-  railGeometry.setAttribute("position", new BufferAttribute(new Float32Array(railPositions), 3));
-  railGeometry.setAttribute("aU", new BufferAttribute(new Float32Array(railU), 1));
-  railGeometry.setAttribute("aRail", new BufferAttribute(new Float32Array(railIndex), 1));
-  const railUniforms = {
-    uTime: { value: 0 },
-    uProj: starUniforms.uProj,
-    uPR: starUniforms.uPR,
-    uRail: { value: 1 },
-    uParallax: starUniforms.uParallax,
-  };
-  const railMaterial = new ShaderMaterial({
-    uniforms: railUniforms,
-    vertexShader: RAIL_VERTEX,
-    fragmentShader: RAIL_FRAGMENT,
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    blending: AdditiveBlending,
-  });
-  const rails = new Points(railGeometry, railMaterial);
-  rails.frustumCulled = false;
-  scene.add(rails);
-
-  // ── 覆盖层：星尘 + 文字点阵 + 立绘点云 ──
-  // 三者都在正交相机下直接按 NDC 摆放，和透视相机解耦，尺寸就是 CSS 像素。
-  // 空闲（没有星尘、没有点阵）时整个 overlayScene 不渲染，稳态仍是 4 次 draw call。
-  const overlayScene = new Scene();
-  const dust = createStardust();
-  const textField = createPointField();
-  const portraitField = createPointField();
-  overlayScene.add(textField.object);
-  overlayScene.add(portraitField.object);
-  overlayScene.add(dust.object);
-  dust.setAspect(window.innerWidth / window.innerHeight);
-  dust.setPixelRatio(pixelRatio);
-  textField.setPixelRatio(pixelRatio);
-  portraitField.setPixelRatio(pixelRatio);
-
-  // ── 星云：半分辨率烘焙一次 ──
-  const quad = new PlaneGeometry(2, 2);
-  let nebulaTarget = new WebGLRenderTarget(1, 1);
-  const nebulaUniforms = {
-    uAspect: { value: new Vector2(1, 1) },
-    uSeed: { value: Math.random() * 10 },
-  };
-  const nebulaMaterial = new ShaderMaterial({
-    uniforms: nebulaUniforms,
-    vertexShader: QUAD_VERTEX,
-    fragmentShader: NEBULA_FRAGMENT,
+  // —— 星云：启动和 resize 时以半分辨率烘焙一次 ——
+  const quadGeo = new PlaneGeometry(2, 2);
+  const quadCam = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const nebMat = new ShaderMaterial({
+    uniforms: { uAspect: { value: innerWidth / innerHeight } },
+    vertexShader: QUAD_VERT,
+    fragmentShader: NEBULA_FRAG,
     depthTest: false,
     depthWrite: false,
   });
-  const nebulaScene = new Scene();
-  nebulaScene.add(new Mesh(quad, nebulaMaterial));
-  const backgroundUniforms = {
-    uTex: { value: nebulaTarget.texture },
+  const nebScene = new Scene();
+  nebScene.add(new Mesh(quadGeo, nebMat));
+  const nebRT = new WebGLRenderTarget(1, 1, { depthBuffer: false });
+  const bakeNebula = () => {
+    nebRT.setSize(Math.ceil(innerWidth * 0.5), Math.ceil(innerHeight * 0.5));
+    nebMat.uniforms.uAspect!.value = innerWidth / innerHeight;
+    renderer.setRenderTarget(nebRT);
+    renderer.render(nebScene, quadCam);
+    renderer.setRenderTarget(null);
+  };
+  const bgUniforms = {
+    uTex: { value: nebRT.texture },
     uOff: { value: new Vector2() },
     uBright: { value: 1 },
   };
-  const backgroundMaterial = new ShaderMaterial({
-    uniforms: backgroundUniforms,
-    vertexShader: QUAD_VERTEX,
-    fragmentShader: BACKGROUND_FRAGMENT,
+  const bgMat = new ShaderMaterial({
+    uniforms: bgUniforms,
+    vertexShader: QUAD_VERT,
+    fragmentShader: BG_FRAG,
     depthTest: false,
     depthWrite: false,
   });
-  const backgroundScene = new Scene();
-  backgroundScene.add(new Mesh(quad, backgroundMaterial));
-
-  function bakeNebula(): void {
-    const width = Math.max(1, Math.round(window.innerWidth / 2));
-    const height = Math.max(1, Math.round(window.innerHeight / 2));
-    nebulaTarget.dispose();
-    nebulaTarget = new WebGLRenderTarget(width, height);
-    const aspect = window.innerWidth / window.innerHeight;
-    nebulaUniforms.uAspect.value.set(Math.max(aspect, 1), Math.max(1 / aspect, 1));
-    renderer.setRenderTarget(nebulaTarget);
-    renderer.render(nebulaScene, quadCamera);
-    renderer.setRenderTarget(null);
-    backgroundUniforms.uTex.value = nebulaTarget.texture;
-  }
+  const bgScene = new Scene();
+  bgScene.add(new Mesh(quadGeo, bgMat));
   bakeNebula();
 
-  // ── 交互 / 状态 ──
-  const pointerTarget = new Vector2();
-  const finePointer = window.matchMedia("(pointer: fine)").matches;
-  function onPointerMove(event: PointerEvent): void {
-    pointerTarget.set(
-      (event.clientX / window.innerWidth - 0.5) * -0.5,
-      (event.clientY / window.innerHeight - 0.5) * 0.35,
-    );
-  }
-  if (finePointer) window.addEventListener("pointermove", onPointerMove, { passive: true });
+  // —— 星轨 ——
+  const RP = mobile ? 420 : 820;
+  const rPos = new Float32Array(RP * 3 * RAIL_DEFS.length);
+  const rU = new Float32Array(RP * RAIL_DEFS.length);
+  const rId = new Float32Array(RP * RAIL_DEFS.length);
+  RAIL_DEFS.forEach((pts, r) => {
+    const curve = new CatmullRomCurve3(pts.map(([x, y, z]) => new Vector3(x, y, z)));
+    curve.getSpacedPoints(RP - 1).forEach((v, i) => {
+      const j = r * RP + i;
+      rPos[j * 3] = v.x;
+      rPos[j * 3 + 1] = v.y;
+      rPos[j * 3 + 2] = v.z;
+      rU[j] = i / (RP - 1);
+      rId[j] = r;
+    });
+  });
+  const rGeo = new BufferGeometry();
+  rGeo.setAttribute("position", new BufferAttribute(rPos, 3));
+  rGeo.setAttribute("aU", new BufferAttribute(rU, 1));
+  rGeo.setAttribute("aRail", new BufferAttribute(rId, 1));
+  const uRail = { value: 1 };
+  const railMat = new ShaderMaterial({
+    uniforms: { uTime: U.uTime, uProj: U.uProj, uPR: U.uPR, uParallax: U.uParallax, uRail },
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: AdditiveBlending,
+    vertexShader: RAIL_VERT,
+    fragmentShader: FRAG,
+  });
+  const railPts = new Points(rGeo, railMat);
+  railPts.frustumCulled = false;
+  scene.add(railPts);
 
-  let resizeTimer = 0;
-  function onResize(): void {
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => {
-      renderer.setSize(window.innerWidth, window.innerHeight, false);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      starUniforms.uProj.value = window.innerHeight / (2 * tanHalf);
-      dust.setAspect(camera.aspect);
-      bakeNebula();
-      if (!running) renderFrame();
-    }, 150);
-  }
-  window.addEventListener("resize", onResize);
+  // —— 命中迸发：固定大小环形缓冲 ——
+  const B = 384;
+  const bPos = new Float32Array(B * 3);
+  const bVel = new Float32Array(B * 3);
+  const bBirth = new Float32Array(B).fill(-99);
+  const bSeed = new Float32Array(B).map(() => Math.random());
+  const bGeo = new BufferGeometry();
+  const bPosA = new BufferAttribute(bPos, 3);
+  const bVelA = new BufferAttribute(bVel, 3);
+  const bBirthA = new BufferAttribute(bBirth, 1);
+  bGeo.setAttribute("position", bPosA);
+  bGeo.setAttribute("aVel", bVelA);
+  bGeo.setAttribute("aBirth", bBirthA);
+  bGeo.setAttribute("aSeed", new BufferAttribute(bSeed, 1));
+  const bMat = new ShaderMaterial({
+    uniforms: { uTime: U.uTime, uProj: U.uProj, uPR: U.uPR },
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: AdditiveBlending,
+    vertexShader: BURST_VERT,
+    fragmentShader: FRAG,
+  });
+  const bursts = new Points(bGeo, bMat);
+  bursts.frustumCulled = false;
+  scene.add(bursts);
 
+  let time = 0;
+  let bi = 0;
+  let busyUntil = 0;
   let running = false;
   let intensity: StarFieldIntensity = "full";
-  let frame = 0;
-  let lastTime = 0;
-  let lastDrawn = 0;
-  let elapsed = Math.random() * 100;
-  let warpStart = -1;
-  // 自适应：持续慢帧时把像素比降到 1、星点减半
-  let slowFrames = 0;
-  let degraded = lowEnd;
-  // 点阵的聚合进度：目标值由外部（滚动 / 揭晓时间线）驱动，这里做阻尼跟随
-  let textMorph = 0;
-  let textMorphTarget = 0;
-  let portraitMorph = 0;
-  let portraitMorphTarget = 0;
-  let dustActive = false;
 
-  /**
-   * 暂停 / 减少动态效果时不做插值：直接把聚合进度落到目标值，只画一帧静态画面。
-   * 这样 `?reduce` 与 `prefers-reduced-motion` 下仍能看到完整的点阵构图。
-   */
-  function settleOverlay(): void {
-    if (running) return;
-    textMorph = textMorphTarget;
-    portraitMorph = portraitMorphTarget;
-    if (textField.object.visible) {
-      textField.setMorph(textMorph);
-      textField.tick(elapsed);
+  function burst(rect: FxRect, n = 10) {
+    const [cx, cy] = toWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    for (let j = 0; j < n; j++) {
+      const i = bi++ % B;
+      bPos[i * 3] = cx + (Math.random() - 0.5) * rect.width * k * 0.9;
+      bPos[i * 3 + 1] = cy + (Math.random() - 0.5) * rect.height * k * 0.6;
+      bPos[i * 3 + 2] = 0.3;
+      bVel[i * 3] = (Math.random() - 0.5) * 1.8;
+      bVel[i * 3 + 1] = 0.5 + Math.random() * 1.8;
+      bVel[i * 3 + 2] = -(1 + Math.random() * 5);
+      bBirth[i] = time + Math.random() * 0.12;
     }
-    if (portraitField.object.visible) {
-      portraitField.setMorph(portraitMorph);
-      portraitField.tick(elapsed);
-    }
-    renderFrame();
+    bPosA.needsUpdate = true;
+    bVelA.needsUpdate = true;
+    bBirthA.needsUpdate = true;
+    busyUntil = time + 2.2;
   }
 
-  function renderFrame(): void {
+  // —— 形态：写入 aShape / aColor / aRand(x=延迟, w=是否参与) ——
+  let shapeScroll0 = 0;
+  let rebuild: (() => void) | null = null;
+  function writeShape(pts: Float32Array, cols: Float32Array, delays: Float32Array, count: number) {
+    const n = Math.min(count, N);
+    for (let i = 0; i < N; i++) {
+      if (i < n) {
+        shape[i * 3] = pts[i * 3] ?? 0;
+        shape[i * 3 + 1] = pts[i * 3 + 1] ?? 0;
+        shape[i * 3 + 2] = pts[i * 3 + 2] ?? 0;
+        color[i * 3] = cols[i * 3] ?? 1;
+        color[i * 3 + 1] = cols[i * 3 + 1] ?? 1;
+        color[i * 3 + 2] = cols[i * 3 + 2] ?? 1;
+        rnd[i * 4] = delays[i] ?? 0;
+        rnd[i * 4 + 3] = 1;
+      } else rnd[i * 4 + 3] = 0;
+    }
+    aShape.needsUpdate = true;
+    aColor.needsUpdate = true;
+    aRand.needsUpdate = true;
+    shapeScroll0 = host.scroll();
+  }
+
+  function setText(rect: FxRect, text: string) {
+    const W = Math.max(1, Math.round(rect.width));
+    const H = Math.max(1, Math.round(rect.height));
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    let fs = H * 0.9;
+    ctx.font = FONT(fs);
+    const w = ctx.measureText(text).width;
+    if (w > W * 0.96) {
+      fs *= (W * 0.96) / w;
+      ctx.font = FONT(fs);
+    }
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, W / 2, H / 2 + fs * 0.04);
+    const img = ctx.getImageData(0, 0, W, H).data;
+    // 按笔画面积反推网格步长：均匀网格比随机抽样更易读
+    let filled = 0;
+    for (let i = 3; i < img.length; i += 4) if ((img[i] ?? 0) > 140) filled++;
+    const want = Math.floor(N * 0.62);
+    const step = Math.max(2, Math.sqrt(filled / want));
+    const cand: number[] = [];
+    for (let y = step / 2; y < H; y += step)
+      for (let x = step / 2; x < W; x += step)
+        if ((img[(Math.floor(y) * W + Math.floor(x)) * 4 + 3] ?? 0) > 140)
+          cand.push(x + (Math.random() - 0.5) * step * 0.5, y + (Math.random() - 0.5) * step * 0.5);
+    const sel = pickSubset(cand.length / 2, want);
+    const pts = new Float32Array(sel.length * 3);
+    const cols = new Float32Array(sel.length * 3);
+    const dl = new Float32Array(sel.length);
+    sel.forEach((s, i) => {
+      const x = cand[s * 2] ?? 0;
+      const y = cand[s * 2 + 1] ?? 0;
+      const [wx, wy] = toWorld(rect.left + x, rect.top + y);
+      pts[i * 3] = wx;
+      pts[i * 3 + 1] = wy;
+      pts[i * 3 + 2] = (Math.random() - 0.5) * 0.25;
+      const g = y / H;
+      cols[i * 3] = 1;
+      cols[i * 3 + 1] = 0.97 - g * 0.17;
+      cols[i * 3 + 2] = 0.9 - g * 0.45;
+      dl[i] = Math.random() * 0.7 + (x / W) * 0.3;
+    });
+    U.uShapeSize.value = step * 1.9 * k;
+    writeShape(pts, cols, dl, sel.length);
+  }
+
+  function setPortrait(rect: FxRect, P: FxPortraitCloud) {
+    const total = P.count;
+    const scale = Math.min(rect.width / P.w, rect.height / P.h);
+    const ox = rect.left + (rect.width - P.w * scale) / 2;
+    const oy = rect.top + (rect.height - P.h * scale) / 2;
+    const sel = pickSubset(total, Math.floor(N * 0.85));
+    const pts = new Float32Array(sel.length * 3);
+    const cols = new Float32Array(sel.length * 3);
+    const dl = new Float32Array(sel.length);
+    sel.forEach((s, i) => {
+      const o = s * 5;
+      const gx = P.data[o] ?? 0;
+      const gy = P.data[o + 1] ?? 0;
+      const [wx, wy] = toWorld(
+        ox + (gx + 0.5 + (Math.random() - 0.5) * 0.6) * scale,
+        oy + (gy + 0.5 + (Math.random() - 0.5) * 0.6) * scale,
+      );
+      pts[i * 3] = wx;
+      pts[i * 3 + 1] = wy;
+      pts[i * 3 + 2] = (Math.random() - 0.5) * 0.12;
+      cols[i * 3] = Math.min(1, (P.data[o + 2] ?? 0) * 1.1);
+      cols[i * 3 + 1] = Math.min(1, (P.data[o + 3] ?? 0) * 1.1);
+      cols[i * 3 + 2] = Math.min(1, (P.data[o + 4] ?? 0) * 1.1);
+      const dx = gx / P.w - 0.5;
+      const dy = gy / P.h - 0.42;
+      dl[i] = Math.min(1, Math.hypot(dx, dy) * 1.5) * 0.65 + Math.random() * 0.35;
+    });
+    // 采样越稀疏，点越大，保证覆盖
+    const density = Math.sqrt(total / Math.max(1, sel.length));
+    U.uShapeSize.value = scale * k * 1.7 * density;
+    writeShape(pts, cols, dl, sel.length);
+  }
+
+  // —— 指针：鼠标排斥 + 视差 ——
+  const ptr = { x: 99, y: 99, px: 0, py: 0 };
+  const onPointer = (e: PointerEvent) => {
+    const [wx, wy] = toWorld(e.clientX, e.clientY);
+    ptr.x = wx;
+    ptr.y = wy;
+    ptr.px = (e.clientX / innerWidth - 0.5) * -0.5;
+    ptr.py = (e.clientY / innerHeight - 0.5) * 0.35;
+  };
+  addEventListener("pointermove", onPointer, { passive: true });
+
+  let resizeTimer: number | undefined;
+  const onResize = () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      renderer.setSize(innerWidth, innerHeight, false);
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      k = (2 * CAMZ * tanH) / innerHeight;
+      U.uProj.value = innerHeight / (2 * tanH);
+      U.uAspect.value = innerWidth / innerHeight;
+      bakeNebula();
+      rebuild?.();
+      render();
+    }, 150);
+  };
+  addEventListener("resize", onResize);
+
+  const syncUniforms = () => {
+    U.uMorph.value = S.morph * (1 - S.disperse * 0.85);
+    U.uScatter.value = Math.max(S.scatter, S.disperse * 0.7);
+    U.uDim.value = S.dim;
+    U.uWarm.value = S.warm;
+    U.uShapeAlpha.value = S.shapeAlpha;
+    U.uWarp.value = S.warp;
+    uRail.value = S.rail;
+    bgUniforms.uBright.value = 0.7 + 0.3 * S.dim;
+    bgUniforms.uOff.value.set(U.uParallax.value.x * -0.006, U.uParallax.value.y * -0.006);
+    U.uShapeOffset.value.y = (host.scroll() - shapeScroll0) * k;
+  };
+  function render() {
+    syncUniforms();
     renderer.clear();
-    renderer.render(backgroundScene, quadCamera);
+    renderer.render(bgScene, quadCam);
     renderer.render(scene, camera);
-    // 覆盖层只在真的有点阵 / 存活星尘时才多画一次，稳态仍是 4 次 draw call
-    if (textField.object.visible || portraitField.object.visible || dustActive) {
-      renderer.render(overlayScene, quadCamera);
-    }
   }
 
-  function loop(now: number): void {
-    frame = window.requestAnimationFrame(loop);
-    const calm = intensity === "calm" && warpStart < 0;
-    if (calm && now - lastDrawn < 30) return;
-    const dt = Math.min((now - (lastTime || now)) / 1000, 0.05);
-    lastTime = now;
-    lastDrawn = now;
-
-    if (!degraded && dt > 0.028) {
-      slowFrames += 1;
-      if (slowFrames > 90) {
-        degraded = true;
-        pixelRatio = 1;
+  // —— 渲染循环：对局中且没有迸发时降到 30fps ——
+  let last = performance.now();
+  let slow = 0;
+  let quality = 2;
+  let raf = 0;
+  function loop() {
+    raf = requestAnimationFrame(loop);
+    const now = performance.now();
+    const calm =
+      (intensity === "calm" || host.mode() === "game") &&
+      host.mode() !== "result" &&
+      time > busyUntil &&
+      S.warp < 0.01;
+    if (calm && now - last < 30) return; // ~30fps
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    time += dt * (calm ? 0.5 : 1);
+    U.uTime.value = time;
+    U.uFly.value += dt * S.warp * 26;
+    const um = U.uMouse.value;
+    const upx = U.uParallax.value;
+    um.x += (ptr.x - um.x) * 0.15;
+    um.y += (ptr.y - um.y) * 0.15;
+    upx.x += (ptr.px - upx.x) * 0.05;
+    upx.y += (ptr.py - upx.y) * 0.05;
+    render();
+    // 自适应降级：持续 2 秒以上低于 ~40fps 就降一档
+    slow = dt > 0.025 && !calm ? slow + 1 : Math.max(0, slow - 2);
+    if (slow > 120 && quality > 0) {
+      quality--;
+      slow = 0;
+      if (quality === 1) {
+        dpr = 1;
         renderer.setPixelRatio(1);
-        renderer.setSize(window.innerWidth, window.innerHeight, false);
-        starUniforms.uPR.value = 1;
-        starGeometry.setDrawRange(0, Math.floor(starCount / 2));
-        dust.setPixelRatio(1);
-        textField.setPixelRatio(1);
-        portraitField.setPixelRatio(1);
-      }
-    } else if (slowFrames > 0) {
-      slowFrames -= 1;
+        renderer.setSize(innerWidth, innerHeight, false);
+        U.uPR.value = 1;
+      } else geo.setDrawRange(0, Math.floor(N * 0.5));
     }
-
-    elapsed += dt * (calm ? 0.5 : 1);
-    let warp = 0;
-    if (warpStart >= 0) {
-      const t = (now - warpStart) / 1100;
-      if (t >= 1) warpStart = -1;
-      else warp = Math.sin(Math.PI * t) ** 2;
-    }
-    starUniforms.uTime.value = elapsed;
-    railUniforms.uTime.value = elapsed;
-    starUniforms.uWarp.value = warp;
-    starUniforms.uFly.value += dt * warp * 26;
-    railUniforms.uRail.value = calm ? 0.55 : 1;
-    const parallax = starUniforms.uParallax.value;
-    parallax.lerp(pointerTarget, 0.05);
-    const background = backgroundUniforms;
-    background.uOff.value.set(-parallax.x * 0.006, -parallax.y * 0.006);
-    background.uBright.value = calm ? 0.82 : 1;
-
-    // 点阵与星尘：每帧只更新 uniform / 少数属性，几何在设置形状时一次性建好
-    textMorph += (textMorphTarget - textMorph) * Math.min(1, dt * 3.2);
-    portraitMorph += (portraitMorphTarget - portraitMorph) * Math.min(1, dt * 2.6);
-    if (textField.object.visible) {
-      textField.setMorph(textMorph);
-      textField.setParallax(parallax.x, parallax.y);
-      textField.tick(elapsed);
-    }
-    if (portraitField.object.visible) {
-      portraitField.setMorph(portraitMorph);
-      portraitField.setParallax(parallax.x, parallax.y);
-      portraitField.tick(elapsed);
-    }
-    dustActive = dust.tick(elapsed);
-
-    renderFrame();
   }
 
-  // 首帧前预编译着色器：星云、星点、星轨和覆盖层的着色器都不长，但在 GPU 上编译仍会让
-  // 第一帧掉到几十毫秒。compileAsync 走 KHR_parallel_shader_compile，不阻塞主线程；
-  // 它只是优化，失败也不影响正确性，所以静默吞掉异常。
-  void Promise.all([
-    renderer.compileAsync(scene, camera),
-    renderer.compileAsync(overlayScene, quadCamera),
-    renderer.compileAsync(backgroundScene, quadCamera),
-  ]).catch(() => undefined);
+  // 静止（减少动效 / 页面隐藏）时：滚动仍然要让形态跟随页面
+  const onScroll = () => {
+    if (!running) requestAnimationFrame(render);
+  };
+  addEventListener("scroll", onScroll, { passive: true });
 
-  renderFrame();
+  render();
 
   return {
+    setText(rect, text) {
+      setText(rect, text);
+      rebuild = () => {
+        const next = host.measure();
+        if (next) setText(next, text);
+      };
+      if (!running) render();
+    },
+    setPortrait(rect, cloud) {
+      setPortrait(rect, cloud);
+      rebuild = () => {
+        const next = host.measure();
+        if (next) setPortrait(next, cloud);
+      };
+      if (!running) render();
+    },
+    burst(rect, n) {
+      if (!running) return;
+      burst(rect, n);
+    },
+    render() {
+      if (!running) render();
+    },
     setRunning(next) {
       if (next === running) return;
       running = next;
       if (running) {
-        lastTime = 0;
-        frame = window.requestAnimationFrame(loop);
+        last = performance.now();
+        raf = requestAnimationFrame(loop);
       } else {
-        window.cancelAnimationFrame(frame);
+        cancelAnimationFrame(raf);
+        render();
       }
     },
     setIntensity(next) {
       intensity = next;
-      settleOverlay();
-    },
-    warp() {
-      if (running) warpStart = performance.now();
-    },
-    text(content, options, morph) {
-      if (!content) {
-        textField.clear();
-        textMorph = 0;
-        textMorphTarget = 0;
-        settleOverlay();
-        return;
-      }
-      const compact = isCompactViewport();
-      const sample = sampleTextToPoints(content, {
-        maxPoints: options?.maxPoints ?? (compact ? 5000 : 12000),
-      });
-      if (sample.points.length === 0) {
-        textField.clear();
-        return;
-      }
-      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-      const box = glyphBox(sample, options?.width ?? 0.86, aspect);
-      textField.setTargets(sample.points, {
-        centerX: options?.centerX ?? 0,
-        centerY: options?.centerY ?? 0.22,
-        width: box.width,
-        height: box.height,
-        size: options?.size ?? (compact ? 3.2 : 4),
-        tone: options?.tone ?? "gold",
-        spread: 2.6,
-        stagger: 0.5,
-      });
-      textMorphTarget = morph;
-      settleOverlay();
-    },
-    textMorph(value) {
-      textMorphTarget = Math.max(0, Math.min(1, value));
-      settleOverlay();
-    },
-    portrait(cloud, options, morph) {
-      if (!cloud || cloud.points.length === 0) {
-        portraitField.clear();
-        portraitMorph = 0;
-        portraitMorphTarget = 0;
-        settleOverlay();
-        return;
-      }
-      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-      const ndcHeight = options?.height ?? 1.15;
-      // 立绘点云来自竖直长图，按源图长宽比反推 NDC 宽度，避免被拉伸
-      const ndcWidth = (ndcHeight * cloud.aspect) / Math.max(aspect, 0.0001);
-      portraitField.setTargets(cloud.points, {
-        centerX: options?.centerX ?? 0,
-        centerY: options?.centerY ?? 0,
-        width: ndcWidth,
-        height: ndcHeight,
-        size: options?.size ?? 2.6,
-        tone: options?.tone ?? "gold",
-        spread: 2.4,
-        stagger: 0.55,
-      });
-      portraitMorphTarget = morph;
-      settleOverlay();
-    },
-    portraitMorph(value) {
-      portraitMorphTarget = Math.max(0, Math.min(1, value));
-      settleOverlay();
-    },
-    burst(x, y, options: FxBurstOptions = {}) {
-      if (!running) return;
-      dust.burst(x, y, options);
-      dustActive = true;
     },
     dispose() {
-      running = false;
-      window.cancelAnimationFrame(frame);
+      cancelAnimationFrame(raf);
       window.clearTimeout(resizeTimer);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("pointermove", onPointerMove);
-      starGeometry.dispose();
-      starMaterial.dispose();
-      railGeometry.dispose();
-      railMaterial.dispose();
-      quad.dispose();
-      nebulaMaterial.dispose();
-      backgroundMaterial.dispose();
-      nebulaTarget.dispose();
-      dust.dispose();
-      textField.dispose();
-      portraitField.dispose();
+      removeEventListener("pointermove", onPointer);
+      removeEventListener("resize", onResize);
+      removeEventListener("scroll", onScroll);
+      geo.dispose();
+      mat.dispose();
+      quadGeo.dispose();
+      nebMat.dispose();
+      nebRT.dispose();
+      bgMat.dispose();
+      rGeo.dispose();
+      railMat.dispose();
+      bGeo.dispose();
+      bMat.dispose();
       renderer.dispose();
     },
   };

@@ -1,7 +1,7 @@
 /*
- * 排行榜「星轨」v2 皮肤。
+ * 排行榜 v2 皮肤（对照 docs/design/redesign-v2/prototype.html）。
  * 注意 .rank-live 也被对局回放页复用（game.css 里以 .replay-page .rank-live 覆盖），
- * 这里只动颜色/圆角，不改布局骨架。
+ * 基础规则保留在这里，排行榜自己已改用原型 .chip。
  */
 .rank-live {
   display: grid;
@@ -25,222 +25,264 @@
   font-size: 1.1rem;
   font-variant-numeric: tabular-nums;
 }
-/* v1 的整行方角标签页换成 v2 的胶囊分段控件 */
+
+/* 页头右侧：原型 .chip.lit（不再是方框小卡 + 英文大写） */
+.leaderboard-scope {
+  vertical-align: middle;
+}
+
+/* 原型分段控件：浅轨道 + 奶白激活胶囊（与顶栏导航激活态一致） */
 .leaderboard-tabs {
-  display: inline-grid;
-  grid-auto-flow: column;
-  gap: 4px;
-  margin-bottom: 26px;
+  display: inline-flex;
+  gap: 2px;
+  margin-bottom: 20px;
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--panel);
+  background: rgb(255 255 255 / 4%);
 }
 .leaderboard-tabs button {
-  display: grid;
-  min-height: 40px;
-  padding: 8px 22px;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 18px;
   color: var(--muted);
   cursor: pointer;
   border: 0;
   border-radius: 999px;
   background: transparent;
-  text-align: center;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
   transition:
     background 0.2s var(--ease),
     color 0.2s var(--ease);
 }
+.leaderboard-tabs button:hover {
+  color: var(--ink);
+}
 .leaderboard-tabs button.is-active {
-  background: var(--cta);
-  color: var(--cta-ink);
+  background: var(--ink);
+  color: #000;
 }
-.leaderboard-tabs span {
-  font-weight: 700;
+.leaderboard-tabs button:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 2px;
 }
-.leaderboard-tabs small {
-  color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.08em;
-}
-/* 页头右侧的「ELO / PERMANENT」v1 是一条竖线分栏，v2 改成独立小卡 */
-.leaderboard-page .rank-live {
-  padding: 8px 16px;
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-tile);
-  background: var(--panel);
-}
+
+/* 数据面板：密集数据用更实的底色 */
 .leaderboard-table-wrap {
-  min-height: 400px;
+  min-height: 320px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--r-card);
-  background: var(--panel);
+  background: rgb(11 15 36 / 92%);
 }
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
 }
 .leaderboard-table th {
-  height: 48px;
+  height: 46px;
   padding: 0 20px;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
-  font-size: 0.64rem;
-  letter-spacing: 0.06em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   text-align: left;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .leaderboard-table td {
-  height: 74px;
-  padding: 10px 20px;
+  height: 64px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 14px;
 }
 .leaderboard-table tbody tr:last-child td {
   border-bottom: 0;
 }
 .leaderboard-table tbody tr:hover {
-  background: var(--surface-soft);
+  background: rgb(255 255 255 / 3%);
 }
 .leaderboard-table th:first-child,
 .leaderboard-table td:first-child {
-  width: 95px;
+  width: 88px;
 }
-.leaderboard-table td:not(:nth-child(2)) {
-  font-variant-numeric: tabular-nums;
-}
-.rank-number {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 34px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 4%);
+.leaderboard-table td.is-num {
   color: var(--muted);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
-.rank-number svg {
+.leaderboard-table td.is-num b {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+.leaderboard-table tr.is-top-1 td.is-num b {
   color: var(--lit);
 }
-/* 第一名用金色胶囊做形状区分，不只是换颜色 */
+.leaderboard-table td.is-won {
+  color: var(--lit);
+  font-weight: 700;
+}
+
+/* 名次：等宽数字小胶囊；前三名用 lit / near 点亮 */
+.rank-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .rank-number.rank-1 {
-  background: var(--cta);
-  color: var(--cta-ink);
+  background: rgb(242 205 122 / 14%);
+  color: var(--lit);
+  box-shadow: inset 0 0 0 1px rgb(242 205 122 / 28%);
+}
+.rank-number.rank-2,
+.rank-number.rank-3 {
+  background: rgb(144 119 238 / 16%);
+  color: #b9a6ff;
 }
 .leader-name {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
+  min-width: 0;
 }
 .leader-name i {
   display: grid;
-  width: 37px;
-  height: 37px;
+  flex: none;
+  width: 34px;
+  height: 34px;
   place-items: center;
-  border: 1px solid var(--line-2);
+  border: 1px solid var(--line);
   border-radius: var(--r-tile);
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--near) 52%, transparent),
-    color-mix(in srgb, var(--lit) 30%, transparent)
-  );
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: 0.68rem;
+  background: var(--miss);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
   font-style: normal;
+  font-weight: 700;
+}
+.leaderboard-table tr.is-top-1 .leader-name i {
+  border-color: rgb(242 205 122 / 30%);
+  color: var(--lit);
 }
 .leader-name strong {
-  font-size: 0.82rem;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.leaderboard-table td small {
-  color: var(--faint);
-  font-size: 0.55rem;
-}
+
+/* 空状态：居中、安静 */
 .leaderboard-empty,
 .leaderboard-loading {
   display: grid;
-  min-height: 350px;
+  min-height: 270px;
   place-items: center;
   align-content: center;
+  padding: 24px;
   color: var(--muted);
   text-align: center;
 }
 .leaderboard-empty svg {
-  color: var(--lit);
+  color: var(--faint);
 }
 .leaderboard-empty h2 {
   max-width: 500px;
-  margin: 17px 0 5px;
-  font-size: 1.25rem;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
 }
 .leaderboard-empty p {
-  margin: 0;
-  font-size: 0.75rem;
+  margin: 6px 0 0;
+  color: var(--faint);
+  font-size: 13px;
 }
 .leaderboard-loading {
   grid-template-columns: auto auto;
   gap: 10px;
+  font-size: 14px;
 }
-/* v1 的上下通栏硬边框换成两张独立的圆角说明卡 */
+
+/* 说明：一条安静的内层面板 */
 .ranking-notes {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 28px;
+  margin-top: 16px;
 }
 .ranking-notes > div {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  min-height: 95px;
-  padding: 18px 25px;
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 20px;
   border: 1px solid var(--line);
-  border-radius: var(--r-tile);
+  border-radius: 18px;
   background: var(--panel);
-  gap: 13px;
+  gap: 12px;
 }
 .ranking-notes svg {
-  color: var(--lit);
+  flex: none;
+  margin-top: 2px;
+  color: var(--muted);
 }
 .ranking-notes p {
   display: grid;
   margin: 0;
+  gap: 2px;
 }
 .ranking-notes strong {
-  font-size: 0.69rem;
+  font-size: 13px;
+  font-weight: 700;
 }
 .ranking-notes span {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 13px;
 }
-/* v2：去掉 v1 小标题左侧的引线装饰 */
-.leaderboard-page .eyebrow::before {
-  content: none;
-}
-.leaderboard-page .eyebrow {
-  letter-spacing: 0.1em;
-}
-@media (max-width: 650px) {
+
+@media (max-width: 760px) {
   .leaderboard-tabs {
     display: grid;
-    grid-auto-flow: row;
     grid-template-columns: repeat(3, 1fr);
     width: 100%;
   }
   .leaderboard-tabs button {
-    padding: 8px 12px;
+    padding: 0 10px;
   }
   .leaderboard-table-wrap {
     overflow-x: auto;
+    border-radius: 20px;
   }
-  .leaderboard-table {
-    min-width: 650px;
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding-right: 10px;
+    padding-left: 12px;
   }
-  .ranking-notes {
-    grid-template-columns: 1fr;
+  .leaderboard-table th:first-child,
+  .leaderboard-table td:first-child {
+    width: 58px;
+  }
+  .leaderboard-table td {
+    height: 56px;
+    font-size: 13px;
+  }
+  .leader-name i {
+    display: none;
+  }
+  .leader-name strong {
+    max-width: 34vw;
   }
 }
 /* 减少动态效果：关掉标签页的颜色过渡（全局已把过渡时长压到 0） */

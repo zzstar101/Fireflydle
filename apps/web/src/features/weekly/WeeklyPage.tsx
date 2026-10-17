@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Flag, LoaderCircle, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, Flag, LoaderCircle, Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type {
   ContentModeId,
@@ -49,6 +50,9 @@ const copy = {
     unavailableBody: "周赛入口只在当周内容模式开放。",
     unavailableCta: "前往本周周赛",
     title: (mode: string) => `${mode}周赛`,
+    weekly: "周赛",
+    snapshot: (manifest: string, rules: string) => `题库 ${manifest} · 规则 ${rules}`,
+    questionLabel: (n: number) => `第 ${n} / 5 题`,
     headerIntro: "五题使用同一份题库与规则快照，成绩进入统一周榜。",
     startTitle: (mode: string) => `5 题 · ${mode}`,
     startBody: "失败题会继续下一题；排名依次比较答对数、猜测数和累计耗时。",
@@ -84,6 +88,9 @@ const copy = {
     unavailableBody: "The weekly run only opens for the mode of the current week.",
     unavailableCta: "Go to this week's run",
     title: (mode: string) => `${mode} Weekly`,
+    weekly: "Weekly",
+    snapshot: (manifest: string, rules: string) => `Pool ${manifest} · Rules ${rules}`,
+    questionLabel: (n: number) => `Question ${n} of 5`,
     headerIntro: "All five questions share one snapshot; scores feed a single weekly board.",
     startTitle: (mode: string) => `5 questions · ${mode}`,
     startBody: "A failed question moves on; ranking compares solved, guesses, then total time.",
@@ -119,6 +126,9 @@ const copy = {
     unavailableBody: "週間ランは今週のモードでのみ開催されます。",
     unavailableCta: "今週の週間ランへ",
     title: (mode: string) => `${mode}週間ラン`,
+    weekly: "週間ラン",
+    snapshot: (manifest: string, rules: string) => `データ ${manifest} · ルール ${rules}`,
+    questionLabel: (n: number) => `第 ${n} / 5 問`,
     headerIntro: "5 問は同じスナップショットを共有し、成績は単一の週間ランキングに入ります。",
     startTitle: (mode: string) => `5 問 · ${mode}`,
     startBody: "失敗した問題は次へ進みます。順位は正解数、推測数、合計時間の順に比較します。",
@@ -193,6 +203,7 @@ function rosterFor(modeId: ContentModeId) {
 }
 
 export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId }) {
+  const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const text = copy[locale];
   const session = useSession();
@@ -268,15 +279,40 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
     onSuccess: applyRun,
   });
 
+  const modeLabel = weeklyModeLabel(routeModeId, locale);
+  const crumb = (
+    <nav className="sr-crumb" aria-label={t("hub.backToHub")}>
+      <Link className="game-hub-link" to="/">
+        {t("nav.hub")}
+      </Link>
+      <span aria-hidden="true">/</span>
+      <span>
+        {modeLabel} · {text.weekly}
+      </span>
+    </nav>
+  );
+
   if (routeModeId !== currentModeId) {
+    const currentLabel = weeklyModeLabel(currentModeId, locale);
     return (
-      <main className="weekly-page weekly-unavailable">
-        <p className="weekly-kicker">WEEKLY ROTATION</p>
-        <h1>{text.unavailableTitle(weeklyModeLabel(currentModeId, locale))}</h1>
-        <p>{text.unavailableBody}</p>
-        <Link className="ticket-button" to={weeklyModePath(currentModeId)}>
-          {text.unavailableCta}
-        </Link>
+      <main className="sr-game weekly-page is-finished">
+        <header className="sr-game-head">
+          <div className="sr-game-title">
+            {crumb}
+            <h1>{text.title(modeLabel)}</h1>
+            <p className="sr-game-intro">{text.headerIntro}</p>
+          </div>
+        </header>
+        <section className="sr-board-wrap weekly-state weekly-unavailable">
+          <span className="weekly-state-icon" aria-hidden="true">
+            <CalendarClock size={22} />
+          </span>
+          <h2>{text.unavailableTitle(currentLabel)}</h2>
+          <p>{text.unavailableBody}</p>
+          <Link className="ticket-button" to={weeklyModePath(currentModeId)}>
+            {text.unavailableCta} <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </section>
       </main>
     );
   }
@@ -291,26 +327,56 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
   const elapsed = run
     ? run.elapsedMs + (run.status === "active" ? Math.max(0, now - current.dataUpdatedAt) : 0)
     : 0;
+  const questionNumber = run ? Math.min(run.games.length + (game ? 0 : 1), 5) : 0;
+  const pipState = (index: number) => {
+    const entry = run?.games[index];
+    if (!entry) return "";
+    if (entry.status === "won") return "is-won";
+    if (entry.status === "active") return "is-current";
+    return "is-lost";
+  };
 
   return (
-    <main className="weekly-page">
-      <header className="weekly-header">
-        <div>
-          <p className="weekly-kicker">WEEKLY ROTATION · {routeModeId.toUpperCase()}</p>
-          <h1>{text.title(weeklyModeLabel(routeModeId, locale))}</h1>
-          <p>{text.headerIntro}</p>
+    <main className={`sr-game weekly-page${game && !roundTransition ? "" : " is-finished"}`}>
+      <header className="sr-game-head">
+        <div className="sr-game-title">
+          {crumb}
+          <h1>{text.title(modeLabel)}</h1>
+          <p className="sr-game-intro">{text.headerIntro}</p>
           {run ? (
             <small className="weekly-snapshot">
-              MANIFEST {run.manifestVersion} · RULES {run.rulesVersion}
+              {text.snapshot(run.manifestVersion, run.rulesVersion)}
             </small>
           ) : null}
         </div>
-        <Trophy size={44} aria-hidden="true" />
+        {run ? (
+          <div className="sr-game-meta">
+            <ol className="weekly-pips" aria-label={text.scoreAria}>
+              {Array.from({ length: 5 }, (_, index) => (
+                <li key={index} className={pipState(index)}>
+                  <span className="sr-only">
+                    {text.questionLabel(index + 1)}: {pipState(index) || "—"}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <span className="weekly-question">
+              <b>{String(questionNumber).padStart(2, "0")}</b>
+              <small>/ 05</small>
+            </span>
+            <strong className="sr-timer mono" aria-label={text.scoreTime}>
+              {formatTime(elapsed)}
+            </strong>
+          </div>
+        ) : null}
       </header>
 
       {!run ? (
-        <section className="weekly-start" aria-live="polite">
-          <strong>{text.startTitle(weeklyModeLabel(routeModeId, locale))}</strong>
+        <section className="sr-board-wrap weekly-state weekly-start" aria-live="polite">
+          <span className="weekly-state-icon" aria-hidden="true">
+            <Trophy size={22} />
+          </span>
+          <h2>{text.startTitle(modeLabel)}</h2>
           <p>{text.startBody}</p>
           <button
             className="ticket-button"
@@ -319,41 +385,35 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
             onClick={() => start.mutate()}
           >
             {busy || current.isPending ? (
-              <LoaderCircle className="weekly-spinner" size={17} />
+              <LoaderCircle className="weekly-spinner" size={17} aria-hidden="true" />
             ) : null}
             {text.startCta}
           </button>
         </section>
       ) : (
         <>
-          <section className="weekly-score" aria-label={text.scoreAria}>
+          <dl className="weekly-stats" aria-label={text.scoreAria}>
             <div>
-              <span>{text.scoreQuestions}</span>
-              <strong>{Math.min(run.games.length + (game ? 0 : 1), 5)} / 5</strong>
+              <dt>{text.scoreCorrect}</dt>
+              <dd>{run.correctCount}</dd>
             </div>
             <div>
-              <span>{text.scoreCorrect}</span>
-              <strong>{run.correctCount}</strong>
+              <dt>{text.scoreFailed}</dt>
+              <dd>{run.failedCount}</dd>
             </div>
             <div>
-              <span>{text.scoreFailed}</span>
-              <strong>{run.failedCount}</strong>
+              <dt>{text.scoreGuesses}</dt>
+              <dd>{run.totalGuesses + (game?.guesses.length ?? 0)}</dd>
             </div>
-            <div>
-              <span>{text.scoreGuesses}</span>
-              <strong>{run.totalGuesses + (game?.guesses.length ?? 0)}</strong>
-            </div>
-            <div>
-              <span>{text.scoreTime}</span>
-              <strong>{formatTime(elapsed)}</strong>
-            </div>
-          </section>
+          </dl>
 
           {run.status === "completed" ? (
-            <section className="weekly-complete" role="status">
-              <Trophy size={30} aria-hidden="true" />
+            <section className="sr-board-wrap weekly-state weekly-complete" role="status">
+              <span className="weekly-state-icon is-lit" aria-hidden="true">
+                <Trophy size={22} />
+              </span>
               <h2>{text.completeTitle}</h2>
-              <p>
+              <p className="mono">
                 {text.completeBody(run.correctCount, run.totalGuesses, formatTime(run.elapsedMs))}
               </p>
               <a className="ticket-button" href="#weekly-leaderboard">
@@ -361,31 +421,33 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
               </a>
             </section>
           ) : roundTransition ? (
-            <section className="weekly-round-transition" role="status" aria-live="assertive">
-              <span>QUESTION {roundTransition.completedQuestion} COMPLETE</span>
-              <h2>{text.roundCompleteTitle(roundTransition.completedQuestion)}</h2>
-              <div aria-hidden="true">
-                <ArrowRight size={20} />
+            <section
+              className="sr-board-wrap weekly-state weekly-round-transition"
+              role="status"
+              aria-live="assertive"
+            >
+              <span className="weekly-state-icon" aria-hidden="true">
                 <LoaderCircle className="weekly-spinner" size={22} />
-              </div>
+              </span>
+              <h2>{text.roundCompleteTitle(roundTransition.completedQuestion)}</h2>
               <p>{text.roundNext(roundTransition.nextQuestion)}</p>
             </section>
           ) : game ? (
-            <section className="weekly-game" aria-labelledby="weekly-round-title">
+            <section className="sr-board-wrap weekly-game" aria-labelledby="weekly-round-title">
               <div className="weekly-round-heading">
                 <div>
-                  <span>QUESTION {run.games.length} / 5</span>
+                  <span>{text.questionLabel(run.games.length)}</span>
                   <h2 id="weekly-round-title" ref={roundHeadingRef} tabIndex={-1}>
                     {text.roundLock}
                   </h2>
                 </div>
                 <button
-                  className="weekly-forfeit"
+                  className="weekly-pill"
                   type="button"
                   disabled={busy}
                   onClick={() => forfeit.mutate()}
                 >
-                  <Flag size={16} aria-hidden="true" /> {text.roundForfeit}
+                  <Flag size={15} aria-hidden="true" /> {text.roundForfeit}
                 </button>
               </div>
               {routeModeId === "aeon" ? (
@@ -399,20 +461,7 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                   answer={null}
                 />
               ) : null}
-              <CharacterCombobox
-                characters={roster}
-                locale={locale}
-                {...(routeModeId === "playable"
-                  ? { searchIndex: contentManifest.searchIndex }
-                  : {})}
-                {...(routeModeId === "aeon"
-                  ? { entityLabel: text.aeonEntity, showImages: false }
-                  : {})}
-                excludedIds={guessedIds}
-                disabled={busy}
-                onSubmit={(id) => guess.mutate(id)}
-              />
-              {routeModeId !== "aeon" ? (
+              {routeModeId !== "aeon" && game.guesses.length > 0 ? (
                 <GuessBoard
                   guesses={game.guesses}
                   locale={locale}
@@ -424,14 +473,30 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                   }
                 />
               ) : null}
+              <div className="sr-composer sr-active-row">
+                <CharacterCombobox
+                  variant="row"
+                  characters={roster}
+                  locale={locale}
+                  {...(routeModeId === "playable"
+                    ? { searchIndex: contentManifest.searchIndex }
+                    : {})}
+                  {...(routeModeId === "aeon"
+                    ? { entityLabel: text.aeonEntity, showImages: false }
+                    : {})}
+                  excludedIds={guessedIds}
+                  disabled={busy}
+                  onSubmit={(id) => guess.mutate(id)}
+                />
+              </div>
             </section>
           ) : null}
         </>
       )}
 
       {errorCode ? (
-        <p className="inline-error" role="alert">
-          {text.errorPrefix}: {errorCode}
+        <p className="weekly-error" role="alert">
+          {text.errorPrefix}: <span className="mono">{errorCode}</span>
         </p>
       ) : null}
       <section
@@ -440,11 +505,10 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
         aria-labelledby="weekly-board-title"
       >
         <div className="weekly-leaderboard-heading">
-          <div>
-            <p className="weekly-kicker">UNIFIED RANKING</p>
-            <h2 id="weekly-board-title">{text.boardTitle}</h2>
-          </div>
-          <span>{weekKey}</span>
+          <h2 id="weekly-board-title">
+            <Trophy size={17} aria-hidden="true" /> {text.boardTitle}
+          </h2>
+          <span className="mono">{weekKey}</span>
         </div>
         {leaderboard.data?.length ? (
           <div className="weekly-leaderboard-scroll">
@@ -460,7 +524,10 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
               </thead>
               <tbody>
                 {leaderboard.data.map((entry) => (
-                  <tr key={`${entry.rank}-${entry.displayName}`}>
+                  <tr
+                    key={`${entry.rank}-${entry.displayName}`}
+                    className={entry.rank <= 3 ? "is-top" : undefined}
+                  >
                     <td>{String(entry.rank).padStart(2, "0")}</td>
                     <th scope="row">{entry.displayName}</th>
                     <td>{entry.correctCount}/5</td>
@@ -477,8 +544,8 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
           </p>
         )}
       </section>
-      <Link className="weekly-back" to="/playable">
-        <ArrowLeft size={16} /> {text.back}
+      <Link className="weekly-pill weekly-back" to="/playable">
+        <ArrowLeft size={15} aria-hidden="true" /> {text.back}
       </Link>
     </main>
   );

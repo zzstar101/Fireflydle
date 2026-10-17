@@ -1,93 +1,85 @@
-/* 结算揭晓：星尘汇聚 → 稀有度闪光 → 真实立绘淡入。 */
+/*
+ * 结算 · 立绘与闪光。
+ *
+ * 结构与数值照抄 docs/design/redesign-v2/prototype.html：
+ * - `.flash` 取原型第 1231–1241 行；
+ * - `.art-slot img.art`（底部 72%→98% 羽化 + 左右 14%/88% 羽化，两 mask 取交集）
+ *   取原型第 1251–1262 行。
+ *
+ * 这两个类名只在本组件的 fragment 里出现，且都挂在 `.result-screen` 的
+ * `.art-slot` 内，因此不需要额外的父级作用域前缀。
+ */
 
-.result-reveal {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-.result-reveal .sr-result-portrait {
-  /* 聚合期间先藏起来，等点云成形后再淡入。 */
-  opacity: 0;
-  transition:
-    opacity 720ms var(--motion-ease, ease),
-    transform 900ms var(--motion-ease, ease);
-  transform: scale(0.96);
-}
-
-.result-reveal[data-reveal-phase="revealed"] .sr-result-portrait {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.result-reveal-flash {
-  position: absolute;
-  inset: -18% -10%;
-  z-index: 1;
-  border-radius: 50%;
-  opacity: 0;
+/*
+ * 稀有度闪光：以舞台中心为圆心的径向渐变，screen 混合，亮一下再退掉。
+ * 和原型一样是铺满视口的 fixed 层（圆心的 --fx / --fy 由组件按舞台中心写入像素值），
+ * 这样渐变的 farthest-corner 半径与原型一致；压在结算内容之下靠 DOM 顺序。
+ */
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
   background: radial-gradient(
-    circle at 50% 45%,
-    color-mix(in srgb, var(--reveal-tone) 62%, transparent),
-    transparent 62%
+    circle at var(--fx, 50%) var(--fy, 50%),
+    var(--flash, #f2cd7a) 0%,
+    rgb(255 240 210 / 25%) 18%,
+    transparent 55%
   );
+  mix-blend-mode: screen;
+  animation: result-flash 1.25s var(--motion-ease) both;
 }
 
-.result-reveal[data-rarity="gold"] {
-  --reveal-tone: var(--lit);
-}
-
-.result-reveal[data-rarity="violet"] {
-  --reveal-tone: var(--near);
-}
-
-.result-reveal[data-rarity="dim"] {
-  --reveal-tone: var(--muted);
-}
-
-.result-reveal[data-reveal-phase="revealed"] .result-reveal-flash {
-  animation: result-reveal-flash 720ms ease-out both;
-}
-
-/* 立绘盖在闪光之上，避免稀有度色把人物染色。 */
-.result-reveal .sr-result-portrait {
-  position: relative;
-  z-index: 2;
-}
-
-@keyframes result-reveal-flash {
+@keyframes result-flash {
   0% {
     opacity: 0;
-    transform: scale(0.72);
   }
-  35% {
-    opacity: 0.85;
+  10% {
+    opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: scale(1.14);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .result-reveal .sr-result-portrait {
-    transition: none;
-    transform: none;
-  }
-
-  .result-reveal[data-reveal-phase="revealed"] .result-reveal-flash {
-    animation: none;
-  }
+/* 答案立绘：contain 居中，双 mask 交叉羽化，聚合结束后淡入。
+   原型 `.art-slot` 的子元素顺序是 hud → skip → cloud → img.art → .art-cap，
+   立绘排在头像云之后，靠 DOM 顺序盖住云，所以这里不需要 z-index。 */
+.art-slot .art {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  mask-image:
+    linear-gradient(#000 72%, transparent 98%),
+    linear-gradient(to right, transparent 0, #000 14%, #000 88%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(#000 72%, transparent 98%),
+    linear-gradient(to right, transparent 0, #000 14%, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  transform: scale(1.03);
+  transition:
+    opacity 1.4s var(--motion-ease),
+    transform 1.4s var(--motion-ease);
 }
 
-:root[data-motion="reduced"] .result-reveal .sr-result-portrait {
-  transition: none;
+.art-slot .art[data-revealed="true"] {
+  opacity: 1;
   transform: none;
 }
 
-:root[data-motion="reduced"] .result-reveal[data-reveal-phase="revealed"] .result-reveal-flash {
-  animation: none;
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    animation: none;
+    opacity: 0;
+  }
+
+  .art-slot .art {
+    transition: none;
+  }
 }

@@ -263,15 +263,17 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
   return (
     <main className="page-shell duel-page">
       <PageHeader
-        eyebrow={t("duel.eyebrow")}
+        eyebrow={`${t("nav.hub")} / ${
+          locale === "zh-CN" ? "实时对战" : locale === "ja" ? "リアルタイム対戦" : "Live duel"
+        }`}
         title={t("duel.title")}
         intro={t("duel.intro")}
         aside={
-          <div className="duel-live">
-            <Radio size={17} />
-            <span>{locale === "zh-CN" ? "在线" : locale === "ja" ? "オンライン" : "LIVE"}</span>
-            <strong className="num">BO3</strong>
-          </div>
+          <span className="chip lit duel-live">
+            <i aria-hidden="true" />
+            {locale === "zh-CN" ? "在线" : locale === "ja" ? "オンライン" : "Live"}
+            <span className="num">BO1–BO7</span>
+          </span>
         }
       />
 
@@ -279,31 +281,30 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
         className={`duel-stage${rankedMatchEnabled ? " has-ranked" : ""}`}
         inert={matchTicket ? true : undefined}
       >
-        <div className="duel-signal" aria-hidden="true">
-          <span>{locale === "zh-CN" ? "你" : locale === "ja" ? "あなた" : "YOU"}</span>
-          <i />
-          <b>VS</b>
-          <i />
-          <span>{locale === "zh-CN" ? "对手" : locale === "ja" ? "相手" : "RIVAL"}</span>
-        </div>
         {rankedMatchEnabled ? (
           <article className="match-card primary-match-card">
-            <div className="match-card-badge">
-              <Radio size={12} aria-hidden="true" />{" "}
-              {locale === "zh-CN" ? "天梯匹配" : locale === "ja" ? "ランクマッチ" : "RANKED"}
+            <div className="match-card-head">
+              <span className="chip lit">
+                <Swords size={13} aria-hidden="true" />
+                {locale === "zh-CN" ? "天梯匹配" : locale === "ja" ? "ランクマッチ" : "Ranked"}
+              </span>
+              <span className="duel-vs" aria-hidden="true">
+                {locale === "zh-CN" ? "你" : locale === "ja" ? "あなた" : "You"}
+                <b>VS</b>
+                {locale === "zh-CN" ? "对手" : locale === "ja" ? "相手" : "Rival"}
+              </span>
             </div>
-            <Swords size={34} aria-hidden="true" />
             <h2>{t("duel.matchmaking")}</h2>
             <p>{t("duel.ranked")}</p>
             <div className="elo-band">
-              <span>ELO</span>
-              <strong>{session.data?.user.elo ?? 1000}</strong>
+              <span>Elo</span>
+              <strong className="num">{session.data?.user.elo ?? 1000}</strong>
               <small>
                 {locale === "zh-CN"
-                  ? "±100 → 90 秒后不限"
+                  ? "匹配范围 ±100，90 秒后不限"
                   : locale === "ja"
-                    ? "±100 → 90秒後は無制限"
-                    : "±100 → open after 90s"}
+                    ? "検索範囲 ±100、90秒後は無制限"
+                    : "Range ±100, open after 90s"}
               </small>
             </div>
             <button
@@ -320,11 +321,16 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
 
         {privateRoomEnabled ? (
           <article className="match-card">
-            <div className="match-card-badge">
-              <DoorOpen size={12} aria-hidden="true" />{" "}
-              {locale === "zh-CN" ? "好友房" : locale === "ja" ? "フレンドルーム" : "PRIVATE ROOM"}
+            <div className="match-card-head">
+              <span className="chip">
+                <DoorOpen size={13} aria-hidden="true" />
+                {locale === "zh-CN"
+                  ? "好友房"
+                  : locale === "ja"
+                    ? "フレンドルーム"
+                    : "Private room"}
+              </span>
             </div>
-            <DoorOpen size={32} aria-hidden="true" />
             <h2>{t("duel.create")}</h2>
             <p>{t("duel.unranked")}</p>
             <div className="format-picker" role="radiogroup" aria-label={t("duel.format")}>
@@ -412,7 +418,11 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
                     {locale === "zh-CN" ? "迷雾" : locale === "ja" ? "霧" : "Fog"}
                   </option>
                   <option value="speed">
-                    {locale === "zh-CN" ? "极速：每错一次 -5 秒" : "Speed: -5s per miss"}
+                    {locale === "zh-CN"
+                      ? "极速：每错一次 -5 秒"
+                      : locale === "ja"
+                        ? "スピード：ミスごとに -5 秒"
+                        : "Speed: -5s per miss"}
                   </option>
                 </select>
               </label>
@@ -449,15 +459,16 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
 
         {privateRoomEnabled ? (
           <article className="match-card">
-            <div className="match-card-badge">
-              <Hash size={12} aria-hidden="true" />{" "}
-              {locale === "zh-CN"
-                ? "房间码加入"
-                : locale === "ja"
-                  ? "コードで参加"
-                  : "JOIN BY CODE"}
+            <div className="match-card-head">
+              <span className="chip">
+                <Hash size={13} aria-hidden="true" />
+                {locale === "zh-CN"
+                  ? "房间码加入"
+                  : locale === "ja"
+                    ? "コードで参加"
+                    : "Join by code"}
+              </span>
             </div>
-            <Hash size={32} aria-hidden="true" />
             <h2>{t("duel.join")}</h2>
             <p>
               {locale === "zh-CN"
@@ -552,7 +563,7 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
               <i />
             </span>
             <p className="eyebrow">
-              {locale === "zh-CN" ? "正在匹配" : locale === "ja" ? "マッチング中" : "MATCHMAKING"}
+              {locale === "zh-CN" ? "正在匹配" : locale === "ja" ? "マッチング中" : "Matchmaking"}
             </p>
             <h2 id="matchmaking-title">
               {locale === "zh-CN"
@@ -612,19 +623,16 @@ export default function DuelPage({ activityIds }: { activityIds: readonly Activi
 
       <section className="duel-rules">
         <div>
-          <Clock3 size={20} />
+          <Clock3 size={18} aria-hidden="true" />
           <span>{t("duel.ruleTime")}</span>
-          <small>ROUND CLOCK</small>
         </div>
         <div>
-          <ShieldCheck size={20} />
+          <ShieldCheck size={18} aria-hidden="true" />
           <span>{t("duel.ruleGuess")}</span>
-          <small>UNIQUE GUESSES</small>
         </div>
         <div>
-          <WifiOff size={20} />
+          <WifiOff size={18} aria-hidden="true" />
           <span>{t("duel.ruleReconnect")}</span>
-          <small>ONE PAUSE / PLAYER</small>
         </div>
       </section>
     </main>

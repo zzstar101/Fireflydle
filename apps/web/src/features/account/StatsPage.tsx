@@ -1,17 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  Activity,
-  Atom,
-  BarChart3,
-  CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  Compass,
-  Gauge,
-  History,
-  Swords,
-  Target,
-} from "lucide-react";
+import { Award, BarChart3, CalendarDays, ChevronRight, History, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { PersonalStats } from "@fireflydle/contracts";
@@ -67,64 +55,60 @@ export default function StatsPage() {
   };
   const values = [
     {
-      icon: CheckCircle2,
       label: locale === "zh-CN" ? "累计猜中" : locale === "ja" ? "累計正解" : "Total solved",
       value: data ? String(data.totalSolved) : "—",
     },
     {
-      icon: Target,
       label: locale === "zh-CN" ? "正确率" : locale === "ja" ? "正解率" : "Accuracy",
       value: data ? `${(data.accuracy * 100).toFixed(1)}%` : "—",
     },
     {
-      icon: Gauge,
       label: locale === "zh-CN" ? "猜中平均次数" : locale === "ja" ? "正解時平均" : "Avg. to solve",
       value: data ? data.averageGuesses.toFixed(1) : "—",
     },
     {
-      icon: Compass,
       label: locale === "zh-CN" ? "最擅长命途" : locale === "ja" ? "得意な運命" : "Strongest path",
       value: data?.strongestPath ? localizedPath(data.strongestPath.id) : "—",
+      text: Boolean(data?.strongestPath),
       detail: data?.strongestPath
         ? locale === "zh-CN"
           ? `猜中 ${data.strongestPath.solved} 次`
-          : `${data.strongestPath.solved} solved`
+          : locale === "ja"
+            ? `${data.strongestPath.solved} 回正解`
+            : `${data.strongestPath.solved} solved`
         : undefined,
     },
     {
-      icon: Atom,
       label:
         locale === "zh-CN" ? "最擅长属性" : locale === "ja" ? "得意な属性" : "Strongest element",
       value: data?.strongestElement ? localizedElement(data.strongestElement.id) : "—",
+      text: Boolean(data?.strongestElement),
       detail: data?.strongestElement
         ? locale === "zh-CN"
           ? `猜中 ${data.strongestElement.solved} 次`
-          : `${data.strongestElement.solved} solved`
+          : locale === "ja"
+            ? `${data.strongestElement.solved} 回正解`
+            : `${data.strongestElement.solved} solved`
         : undefined,
     },
     {
-      icon: CalendarDays,
       label: locale === "zh-CN" ? "每日挑战" : locale === "ja" ? "デイリー達成" : "Daily solved",
       value: data ? `${data.dailyWon}/${data.dailyPlayed}` : "—",
     },
     {
-      icon: Activity,
       label:
         locale === "zh-CN" ? "当前连续天数" : locale === "ja" ? "現在の連続" : "Current streak",
       value: data ? String(data.currentStreak) : "—",
     },
     {
-      icon: Gauge,
       label: locale === "zh-CN" ? "最长连续天数" : locale === "ja" ? "最高連続" : "Best streak",
       value: data ? String(data.bestStreak) : "—",
     },
     {
-      icon: Target,
       label: locale === "zh-CN" ? "普通挑战胜利" : locale === "ja" ? "通常勝利" : "Practice wins",
       value: data ? `${data.practiceWon}/${data.practicePlayed}` : "—",
     },
     {
-      icon: Swords,
       label: locale === "zh-CN" ? "排位对战" : locale === "ja" ? "ランク勝利" : "Ranked wins",
       value: data ? `${data.rankedWon}/${data.rankedPlayed}` : "—",
     },
@@ -132,7 +116,7 @@ export default function StatsPage() {
   return (
     <main className="page-shell stats-page">
       <PageHeader
-        eyebrow={locale === "zh-CN" ? "个人战绩" : locale === "ja" ? "個人戦績" : "MY STATS"}
+        eyebrow={locale === "zh-CN" ? "个人战绩" : locale === "ja" ? "個人戦績" : "My stats"}
         title={locale === "zh-CN" ? "我的战绩" : locale === "ja" ? "あなたの戦績" : "Your stats"}
         intro={
           locale === "zh-CN"
@@ -152,11 +136,10 @@ export default function StatsPage() {
         </div>
       ) : null}
       <section className="stats-metrics">
-        {values.map(({ icon: Icon, label, value, detail }) => (
+        {values.map(({ label, value, detail, text }) => (
           <div key={label}>
-            <Icon size={20} />
             <span>{label}</span>
-            <strong>{value}</strong>
+            <strong className={text ? "is-text" : undefined}>{value}</strong>
             {detail ? <small>{detail}</small> : null}
           </div>
         ))}
@@ -164,7 +147,8 @@ export default function StatsPage() {
       <section className="achievements-section" aria-labelledby="achievements-title">
         <header>
           <span id="achievements-title">
-            {locale === "zh-CN" ? "成就" : locale === "ja" ? "実績" : "ACHIEVEMENTS"}
+            <Award size={18} />{" "}
+            {locale === "zh-CN" ? "成就" : locale === "ja" ? "実績" : "Achievements"}
           </span>
           <small>
             {locale === "zh-CN"
@@ -174,32 +158,42 @@ export default function StatsPage() {
                 : "Official online results only"}
           </small>
         </header>
-        <div className="achievements-list">
-          {data?.achievements.map((achievement) => {
-            const label = achievementLabels[achievement.id] ?? achievementLabels["one-shot"]!;
-            const title = locale === "zh-CN" ? label.zh : locale === "ja" ? label.ja : label.en;
-            return (
-              <div key={achievement.id} className={achievement.unlockedAt ? "is-unlocked" : ""}>
-                <strong>{title}</strong>
-                <span>
-                  {achievement.unlockedAt
-                    ? locale === "zh-CN"
-                      ? "已解锁"
-                      : locale === "ja"
-                        ? "解放済み"
-                        : "Unlocked"
-                    : `${achievement.progress}/${achievement.target}`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {data?.achievements.length ? (
+          <div className="achievements-list">
+            {data.achievements.map((achievement) => {
+              const label = achievementLabels[achievement.id] ?? achievementLabels["one-shot"]!;
+              const title = locale === "zh-CN" ? label.zh : locale === "ja" ? label.ja : label.en;
+              return (
+                <div key={achievement.id} className={achievement.unlockedAt ? "is-unlocked" : ""}>
+                  <strong>{title}</strong>
+                  <span>
+                    {achievement.unlockedAt
+                      ? locale === "zh-CN"
+                        ? "已解锁"
+                        : locale === "ja"
+                          ? "解放済み"
+                          : "Unlocked"
+                      : `${achievement.progress}/${achievement.target}`}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="stats-section-empty">
+            {locale === "zh-CN"
+              ? "完成正式在线对局后，成就进度会显示在这里。"
+              : locale === "ja"
+                ? "正式なオンライン対局を完了すると、実績の進捗がここに表示されます。"
+                : "Achievement progress appears here after official online games."}
+          </p>
+        )}
       </section>
       <section className="daily-stats-section">
         <header>
           <span>
             <BarChart3 size={18} />{" "}
-            {locale === "zh-CN" ? "每日题统计" : locale === "ja" ? "デイリー統計" : "DAILY STATS"}
+            {locale === "zh-CN" ? "每日题统计" : locale === "ja" ? "デイリー統計" : "Daily stats"}
           </span>
           <small>
             {locale === "zh-CN"
@@ -218,25 +212,35 @@ export default function StatsPage() {
                   ? "推測分布"
                   : "Guess distribution"}
             </h2>
-            <div
-              className="distribution-chart"
-              aria-label={locale === "zh-CN" ? "猜测分布" : "Guess distribution"}
-            >
-              {distribution.map((bucket) => (
-                <div key={bucket.guesses || "failed"}>
-                  <strong>{bucket.count}</strong>
-                  <i
-                    style={{
-                      height: `${Math.max(4, Math.round((bucket.count / distributionMax) * 100))}%`,
-                    }}
-                  />
-                  <span>
-                    {bucket.guesses ||
-                      (locale === "zh-CN" ? "未中" : locale === "ja" ? "失敗" : "X")}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {distribution.length ? (
+              <div
+                className="distribution-chart"
+                aria-label={locale === "zh-CN" ? "猜测分布" : "Guess distribution"}
+              >
+                {distribution.map((bucket) => (
+                  <div key={bucket.guesses || "failed"}>
+                    <strong>{bucket.count}</strong>
+                    <i
+                      style={{
+                        height: `${Math.max(4, Math.round((bucket.count / distributionMax) * 100))}%`,
+                      }}
+                    />
+                    <span>
+                      {bucket.guesses ||
+                        (locale === "zh-CN" ? "未中" : locale === "ja" ? "失敗" : "X")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="daily-history-empty">
+                {locale === "zh-CN"
+                  ? "完成每日题后，这里会显示你的猜测次数分布。"
+                  : locale === "ja"
+                    ? "デイリーを完了すると、推測回数の分布がここに表示されます。"
+                    : "Your guess distribution appears after you complete a daily."}
+              </p>
+            )}
           </div>
           <div className="daily-history">
             <h2>
@@ -290,7 +294,7 @@ export default function StatsPage() {
         <header>
           <span>
             <History size={18} />{" "}
-            {locale === "zh-CN" ? "最近记录" : locale === "ja" ? "最近の記録" : "RECENT HISTORY"}
+            {locale === "zh-CN" ? "最近记录" : locale === "ja" ? "最近の記録" : "Recent history"}
           </span>
           <small>
             {locale === "zh-CN"
@@ -311,7 +315,7 @@ export default function StatsPage() {
                   </strong>
                   <small>
                     {item.activityId === "ranked-match" && item.opponentDisplayName
-                      ? `${item.ranked ? (locale === "zh-CN" ? "排位" : "RANKED") : locale === "zh-CN" ? "休闲" : "CASUAL"} · ${locale === "zh-CN" ? "对阵" : "VS"} ${item.opponentDisplayName}`
+                      ? `${item.ranked ? (locale === "zh-CN" ? "排位" : locale === "ja" ? "ランク" : "Ranked") : locale === "zh-CN" ? "休闲" : locale === "ja" ? "カジュアル" : "Casual"} · ${locale === "zh-CN" ? "对阵" : "vs"} ${item.opponentDisplayName}`
                       : new Date(item.playedAt).toLocaleString(locale)}
                   </small>
                 </span>

@@ -4158,3 +4158,203 @@
     justify-content: center;
   }
 }
+
+/* ===== 原型 .row.active：输入条是棋盘的「当前行」 ===== */
+.sr-game .sr-active-row {
+  margin-top: 8px;
+}
+.sr-game .sr-active-ghost + .sr-active-row {
+  margin-top: 8px;
+}
+.sr-game .sr-active-ghost {
+  display: none;
+}
+.sr-game .sr-composer .combobox-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 10px 0 18px;
+  border: 1px solid rgb(242 205 122 / 45%);
+  border-radius: 16px;
+  background: rgb(242 205 122 / 5%);
+  box-shadow:
+    0 0 0 4px rgb(242 205 122 / 6%),
+    0 0 40px rgb(242 205 122 / 10%);
+}
+.sr-game .sr-composer .combobox-row:focus-within {
+  border-color: rgb(242 205 122 / 70%);
+  box-shadow:
+    0 0 0 4px rgb(242 205 122 / 12%),
+    0 0 40px rgb(242 205 122 / 16%);
+}
+.sr-game .sr-composer .character-combobox {
+  position: static;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+}
+.sr-game .sr-composer .character-combobox > svg {
+  position: static;
+  flex: none;
+  transform: none;
+  color: var(--muted);
+}
+.sr-game .sr-composer .character-combobox input,
+.sr-game .sr-composer .character-combobox input:focus {
+  flex: 1;
+  min-width: 0;
+  height: 64px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 600;
+}
+.sr-game .sr-composer .character-combobox input::placeholder {
+  color: var(--faint);
+  font-weight: 500;
+}
+.sr-game .sr-composer .character-combobox input::-webkit-search-cancel-button {
+  display: none;
+}
+.sr-game .sr-composer .combobox-kbd {
+  flex: none;
+  padding: 3px 7px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.sr-game .sr-composer .guess-submit.btn {
+  flex: none;
+  width: auto;
+  min-width: 0;
+  height: 46px;
+  min-height: 0;
+  padding: 0 22px;
+}
+.sr-game .sr-composer .combobox-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  max-height: 360px;
+  overflow: auto;
+  box-shadow: 0 30px 60px rgb(0 0 0 / 55%);
+}
+
+/* 草稿局开局失败：棋盘上方一条提示 */
+.sr-draft-alert {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 18px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13px;
+}
+.sr-draft-alert > svg {
+  flex: none;
+  color: var(--lit);
+}
+.sr-draft-alert > div:first-of-type {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+.sr-draft-alert strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+.sr-draft-actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+@media (max-width: 760px) {
+  .sr-game:not(.is-finished) .sr-active-ghost {
+    display: block;
+    height: 50px;
+    border: 1px solid rgb(242 205 122 / 35%);
+    border-radius: 9px;
+  }
+  /* 原型移动端：当前行固定在底部 tab 栏上方 */
+  .sr-game:not(.is-finished) .sr-composer {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    z-index: 26;
+    margin: 0;
+  }
+  .sr-game .sr-composer .combobox-row {
+    padding: 0 6px 0 14px;
+    background: rgb(12 14 24 / 92%);
+    backdrop-filter: blur(14px);
+  }
+  .sr-game .sr-composer .character-combobox input,
+  .sr-game .sr-composer .character-combobox input:focus {
+    height: 54px;
+    font-size: 16px;
+  }
+  .sr-game .sr-composer .combobox-kbd {
+    display: none;
+  }
+  .sr-game .sr-composer .guess-submit.btn {
+    height: 42px;
+    padding: 0 18px;
+  }
+  .sr-game:not(.is-finished) .sr-composer .combobox-results {
+    top: auto;
+    bottom: calc(100% + 8px);
+    max-height: 46vh;
+  }
+  .sr-game:not(.is-finished) {
+    padding-bottom: calc(160px + env(safe-area-inset-bottom));
+  }
+  .sr-draft-alert {
+    flex-wrap: wrap;
+  }
+}
+
+/* 原型 .tile：✓/≈ 11px 角标，方向箭头紧跟数值（.dir），不再单列「更晚/更早」小字 */
+.sr-game .feedback-cell .feedback-direction {
+  display: none;
+}
+.sr-game .feedback-cell .feedback-icon {
+  top: 5px;
+  right: 8px;
+  opacity: 0.65;
+}
+.sr-game .feedback-cell .feedback-glyph {
+  font-size: 11px;
+  line-height: 1;
+}
+.sr-game .feedback-cell .feedback-dir {
+  margin-left: 3px;
+}
+@media (max-width: 760px) {
+  .sr-game .feedback-cell .feedback-icon {
+    top: 3px;
+    right: 4px;
+  }
+  .sr-game .feedback-cell .feedback-glyph {
+    font-size: 9px;
+  }
+}
+/* 原型 .tile 允许换行（line-height 1.2），不截断成省略号 */
+.sr-game .feedback-cell strong {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

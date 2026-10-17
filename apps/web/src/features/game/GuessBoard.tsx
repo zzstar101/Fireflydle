@@ -20,7 +20,7 @@ const legacyFields = selectSnapshotFieldDefinitions(
   contentManifest.modes.find((mode) => mode.id === "playable")?.fields ?? [],
 );
 
-// v2 规定状态不只靠颜色：一致 ✓、接近 ≈、不符 ✗，未知字段用 ?。
+// 原型 .tile：一致 ✓、接近 ≈ 角标，不符不加角标（靠底色 + 读屏文案区分），未知字段用 ?。
 const STATE_GLYPH: Record<string, string> = {
   exact: "✓",
   close: "≈",
@@ -29,12 +29,19 @@ const STATE_GLYPH: Record<string, string> = {
 };
 
 function StatusIcon({ cell }: { cell: GuessCell }) {
+  const glyph = STATE_GLYPH[cell.state];
+  if (!glyph) return null;
   return (
     <span className="feedback-glyph" aria-hidden="true">
-      {STATE_GLYPH[cell.state] ?? "✗"}
+      {glyph}
     </span>
   );
 }
+
+const DIRECTION_ARROW: Partial<Record<GuessCell["direction"], string>> = {
+  higher: "↑",
+  lower: "↓",
+};
 
 function cellValue(
   guess: GuessResult,
@@ -169,7 +176,14 @@ export function GuessBoard({
                         <span className="feedback-icon">
                           <StatusIcon cell={status} />
                         </span>
-                        <strong>{value}</strong>
+                        <strong>
+                          {value}
+                          {DIRECTION_ARROW[status.direction] ? (
+                            <span className="feedback-dir" aria-hidden="true">
+                              {DIRECTION_ARROW[status.direction]}
+                            </span>
+                          ) : null}
+                        </strong>
                         <small>{t(`game.${status.state}`)}</small>
                         {direction ? (
                           <small className="feedback-direction">{direction}</small>

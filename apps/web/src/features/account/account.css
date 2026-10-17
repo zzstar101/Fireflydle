@@ -1,84 +1,167 @@
 /*
  * 账号 / 战绩 / 找回密码 / 邮箱验证 / 法务页「星轨」v2 皮肤。
- * 这些页面大量复用全局的 .ticket-button 切角票券（global.css:753-798），
- * 本文件不重命名 class，只在功能域内覆盖成 v2 胶囊。
+ * 按钮（.ticket-button / -secondary / .danger-button）与 .eyebrow 已由 global.css 统一主题化，
+ * 这里只负责本功能域的版式：面板、分段切换、输入框、统计磁贴、列表与阅读栏。
  */
+
+/* ---------- 共享：输入框 / 软错误面板 / 小胶囊链接 ---------- */
+.auth-form input,
+.profile-settings input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  outline: 0;
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
+  font-size: 15px;
+  transition: border-color 0.2s var(--ease);
+}
+.auth-form input:focus,
+.profile-settings input:focus {
+  border-color: var(--lit);
+}
+.auth-form input:focus-visible,
+.profile-settings input:focus-visible {
+  outline: 0;
+}
+
+/* 原型软红面板：整块淡红底 + 淡红描边，不用左侧竖条 */
+.auth-error,
+.stats-page .inline-error {
+  padding: 12px 16px;
+  color: #ff9aa3;
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 14px;
+  background: rgb(255 122 133 / 10%);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.stats-page .inline-error {
+  margin: 0 0 20px;
+}
+
+.text-button {
+  justify-self: center;
+  color: var(--muted);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+.text-button:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* ---------- 登录 / 注册 ---------- */
 .auth-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.75fr);
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 460px);
   align-items: center;
-  min-height: 720px;
-  gap: clamp(45px, 8vw, 130px);
+  gap: clamp(40px, 6vw, 96px);
 }
 .auth-intro h1 {
-  max-width: 800px;
+  max-width: 720px;
+  margin: 8px 0 0;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  line-height: 1.1;
+  text-wrap: balance;
 }
-.auth-intro > p:last-of-type {
-  max-width: 680px;
+.auth-intro > p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 14px 0 0;
   color: var(--muted);
-  font-size: 1.05rem;
+  font-size: 1rem;
+  line-height: 1.7;
 }
 .auth-intro ul {
   display: grid;
-  max-width: 690px;
-  padding: 25px 0 0;
-  margin: 35px 0 0;
-  gap: 18px;
+  max-width: 620px;
+  padding: 24px 0 0;
+  margin: 28px 0 0;
+  gap: 14px;
   border-top: 1px solid var(--line);
   list-style: none;
 }
 .auth-intro li {
   display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 13px;
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 12px;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 14px;
+  line-height: 1.6;
 }
 .auth-intro li svg {
+  margin-top: 2px;
   color: var(--lit);
 }
-/* v1 的切角票券面板 → v2 圆角面板（overflow 保证内部标签/报错被圆角裁切） */
-.auth-panel {
-  overflow: hidden;
+.guest-stats-link {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  margin-top: 26px;
+  gap: 8px;
   border: 1px solid var(--line-2);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.2s var(--ease);
+}
+.guest-stats-link:hover {
+  background: rgb(255 255 255 / 6%);
+}
+.auth-panel {
+  border: 1px solid var(--line);
   border-radius: var(--r-card);
   background: var(--panel-2);
   box-shadow: var(--shadow);
 }
+/* 分段切换：与顶栏导航同款——浅色轨道 + 墨白激活胶囊 */
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  margin: 22px 22px 0;
+  padding: 4px;
   gap: 4px;
-  padding: 6px;
-  border-bottom: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
 }
 .auth-tabs button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
+  min-height: 40px;
   gap: 8px;
   color: var(--muted);
   cursor: pointer;
   border: 0;
   border-radius: 999px;
   background: transparent;
+  font-size: 14px;
+  font-weight: 700;
   transition:
     background 0.2s var(--ease),
     color 0.2s var(--ease);
 }
-.auth-tabs button + button {
-  border-left: 0;
+.auth-tabs button:hover:not(.active) {
+  color: var(--ink);
 }
 .auth-tabs button.active {
-  background: var(--cta);
-  color: var(--cta-ink);
+  background: var(--ink);
+  color: #000;
 }
 .auth-form {
   display: grid;
-  padding: clamp(26px, 4vw, 44px);
-  gap: 18px;
+  padding: 24px 22px 26px;
+  gap: 16px;
 }
 .auth-form label {
   display: grid;
@@ -86,160 +169,102 @@
 }
 .auth-form label > span {
   display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
   justify-content: space-between;
+  gap: 2px 12px;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.02em;
 }
 .auth-form label small {
   color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.5rem;
-}
-.auth-form input {
-  width: 100%;
-  height: 48px;
-  padding: 0 13px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-tile);
-  outline: 0;
-  background: var(--surface-soft);
-  color: var(--ink);
-}
-.auth-form input:focus {
-  border-color: color-mix(in srgb, var(--lit) 70%, transparent);
+  font-size: 12px;
+  font-weight: 500;
 }
 .auth-form .ticket-button {
   width: 100%;
-  margin-top: 6px;
+  margin-top: 4px;
 }
-.text-button {
-  justify-self: center;
-  color: var(--lit);
-  cursor: pointer;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  font-size: 0.7rem;
+.auth-panel > .auth-error {
+  margin: 0 22px 22px;
 }
-.auth-error {
-  padding: 12px 18px;
-  color: var(--danger);
-  border-top: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
-  background: color-mix(in srgb, var(--danger) 8%, transparent);
-  font-size: 0.72rem;
-}
+
+/* ---------- 已登录：个人资料 ---------- */
 .profile-banner {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 45px 0;
-  gap: 24px;
+  padding: 0 0 32px;
+  gap: 22px;
   border-bottom: 1px solid var(--line);
 }
-/* v2 头像用圆角方块（README §7），不再是 v1 的圆形描边 */
+/* v2 头像用圆角方块，不再是 v1 的圆形描边 */
 .profile-avatar {
   display: grid;
-  width: 90px;
-  height: 90px;
+  width: 84px;
+  height: 84px;
   place-items: center;
   border: 1px solid var(--line-2);
-  border-radius: var(--r-card);
+  border-radius: 22px;
   background: var(--panel-2);
   color: var(--lit);
 }
 .profile-banner h1 {
-  margin: 0;
+  margin: 6px 0 8px;
   font-size: clamp(2rem, 3.6vw, 3rem);
-}
-.profile-banner .eyebrow {
-  margin-bottom: 5px;
+  line-height: 1.05;
 }
 .profile-banner div > span {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  gap: 7px;
+  border-radius: 999px;
+  background: rgb(242 205 122 / 12%);
   color: var(--lit);
-  font-size: 0.62rem;
+  font-size: 12.5px;
+  font-weight: 700;
 }
 .profile-banner .profile-email-state-pending {
-  color: var(--gold-bright);
+  background: rgb(144 119 238 / 18%);
+  color: #b9a6ff;
 }
 .profile-banner .profile-email-state-missing {
+  background: rgb(255 255 255 / 6%);
   color: var(--muted);
 }
 .profile-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .profile-actions .ticket-button-secondary {
   width: auto;
 }
-.guest-stats-link {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 25px;
-  gap: 8px;
-  color: var(--gold-bright);
-  font-size: 0.78rem;
-}
-.guest-stats-link:hover {
-  color: var(--ink);
-}
-/* v1 的共享硬边网格 → v2 独立圆角磁贴 */
+
+/* ---------- 统计磁贴（战绩页 + 账号页共用） ---------- */
 .account-metrics,
 .stats-metrics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin: 38px 0;
+  gap: 10px;
 }
-
-.achievements-section {
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--line);
-  padding-top: 1.25rem;
-}
-.achievements-section > header {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
-.achievements-list {
-  display: grid;
+.account-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.65rem;
+  margin: 24px 0;
 }
-.achievements-list > div {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.8rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r-tile);
-  background: var(--panel);
-  gap: 0.5rem;
-}
-.achievements-list > div span {
-  color: var(--muted);
-  white-space: nowrap;
-}
-/* v1 这里引用了一个不存在的 --accent，一直没生效；改成 v2 的星光金描边 */
-.achievements-list > .is-unlocked {
-  border-color: color-mix(in srgb, var(--lit) 55%, var(--line));
-}
-@media (max-width: 680px) {
-  .achievements-list {
-    grid-template-columns: 1fr;
-  }
+.stats-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0 0 20px;
 }
 .account-metrics > div,
 .stats-metrics > div {
   display: grid;
-  min-height: 150px;
-  padding: 26px;
-  align-content: center;
+  min-width: 0;
+  padding: 16px 18px 18px;
+  align-content: start;
+  gap: 6px;
   border: 1px solid var(--line);
   border-radius: var(--r-tile);
   background: var(--panel);
@@ -247,34 +272,44 @@
 .account-metrics span,
 .stats-metrics span {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: 12px;
+  font-weight: 600;
 }
-/* 数字统一等宽 + tabular-nums（README §2） */
+/* 数字统一等宽 + tabular-nums */
 .account-metrics strong,
 .stats-metrics strong {
+  overflow: hidden;
   font-family: var(--font-mono);
-  font-size: 2.4rem;
+  font-size: 28px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.account-metrics .small-value {
+.account-metrics .small-value,
+.stats-metrics .is-text {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 22px;
+  line-height: 1.4;
   font-variant-numeric: normal;
 }
-.account-metrics small {
+.account-metrics small,
+.stats-metrics small {
   color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.53rem;
+  font-size: 12px;
 }
+
+/* ---------- 已登录：提示 / 设置 / 危险区 ---------- */
 .email-verification-notice {
   display: flex;
   align-items: center;
-  padding: 22px 24px;
-  margin-bottom: 18px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
   gap: 18px;
-  border: 1px solid color-mix(in srgb, var(--lit) 48%, var(--line));
-  border-radius: var(--r-tile);
-  background: color-mix(in srgb, var(--lit) 7%, var(--panel));
+  border: 1px solid rgb(242 205 122 / 22%);
+  border-radius: 20px;
+  background: rgb(242 205 122 / 6%);
 }
 .email-verification-notice > div {
   display: flex;
@@ -283,25 +318,59 @@
 }
 .email-verification-notice svg {
   flex: 0 0 auto;
-  color: var(--gold-bright);
+  color: var(--lit);
 }
 .email-verification-notice span {
   display: grid;
+  gap: 2px;
 }
 .email-verification-notice small {
   color: var(--muted);
+  font-size: 13px;
 }
 .email-verification-notice button {
   flex: 0 0 auto;
   margin-left: auto;
 }
+.profile-settings {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(220px, 0.8fr) auto;
+  align-items: center;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+}
+.profile-settings label {
+  display: grid;
+  gap: 2px;
+}
+.profile-settings label span {
+  font-weight: 700;
+}
+.profile-settings label small {
+  color: var(--muted);
+  font-size: 13px;
+}
+.profile-message {
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  color: var(--lit);
+  border: 1px solid rgb(242 205 122 / 22%);
+  border-radius: 14px;
+  background: rgb(242 205 122 / 8%);
+  font-size: 14px;
+}
 .danger-zone {
   display: flex;
   align-items: center;
-  padding: 24px;
+  padding: 18px 20px;
   gap: 15px;
-  border: 1px solid color-mix(in srgb, var(--danger) 36%, transparent);
-  border-radius: var(--r-tile);
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 20px;
+  background: rgb(255 122 133 / 5%);
 }
 .danger-zone > div {
   display: grid;
@@ -311,97 +380,106 @@
 }
 .danger-zone svg {
   grid-row: 1 / 3;
-  color: var(--danger);
+  color: #ff9aa3;
 }
 .danger-zone span {
   display: grid;
+  gap: 2px;
 }
 .danger-zone small {
   color: var(--muted);
+  font-size: 13px;
 }
 .danger-zone button {
   margin-left: auto;
 }
-.profile-settings {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(220px, 0.8fr) auto;
-  align-items: center;
-  padding: 22px 24px;
-  margin-bottom: 18px;
-  gap: 15px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-tile);
-  background: var(--panel);
-}
-.profile-settings label {
-  display: grid;
-}
-.profile-settings label span {
-  font-weight: 700;
-}
-.profile-settings label small {
-  color: var(--muted);
-}
-.profile-settings input {
-  height: 45px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-tile);
-  outline: 0;
-  background: var(--surface-soft);
-  color: var(--ink);
-}
-.profile-settings input:focus {
-  border-color: color-mix(in srgb, var(--lit) 70%, transparent);
-}
-.profile-settings button {
-  min-height: 45px;
-}
-.profile-message {
-  padding: 12px 16px;
-  margin-bottom: 18px;
-  color: var(--gold-bright);
-  border-left: 2px solid var(--lit);
-  border-radius: var(--r-tile);
-  background: color-mix(in srgb, var(--lit) 8%, transparent);
-}
-.stats-metrics {
-  grid-template-columns: repeat(3, 1fr);
-}
-.stats-metrics svg {
-  color: var(--lit);
-}
-.stats-metrics strong {
-  margin-top: 10px;
-}
-.stats-metrics small {
-  margin-top: 3px;
-  color: var(--faint);
-  font-size: 0.62rem;
-}
-/* v1 的通栏硬边框容器 → v2 圆角面板 */
-.daily-stats-section {
+
+/* ---------- 战绩页分区面板 ---------- */
+.achievements-section,
+.daily-stats-section,
+.history-section {
   overflow: hidden;
+  margin: 0 0 16px;
   border: 1px solid var(--line);
   border-radius: var(--r-card);
   background: var(--panel);
 }
-.daily-stats-section > header {
+.achievements-section > header,
+.daily-stats-section > header,
+.history-section > header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  min-height: 55px;
-  padding: 0 20px;
+  min-height: 56px;
+  padding: 10px 22px;
+  gap: 4px 16px;
   border-bottom: 1px solid var(--line);
 }
-.daily-stats-section > header span {
+.achievements-section > header span,
+.daily-stats-section > header span,
+.history-section > header span {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 15px;
   font-weight: 700;
 }
-.daily-stats-section > header small {
+.achievements-section > header svg,
+.daily-stats-section > header svg,
+.history-section > header svg {
   color: var(--muted);
+}
+.achievements-section > header small,
+.daily-stats-section > header small,
+.history-section > header small {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.stats-section-empty,
+.daily-history-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.stats-section-empty {
+  padding: 18px 22px 20px;
+}
+.achievements-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 16px 22px 22px;
+  gap: 8px;
+}
+.achievements-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 10px 14px;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--miss);
+  font-size: 14px;
+}
+.achievements-list > div span {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.achievements-list > .is-unlocked {
+  border-color: rgb(242 205 122 / 28%);
+  background: rgb(242 205 122 / 7%);
+}
+.achievements-list > .is-unlocked span {
+  color: var(--lit);
+  font-family: inherit;
+  font-weight: 700;
 }
 .daily-stats-grid {
   display: grid;
@@ -410,45 +488,51 @@
 .guess-distribution,
 .daily-history {
   min-width: 0;
-  padding: 24px 20px;
+  padding: 20px 22px 22px;
 }
 .daily-history {
   border-left: 1px solid var(--line);
 }
 .guess-distribution h2,
 .daily-history h2 {
-  margin: 0 0 20px;
-  font-size: 1rem;
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
 }
 .distribution-chart {
   display: grid;
   grid-template-columns: repeat(7, minmax(24px, 1fr));
   align-items: end;
-  min-height: 190px;
+  min-height: 170px;
   gap: 8px;
 }
 .distribution-chart > div {
   display: grid;
-  grid-template-rows: 22px 130px 22px;
+  grid-template-rows: 22px 120px 22px;
   align-items: end;
   text-align: center;
 }
 .distribution-chart strong,
 .distribution-chart span {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
+}
+.distribution-chart span {
+  color: var(--muted);
 }
 .distribution-chart i {
   display: block;
-  width: 100%;
+  justify-self: center;
+  width: min(100%, 34px);
   min-height: 4px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--lit);
 }
 /* 最后一档是「未中」，同时带 ✗ 文案标签，不是只靠颜色区分 */
 .distribution-chart > div:last-child i {
-  background: var(--danger);
+  background: rgb(255 122 133 / 70%);
 }
 .daily-history-list {
   max-height: 230px;
@@ -458,164 +542,186 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  min-height: 54px;
-  gap: 10px;
+  min-height: 52px;
+  gap: 12px;
   border-bottom: 1px solid var(--line);
+}
+.daily-history-list > div:last-child {
+  border-bottom: 0;
+}
+.daily-history-list > div > svg {
+  color: var(--muted);
 }
 .daily-history-list span {
   display: grid;
 }
+.daily-history-list strong {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
 .daily-history-list small,
-.daily-history-list i,
-.daily-history-empty {
+.daily-history-list i {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: 12.5px;
   font-style: normal;
   font-variant-numeric: tabular-nums;
 }
-.daily-history-empty {
-  margin: 0;
-}
-.history-section {
-  margin-top: 35px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  background: var(--panel);
-}
-.history-section > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 55px;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--line);
-}
-.history-section > header span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-}
-.history-section > header small {
-  color: var(--muted);
-}
 .history-list a {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
-  min-height: 68px;
-  padding: 10px 20px;
-  gap: 13px;
+  min-height: 64px;
+  padding: 10px 22px;
+  gap: 14px;
   border-bottom: 1px solid var(--line);
+  transition: background 0.2s var(--ease);
+}
+.history-list a:last-child {
+  border-bottom: 0;
 }
 .history-list a:hover {
-  background: var(--surface-soft);
+  background: rgb(255 255 255 / 4%);
+}
+.history-list a > svg {
+  color: var(--muted);
 }
 .history-list span {
   display: grid;
+  min-width: 0;
+}
+.history-list strong {
+  font-size: 14.5px;
 }
 .history-list small,
 .history-list i {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: 12.5px;
   font-style: normal;
   font-variant-numeric: tabular-nums;
 }
+.history-list i {
+  font-family: var(--font-mono);
+}
 .history-empty {
   display: grid;
-  min-height: 350px;
+  min-height: 240px;
+  padding: 32px 22px;
   place-items: center;
   align-content: center;
   text-align: center;
 }
 .history-empty > svg {
-  color: var(--lit);
-}
-.history-empty h2 {
-  margin: 15px 0 4px;
-}
-.history-empty p {
-  margin-bottom: 20px;
   color: var(--muted);
 }
-.legal-page {
-  max-width: 900px;
+.history-empty h2 {
+  margin: 14px 0 6px;
+  font-size: 1.25rem;
+}
+.history-empty p {
+  max-width: 440px;
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- 法务长文：760px 阅读栏 ---------- */
+.legal-page > * {
+  max-width: 760px;
 }
 .legal-page > h1 {
-  margin-bottom: 40px;
+  margin: 8px 0 32px;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  line-height: 1.1;
 }
 .legal-page section {
-  padding: 30px 0;
+  padding: 26px 0 28px;
   border-top: 1px solid var(--line);
 }
 .legal-page section h2 {
-  font-size: 1.35rem;
+  margin: 0 0 10px;
+  font-size: 22px;
+  line-height: 1.35;
 }
 .legal-page section p {
+  margin: 0;
   color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.85;
 }
+
+/* ---------- 找回密码 / 邮箱验证：居中卡片 ---------- */
 .recovery-page {
   display: grid;
-  min-height: 720px;
+  min-height: min(680px, calc(100svh - 220px));
   place-items: center;
 }
 .recovery-panel {
   display: grid;
-  width: min(100%, 560px);
-  padding: clamp(30px, 6vw, 60px);
+  width: min(100%, 480px);
+  padding: clamp(28px, 5vw, 44px) clamp(20px, 4vw, 36px);
   place-items: center;
-  border: 1px solid var(--line-2);
+  border: 1px solid var(--line);
   border-radius: var(--r-card);
   background: var(--panel-2);
   box-shadow: var(--shadow);
   text-align: center;
 }
 .recovery-panel h1 {
-  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  margin: 8px 0 10px;
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  line-height: 1.15;
 }
 .recovery-panel > p:not(.eyebrow) {
+  margin: 0 0 20px;
   color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
 }
 .recovery-icon {
   display: grid;
-  width: 70px;
-  height: 70px;
-  margin-bottom: 24px;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 18px;
   place-items: center;
   color: var(--lit);
-  border: 1px solid var(--line-2);
+  border: 1px solid var(--line);
   border-radius: var(--r-tile);
-  background: var(--surface-soft);
+  background: var(--miss);
+}
+.recovery-icon svg {
+  width: 26px;
+  height: 26px;
 }
 .recovery-form {
   width: 100%;
-  padding: 24px 0 0;
+  padding: 8px 0 0;
   text-align: left;
-}
-.recovery-form .auth-error {
-  margin-top: 5px;
 }
 .recovery-helper {
   margin: 0;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 14px;
   line-height: 1.65;
 }
 .verification-actions {
   display: grid;
   width: min(100%, 320px);
-  margin-top: 8px;
+  margin-top: 4px;
   gap: 14px;
 }
 .verification-actions .text-button {
   justify-self: center;
 }
 .recovery-panel > .verification-error-reference {
-  margin: 0 0 12px;
+  margin: -8px 0 16px;
+  color: var(--faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 12px;
   overflow-wrap: anywhere;
+}
+.recovery-panel > .ticket-button {
+  min-width: 200px;
 }
 .account-page .button-spinner,
 .recovery-page .button-spinner {
@@ -626,75 +732,27 @@
   border-radius: 50%;
   animation: orbit 700ms linear infinite;
 }
-/*
- * v1 切角票券按钮 → v2 胶囊。
- * global.css:753-798 定义了 .ticket-button / .ticket-button-secondary / .danger-button，
- * styles/** 不在本次改动范围内，所以这里用功能域前缀提高优先级做局部覆盖。
- */
-.account-page .ticket-button,
-.stats-page .ticket-button,
-.recovery-page .ticket-button,
-.email-verification-page .ticket-button {
-  border: 0;
-  border-radius: 999px;
-  background: var(--cta);
-  color: var(--cta-ink);
-  box-shadow: 0 10px 26px rgb(242 205 122 / 16%);
-  clip-path: none;
-}
-.account-page .ticket-button-secondary,
-.stats-page .ticket-button-secondary,
-.recovery-page .ticket-button-secondary,
-.email-verification-page .ticket-button-secondary,
-.account-page .danger-button {
-  border-radius: 999px;
-  clip-path: none;
-}
-.account-page .ticket-button-secondary,
-.stats-page .ticket-button-secondary,
-.recovery-page .ticket-button-secondary,
-.email-verification-page .ticket-button-secondary {
-  border: 1px solid var(--line-2);
-  background: rgb(255 255 255 / 4%);
-  color: var(--ink);
-}
-/* v2：去掉 v1 小标题左侧的引线装饰 */
-.account-page .eyebrow::before,
-.stats-page .eyebrow::before,
-.recovery-page .eyebrow::before,
-.legal-page .eyebrow::before {
-  content: none;
-}
-.account-page .eyebrow,
-.stats-page .eyebrow,
-.recovery-page .eyebrow,
-.legal-page .eyebrow {
-  letter-spacing: 0.1em;
-}
-@media (max-width: 850px) {
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
   .auth-layout {
     grid-template-columns: 1fr;
-    min-height: auto;
+    align-items: start;
   }
-  .auth-intro {
-    padding-top: 20px;
-  }
-  .account-metrics,
-  .stats-metrics {
-    grid-template-columns: repeat(2, 1fr);
+  .auth-panel {
+    width: min(100%, 520px);
   }
   .profile-banner {
     grid-template-columns: auto 1fr;
-  }
-  .profile-banner button {
-    grid-column: 1 / -1;
-    width: auto;
   }
   .profile-actions {
     grid-column: 1 / -1;
   }
   .profile-settings {
     grid-template-columns: 1fr;
+  }
+  .profile-settings button {
+    width: 100%;
   }
   .daily-stats-grid {
     grid-template-columns: 1fr;
@@ -703,82 +761,160 @@
     border-top: 1px solid var(--line);
     border-left: 0;
   }
-  .profile-settings button {
-    width: 100%;
+  .achievements-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .danger-zone {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .danger-zone button {
-    margin: 0;
-  }
+  .danger-zone,
   .email-verification-notice {
     align-items: flex-start;
     flex-direction: column;
   }
+  .danger-zone button,
   .email-verification-notice button {
-    width: 100%;
     margin: 0;
   }
 }
-@media (max-width: 520px) {
-  .auth-layout {
-    gap: 42px;
-  }
-  .account-metrics,
+@media (max-width: 760px) {
   .stats-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .stats-metrics > div {
+    padding: 14px 14px 16px;
+  }
+  .stats-metrics strong {
+    font-size: 26px;
+  }
+  .achievements-list {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .auth-tabs {
+    margin: 16px 16px 0;
+  }
+  .auth-form {
+    padding: 20px 16px 22px;
+  }
+  .auth-panel > .auth-error {
+    margin: 0 16px 16px;
+  }
+  .account-metrics {
     grid-template-columns: 1fr;
   }
   .profile-avatar {
     width: 64px;
     height: 64px;
-    border-radius: var(--r-tile);
+    border-radius: 18px;
   }
   .profile-banner {
     gap: 14px;
   }
+  .achievements-section > header,
+  .daily-stats-section > header,
   .history-section > header {
     align-items: flex-start;
     flex-direction: column;
     justify-content: center;
+    padding: 12px 16px;
   }
-  .daily-stats-section > header {
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
+  .achievements-list,
+  .stats-section-empty {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+  .guess-distribution,
+  .daily-history {
+    padding: 18px 16px 20px;
   }
   .distribution-chart {
     gap: 5px;
   }
   .history-list a {
     grid-template-columns: auto 1fr auto;
+    padding: 10px 16px;
   }
   .history-list i {
     display: none;
   }
+  .legal-page section h2 {
+    font-size: 19px;
+  }
+  .legal-page section p {
+    font-size: 15px;
+  }
 }
-/* 减少动态效果：关掉本次新增的过渡与既有的加载旋转（全局已把过渡时长压到 0） */
+/* 减少动态效果 */
 @media (prefers-reduced-motion: reduce) {
   .auth-tabs button,
-  .account-page .ticket-button,
-  .stats-page .ticket-button,
-  .recovery-page .ticket-button,
-  .email-verification-page .ticket-button {
+  .auth-form input,
+  .profile-settings input,
+  .guest-stats-link,
+  .history-list a {
     transition: none;
   }
 }
-:root[data-motion="reduced"] .auth-tabs button {
-  transition: none;
-}
-:root[data-motion="reduced"] .account-page .ticket-button,
-:root[data-motion="reduced"] .stats-page .ticket-button,
-:root[data-motion="reduced"] .recovery-page .ticket-button,
-:root[data-motion="reduced"] .email-verification-page .ticket-button {
+:root[data-motion="reduced"] .auth-tabs button,
+:root[data-motion="reduced"] .auth-form input,
+:root[data-motion="reduced"] .profile-settings input,
+:root[data-motion="reduced"] .guest-stats-link,
+:root[data-motion="reduced"] .history-list a {
   transition: none;
 }
 :root[data-motion="reduced"] .account-page .button-spinner,
 :root[data-motion="reduced"] .recovery-page .button-spinner {
   animation: none;
+}
+
+/* 「我的」页快捷入口：语言 / 战绩 / 反馈 / 源码 / 安装应用 */
+.account-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  grid-column: 1 / -1;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.account-shortcuts-lang {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-shortcuts-lang .label {
+  margin-right: 6px;
+}
+
+.account-shortcuts-lang button {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-shortcuts-lang button.on {
+  border-color: transparent;
+  background: var(--ink);
+  color: #000;
+}
+
+.account-shortcuts-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.account-shortcuts-links .github-mark {
+  width: 16px;
+  height: 16px;
 }

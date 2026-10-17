@@ -1,47 +1,57 @@
 /*
  * 总站（docs/design/redesign-v2/README.md §3、§6）。
+ * 数值逐条对齐原型 docs/design/redesign-v2/prototype.html 的 hub 段（第 296–486 行）
+ * 与移动端覆盖（第 1513–1580 行）；令牌全部取自 styles/tokens.css。
  * 首屏只有品牌粒子字 + 今天猜谁 + 统计与 CTA；首屏之下依次是开一局 / 换个玩法 / 本周。
- * 全部使用 v2 令牌；状态不靠颜色单一表达（周历有数字、卡片有文案徽章）。
+ * 状态不靠颜色单一表达（周历有数字、卡片有文案徽章）。
  */
 
 .hub-page {
-  display: grid;
-  gap: clamp(48px, 7vh, 88px);
-  padding-bottom: clamp(48px, 8vh, 96px);
+  display: block;
+}
+
+/* 原型 .wrap：min(1240px, 100% - 64px) */
+.hub-wrap {
+  width: min(calc(100% - 64px), var(--content));
+  margin-inline: auto;
 }
 
 /* ── 首屏 ───────────────────────────────────────────────── */
 
+/* 原型 .hero：min-height 100svh / grid-template-rows 1fr auto / padding-top 68。
+   header 是 sticky（自身占 68px 文档流），所以这里减掉它，视觉上正好铺满一屏。 */
 .hub-hero {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-  align-items: end;
-  align-content: end;
-  gap: 28px 56px;
-  width: min(calc(100% - 40px), var(--content));
-  min-height: calc(100vh - 72px);
-  min-height: calc(100svh - 72px);
-  margin: 0 auto;
-  padding-bottom: clamp(32px, 7vh, 76px);
+  grid-template-rows: 1fr auto;
+  min-height: calc(100svh - 68px);
 }
 
-.hub-hero-copy {
+/* 原型 .hero-mark：给粒子字预留 min(1080px, 88vw) × clamp(170px, 31vh, 330px) 的舞台。 */
+.hub-hero-mark {
   display: grid;
-  gap: 18px;
-  justify-items: start;
+  place-items: center;
+  align-self: center;
+  justify-self: center;
+  width: min(1080px, 88vw);
+  height: clamp(170px, 31vh, 330px);
+  margin-top: -4vh;
 }
 
-/* 品牌字的 DOM 兜底：WebGL 不可用（?nogl）或减少动效时，粒子字不存在，
-   这里用同样巨大的粗无衬线文字顶上，保证首屏的视觉重心不塌。 */
+/* 品牌字的 DOM 兜底（原型 .mark-fallback）：WebGL 不可用或减少动效时粒子字不存在，
+   这里用同样巨大的金色渐变文字顶上，保证首屏的视觉重心不塌。
+   字号用 min(26vh, 18vw) 收口，避免 375 宽时「萤一把」三个字横向溢出。 */
 .hub-hero-brand {
   display: none;
-  margin: 0 0 16px;
-  font-size: clamp(3.4rem, 13vw, 9.5rem);
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-  text-shadow: 0 0 80px color-mix(in srgb, var(--lit) 32%, transparent);
+  font-size: clamp(72px, min(26vh, 18vw), 290px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: transparent;
+  background: linear-gradient(180deg, #fffaf0, var(--lit));
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: drop-shadow(0 0 30px rgb(242 205 122 / 30%));
 }
 
 :root[data-gl="off"] .hub-hero-brand,
@@ -49,129 +59,233 @@
   display: block;
 }
 
+/* 原型 .hero-foot：grid 1fr auto / align-items end / gap 40 / padding-bottom 72 */
+.hub-hero-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 40px;
+  width: min(calc(100% - 64px), var(--content));
+  margin-inline: auto;
+  padding-bottom: 72px;
+}
+
+.hub-hero-copy {
+  display: grid;
+  gap: 14px;
+  justify-items: stretch;
+}
+
 .hub-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 15px;
-  border: 1px solid var(--line);
+  justify-self: start;
+  gap: 7px;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
   border-radius: 999px;
-  background: var(--panel);
-  color: var(--muted);
-  font-size: 0.82rem;
+  background: rgb(242 205 122 / 12%);
+  color: var(--lit);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .hub-badge i {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--lit);
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
 }
 
+.hub-badge-sep {
+  margin: 0 5px;
+  opacity: 0.6;
+}
+
+/* 原型 .hero-copy h1：clamp(44px, 6vw, 84px) / 900 / line-height 1 / -0.03em */
 .hub-hero h1 {
-  margin: 0;
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  margin: 4px 0 0;
+  white-space: nowrap;
+  font-size: clamp(44px, 6vw, 84px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
+/* 原型 .hero-copy p：17px / line-height 1.7 / --muted */
 .hub-hero-intro {
-  max-width: 44ch;
+  max-width: 46ch;
   margin: 0;
   color: var(--muted);
-  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.7;
   text-wrap: pretty;
 }
 
 .hub-hero-intro .num {
-  color: var(--lit);
+  color: var(--ink);
   font-weight: 700;
 }
 
-.hub-hero-side {
+/* 原型 .hero-act：justify-items end —— 昨日条与 CTA 都贴合内容宽度，不被拉满 */
+.hub-hero-act {
   display: grid;
-  gap: 20px;
-  justify-items: stretch;
+  justify-items: end;
+  gap: 22px;
 }
 
+/* 原型 .hero-stats：flex gap 30；每格 label 12px + 数字 26px/700 */
 .hub-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  gap: 30px;
   margin: 0;
+}
+
+.hub-metrics > div {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
 }
 
 .hub-metrics dt {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .hub-metrics dd {
-  margin: 4px 0 0;
-  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  margin: 0;
+  font-size: 26px;
   font-weight: 700;
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
 
+/* 原型 .yday：padding 6px 16px 6px 6px / 头像 34px 圆角 10 / 13px */
 .hub-yesterday {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 8px 12px;
   margin: 0;
-  padding: 10px 18px;
+  padding: 6px 16px 6px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--panel);
-  font-size: 0.88rem;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
-.hub-yesterday-label {
+.hub-yesterday small {
+  margin-right: 6px;
   color: var(--muted);
+  font-size: inherit;
 }
 
-.hub-yesterday strong {
+.hub-yesterday b {
   color: var(--ink);
 }
 
-.hub-yesterday > span:not(.hub-yesterday-label) {
+.hub-yesterday em {
   color: var(--muted);
+  font-style: normal;
 }
 
+/* 原型 #headline 逐字：.ch 裁切 + 内层 yPercent 110 → 0（0.9s power3.out，stagger 0.05s） */
+.hub-headline .ch {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  vertical-align: top;
+}
+
+.hub-headline .ch > span {
+  display: inline-block;
+  animation: hub-ch-rise 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.05s);
+}
+
+/* 原型 #view-hub .intro：opacity 0 / y 18 → 0.7s power3.out，时间轴 0.2s 起，stagger 0.07s */
+.hub-page .intro {
+  animation: hub-intro-in 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  animation-delay: calc(0.2s + var(--i, 0) * 0.07s);
+}
+
+@keyframes hub-ch-rise {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes hub-intro-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-headline .ch > span,
+  .hub-page .intro {
+    animation: none;
+  }
+}
+
+:root[data-motion="reduced"] .hub-headline .ch > span,
+:root[data-motion="reduced"] .hub-page .intro {
+  animation: none;
+}
+
+/* 原型 .btn.btn-lit：高 58 / padding 0 30 / 17px 700 / 奶油金渐变 + blur(18px) 外发光 */
 .hub-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  height: 58px;
+  padding: 0 30px;
   gap: 10px;
-  padding: 16px 26px;
-  border-radius: 999px;
-  background: var(--cta);
-  color: var(--cta-ink);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 17px;
   text-decoration: none;
-  transition:
-    transform 180ms var(--ease),
-    filter 180ms var(--ease);
 }
 
-.hub-cta:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
+/* 原型 .scroll-cue：绝对定位在首屏底部居中，字距 .2em 的 --faint 小字 + 一条竖线 */
+.hub-scroll-cue {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  transform: translateX(-50%);
+}
+
+.hub-scroll-cue i {
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(to bottom, var(--faint), transparent);
 }
 
 /* ── 首屏之下的三个区块 ─────────────────────────────────── */
 
+/* 原型 .sect：padding 56px 0 8px */
 .hub-block {
   display: grid;
   gap: 22px;
-  width: min(calc(100% - 40px), var(--content));
+  width: min(calc(100% - 64px), var(--content));
   margin: 0 auto;
+  padding: 56px 0 8px;
 }
 
+/* 原型 .sect-head：baseline 对齐，标题 28px/900 */
 .hub-block-head {
   display: flex;
   align-items: baseline;
@@ -181,8 +295,8 @@
 
 .hub-block-head h2 {
   margin: 0;
-  font-size: clamp(1.3rem, 2vw, 1.7rem);
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 900;
   letter-spacing: -0.01em;
 }
 
@@ -194,6 +308,7 @@
 
 /* ── 开一局 ─────────────────────────────────────────────── */
 
+/* 原型 .cards：4 列 / gap 16 */
 .mode-board-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -205,16 +320,28 @@
   display: grid;
 }
 
+/* 原型 .card：grid areas "chip ill" / "title ill" / "desc desc" / "foot foot"，
+   min-height 300 / padding 24 / radius 26 / 金色径向 wash + --panel。 */
 .mode-board {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px 14px;
-  padding: 22px;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas:
+    "chip ill"
+    "title ill"
+    "desc desc"
+    "foot foot";
+  column-gap: 8px;
+  min-height: 300px;
+  padding: 24px;
   border: 1px solid var(--line);
   border-radius: var(--r-card);
-  background: var(--panel);
+  background:
+    radial-gradient(420px circle at 50% 50%, rgb(242 205 122 / 9%), transparent 45%), var(--panel);
   color: var(--ink);
   text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
   transition:
     border-color 200ms var(--ease),
     transform 200ms var(--ease);
@@ -225,143 +352,197 @@
   transform: translateY(-2px);
 }
 
+/* 原型 .chip：高 28 / 12.5px 700 / rgb(255 255 255/6%) 底 */
 .mode-board-badge {
-  grid-area: 1 / 1;
+  grid-area: chip;
   justify-self: start;
-  padding: 5px 12px;
-  border: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
   border-radius: 999px;
-  background: var(--surface-soft);
+  background: rgb(255 255 255 / 6%);
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 12.5px;
+  font-weight: 700;
 }
 
+/* 原型 .card .ill：118px 方形自绘插画，右上角负外边距出血，--ink 色、85% 不透明 */
 .mode-board-art {
-  grid-area: 1 / 2 / span 2 / span 1;
+  grid-area: ill;
   align-self: start;
-  width: 72px;
-  color: var(--lit);
-  opacity: 0.92;
+  width: 118px;
+  aspect-ratio: 1;
+  margin: -10px -10px 0 0;
+  color: var(--ink);
+  opacity: 0.85;
+  pointer-events: none;
+  transition:
+    transform 700ms var(--ease),
+    opacity 400ms var(--ease);
+}
+
+.mode-board:hover .mode-board-art {
+  transform: translate(-6px, -6px) scale(1.04);
+  opacity: 1;
 }
 
 .mode-board-art svg {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
 
+/* 原型 .card h3：margin 16px 0 8px / 30px 900 */
 .mode-board-title {
-  grid-area: 2 / 1;
-  align-self: end;
-  font-size: clamp(1.25rem, 1.8vw, 1.6rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  grid-area: title;
+  margin: 16px 0 8px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
+/* 原型 .card p：14px / line-height 1.6 / max-width 15em / margin-top 10px */
 .mode-board-description {
-  grid-area: 3 / 1 / span 1 / span 2;
+  grid-area: desc;
+  margin-top: 10px;
+  max-width: 15em;
   color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 原型 .card-foot：metric 与圆形箭头两端对齐 */
+.mode-board-foot {
+  grid-area: foot;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .mode-board-metric {
-  grid-area: 4 / 1;
-  align-self: end;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 13px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
+/* 原型 .go：44px 圆钮 / 1px --line-2 / rgb(4 6 10 / 50%) 底 */
 .mode-board-go,
 .hub-secondary-go {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
   border: 1px solid var(--line-2);
   border-radius: 50%;
+  background: rgb(4 6 10 / 50%);
   color: var(--ink);
 }
 
-.mode-board-go {
-  grid-area: 4 / 2;
-  justify-self: end;
-}
-
+/* 原型 .lives i：10 × 22 / 圆角 4 / --lit + 金光 */
 .hub-lives {
   display: inline-flex;
   gap: 5px;
 }
 
 .hub-lives i {
-  width: 9px;
-  height: 20px;
-  border-radius: 3px;
-  background: var(--cta);
+  width: 10px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--lit);
+  box-shadow: 0 0 10px rgb(242 205 122 / 45%);
+}
+
+.hub-lives i.is-off {
+  background: rgb(255 255 255 / 9%);
+  box-shadow: none;
 }
 
 /* ── 换个玩法 ───────────────────────────────────────────── */
 
+/* 原型 .more：3 列 / gap 16 */
 .hub-secondary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
+/* 原型 .more a：flex / gap 14 / padding 14 / radius 20 */
 .hub-secondary-link {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 2px 14px;
-  padding: 16px 18px;
+  gap: 14px;
+  padding: 14px;
   border: 1px solid var(--line);
-  border-radius: var(--r-card);
+  border-radius: 20px;
   background: var(--panel);
   color: var(--ink);
   text-decoration: none;
-  transition: border-color 200ms var(--ease);
+  transition:
+    border-color 200ms var(--ease),
+    background 200ms var(--ease);
 }
 
 .hub-secondary-link:hover {
   border-color: var(--line-2);
+  background: var(--panel-2);
 }
 
+/* 原型 .more img：48px 圆角 14 */
 .hub-secondary-icon {
-  grid-area: 1 / 1 / span 2 / span 1;
   display: grid;
+  flex: 0 0 auto;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--lit);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
 }
 
 .hub-secondary-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 40px;
+  height: 40px;
+}
+
+.hub-secondary-link:hover .hub-secondary-icon {
+  border-color: rgb(242 205 122 / 35%);
+}
+
+.hub-secondary-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .hub-secondary-link strong {
-  grid-area: 1 / 2;
-  font-size: 1rem;
+  display: block;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .hub-secondary-detail {
-  grid-area: 2 / 2;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 13px;
 }
 
+/* 原型 .more .go：36px 并靠右 */
 .hub-secondary-go {
-  grid-area: 1 / 3 / span 2 / span 1;
-  justify-self: end;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
 }
 
 /* ── 本周 ───────────────────────────────────────────────── */
 
+/* 原型 .week：7 列 / gap 10 */
 .hub-week {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -371,30 +552,44 @@
   list-style: none;
 }
 
+/* 原型 .day：padding 14 / radius 18 */
 .hub-week-day {
   display: grid;
-  gap: 10px;
-  justify-items: start;
+  gap: 0;
   padding: 14px;
   border: 1px solid var(--line);
-  border-radius: var(--r-tile);
+  border-radius: 18px;
   background: var(--panel);
 }
 
 .hub-week-day.is-today {
-  border-color: color-mix(in srgb, var(--lit) 45%, transparent);
+  border-color: rgb(242 205 122 / 40%);
 }
 
-.hub-week-name {
+/* 原型 .day .lb：两端对齐的 12px 灰字 */
+.hub-week-labels {
+  display: flex;
+  justify-content: space-between;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 12px;
+  font-weight: 600;
 }
 
+/* 原型 .day .res：margin 10px 0 12px / 22px 700 / --lit */
 .hub-week-day strong {
-  font-size: 1.3rem;
+  display: block;
+  margin: 10px 0 12px;
+  color: var(--lit);
+  font-size: 22px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
+.hub-week-day.is-lost strong {
+  color: var(--faint);
+}
+
+/* 原型 .day .bar i：高 5 / 圆角 3 / 空位 rgb(255 255 255/8%) */
 .hub-week-bars {
   display: flex;
   gap: 3px;
@@ -403,40 +598,13 @@
 
 .hub-week-bars i {
   flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--ink) 12%, transparent);
+  height: 5px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 8%);
 }
 
 .hub-week-bars i.is-on {
-  background: var(--cta);
-}
-
-/* ── 站点状态 ───────────────────────────────────────────── */
-
-.station-status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 32px;
-  width: min(calc(100% - 40px), var(--content));
-  margin: 0 auto;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.station-status > div {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.station-status strong {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.station-status .status-online strong {
-  color: var(--lit);
+  background: var(--lit);
 }
 
 /* ── 状态与降级 ─────────────────────────────────────────── */
@@ -447,55 +615,108 @@
   pointer-events: none;
 }
 
-:root[data-gl="off"] .hub-hero {
-  /* 没有 WebGL 时 hero 只剩文案，收紧留白。 */
-  min-height: auto;
-  padding-top: clamp(40px, 9vh, 96px);
-}
+/* ── 响应式 ─────────────────────────────────────────────── */
 
-@media (max-width: 1180px) {
-  .mode-board-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* 三列并排收窄后标题与箭头会挤在一起，退回通栏一行。 */
-  .hub-secondary-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
+/* 原型移动端覆盖（prototype.html 第 1495 行起，断点 760px） */
+@media (max-width: 760px) {
   .hub-hero {
+    min-height: calc(100svh - 58px);
+  }
+
+  .hub-hero-mark {
+    width: 92vw;
+    height: 24vh;
+    margin-top: 0;
+  }
+
+  /* 原型移动端 .mark-fallback：22vw */
+  .hub-hero-brand {
+    font-size: 22vw;
+  }
+
+  .hub-hero-foot {
     grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
+    gap: 26px;
+    padding-bottom: 96px;
   }
 
-  .hub-hero-side {
-    gap: 16px;
+  .hub-hero-act {
+    justify-items: stretch;
   }
 
-  .hub-week {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(112px, 1fr);
-    grid-template-columns: none;
-    overflow-x: auto;
-    padding-bottom: 4px;
+  .hub-cta {
+    width: 100%;
   }
-}
 
-@media (max-width: 640px) {
+  .hub-metrics {
+    justify-content: space-between;
+  }
+
+  .hub-metrics > div {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .hub-yesterday {
+    justify-self: start;
+  }
+
+  .hub-scroll-cue {
+    display: none;
+  }
+
   .mode-board-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* 原型 .card 移动端：min-height 210 / padding 16 / radius 22 */
+  .mode-board {
+    min-height: 210px;
+    padding: 16px;
+    border-radius: 22px;
+    grid-template-areas:
+      "chip chip"
+      "title ill"
+      "desc desc"
+      "foot foot";
+  }
+
+  .mode-board-title {
+    margin-top: 10px;
+    font-size: 21px;
+  }
+
+  .mode-board-description {
+    font-size: 12.5px;
   }
 
   .mode-board-art {
-    width: 60px;
+    align-self: end;
+    width: 56px;
+    margin: 0 -6px -6px 0;
   }
 
-  .hub-block-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+  .hub-secondary-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .hub-week {
+    gap: 5px;
+  }
+
+  .hub-week-day {
+    padding: 8px 6px;
+    border-radius: 12px;
+  }
+
+  .hub-week-day strong {
+    font-size: 15px;
+  }
+
+  .hub-week-labels span + span {
+    display: none;
   }
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { StarFieldHandle, StarFieldIntensity } from "./starfield-scene";
-import { registerFxScene } from "./fx";
+import { fxSceneHost, registerFxScene } from "./fx";
 import { qualityFlags } from "../components/quality-flags";
 
 interface StarFieldProps {
@@ -10,18 +10,14 @@ interface StarFieldProps {
 function shouldRun(): boolean {
   if (qualityFlags().noGl) return false;
   const root = document.documentElement;
-  return (
-    root.dataset.theme !== "light" &&
-    root.dataset.motion !== "reduced" &&
-    root.dataset.motionPaused !== "true"
-  );
+  return root.dataset.motion !== "reduced" && root.dataset.motionPaused !== "true";
 }
 
 /**
  * 全站固定的星空画布。three 通过动态 import 在空闲时加载，不进入首屏包；
  * WebGL 不可用（`?nogl`、初始化失败）时保留 CSS 星云渐变兜底。
  *
- * 场景创建后注册进 fx 单例，页面通过 `fx.setText / fx.setPortrait / fx.burst / fx.warp`
+ * 场景创建后注册进 fx 单例，页面通过 `fx.setText / fx.setPortrait / fx.burst / fx.tween`
  * 驱动它，组件本身不认识任何业务。
  */
 export function StarField({ intensity }: StarFieldProps) {
@@ -40,7 +36,7 @@ export function StarField({ intensity }: StarFieldProps) {
       void import("./starfield-scene")
         .then(({ createStarField }) => {
           if (cancelled) return;
-          const handle = createStarField(canvas);
+          const handle = createStarField(canvas, fxSceneHost);
           if (!handle) return;
           handleRef.current = handle;
           handle.setIntensity(intensityRef.current);
@@ -55,7 +51,7 @@ export function StarField({ intensity }: StarFieldProps) {
           });
           observer.observe(document.documentElement, {
             attributes: true,
-            attributeFilter: ["data-theme", "data-motion", "data-motion-paused"],
+            attributeFilter: ["data-motion", "data-motion-paused"],
           });
         })
         .catch(() => undefined);

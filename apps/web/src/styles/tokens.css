@@ -54,44 +54,13 @@
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: var(--r-card);
-  --content: 1440px;
+  /* 原型 .wrap = min(1240px, 100% - 64px)，全站容器宽度以它为准。 */
+  --content: 1240px;
   --reading: 1180px;
   --motion-fast: 140ms;
   --motion-page: 260ms;
   --motion-signal: 3.4s;
   --motion-ease: var(--ease);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --canvas: #f4f1e8;
-  --canvas-deep: #e9e4d8;
-  --surface: #fffdf7;
-  --surface-raised: #fff;
-  --surface-soft: #f0ede5;
-  --text: #182433;
-  --text-muted: #637080;
-  --text-faint: #8993a0;
-  --gold: #94702e;
-  --gold-bright: #76571e;
-  --cyan: #137d92;
-  --exact: #c9962c;
-  --close: #6d55d8;
-  --miss: #d9dde2;
-  --bg: #f4f1e8;
-  --ink: #182433;
-  --muted: #637080;
-  --faint: #8993a0;
-  --line: rgb(40 50 90 / 12%);
-  --line-2: rgb(40 50 90 / 22%);
-  --panel: rgb(255 253 247 / 86%);
-  --panel-2: #fffdf7;
-  --lit: #c9962c;
-  --near: #6d55d8;
-  --danger: #b73f48;
-  --border: rgb(94 70 24 / 20%);
-  --border-strong: rgb(94 70 24 / 40%);
-  --shadow: 0 22px 58px rgb(65 50 26 / 13%);
 }
 
 /* 命途奖励主题只替换站点强调色，判题颜色保持固定。 */

@@ -3,6 +3,7 @@ import "./account.css";
 
 const copy = {
   "zh-CN": {
+    label: "项目说明 · 隐私",
     title: "规则、隐私与权利说明",
     unofficialTitle: "非官方、非商业",
     unofficial:
@@ -17,6 +18,7 @@ const copy = {
       "如你是权利人并希望移除素材，请联系 takedown@fireflydle.games，并提供相关权利和素材信息。",
   },
   en: {
+    label: "Project notice · Privacy",
     title: "Rules, privacy, and rights",
     unofficialTitle: "Unofficial and non-commercial",
     unofficial:
@@ -31,6 +33,7 @@ const copy = {
       "Rights holders may request asset removal at takedown@fireflydle.games with the relevant rights and asset details.",
   },
   ja: {
+    label: "プロジェクト告知・プライバシー",
     title: "ルール・プライバシー・権利について",
     unofficialTitle: "非公式・非営利",
     unofficial:
@@ -51,7 +54,7 @@ export default function LegalPage() {
   const text = copy[locale];
   return (
     <main className="page-shell legal-page">
-      <p className="eyebrow">PROJECT NOTICE · PRIVACY</p>
+      <p className="eyebrow">{text.label}</p>
       <h1>{text.title}</h1>
       <section>
         <h2>{text.unofficialTitle}</h2>

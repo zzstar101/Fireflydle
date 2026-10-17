@@ -6,8 +6,9 @@ export default function NotFoundPage() {
   const locale = usePreferences((state) => state.language);
   return (
     <main className="center-page">
-      <div className="error-code">404</div>
-      <p className="eyebrow">404 · PAGE NOT FOUND</p>
+      <div className="error-code" aria-hidden="true">
+        404
+      </div>
       <h1>
         {locale === "zh-CN"
           ? "页面找不到了"

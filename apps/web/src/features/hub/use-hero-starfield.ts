@@ -1,52 +1,86 @@
-import { useEffect } from "react";
+import { useEffect, type RefObject } from "react";
 import { qualityFlags } from "../../components/quality-flags";
 import { fx } from "../../fx/fx";
 
 export interface HeroStarfieldOptions {
+  /** 粒子字落位的元素（原型 #heroMark）。 */
+  markRef: RefObject<HTMLElement | null>;
+  /** 驱动"向下滚动 → 字形散开"进度的 hero 区块（原型 #hero）。 */
+  heroRef: RefObject<HTMLElement | null>;
   /** 要聚成粒子字的文案，通常是品牌名。 */
   text: string;
-  /** 关掉时完全不驱动场景（例如还没拿到文案）。 */
-  enabled?: boolean;
 }
 
-/** 向下滚动视口高度的多少倍，字形就完全散回星空。 */
-const SCATTER_SPAN_RATIO = 0.75;
-/** 字块中心略高于中线，给下方的标题和 CTA 留位置。 */
-const HERO_CENTER_Y = 0.24;
-const HERO_WIDTH = 0.92;
-
 /**
- * 总站 hero 的粒子字：进入时星点汇聚成文字，向下滚动时散回星空。
+ * 总站 hero 的粒子字 —— 对应原型 boot / showHub / ScrollTrigger / go("game")：
  *
- * 只读滚动位置，不劫持滚动；每帧最多更新一次聚合进度 uniform。
- * 场景没就绪（还在懒加载、WebGL 不可用、减少动效）时 fx 会把期望状态记下来，
- * 就绪后一次性回放，所以这里的调用顺序不需要额外同步。
+ * - 进入：mode = hub，形态跟随 window 滚动，背景提亮（dim/rail → 1），
+ *   setText(#heroMark) 后 morph 0 → 1（首次加载 2.6s，回到总站 2.2s）；
+ * - 滚动：hero 顶部到底部之间，disperse = 进度（scrub 0.6）；
+ * - 离开：粒子吸散（scatter 1）+ 跃迁（warp 1 → 0），背景压暗到对局态（dim .45 / rail .25）。
  */
-export function useHeroStarfield({ text, enabled = true }: HeroStarfieldOptions): void {
+export function useHeroStarfield({ markRef, heroRef, text }: HeroStarfieldOptions): void {
   useEffect(() => {
-    if (!enabled || !text || qualityFlags().noGl) return;
+    const mark = markRef.current;
+    if (!mark || !text || qualityFlags().noGl) return;
 
-    fx.setText(text, { centerY: HERO_CENTER_Y, width: HERO_WIDTH });
+    const booting = !fx.ready();
+    fx.setMode("hub");
+    fx.setScroller(() => window.scrollY);
+    fx.set({ scatter: 0, disperse: 0, shapeAlpha: 1, morph: 0 });
+    if (booting) fx.set({ dim: 1, warm: 0, rail: 1, warp: 0 });
+    else fx.tween({ dim: 1, warm: 0, rail: 1, warp: 0 }, { duration: 1 });
 
-    let ticking = false;
+    fx.setText(mark, text);
+    let cancelMorph: (() => void) | null = null;
+    const cancelReady = fx.whenReady(() => {
+      cancelMorph = fx.tween(
+        { morph: 1 },
+        booting
+          ? { duration: 2.6, ease: "power2.inOut", delay: 0.1 }
+          : { duration: 2.2, ease: "power2.inOut" },
+      );
+    });
+
+    // 原型：ScrollTrigger { trigger: #hero, start: "top top", end: "bottom top", scrub: 0.6 }
+    let raf = 0;
     const sync = () => {
-      ticking = false;
-      const span = Math.max(1, window.innerHeight * SCATTER_SPAN_RATIO);
-      const progress = Math.min(1, Math.max(0, window.scrollY / span));
-      fx.setTextMorph(1 - progress);
+      raf = 0;
+      const hero = heroRef.current;
+      if (!hero || fx.getMode() !== "hub") return;
+      const span = Math.max(1, hero.offsetHeight);
+      const top = hero.getBoundingClientRect().top + window.scrollY;
+      const progress = Math.min(1, Math.max(0, (window.scrollY - top) / span));
+      fx.tween({ disperse: progress }, { duration: 0.6, ease: "power3.out" });
     };
     const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(sync);
+      if (!raf) raf = window.requestAnimationFrame(sync);
     };
-
-    // 首帧就把目标值设成当前滚动位置：初始聚合进度是 0，于是顶点着色器自己补上汇聚动画。
     sync();
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => {
       window.removeEventListener("scroll", onScroll);
-      fx.setText(null);
+      if (raf) window.cancelAnimationFrame(raf);
+      cancelReady();
+      cancelMorph?.();
+      if (!fx.ownsShape(mark)) return;
+      // 原型 go("game")：粒子吸散 + 跃迁，然后切到对局态
+      fx.tween({ scatter: 1 }, { duration: 0.7, ease: "power2.in" });
+      fx.tween(
+        { warp: 1 },
+        {
+          duration: 0.6,
+          ease: "power2.in",
+          delay: 0.05,
+          onComplete: () => {
+            if (fx.clearShape(mark)) fx.set({ morph: 0, scatter: 0, disperse: 0 });
+            else fx.set({ scatter: 0, disperse: 0 });
+            fx.tween({ warp: 0 }, { duration: 1, ease: "power3.out" });
+          },
+        },
+      );
+      fx.tween({ dim: 0.45, rail: 0.25 }, { duration: 1.2 });
     };
-  }, [text, enabled]);
+  }, [markRef, heroRef, text]);
 }

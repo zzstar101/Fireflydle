@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Paperclip, Send } from "lucide-react";
+import { CheckCircle2, LockKeyhole, Paperclip, Send } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../../api/client";
@@ -112,120 +112,140 @@ export default function FeedbackPage() {
         }
       />
       {!registered ? (
-        <div className="feedback-login-note">
+        <p className="feedback-login-note">
+          <LockKeyhole size={14} aria-hidden="true" />
           {locale === "zh-CN"
             ? "反馈需要注册账号，避免重复和匿名滥用。"
             : "Please sign in with a registered account to send feedback."}
-        </div>
+        </p>
       ) : null}
-      <form
-        className="feedback-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (registered) submit.mutate();
-        }}
-      >
-        <label>
-          {locale === "zh-CN" ? "分类" : "Category"}
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value as typeof category)}
-          >
-            <option value="bug">Bug</option>
-            <option value="suggestion">{locale === "zh-CN" ? "功能建议" : "Suggestion"}</option>
-            <option value="data">{locale === "zh-CN" ? "数据纠错" : "Data correction"}</option>
-          </select>
-        </label>
-        <label>
-          {locale === "zh-CN" ? "标题" : "Title"}
-          <input
-            required
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            maxLength={160}
-          />
-        </label>
-        <label>
-          {locale === "zh-CN" ? "描述" : "Description"}
-          <textarea
-            required
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            rows={6}
-            maxLength={20000}
-          />
-        </label>
-        <label>
-          {locale === "zh-CN" ? "复现步骤 / 建议目标" : "Steps or desired outcome"}
-          <textarea
-            value={reproduction}
-            onChange={(event) => setReproduction(event.target.value)}
-            rows={4}
-          />
-        </label>
-        <label>
-          {locale === "zh-CN" ? "资料来源链接（可选）" : "Source link (optional)"}
-          <input
-            type="url"
-            value={sourceUrl}
-            onChange={(event) => setSourceUrl(event.target.value)}
-          />
-        </label>
-        <label>
-          {locale === "zh-CN" ? "联系邮箱（可选）" : "Contact email (optional)"}
-          <input
-            type="email"
-            value={contactEmail}
-            onChange={(event) => setContactEmail(event.target.value)}
-          />
-        </label>
-        <label className="feedback-file">
-          <span>
-            <Paperclip size={16} />
-            {locale === "zh-CN"
-              ? `截图（最多 5 张，单张 10MB，自动压缩）${attachments.length ? ` · 已选 ${attachments.length}` : ""}`
-              : `Screenshots (up to 5, 10MB each)${attachments.length ? ` · ${attachments.length} selected` : ""}`}
-          </span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(event) => void handleFiles(event.target.files)}
-          />
-        </label>
-        <button
-          className="feedback-submit"
-          type="submit"
-          disabled={!registered || submit.isPending}
+      <div className="feedback-layout">
+        <form
+          className="feedback-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (registered) submit.mutate();
+          }}
         >
-          <Send size={16} />
-          {locale === "zh-CN" ? "发送" : locale === "ja" ? "送信" : "Send"}
-        </button>
-      </form>
-      {sentId ? (
-        <div className="feedback-sent">
-          <CheckCircle2 size={18} />
-          {locale === "zh-CN" ? `已发送，编号 ${sentId}` : `Sent. Reference ${sentId}`}
-        </div>
-      ) : null}
-      <section className="feedback-history">
-        <h2>{locale === "zh-CN" ? "我的反馈" : "My feedback"}</h2>
-        {(feedback.data ?? []).map((item) => (
-          <div className="feedback-row" key={item.id}>
-            <strong>{item.title}</strong>
-            <span>{item.id}</span>
-            <em>
-              {item.status}
-              {item.resolvedReleaseTag ? ` · ${item.resolvedReleaseTag}` : ""}
-            </em>
-            {item.githubIssueUrl ? (
-              <a href={item.githubIssueUrl} target="_blank" rel="noreferrer">
-                <GitHubMark /> Issue #{item.githubIssueNumber}
-              </a>
-            ) : null}
+          <div className="feedback-form-row">
+            <label>
+              {locale === "zh-CN" ? "分类" : "Category"}
+              <select
+                value={category}
+                onChange={(event) => setCategory(event.target.value as typeof category)}
+              >
+                <option value="bug">Bug</option>
+                <option value="suggestion">{locale === "zh-CN" ? "功能建议" : "Suggestion"}</option>
+                <option value="data">{locale === "zh-CN" ? "数据纠错" : "Data correction"}</option>
+              </select>
+            </label>
+            <label>
+              {locale === "zh-CN" ? "标题" : "Title"}
+              <input
+                required
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                maxLength={160}
+              />
+            </label>
           </div>
-        ))}
-      </section>
+          <label>
+            {locale === "zh-CN" ? "描述" : "Description"}
+            <textarea
+              required
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={6}
+              maxLength={20000}
+            />
+          </label>
+          <label>
+            {locale === "zh-CN" ? "复现步骤 / 建议目标" : "Steps or desired outcome"}
+            <textarea
+              value={reproduction}
+              onChange={(event) => setReproduction(event.target.value)}
+              rows={4}
+            />
+          </label>
+          <div className="feedback-form-row">
+            <label>
+              {locale === "zh-CN" ? "资料来源链接（可选）" : "Source link (optional)"}
+              <input
+                type="url"
+                value={sourceUrl}
+                onChange={(event) => setSourceUrl(event.target.value)}
+              />
+            </label>
+            <label>
+              {locale === "zh-CN" ? "联系邮箱（可选）" : "Contact email (optional)"}
+              <input
+                type="email"
+                value={contactEmail}
+                onChange={(event) => setContactEmail(event.target.value)}
+              />
+            </label>
+          </div>
+          <label className="feedback-file">
+            <span>
+              <Paperclip size={16} />
+              {locale === "zh-CN"
+                ? `截图（最多 5 张，单张 10MB，自动压缩）${attachments.length ? ` · 已选 ${attachments.length}` : ""}`
+                : `Screenshots (up to 5, 10MB each)${attachments.length ? ` · ${attachments.length} selected` : ""}`}
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(event) => void handleFiles(event.target.files)}
+            />
+          </label>
+          <button
+            className="ticket-button feedback-submit"
+            type="submit"
+            disabled={!registered || submit.isPending}
+          >
+            <Send size={16} />
+            {locale === "zh-CN" ? "发送" : locale === "ja" ? "送信" : "Send"}
+          </button>
+        </form>
+        <aside className="feedback-side">
+          {sentId ? (
+            <div className="feedback-sent">
+              <CheckCircle2 size={18} />
+              {locale === "zh-CN" ? `已发送，编号 ${sentId}` : `Sent. Reference ${sentId}`}
+            </div>
+          ) : null}
+          <section className="feedback-history">
+            <h2>
+              {locale === "zh-CN" ? "我的反馈" : locale === "ja" ? "送信履歴" : "My feedback"}
+            </h2>
+            {!feedback.isLoading && (feedback.data ?? []).length === 0 ? (
+              <p className="feedback-empty">
+                {locale === "zh-CN"
+                  ? "还没有反馈记录。"
+                  : locale === "ja"
+                    ? "まだフィードバックはありません。"
+                    : "No feedback yet."}
+              </p>
+            ) : null}
+            {(feedback.data ?? []).map((item) => (
+              <div className="feedback-row" key={item.id}>
+                <strong>{item.title}</strong>
+                <span>{item.id}</span>
+                <em>
+                  {item.status}
+                  {item.resolvedReleaseTag ? ` · ${item.resolvedReleaseTag}` : ""}
+                </em>
+                {item.githubIssueUrl ? (
+                  <a href={item.githubIssueUrl} target="_blank" rel="noreferrer">
+                    <GitHubMark /> Issue #{item.githubIssueNumber}
+                  </a>
+                ) : null}
+              </div>
+            ))}
+          </section>
+        </aside>
+      </div>
     </main>
   );
 }

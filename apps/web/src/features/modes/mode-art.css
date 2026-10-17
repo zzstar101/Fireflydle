@@ -1,16 +1,7 @@
 /*
- * 玩法卡线稿（ModeArt）—— 纯线稿装饰，颜色全部来自 currentColor。
- *
- * 动效契约（与 ModeArt.tsx 对应，调用方必须遵守）：
- *   1. 所有 keyframes 默认 `animation-play-state: paused`，只在父卡片同时满足
- *      「可见」与「悬停 / 键盘聚焦」时才运行：
- *        [data-visible="true"] 由调用方在卡片滚入视口时设置（IntersectionObserver）；
- *        悬停或 `:focus-within` 由父卡片提供（`.mode-board`、`.hub-secondary-link` 等）。
- *      只判断 `:hover` 而不判断 `[data-visible="true"]` 是不够的——离屏卡片不应耗电。
- *   2. 动画只改 transform / opacity / offset-distance，不触发重排。
- *   3. 减少动态效果时完全关闭动画，几何图形保持与静态渲染一致：
- *        系统偏好 `@media (prefers-reduced-motion: reduce)`
- *        站内开关 `:root[data-motion="reduced"]`（见 components/quality-flags.ts）
+ * 玩法卡插画（ModeArt）—— 移植自 prototype.html「自绘插画」一节。
+ * 动画只在父元素 [data-visible="true"]（进入视口）时运行；纯 transform / dashoffset；
+ * 减少动态效果（系统偏好或 :root[data-motion="reduced"]）时全部停用。
  */
 
 .mode-art {
@@ -18,109 +9,227 @@
   width: 100%;
   height: 100%;
   overflow: visible;
+  fill: none;
+  stroke: none;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-/* ── 动画定义：默认暂停，闸门在下方统一打开 ───────────────────────────── */
-
-/* 光点沿无限轨道行进：offset-path 让 dot 贴合 ModeArt.tsx 里的双纽线路径。 */
-.mode-art__dot {
-  offset-path: path(
-    "M48 48 C42 39 35 34 28 35 C20 36 16 42 16 48 C16 54 20 60 28 61 C35 62 42 57 48 48 C54 39 61 34 68 35 C76 36 80 42 80 48 C80 54 76 60 68 61 C61 62 54 57 48 48 Z"
-  );
-  offset-rotate: auto;
-  offset-distance: 50%;
-  animation: mode-art-travel var(--motion-signal, 3.4s) linear infinite;
-  animation-play-state: paused;
+.ill-svg .ln {
+  stroke: currentColor;
+  stroke-opacity: 0.34;
+  stroke-width: 1.3;
+}
+.ill-svg .orbit {
+  stroke: currentColor;
+  stroke-opacity: 0.18;
+  stroke-width: 1;
+}
+.ill-svg .spark {
+  fill: var(--lit);
+  filter: drop-shadow(0 0 6px rgb(242 205 122 / 80%));
+}
+.ill-svg .spark.big {
+  fill: #fff6dc;
+  filter: drop-shadow(0 0 10px rgb(242 205 122 / 90%));
+}
+.ill-svg .dot,
+.ill-svg .node {
+  fill: currentColor;
+  fill-opacity: 0.5;
+}
+.ill-d20 .face {
+  fill: rgb(242 205 122 / 14%);
+  stroke: var(--lit);
+  stroke-width: 1.6;
+}
+.ill-d20 .q {
+  fill: var(--lit);
+  font: 900 30px/1 var(--sans);
+  text-anchor: middle;
+}
+.ill-d20 .die {
+  transform-origin: 100px 104px;
+  transform-box: view-box;
+}
+.ill-inf .rail {
+  stroke: currentColor;
+  stroke-opacity: 0.12;
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+}
+.ill-inf .runner {
+  stroke: var(--near);
+  stroke-width: 3;
+  stroke-dasharray: 9 91;
+}
+.ill-inf .runner.trail {
+  stroke-width: 6;
+  stroke-opacity: 0.25;
+  stroke-dasharray: 22 78;
+  filter: blur(2px);
+}
+.ill-inf .head {
+  stroke: #d9ceff;
+  filter: drop-shadow(0 0 5px var(--near));
+}
+.ill-week .seg {
+  stroke: currentColor;
+  stroke-opacity: 0.16;
+  stroke-width: 5;
+}
+.ill-week .seg.on {
+  stroke: var(--lit);
+  stroke-opacity: 0.85;
+}
+.ill-week .seg.now {
+  stroke: var(--lit);
+  stroke-opacity: 0.35;
+  stroke-dasharray: 3 4;
+}
+.ill-week .const {
+  stroke: currentColor;
+  stroke-opacity: 0.28;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 4;
+}
+.ill-week .const.lit {
+  stroke: var(--lit);
+  stroke-opacity: 0.9;
+  stroke-dasharray: none;
+}
+.ill-week .hand {
+  stroke: currentColor;
+  stroke-opacity: 0.4;
+  stroke-width: 1.5;
+  transform-origin: 100px 100px;
+  transform-box: view-box;
+  transform: rotate(180deg);
+}
+.ill-duel .comet {
+  transform-box: view-box;
 }
 
-/* 双星轨道反向旋转（transform-origin 取 viewBox 用户单位）。 */
-.mode-art__orbit-a {
-  transform-origin: 48px 48px;
-  animation: mode-art-spin 24s linear infinite;
-  animation-play-state: paused;
+/* 更多玩法小图标 */
+.mode-glyph .ln {
+  stroke: currentColor;
+  stroke-opacity: 0.45;
+  stroke-width: 1.6;
+}
+.mode-glyph .acc {
+  stroke: var(--lit);
+  stroke-width: 1.8;
+}
+.mode-glyph .acc.fill {
+  fill: var(--lit);
+  stroke: none;
 }
 
-.mode-art__orbit-b {
-  transform-origin: 48px 48px;
-  animation: mode-art-spin 18s linear infinite reverse;
-  animation-play-state: paused;
-}
-
-/* 周赛进行中的弧段柔和呼吸。 */
-.mode-art__ring--active {
-  transform-origin: 48px 48px;
-  animation: mode-art-pulse 2.6s ease-in-out infinite;
-  animation-play-state: paused;
-}
-
-/* ── 动画闸门：父卡片可见 + 悬停 / 键盘聚焦 ───────────────────────────── */
-
-.mode-board[data-visible="true"]:hover .mode-art__orbit-a,
-.mode-board[data-visible="true"]:focus-within .mode-art__orbit-a,
-.hub-secondary-link[data-visible="true"]:hover .mode-art__orbit-a,
-.hub-secondary-link[data-visible="true"]:focus-within .mode-art__orbit-a,
-.mode-board[data-visible="true"]:hover .mode-art__orbit-b,
-.mode-board[data-visible="true"]:focus-within .mode-art__orbit-b,
-.hub-secondary-link[data-visible="true"]:hover .mode-art__orbit-b,
-.hub-secondary-link[data-visible="true"]:focus-within .mode-art__orbit-b,
-.mode-board[data-visible="true"]:hover .mode-art__ring--active,
-.mode-board[data-visible="true"]:focus-within .mode-art__ring--active,
-.hub-secondary-link[data-visible="true"]:hover .mode-art__ring--active,
-.hub-secondary-link[data-visible="true"]:focus-within .mode-art__ring--active,
-.mode-board[data-visible="true"]:hover .mode-art__dot,
-.mode-board[data-visible="true"]:focus-within .mode-art__dot,
-.hub-secondary-link[data-visible="true"]:hover .mode-art__dot,
-.hub-secondary-link[data-visible="true"]:focus-within .mode-art__dot {
-  animation-play-state: running;
-}
-
-@keyframes mode-art-travel {
-  from {
-    offset-distance: 0%;
-  }
-
-  to {
-    offset-distance: 100%;
-  }
-}
+/* ── 动画 ─────────────────────────────────────────────────────────────── */
 
 @keyframes mode-art-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
   to {
     transform: rotate(360deg);
   }
 }
-
+@keyframes mode-art-run {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes mode-art-tw {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes mode-art-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-5px) rotate(4deg);
+  }
+}
+@keyframes mode-art-c1 {
+  0%,
+  100% {
+    transform: translate(-6px, 4px);
+  }
+  50% {
+    transform: translate(4px, -2px);
+  }
+}
+@keyframes mode-art-c2 {
+  0%,
+  100% {
+    transform: translate(6px, 4px);
+  }
+  50% {
+    transform: translate(-4px, -2px);
+  }
+}
 @keyframes mode-art-pulse {
   0%,
   100% {
+    transform: scale(0.85);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.1);
     opacity: 1;
   }
-
-  50% {
-    opacity: 0.45;
-  }
 }
 
-/* ── 减少动态效果：系统偏好 ───────────────────────────────────────────── */
+.ill-svg .spin {
+  transform-origin: 100px 104px;
+  transform-box: view-box;
+}
+.ill-svg .tw,
+.ill-duel .spark.big {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+[data-visible="true"] .ill-svg .spin {
+  animation: mode-art-spin 40s linear infinite;
+}
+[data-visible="true"] .ill-svg .tw {
+  animation: mode-art-tw 3.2s ease-in-out infinite;
+}
+[data-visible="true"] .ill-svg .tw.d2 {
+  animation-delay: -1.6s;
+}
+[data-visible="true"] .ill-d20 .die {
+  animation: mode-art-bob 5s ease-in-out infinite;
+}
+[data-visible="true"] .ill-inf .runner {
+  animation: mode-art-run 3.6s linear infinite;
+}
+[data-visible="true"] .ill-duel .c1 {
+  animation: mode-art-c1 2.8s ease-in-out infinite;
+}
+[data-visible="true"] .ill-duel .c2 {
+  animation: mode-art-c2 2.8s ease-in-out infinite;
+}
+[data-visible="true"] .ill-duel .spark.big {
+  animation: mode-art-pulse 1.4s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .mode-art__orbit-a,
-  .mode-art__orbit-b,
-  .mode-art__ring--active,
-  .mode-art__dot {
-    animation: none;
+  .ill-svg * {
+    animation: none !important;
   }
 }
-
-/* ── 减少动态效果：站内开关（?reduce，见 components/quality-flags.ts） ─── */
-
-:root[data-motion="reduced"] .mode-art__orbit-a,
-:root[data-motion="reduced"] .mode-art__orbit-b,
-:root[data-motion="reduced"] .mode-art__ring--active,
-:root[data-motion="reduced"] .mode-art__dot {
-  animation: none;
+:root[data-motion="reduced"] .ill-svg * {
+  animation: none !important;
 }

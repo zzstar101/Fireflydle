@@ -2,54 +2,57 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ModeArt, type ModeArtKind } from "./ModeArt";
 
-const kinds: readonly ModeArtKind[] = [
-  "practice",
-  "endless",
-  "weekly",
-  "duel",
-  "portrait",
-  "currency-wars",
-  "aeon",
-];
+const cardKinds: readonly ModeArtKind[] = ["practice", "endless", "weekly", "duel"];
+const glyphKinds: readonly ModeArtKind[] = ["portrait", "currency-wars", "aeon"];
+const kinds = [...cardKinds, ...glyphKinds];
 
-/** 打点类图元；svg 内不会出现 fill 子元素，直接数标签即可。 */
 const DRAWING_ELEMENT = /<(?:path|circle|ellipse|line|polyline|polygon|rect)\b/g;
 
-function renderKind(kind: ModeArtKind): string {
-  return renderToStaticMarkup(<ModeArt kind={kind} />);
+function renderKind(kind: ModeArtKind, weeklyDone?: number): string {
+  return renderToStaticMarkup(<ModeArt kind={kind} weeklyDone={weeklyDone} />);
 }
 
-describe("ModeArt 玩法线稿", () => {
-  it.each(kinds)("%s 渲染装饰性 96×96 内联 SVG 线稿", (kind) => {
+describe("ModeArt 玩法插画", () => {
+  it.each(cardKinds)("%s 渲染 200×200 原型插画", (kind) => {
     const markup = renderKind(kind);
-
-    expect(markup).toContain("<svg");
+    expect(markup).toContain('viewBox="0 0 200 200"');
+    expect(markup).toContain("ill-svg");
     expect(markup).toContain('aria-hidden="true"');
-    expect(markup).toContain('viewBox="0 0 96 96"');
-    expect(markup).toContain('focusable="false"');
-    expect(markup).toContain('fill="none"');
-    expect(markup).toContain('stroke="currentColor"');
-    expect(markup).toContain('stroke-width="2"');
     expect(markup).toContain(`data-mode-art="${kind}"`);
+    expect((markup.match(DRAWING_ELEMENT) ?? []).length).toBeGreaterThanOrEqual(3);
+  });
 
-    const drawn = markup.match(DRAWING_ELEMENT) ?? [];
-    expect(drawn.length).toBeGreaterThanOrEqual(3);
+  it.each(glyphKinds)("%s 渲染 48×48 更多玩法小图标", (kind) => {
+    const markup = renderKind(kind);
+    expect(markup).toContain('viewBox="0 0 48 48"');
+    expect(markup).toContain("mode-glyph");
+    expect(markup).toContain('class="acc');
   });
 
   it("七种玩法的图形两两不同", () => {
-    const markups = kinds.map((kind) => renderKind(kind));
-    expect(new Set(markups).size).toBe(kinds.length);
+    expect(new Set(kinds.map((kind) => renderKind(kind))).size).toBe(kinds.length);
   });
 
-  it("接受调用方类名且保留 kind 类名", () => {
+  it("接受调用方类名", () => {
     const markup = renderToStaticMarkup(<ModeArt kind="duel" className="mode-card-art" />);
-    expect(markup).toContain('class="mode-art mode-art--duel mode-card-art"');
+    expect(markup).toContain("mode-art--duel mode-card-art");
   });
 
-  it("没有动画元素时也保持静态几何", () => {
-    // 结构上的光点 / 轨道节点必须始终存在，动画只由 CSS 提供。
-    expect(renderKind("endless")).toContain("mode-art__dot");
-    expect(renderKind("duel")).toContain("mode-art__orbit-a");
-    expect(renderKind("weekly")).toContain("mode-art__ring--active");
+  it("周赛进度环按已完成题数点亮", () => {
+    const markup = renderKind("weekly", 2);
+    expect(markup.match(/class="seg on"/g)).toHaveLength(2);
+    expect(markup.match(/class="seg now"/g)).toHaveLength(1);
+    expect(renderKind("weekly", 5)).not.toContain('class="seg now"');
+  });
+
+  it("同页多份插画的渐变 id 不冲突", () => {
+    const markup = renderToStaticMarkup(
+      <>
+        <ModeArt kind="practice" />
+        <ModeArt kind="practice" />
+      </>,
+    );
+    const ids = [...markup.matchAll(/id="([^"]+)"/g)].map((match) => match[1]);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

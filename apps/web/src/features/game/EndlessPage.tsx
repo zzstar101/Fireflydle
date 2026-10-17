@@ -1,14 +1,7 @@
-import { lazy, useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Clock3,
-  Heart,
-  Infinity as InfinityIcon,
-  LoaderCircle,
-  RotateCcw,
-  SkipForward,
-  Target,
-  Trophy,
-} from "lucide-react";
+import { lazy, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { Flag, Heart, LoaderCircle, RotateCcw, SkipForward, Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import type {
   ContentModeId,
   EndlessLeaderboardEntry,
@@ -27,11 +20,14 @@ import "./portrait-challenge.css";
 
 const copy = {
   "zh-CN": {
-    eyebrow: "普通角色 · 无尽",
+    endless: "无尽",
     title: "五条命，看看你能走多远",
     intro: "每题固定 6 猜。失败或跳过扣除一条生命，生命归零后成绩进入排行。",
     loading: "正在恢复无尽挑战",
     retry: "重试",
+    loadFailed: "无尽挑战没能加载出来。",
+    actionFailed: "操作没有成功，请稍后再试。",
+    best: "历史最佳",
     lives: "生命",
     clears: "通关",
     guesses: "总猜测",
@@ -54,11 +50,14 @@ const copy = {
     empty: "还没有完成的无尽挑战。",
   },
   en: {
-    eyebrow: "CHARACTERS · ENDLESS",
+    endless: "Endless",
     title: "Five lives. How far can you go?",
     intro: "Each round allows 6 guesses. A loss or skip costs one life; your final run is ranked.",
     loading: "Restoring endless run",
     retry: "Retry",
+    loadFailed: "The endless run couldn't be loaded.",
+    actionFailed: "That didn't go through. Please try again.",
+    best: "Best",
     lives: "Lives",
     clears: "Clears",
     guesses: "Guesses",
@@ -81,11 +80,14 @@ const copy = {
     empty: "No completed endless runs yet.",
   },
   ja: {
-    eyebrow: "キャラクター · エンドレス",
+    endless: "エンドレス",
     title: "5つのライフで、どこまで進める？",
     intro: "各問題は6回まで。失敗またはスキップでライフを1つ失い、終了後に順位が決まります。",
     loading: "エンドレスを復元中",
     retry: "再試行",
+    loadFailed: "エンドレスを読み込めませんでした。",
+    actionFailed: "処理に失敗しました。もう一度お試しください。",
+    best: "自己ベスト",
     lives: "ライフ",
     clears: "クリア",
     guesses: "推測数",
@@ -118,6 +120,14 @@ function formatTime(milliseconds: number): string {
 
 // 回合结果用字形区分（答对 / 失败 / 跳过），颜色只作补充。
 const roundResultGlyphs = { won: "✓", lost: "✕", skipped: "⏭" } as const;
+
+const modeNames: Record<ContentModeId, Record<Locale, string>> = {
+  playable: { "zh-CN": "普通角色", en: "Characters", ja: "キャラクター" },
+  npc: { "zh-CN": "NPC", en: "NPCs", ja: "NPC" },
+  "currency-wars": { "zh-CN": "货币战争", en: "Currency Wars", ja: "コイン戦争" },
+  aeon: { "zh-CN": "星神", en: "Aeons", ja: "星神" },
+  portrait: { "zh-CN": "立绘", en: "Portraits", ja: "立ち絵" },
+};
 
 const AeonGuessBoard = lazy(() =>
   import("./AeonGuessBoard").then((module) => ({ default: module.AeonGuessBoard })),
@@ -164,6 +174,7 @@ export function EndlessPage({
   contentModeId: ContentModeId;
   bundledRoster: readonly GameEntitySummary[];
 }) {
+  const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const labels = copy[locale];
   const [run, setRun] = useState<PublicEndlessRun | null>(null);
@@ -286,151 +297,202 @@ export function EndlessPage({
       : run.elapsedMs
     : 0;
 
+  const modeName = modeNames[contentModeId][locale];
+  const title =
+    contentModeId === "portrait"
+      ? locale === "zh-CN"
+        ? "立绘无尽，看看你能猜中多少"
+        : locale === "ja"
+          ? "立ち絵を何問当てられる？"
+          : "How many portraits can you name?"
+      : labels.title;
+  const intro =
+    contentModeId === "portrait"
+      ? locale === "zh-CN"
+        ? "每题展示一张角色立绘或皮肤。每次猜错会揭示更多区域，失败或跳过扣除一条生命。"
+        : locale === "ja"
+          ? "キャラクターの立ち絵やスキンを当てよう。間違えると画像が少しずつ見えます。"
+          : "Guess a character portrait or skin. Misses reveal more of the image and cost a life."
+      : labels.intro;
+  const crumb = (
+    <nav className="sr-crumb" aria-label={t("hub.backToHub")}>
+      <Link className="game-hub-link" to="/">
+        {t("nav.hub")}
+      </Link>
+      <span aria-hidden="true">/</span>
+      <span>
+        {modeName} · {labels.endless}
+      </span>
+    </nav>
+  );
+
   if (!run) {
     return (
-      <main className="endless-page endless-loading-state">
-        {busy ? <LoaderCircle className="endless-spinner" size={28} /> : <InfinityIcon size={32} />}
-        <h1>{labels.loading}</h1>
-        {error ? (
-          <button type="button" onClick={() => void start()}>
-            <RotateCcw size={17} /> {labels.retry}
-          </button>
-        ) : null}
+      <main className="sr-game endless-page is-finished">
+        <header className="sr-game-head">
+          <div className="sr-game-title">
+            {crumb}
+            <h1>{title}</h1>
+            <p className="sr-game-intro">{intro}</p>
+          </div>
+        </header>
+        <section
+          className={`sr-board-wrap endless-state${error ? " is-error" : ""}`}
+          role={error ? "alert" : "status"}
+          aria-live="polite"
+          aria-busy={busy}
+        >
+          {busy ? <LoaderCircle className="endless-spinner" size={22} aria-hidden="true" /> : null}
+          <p>{error ? labels.loadFailed : labels.loading}</p>
+          {error ? (
+            <button
+              type="button"
+              className="endless-pill"
+              disabled={busy}
+              onClick={() => void start()}
+            >
+              <RotateCcw size={15} aria-hidden="true" /> {labels.retry}
+            </button>
+          ) : null}
+        </section>
       </main>
     );
   }
 
+  const finished = run.status === "finished";
+  const remaining = Math.max(0, run.maxAttempts - run.guesses.length);
+  const fieldCount = run.fieldDefinitions.length || 6;
+  const usesGuessGrid = contentModeId !== "aeon" && contentModeId !== "portrait";
   const roundLabel = run.lastRound
     ? labels[run.lastRound.result as "won" | "lost" | "skipped"]
     : null;
+  const composer = !finished ? (
+    <div className="sr-composer sr-active-row">
+      <CharacterCombobox
+        variant="row"
+        characters={roster}
+        locale={locale}
+        showImages={contentModeId !== "aeon"}
+        {...(contentModeId === "aeon" ? { entityLabel: locale === "en" ? "Aeon" : "星神" } : {})}
+        {...(contentModeId === "playable"
+          ? { label: t("game.guessPrompt", { number: run.guesses.length + 1 }) }
+          : {})}
+        excludedIds={guessedIds}
+        disabled={busy || confirmFinish}
+        onSubmit={(id) => void submitGuess(id)}
+      />
+    </div>
+  ) : null;
 
   return (
-    <main className="endless-page">
-      <header className="endless-hero">
-        <div>
-          <p className="endless-kicker">
-            {contentModeId === "playable"
-              ? labels.eyebrow
-              : contentModeId === "portrait"
-                ? locale === "zh-CN"
-                  ? "立绘挑战 · 无尽"
-                  : locale === "ja"
-                    ? "立ち絵 · エンドレス"
-                    : "PORTRAITS · ENDLESS"
-                : `${contentModeId.toUpperCase()} · ${labels.board}`}
-          </p>
-          <h1>
-            {contentModeId === "portrait"
-              ? locale === "zh-CN"
-                ? "立绘无尽，看看你能猜中多少"
-                : locale === "ja"
-                  ? "立ち絵を何問当てられる？"
-                  : "How many portraits can you name?"
-              : labels.title}
-          </h1>
-          <span className="endless-intro">
-            {contentModeId === "portrait"
-              ? locale === "zh-CN"
-                ? "每题展示一张角色立绘或皮肤。每次猜错会揭示更多区域，失败或跳过扣除一条生命。"
-                : locale === "ja"
-                  ? "キャラクターの立ち絵やスキンを当てよう。間違えると画像が少しずつ見えます。"
-                  : "Guess a character portrait or skin. Misses reveal more of the image and cost a life."
-              : labels.intro}
-          </span>
+    <main className={`sr-game endless-page${finished ? " is-finished" : ""}`}>
+      <header className="sr-game-head">
+        <div className="sr-game-title">
+          {crumb}
+          <h1>{title}</h1>
+          <p className="sr-game-intro">{intro}</p>
         </div>
-        <InfinityIcon size={54} strokeWidth={1.4} aria-hidden="true" />
-      </header>
-
-      <section className="endless-metrics" aria-label={labels.eyebrow}>
-        <div>
-          <span>
-            <Heart size={16} /> {labels.lives}
-          </span>
-          <strong aria-label={`${labels.lives}: ${run.lives}`}>
+        <div className="sr-game-meta">
+          <div
+            className="endless-lives"
+            role="img"
+            aria-label={`${labels.lives}: ${run.lives} / 5`}
+          >
             {Array.from({ length: 5 }, (_, index) => (
-              <Heart key={index} size={22} className={index < run.lives ? "is-live" : "is-lost"} />
+              <Heart
+                key={index}
+                size={20}
+                strokeWidth={1.8}
+                aria-hidden="true"
+                className={index < run.lives ? "is-live" : "is-lost"}
+              />
             ))}
+          </div>
+          <span className="endless-round">
+            <small>{labels.round}</small>
+            <b>{run.roundNumber.toString().padStart(2, "0")}</b>
+            <small>
+              · {run.guesses.length}/{run.maxAttempts}
+            </small>
+          </span>
+          <strong className="sr-timer mono" aria-label={labels.elapsed}>
+            {formatTime(elapsedMs)}
           </strong>
         </div>
-        <div>
-          <span>
-            <Target size={16} /> {labels.clears}
-          </span>
-          <strong>{run.clears}</strong>
-        </div>
-        <div>
-          <span>{labels.guesses}</span>
-          <strong>{run.totalGuesses}</strong>
-        </div>
-        <div>
-          <span>
-            {locale === "zh-CN"
-              ? "历史最佳 / 百分位"
-              : locale === "ja"
-                ? "自己ベスト / パーセンタイル"
-                : "Best / Percentile"}
-          </span>
-          <strong>
-            {run.bestClears}
-            {run.percentile === null ? "" : ` · ${run.percentile}%`}
-          </strong>
-        </div>
-        <div>
-          <span>
-            <Clock3 size={16} /> {labels.elapsed}
-          </span>
-          <strong>{formatTime(elapsedMs)}</strong>
-        </div>
-      </section>
+      </header>
 
       <div className="endless-layout">
         <section className="endless-play-area">
-          <div className="endless-round-header">
-            <div>
-              <span>{labels.round}</span>
-              <strong>{run.roundNumber.toString().padStart(2, "0")}</strong>
-              <small>
-                {run.guesses.length} / {run.maxAttempts}
-              </small>
-            </div>
-            {run.status === "active" ? (
+          <div className="endless-toolbar">
+            <dl className="endless-stats">
+              <div>
+                <dt>{labels.clears}</dt>
+                <dd>{run.clears}</dd>
+              </div>
+              <div>
+                <dt>{labels.guesses}</dt>
+                <dd>{run.totalGuesses}</dd>
+              </div>
+              <div>
+                <dt>{labels.best}</dt>
+                <dd>
+                  {run.bestClears}
+                  {run.percentile === null ? "" : ` · ${run.percentile}%`}
+                </dd>
+              </div>
+            </dl>
+            {!finished ? (
               confirmFinish ? (
-                <div className="endless-finish-confirm" role="alert">
+                <div className="endless-confirm" role="alert">
                   <span>{labels.finishConfirm}</span>
-                  <button type="button" disabled={busy} onClick={() => setConfirmFinish(false)}>
-                    {labels.finishCancel}
-                  </button>
-                  <button
-                    type="button"
-                    className="is-danger"
-                    disabled={busy}
-                    onClick={() => void finish()}
-                  >
-                    {labels.finishConfirmAction}
-                  </button>
+                  <div>
+                    <button
+                      type="button"
+                      className="endless-pill"
+                      disabled={busy}
+                      onClick={() => setConfirmFinish(false)}
+                    >
+                      {labels.finishCancel}
+                    </button>
+                    <button
+                      type="button"
+                      className="endless-pill is-danger"
+                      disabled={busy}
+                      onClick={() => void finish()}
+                    >
+                      {labels.finishConfirmAction}
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div className="endless-round-actions">
+                <div className="endless-actions">
                   <button
                     type="button"
+                    className="endless-pill"
                     disabled={!run.skipAvailable || busy}
                     onClick={() => void skip()}
                   >
-                    <SkipForward size={17} /> {run.skipAvailable ? labels.skip : labels.skipUsed}
+                    <SkipForward size={15} aria-hidden="true" />{" "}
+                    {run.skipAvailable ? labels.skip : labels.skipUsed}
                   </button>
-                  <button type="button" disabled={busy} onClick={() => setConfirmFinish(true)}>
-                    {labels.finish}
+                  <button
+                    type="button"
+                    className="endless-pill"
+                    disabled={busy}
+                    onClick={() => setConfirmFinish(true)}
+                  >
+                    <Flag size={15} aria-hidden="true" /> {labels.finish}
                   </button>
                 </div>
               )
             ) : (
               <button
-                className="is-primary"
+                className="ticket-button endless-restart"
                 type="button"
                 disabled={busy}
                 onClick={() => void start()}
               >
-                <RotateCcw size={17} /> {labels.restart}
+                <RotateCcw size={17} aria-hidden="true" /> {labels.restart}
               </button>
             )}
           </div>
@@ -441,59 +503,118 @@ export function EndlessPage({
                 {roundResultGlyphs[run.lastRound.result as keyof typeof roundResultGlyphs]}
               </b>
               <div className="endless-result-copy">
-                <strong>{run.status === "finished" ? labels.finished : roundLabel}</strong>
+                <strong>{finished ? labels.finished : roundLabel}</strong>
                 <span>
                   {labels.answer}: {run.lastRound.answer.names[locale]}
                 </span>
               </div>
             </div>
+          ) : finished ? (
+            <div className="endless-round-result result-finished" role="status">
+              <b className="endless-result-glyph" aria-hidden="true">
+                <Flag size={16} />
+              </b>
+              <div className="endless-result-copy">
+                <strong>{labels.finished}</strong>
+                <span>
+                  {labels.clears} {run.clears} · {labels.guesses} {run.totalGuesses}
+                </span>
+              </div>
+            </div>
           ) : null}
 
-          {run.status === "active" ? (
-            <CharacterCombobox
-              characters={roster}
-              locale={locale}
-              showImages={contentModeId !== "aeon"}
-              excludedIds={guessedIds}
-              disabled={busy || confirmFinish}
-              onSubmit={(id) => void submitGuess(id)}
-            />
-          ) : null}
+          {finished && contentModeId !== "aeon" && run.guesses.length === 0 ? null : (
+            <section
+              className={`sr-board-wrap endless-board-wrap${
+                contentModeId === "portrait" ? " is-portrait" : ""
+              }`}
+            >
+              {contentModeId === "portrait" ? (
+                <>
+                  <PortraitEndlessBoard run={run} />
+                  {composer}
+                  {run.guesses.length > 0 ? (
+                    <GuessBoard
+                      guesses={run.guesses}
+                      locale={locale}
+                      fields={run.fieldDefinitions}
+                    />
+                  ) : null}
+                </>
+              ) : contentModeId === "aeon" ? (
+                <>
+                  <AeonGuessBoard
+                    gameId={`${run.id}:${run.roundNumber}`}
+                    wrongGuesses={run.guesses.filter((guess) => !guess.isCorrect).length}
+                    answer={(finished ? run.answer : null) as never}
+                    imagePath={run.aeonImagePath}
+                    imageFocus={run.aeonImageFocus}
+                    locale={locale}
+                    finished={finished}
+                  />
+                  {composer}
+                </>
+              ) : (
+                <>
+                  <GuessBoard guesses={run.guesses} locale={locale} fields={run.fieldDefinitions} />
+                  {!finished ? <div className="sr-active-ghost" aria-hidden="true" /> : null}
+                  {composer}
+                  {!finished
+                    ? Array.from({ length: Math.max(0, remaining - 1) }, (_, index) => (
+                        <div
+                          key={index}
+                          className="sr-ghost-row"
+                          aria-hidden="true"
+                          style={{ "--sr-cols": fieldCount } as CSSProperties}
+                        >
+                          {Array.from({ length: fieldCount + 1 }, (_, cell) => (
+                            <span key={cell} />
+                          ))}
+                        </div>
+                      ))
+                    : null}
+                </>
+              )}
+            </section>
+          )}
+
           {error ? (
             <p className="endless-error" role="alert">
-              {labels.retry}
+              {labels.actionFailed}
             </p>
           ) : null}
-          {contentModeId === "portrait" ? (
-            <>
-              <PortraitEndlessBoard run={run} />
-              <GuessBoard guesses={run.guesses} locale={locale} fields={run.fieldDefinitions} />
-            </>
-          ) : contentModeId === "aeon" ? (
-            <AeonGuessBoard
-              gameId={`${run.id}:${run.roundNumber}`}
-              wrongGuesses={run.guesses.filter((guess) => !guess.isCorrect).length}
-              answer={(run.status === "finished" ? run.answer : null) as never}
-              imagePath={run.aeonImagePath}
-              imageFocus={run.aeonImageFocus}
-              locale={locale}
-              finished={run.status === "finished"}
-            />
-          ) : (
-            <GuessBoard guesses={run.guesses} locale={locale} fields={run.fieldDefinitions} />
-          )}
+
+          {usesGuessGrid && !finished ? (
+            <p className="sr-legend" aria-hidden="true">
+              <span>
+                <i className="exact" />
+                {locale === "en" ? "Match" : locale === "ja" ? "一致" : "一致"}
+              </span>
+              <span>
+                <i className="close" />
+                {locale === "en" ? "Close" : locale === "ja" ? "近い" : "接近"}
+              </span>
+              <span>
+                <i className="miss" />
+                {locale === "en" ? "Miss" : locale === "ja" ? "不一致" : "不符"}
+              </span>
+            </p>
+          ) : null}
         </section>
 
-        <aside className="endless-board">
-          <h2>
-            <Trophy size={19} /> {labels.board}
+        <aside className="endless-board" aria-labelledby="endless-board-title">
+          <h2 id="endless-board-title">
+            <Trophy size={17} aria-hidden="true" /> {labels.board}
           </h2>
           {leaderboard.length === 0 ? (
             <p>{labels.empty}</p>
           ) : (
             <ol>
               {leaderboard.slice(0, 10).map((entry) => (
-                <li key={`${entry.rank}-${entry.displayName}-${entry.completedAt}`}>
+                <li
+                  key={`${entry.rank}-${entry.displayName}-${entry.completedAt}`}
+                  className={entry.rank <= 3 ? "is-top" : undefined}
+                >
                   <b>{entry.rank.toString().padStart(2, "0")}</b>
                   <span>{entry.displayName}</span>
                   <strong>{entry.clears}</strong>

@@ -1,153 +1,310 @@
 /**
- * 表现层单例。React 只通过这里驱动 WebGL 层，永远不直接接触 three。
+ * 表现层单例 —— 对应原型里的 `S` 状态 + `FX` 门面。React 只通过这里驱动 WebGL 层，
+ * 永远不直接接触 three。
  *
- * 这个模块刻意不 import three：场景还没加载（或 WebGL 不可用、用户开了减少动效）时，
- * 状态类的调用（文字、立绘、聚合进度）会记在期望状态里，等场景就绪后一次性回放；
- * 瞬时类的调用（星尘爆开、跃迁）只在场景已就绪时生效，不会延后播放。
- * 所以最坏情况只是「少了一段动画」，功能完全不受影响。
+ * - `fxState`（原型的 S）是一组 0~1 的动画量，由这里的补间引擎驱动，场景每帧采样；
+ * - 形态（文字 / 立绘）记在期望状态里：场景还没加载时先存着，就绪后回放；
+ * - 瞬时效果（命中迸发）只在场景已在运行时生效，不延后播放。
+ * 场景缺席（WebGL 不可用 / 减少动效）时最坏只是少一段动画，功能不受影响。
  */
 
-/** 点云：归一化坐标 + 源图长宽比，场景据此还原不被拉伸的形状。 */
-export interface FxPointCloud {
-  /** 源图长宽比（宽 / 高）。 */
-  aspect: number;
-  /** 归一化 [0,1] 的点（y 向下），长度 = 点数 * 2。 */
-  points: Float32Array;
+export interface FxState {
+  morph: number;
+  scatter: number;
+  disperse: number;
+  dim: number;
+  warm: number;
+  shapeAlpha: number;
+  warp: number;
+  rail: number;
 }
 
-export type FxTone = "gold" | "violet" | "ink";
+export type FxMode = "hub" | "game" | "result";
 
-export interface FxBurstOptions {
-  /** 一次写入的粒子数，默认 26。 */
-  count?: number;
-  /** 初速（NDC/秒），默认 0.34。 */
-  speed?: number;
-  /** 0 = 星光金，1 = 星云紫。 */
-  tone?: number;
-}
-
-export interface FxTextOptions {
-  /** 字块中心的 NDC x / y，默认水平居中、略高于中线。 */
-  centerX?: number;
-  centerY?: number;
-  /** 字块在 NDC 里的宽度，默认 0.86。 */
-  width?: number;
-  /** 目标点数上限，默认按视口宽度取 2600–5200。 */
-  maxPoints?: number;
-  tone?: FxTone;
-  /** 点尺寸（CSS 像素）。 */
-  size?: number;
-}
-
-export interface FxPortraitOptions {
-  centerX?: number;
-  centerY?: number;
-  /** 立绘点云在 NDC 里的高度，默认 1.15。 */
-  height?: number;
-  tone?: FxTone;
-  size?: number;
-}
-
-/** 场景句柄：由 fx/starfield-scene 提供实现。 */
-export interface FxScene {
-  text(content: string | null, options: FxTextOptions | undefined, morph: number): void;
-  textMorph(value: number): void;
-  portrait(cloud: FxPointCloud | null, options: FxPortraitOptions | undefined, morph: number): void;
-  portraitMorph(value: number): void;
-  burst(x: number, y: number, options: FxBurstOptions): void;
-  warp(): void;
-}
-
-interface DesiredState {
-  text: { content: string | null; options: FxTextOptions | undefined; morph: number } | null;
-  portrait: {
-    cloud: FxPointCloud | null;
-    options: FxPortraitOptions | undefined;
-    morph: number;
-  } | null;
-}
-
-const desired: DesiredState = { text: null, portrait: null };
-const pendingBursts: { at: number; x: number; y: number; options: FxBurstOptions }[] = [];
-let scene: FxScene | null = null;
-
-/** 排队等待场景就绪的瞬时事件最多保留 500ms，避免加载慢时补放一堆过期动画。 */
-const BURST_TTL_MS = 500;
-const MAX_PENDING_BURSTS = 12;
-
-function applyDesired(target: FxScene): void {
-  if (desired.text) target.text(desired.text.content, desired.text.options, desired.text.morph);
-  if (desired.portrait) {
-    target.portrait(desired.portrait.cloud, desired.portrait.options, desired.portrait.morph);
-  }
+export interface FxRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
 }
 
 /**
- * 由星空场景在创建 / 销毁时调用。传入 null 表示场景已释放，
- * 此时期望状态会保留，供下一次注册时回放（例如主题从浅色切回深色）。
+ * 立绘点云：w×h 网格坐标 + 颜色。`data` 每点 5 个数：gx, gy（网格单位）, r, g, b（0~1）。
+ * 与原型 `setPortrait(el, P)` 的 P 一致（原型用字节，这里直接存浮点）。
  */
+export interface FxPortraitCloud {
+  w: number;
+  h: number;
+  count: number;
+  data: Float32Array;
+}
+
+export interface FxScene {
+  setText(rect: FxRect, text: string): void;
+  setPortrait(rect: FxRect, cloud: FxPortraitCloud): void;
+  burst(rect: FxRect, n?: number): void;
+  render(): void;
+}
+
+export interface FxSceneHost {
+  readonly state: FxState;
+  scroll(): number;
+  mode(): FxMode;
+  measure(): FxRect | null;
+}
+
+const INITIAL_STATE: FxState = {
+  morph: 0,
+  scatter: 0,
+  disperse: 0,
+  dim: 1,
+  warm: 0,
+  shapeAlpha: 1,
+  warp: 0,
+  rail: 1,
+};
+
+export const fxState: FxState = { ...INITIAL_STATE };
+
+type Desired =
+  | { kind: "text"; el: Element; text: string }
+  | { kind: "portrait"; el: Element; cloud: FxPortraitCloud }
+  | null;
+
+let scene: FxScene | null = null;
+let desired: Desired = null;
+let mode: FxMode = "hub";
+let scroller: (() => number) | null = null;
+
+function rectOf(el: Element): FxRect {
+  const r = el.getBoundingClientRect();
+  return { left: r.left, top: r.top, width: r.width, height: r.height };
+}
+
+function applyDesired() {
+  if (!scene || !desired || !desired.el.isConnected) return;
+  const rect = rectOf(desired.el);
+  if (rect.width < 2 || rect.height < 2) return;
+  if (desired.kind === "text") scene.setText(rect, desired.text);
+  else scene.setPortrait(rect, desired.cloud);
+}
+
+export const fxSceneHost: FxSceneHost = {
+  state: fxState,
+  // 原型：FX.scroller ? FX.scroller() : 0 —— 没有滚动源时形态不跟随滚动
+  scroll: () => (scroller ? scroller() : 0),
+  mode: () => mode,
+  measure: () => (desired && desired.el.isConnected ? rectOf(desired.el) : null),
+};
+
+const readyListeners = new Set<() => void>();
+
 export function registerFxScene(next: FxScene | null): void {
   scene = next;
-  if (!next) return;
-  applyDesired(next);
-  const now = performance.now();
-  for (const pending of pendingBursts.splice(0)) {
-    if (now - pending.at <= BURST_TTL_MS) next.burst(pending.x, pending.y, pending.options);
+  applyDesired();
+  if (next) {
+    const pending = [...readyListeners];
+    readyListeners.clear();
+    for (const cb of pending) cb();
   }
 }
 
-/** 场景是否已就绪；测试与调试用。 */
+/** 场景已就绪则立即回调，否则等注册后回调。返回取消函数。 */
+function whenReady(cb: () => void): () => void {
+  if (scene) {
+    cb();
+    return () => {};
+  }
+  readyListeners.add(cb);
+  return () => {
+    readyListeners.delete(cb);
+  };
+}
+
 export function fxSceneReady(): boolean {
   return scene !== null;
 }
 
-export const fx = {
-  /** 把粒子聚成文字；传 null 让字形散回星空。 */
-  setText(content: string | null, options?: FxTextOptions): void {
-    const morph = desired.text?.morph ?? 0;
-    desired.text = { content, options, morph };
-    scene?.text(content, options, morph);
-  },
-  /** 文字点阵的聚合进度：0 = 散在星空，1 = 完全成字。 */
-  setTextMorph(value: number): void {
-    if (!desired.text) desired.text = { content: null, options: undefined, morph: value };
-    else desired.text.morph = value;
-    scene?.textMorph(value);
-  },
-  /** 让粒子聚成答案立绘；传 null 清除。 */
-  setPortrait(cloud: FxPointCloud | null, options?: FxPortraitOptions): void {
-    const morph = desired.portrait?.morph ?? 0;
-    desired.portrait = { cloud, options, morph };
-    scene?.portrait(cloud, options, morph);
-  },
-  /** 立绘点云的聚合进度。 */
-  setPortraitMorph(value: number): void {
-    if (!desired.portrait) desired.portrait = { cloud: null, options: undefined, morph: value };
-    else desired.portrait.morph = value;
-    scene?.portraitMorph(value);
-  },
-  /** 从屏幕坐标（CSS 像素）炸开一簇星尘。 */
-  burst(clientX: number, clientY: number, options: FxBurstOptions = {}): void {
-    if (typeof window === "undefined") return;
-    const x = (clientX / window.innerWidth) * 2 - 1;
-    const y = 1 - (clientY / window.innerHeight) * 2;
-    if (scene) {
-      scene.burst(x, y, options);
-      return;
+// —— 补间引擎（替代原型里的 gsap.to(S, …)）——
+
+export type FxEase =
+  | "linear"
+  | "power2.in"
+  | "power2.out"
+  | "power2.inOut"
+  | "power3.in"
+  | "power3.out"
+  | "power3.inOut"
+  | "sine.inOut";
+
+const EASES: Record<FxEase, (t: number) => number> = {
+  linear: (t) => t,
+  "power2.in": (t) => t * t * t,
+  "power2.out": (t) => 1 - (1 - t) ** 3,
+  "power2.inOut": (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2),
+  "power3.in": (t) => t ** 4,
+  "power3.out": (t) => 1 - (1 - t) ** 4,
+  "power3.inOut": (t) => (t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2),
+  "sine.inOut": (t) => -(Math.cos(Math.PI * t) - 1) / 2,
+};
+
+export interface FxTweenOptions {
+  duration: number;
+  ease?: FxEase;
+  delay?: number;
+  onComplete?: () => void;
+}
+
+interface Tween {
+  key: keyof FxState;
+  from: number;
+  to: number;
+  start: number;
+  duration: number;
+  ease: (t: number) => number;
+  done?: (() => void) | undefined;
+  started: boolean;
+}
+
+const tweens = new Set<Tween>();
+let tweenRaf = 0;
+
+function reducedMotion(): boolean {
+  if (typeof document === "undefined") return true;
+  return (
+    document.documentElement.dataset.motion === "reduced" ||
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
+  );
+}
+
+function tick() {
+  tweenRaf = 0;
+  const now = performance.now();
+  const finished: (() => void)[] = [];
+  for (const tw of tweens) {
+    if (now < tw.start) continue;
+    if (!tw.started) {
+      // 起点在真正开始时采样，跟 gsap 的延迟补间一致
+      tw.started = true;
+      tw.from = fxState[tw.key];
     }
-    if (pendingBursts.length >= MAX_PENDING_BURSTS) pendingBursts.shift();
-    pendingBursts.push({ at: performance.now(), x, y, options });
+    const t = tw.duration <= 0 ? 1 : Math.min(1, (now - tw.start) / (tw.duration * 1000));
+    fxState[tw.key] = tw.from + (tw.to - tw.from) * tw.ease(t);
+    if (t >= 1) {
+      tweens.delete(tw);
+      if (tw.done) finished.push(tw.done);
+    }
+  }
+  scene?.render();
+  for (const done of finished) done();
+  if (tweens.size > 0) tweenRaf = requestAnimationFrame(tick);
+}
+
+/** 把 fxState 的若干字段补间到目标值；同一字段的新补间会覆盖旧的。返回取消函数。 */
+function tween(props: Partial<FxState>, options: FxTweenOptions): () => void {
+  const reduce = reducedMotion();
+  const now = performance.now();
+  const created: Tween[] = [];
+  const keys = Object.keys(props) as (keyof FxState)[];
+  let notified = false;
+  const done = options.onComplete
+    ? () => {
+        if (notified) return;
+        notified = true;
+        options.onComplete?.();
+      }
+    : undefined;
+  for (const key of keys) {
+    for (const tw of tweens) if (tw.key === key) tweens.delete(tw);
+    const to = props[key];
+    if (to === undefined) continue;
+    const tw: Tween = {
+      key,
+      from: fxState[key],
+      to,
+      start: now + (reduce ? 0 : (options.delay ?? 0) * 1000),
+      duration: reduce ? 0 : options.duration,
+      ease: EASES[options.ease ?? "power2.out"],
+      done,
+      started: false,
+    };
+    tweens.add(tw);
+    created.push(tw);
+  }
+  if (created.length === 0) {
+    done?.();
+  } else if (!tweenRaf && typeof requestAnimationFrame !== "undefined") {
+    tweenRaf = requestAnimationFrame(tick);
+  }
+  return () => {
+    for (const tw of created) tweens.delete(tw);
+  };
+}
+
+/** 立即设置（相当于 gsap.set），会取消对应字段上的补间。 */
+function set(props: Partial<FxState>) {
+  for (const key of Object.keys(props) as (keyof FxState)[]) {
+    for (const tw of tweens) if (tw.key === key) tweens.delete(tw);
+    const v = props[key];
+    if (v !== undefined) fxState[key] = v;
+  }
+  scene?.render();
+}
+
+export const fx = {
+  state: fxState,
+  tween,
+  set,
+  whenReady,
+  ready: fxSceneReady,
+  setMode(next: FxMode) {
+    mode = next;
   },
-  /** 跃迁：径向拉长 + 沿 z 轴循环飞行，约 1.1s。 */
-  warp(): void {
-    scene?.warp();
+  getMode(): FxMode {
+    return mode;
+  },
+  /** 形态跟随的滚动源；null = 不跟随（原型 FX.scroller）。 */
+  setScroller(next: (() => number) | null) {
+    scroller = next;
+  },
+  /** 让粒子在 el 的位置排成 text（原型 FX.setText）。 */
+  setText(el: Element, text: string) {
+    desired = { kind: "text", el, text };
+    applyDesired();
+  },
+  /** 让粒子在 el 的位置排成立绘点云（原型 FX.setPortrait）。 */
+  setPortrait(el: Element, cloud: FxPortraitCloud) {
+    desired = { kind: "portrait", el, cloud };
+    applyDesired();
+  },
+  /** 只在仍然是这个元素的形态时清掉，避免卸载顺序把新页面的形态抹掉。返回是否清掉了。 */
+  clearShape(el?: Element): boolean {
+    if (el && desired?.el !== el) return false;
+    desired = null;
+    return true;
+  },
+  /** 当前形态是否属于 el。 */
+  ownsShape(el: Element): boolean {
+    return desired?.el === el;
+  },
+  /** 命中迸发（原型 FX.burst）。场景未运行时直接忽略。 */
+  burst(target: Element | FxRect, n?: number) {
+    if (!scene) return;
+    scene.burst(target instanceof Element ? rectOf(target) : target, n);
+  },
+  render() {
+    scene?.render();
   },
 };
 
-/** 仅供测试重置模块级状态。 */
 export function resetFxForTest(): void {
   scene = null;
-  desired.text = null;
-  desired.portrait = null;
-  pendingBursts.length = 0;
+  desired = null;
+  mode = "hub";
+  scroller = null;
+  readyListeners.clear();
+  tweens.clear();
+  if (tweenRaf && typeof cancelAnimationFrame !== "undefined") cancelAnimationFrame(tweenRaf);
+  tweenRaf = 0;
+  Object.assign(fxState, INITIAL_STATE);
 }

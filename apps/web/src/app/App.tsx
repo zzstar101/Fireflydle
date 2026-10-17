@@ -62,7 +62,7 @@ const NotFoundPage = lazy(() => import("./NotFoundPage"));
 
 function ThemeAndLocaleSync() {
   const { i18n } = useTranslation();
-  const { theme, language } = usePreferences();
+  const language = usePreferences((state) => state.language);
 
   useEffect(() => {
     if (i18n.language !== language) void i18n.changeLanguage(language);
@@ -70,16 +70,10 @@ function ThemeAndLocaleSync() {
   }, [i18n, language]);
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: light)");
-    const applyTheme = () => {
-      const resolved = theme === "system" ? (media.matches ? "light" : "dark") : theme;
-      document.documentElement.dataset.theme = resolved;
-      document.documentElement.style.colorScheme = resolved;
-    };
-    applyTheme();
-    media.addEventListener("change", applyTheme);
-    return () => media.removeEventListener("change", applyTheme);
-  }, [theme]);
+    // v2 只有深色星空主题。
+    document.documentElement.dataset.theme = "dark";
+    document.documentElement.style.colorScheme = "dark";
+  }, []);
 
   return null;
 }
