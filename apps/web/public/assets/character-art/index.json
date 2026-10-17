@@ -1,0 +1,565 @@
+{
+  "version": 1,
+  "characters": {
+    "arlan": {
+      "head": "/assets/character-art/arlan-head-9dcc984178dc.webp",
+      "portrait": "/assets/character-art/arlan-portrait-b4d711ef463f.webp",
+      "cloud": "/assets/character-art/arlan-cloud-b4d711ef463f.json"
+    },
+    "asta": {
+      "head": "/assets/character-art/asta-head-6e335150bffe.webp",
+      "portrait": "/assets/character-art/asta-portrait-1e09985f7e20.webp",
+      "cloud": "/assets/character-art/asta-cloud-1e09985f7e20.json"
+    },
+    "bailu": {
+      "head": "/assets/character-art/bailu-head-0a6efdadf05f.webp",
+      "portrait": "/assets/character-art/bailu-portrait-e0392913fb5f.webp",
+      "cloud": "/assets/character-art/bailu-cloud-e0392913fb5f.json"
+    },
+    "bronya": {
+      "head": "/assets/character-art/bronya-head-1fd43f2a32d3.webp",
+      "portrait": "/assets/character-art/bronya-portrait-f74d24ec85b6.webp",
+      "cloud": "/assets/character-art/bronya-cloud-f74d24ec85b6.json"
+    },
+    "clara": {
+      "head": "/assets/character-art/clara-head-4d767ee4115f.webp",
+      "portrait": "/assets/character-art/clara-portrait-b9e87ed50b9d.webp",
+      "cloud": "/assets/character-art/clara-cloud-b9e87ed50b9d.json"
+    },
+    "dan-heng": {
+      "head": "/assets/character-art/dan-heng-head-2b9c29ae4f2d.webp",
+      "portrait": "/assets/character-art/dan-heng-portrait-0573960bfc7a.webp",
+      "cloud": "/assets/character-art/dan-heng-cloud-0573960bfc7a.json"
+    },
+    "gepard": {
+      "head": "/assets/character-art/gepard-head-10dcc5d3c32e.webp",
+      "portrait": "/assets/character-art/gepard-portrait-e2eefe5b01a2.webp",
+      "cloud": "/assets/character-art/gepard-cloud-e2eefe5b01a2.json"
+    },
+    "herta": {
+      "head": "/assets/character-art/herta-head-63e9a63abe80.webp",
+      "portrait": "/assets/character-art/herta-portrait-0550e71890bb.webp",
+      "cloud": "/assets/character-art/herta-cloud-0550e71890bb.json"
+    },
+    "himeko": {
+      "head": "/assets/character-art/himeko-head-0a58db801a80.webp",
+      "portrait": "/assets/character-art/himeko-portrait-5fe1d9163833.webp",
+      "cloud": "/assets/character-art/himeko-cloud-5fe1d9163833.json"
+    },
+    "hook": {
+      "head": "/assets/character-art/hook-head-92e6b2988346.webp",
+      "portrait": "/assets/character-art/hook-portrait-52d00e4a4f29.webp",
+      "cloud": "/assets/character-art/hook-cloud-52d00e4a4f29.json"
+    },
+    "jing-yuan": {
+      "head": "/assets/character-art/jing-yuan-head-09dbf6663168.webp",
+      "portrait": "/assets/character-art/jing-yuan-portrait-69fb05b6f536.webp",
+      "cloud": "/assets/character-art/jing-yuan-cloud-69fb05b6f536.json"
+    },
+    "march-7th": {
+      "head": "/assets/character-art/march-7th-head-3cd391be97cd.webp",
+      "portrait": "/assets/character-art/march-7th-portrait-dcef180c940a.webp",
+      "cloud": "/assets/character-art/march-7th-cloud-dcef180c940a.json"
+    },
+    "natasha": {
+      "head": "/assets/character-art/natasha-head-f706fcd61c92.webp",
+      "portrait": "/assets/character-art/natasha-portrait-581598dae3c1.webp",
+      "cloud": "/assets/character-art/natasha-cloud-581598dae3c1.json"
+    },
+    "pela": {
+      "head": "/assets/character-art/pela-head-266a0457c5ab.webp",
+      "portrait": "/assets/character-art/pela-portrait-9d6de8392d3b.webp",
+      "cloud": "/assets/character-art/pela-cloud-9d6de8392d3b.json"
+    },
+    "qingque": {
+      "head": "/assets/character-art/qingque-head-a6870b3df826.webp",
+      "portrait": "/assets/character-art/qingque-portrait-6caf94295140.webp",
+      "cloud": "/assets/character-art/qingque-cloud-6caf94295140.json"
+    },
+    "sampo": {
+      "head": "/assets/character-art/sampo-head-79fd1d86376e.webp",
+      "portrait": "/assets/character-art/sampo-portrait-8787ef20a5aa.webp",
+      "cloud": "/assets/character-art/sampo-cloud-8787ef20a5aa.json"
+    },
+    "seele": {
+      "head": "/assets/character-art/seele-head-347a0f0a3728.webp",
+      "portrait": "/assets/character-art/seele-portrait-f3a80d3ecba1.webp",
+      "cloud": "/assets/character-art/seele-cloud-f3a80d3ecba1.json"
+    },
+    "serval": {
+      "head": "/assets/character-art/serval-head-6f017df1175d.webp",
+      "portrait": "/assets/character-art/serval-portrait-5852ab5eb777.webp",
+      "cloud": "/assets/character-art/serval-cloud-5852ab5eb777.json"
+    },
+    "sushang": {
+      "head": "/assets/character-art/sushang-head-547bf82459b2.webp",
+      "portrait": "/assets/character-art/sushang-portrait-301742cb51f3.webp",
+      "cloud": "/assets/character-art/sushang-cloud-301742cb51f3.json"
+    },
+    "tingyun": {
+      "head": "/assets/character-art/tingyun-head-2be42f614fe9.webp",
+      "portrait": "/assets/character-art/tingyun-portrait-d11aecc0f82e.webp",
+      "cloud": "/assets/character-art/tingyun-cloud-d11aecc0f82e.json"
+    },
+    "trailblazer-destruction": {
+      "head": "/assets/character-art/trailblazer-destruction-head-e8ee5e05c9c1.webp",
+      "portrait": "/assets/character-art/trailblazer-destruction-portrait-b393edb2e6a0.webp",
+      "cloud": "/assets/character-art/trailblazer-destruction-cloud-b393edb2e6a0.json"
+    },
+    "trailblazer-preservation": {
+      "head": "/assets/character-art/trailblazer-preservation-head-d52e840e15c3.webp",
+      "portrait": "/assets/character-art/trailblazer-preservation-portrait-4cdf815cbd9b.webp",
+      "cloud": "/assets/character-art/trailblazer-preservation-cloud-4cdf815cbd9b.json"
+    },
+    "welt": {
+      "head": "/assets/character-art/welt-head-5beb79039547.webp",
+      "portrait": "/assets/character-art/welt-portrait-f190942d3f87.webp",
+      "cloud": "/assets/character-art/welt-cloud-f190942d3f87.json"
+    },
+    "yanqing": {
+      "head": "/assets/character-art/yanqing-head-ed10ad1daa38.webp",
+      "portrait": "/assets/character-art/yanqing-portrait-7a1971d4f5ba.webp",
+      "cloud": "/assets/character-art/yanqing-cloud-7a1971d4f5ba.json"
+    },
+    "luocha": {
+      "head": "/assets/character-art/luocha-head-2c4b24493258.webp",
+      "portrait": "/assets/character-art/luocha-portrait-2f7a938797ec.webp",
+      "cloud": "/assets/character-art/luocha-cloud-2f7a938797ec.json"
+    },
+    "silver-wolf": {
+      "head": "/assets/character-art/silver-wolf-head-a00cb22ba50b.webp",
+      "portrait": "/assets/character-art/silver-wolf-portrait-0dc0cff975b3.webp",
+      "cloud": "/assets/character-art/silver-wolf-cloud-0dc0cff975b3.json"
+    },
+    "yukong": {
+      "head": "/assets/character-art/yukong-head-5148fc55df2c.webp",
+      "portrait": "/assets/character-art/yukong-portrait-ad0633e6998a.webp",
+      "cloud": "/assets/character-art/yukong-cloud-ad0633e6998a.json"
+    },
+    "blade": {
+      "head": "/assets/character-art/blade-head-6a00d53ce03b.webp",
+      "portrait": "/assets/character-art/blade-portrait-468e271c2dd3.webp",
+      "cloud": "/assets/character-art/blade-cloud-468e271c2dd3.json"
+    },
+    "kafka": {
+      "head": "/assets/character-art/kafka-head-da2892dfd0d2.webp",
+      "portrait": "/assets/character-art/kafka-portrait-b450cf6973f1.webp",
+      "cloud": "/assets/character-art/kafka-cloud-b450cf6973f1.json"
+    },
+    "luka": {
+      "head": "/assets/character-art/luka-head-1d049a6f6a83.webp",
+      "portrait": "/assets/character-art/luka-portrait-671c5e93c8dc.webp",
+      "cloud": "/assets/character-art/luka-cloud-671c5e93c8dc.json"
+    },
+    "dan-heng-il": {
+      "head": "/assets/character-art/dan-heng-il-head-8dc7e1b75e99.webp",
+      "portrait": "/assets/character-art/dan-heng-il-portrait-c61db23fe151.webp",
+      "cloud": "/assets/character-art/dan-heng-il-cloud-c61db23fe151.json"
+    },
+    "fu-xuan": {
+      "head": "/assets/character-art/fu-xuan-head-f390518210ec.webp",
+      "portrait": "/assets/character-art/fu-xuan-portrait-8db21b74e3f2.webp",
+      "cloud": "/assets/character-art/fu-xuan-cloud-8db21b74e3f2.json"
+    },
+    "lynx": {
+      "head": "/assets/character-art/lynx-head-21bbe4ad18ac.webp",
+      "portrait": "/assets/character-art/lynx-portrait-cf82fbdeda6d.webp",
+      "cloud": "/assets/character-art/lynx-cloud-cf82fbdeda6d.json"
+    },
+    "guinaifen": {
+      "head": "/assets/character-art/guinaifen-head-bb084fb892ea.webp",
+      "portrait": "/assets/character-art/guinaifen-portrait-2d8b220ba1c8.webp",
+      "cloud": "/assets/character-art/guinaifen-cloud-2d8b220ba1c8.json"
+    },
+    "jingliu": {
+      "head": "/assets/character-art/jingliu-head-99dff580fde1.webp",
+      "portrait": "/assets/character-art/jingliu-portrait-9d538ec60eaf.webp",
+      "cloud": "/assets/character-art/jingliu-cloud-9d538ec60eaf.json"
+    },
+    "topaz-and-numby": {
+      "head": "/assets/character-art/topaz-and-numby-head-2b27256cb354.webp",
+      "portrait": "/assets/character-art/topaz-and-numby-portrait-f17fd4664175.webp",
+      "cloud": "/assets/character-art/topaz-and-numby-cloud-f17fd4664175.json"
+    },
+    "argenti": {
+      "head": "/assets/character-art/argenti-head-752354bb1f34.webp",
+      "portrait": "/assets/character-art/argenti-portrait-0597b544a9fa.webp",
+      "cloud": "/assets/character-art/argenti-cloud-0597b544a9fa.json"
+    },
+    "hanya": {
+      "head": "/assets/character-art/hanya-head-d63858e269d2.webp",
+      "portrait": "/assets/character-art/hanya-portrait-3669596d2751.webp",
+      "cloud": "/assets/character-art/hanya-cloud-3669596d2751.json"
+    },
+    "huohuo": {
+      "head": "/assets/character-art/huohuo-head-2bb4125af84c.webp",
+      "portrait": "/assets/character-art/huohuo-portrait-ca87aaace71c.webp",
+      "cloud": "/assets/character-art/huohuo-cloud-ca87aaace71c.json"
+    },
+    "dr-ratio": {
+      "head": "/assets/character-art/dr-ratio-head-3da1246c8949.webp",
+      "portrait": "/assets/character-art/dr-ratio-portrait-d612452fa566.webp",
+      "cloud": "/assets/character-art/dr-ratio-cloud-d612452fa566.json"
+    },
+    "ruan-mei": {
+      "head": "/assets/character-art/ruan-mei-head-c2ed2fe4ceab.webp",
+      "portrait": "/assets/character-art/ruan-mei-portrait-7b971785e784.webp",
+      "cloud": "/assets/character-art/ruan-mei-cloud-7b971785e784.json"
+    },
+    "xueyi": {
+      "head": "/assets/character-art/xueyi-head-50de3a10fc39.webp",
+      "portrait": "/assets/character-art/xueyi-portrait-63021414dca8.webp",
+      "cloud": "/assets/character-art/xueyi-cloud-63021414dca8.json"
+    },
+    "black-swan": {
+      "head": "/assets/character-art/black-swan-head-32fad3566920.webp",
+      "portrait": "/assets/character-art/black-swan-portrait-3cc1550dee2f.webp",
+      "cloud": "/assets/character-art/black-swan-cloud-3cc1550dee2f.json"
+    },
+    "misha": {
+      "head": "/assets/character-art/misha-head-1050f0311c16.webp",
+      "portrait": "/assets/character-art/misha-portrait-e3c77861ba4d.webp",
+      "cloud": "/assets/character-art/misha-cloud-e3c77861ba4d.json"
+    },
+    "sparkle": {
+      "head": "/assets/character-art/sparkle-head-29e298837115.webp",
+      "portrait": "/assets/character-art/sparkle-portrait-6ba229670941.webp",
+      "cloud": "/assets/character-art/sparkle-cloud-6ba229670941.json"
+    },
+    "acheron": {
+      "head": "/assets/character-art/acheron-head-a64da6fbc603.webp",
+      "portrait": "/assets/character-art/acheron-portrait-0f9ea28aafce.webp",
+      "cloud": "/assets/character-art/acheron-cloud-0f9ea28aafce.json"
+    },
+    "aventurine": {
+      "head": "/assets/character-art/aventurine-head-59d52e4c1be6.webp",
+      "portrait": "/assets/character-art/aventurine-portrait-e72a8625c036.webp",
+      "cloud": "/assets/character-art/aventurine-cloud-e72a8625c036.json"
+    },
+    "gallagher": {
+      "head": "/assets/character-art/gallagher-head-f9d7ef5d2952.webp",
+      "portrait": "/assets/character-art/gallagher-portrait-77f2a9afcdad.webp",
+      "cloud": "/assets/character-art/gallagher-cloud-77f2a9afcdad.json"
+    },
+    "boothill": {
+      "head": "/assets/character-art/boothill-head-5b96d285167e.webp",
+      "portrait": "/assets/character-art/boothill-portrait-212cea9b70ec.webp",
+      "cloud": "/assets/character-art/boothill-cloud-212cea9b70ec.json"
+    },
+    "robin": {
+      "head": "/assets/character-art/robin-head-47c44fc7b434.webp",
+      "portrait": "/assets/character-art/robin-portrait-0a4f893f6e7b.webp",
+      "cloud": "/assets/character-art/robin-cloud-0a4f893f6e7b.json"
+    },
+    "trailblazer-harmony": {
+      "head": "/assets/character-art/trailblazer-harmony-head-8ab0f9082b98.webp",
+      "portrait": "/assets/character-art/trailblazer-harmony-portrait-d128f8f59273.webp",
+      "cloud": "/assets/character-art/trailblazer-harmony-cloud-d128f8f59273.json"
+    },
+    "firefly": {
+      "head": "/assets/character-art/firefly-head-749d1e028e02.webp",
+      "portrait": "/assets/character-art/firefly-portrait-b15170f49eae.webp",
+      "cloud": "/assets/character-art/firefly-cloud-b15170f49eae.json"
+    },
+    "jade": {
+      "head": "/assets/character-art/jade-head-eac30eb32477.webp",
+      "portrait": "/assets/character-art/jade-portrait-9a278c22ca05.webp",
+      "cloud": "/assets/character-art/jade-cloud-9a278c22ca05.json"
+    },
+    "jiaoqiu": {
+      "head": "/assets/character-art/jiaoqiu-head-f47b7d7044f5.webp",
+      "portrait": "/assets/character-art/jiaoqiu-portrait-559b7f86b495.webp",
+      "cloud": "/assets/character-art/jiaoqiu-cloud-559b7f86b495.json"
+    },
+    "march-7th-hunt": {
+      "head": "/assets/character-art/march-7th-hunt-head-dc6475d6036f.webp",
+      "portrait": "/assets/character-art/march-7th-hunt-portrait-14accf27af73.webp",
+      "cloud": "/assets/character-art/march-7th-hunt-cloud-14accf27af73.json"
+    },
+    "yunli": {
+      "head": "/assets/character-art/yunli-head-ca9f827b3d77.webp",
+      "portrait": "/assets/character-art/yunli-portrait-aecace5b6aad.webp",
+      "cloud": "/assets/character-art/yunli-cloud-aecace5b6aad.json"
+    },
+    "feixiao": {
+      "head": "/assets/character-art/feixiao-head-91383785ccde.webp",
+      "portrait": "/assets/character-art/feixiao-portrait-e2da4159ab39.webp",
+      "cloud": "/assets/character-art/feixiao-cloud-e2da4159ab39.json"
+    },
+    "lingsha": {
+      "head": "/assets/character-art/lingsha-head-67d4222e73eb.webp",
+      "portrait": "/assets/character-art/lingsha-portrait-03fc89794eab.webp",
+      "cloud": "/assets/character-art/lingsha-cloud-03fc89794eab.json"
+    },
+    "moze": {
+      "head": "/assets/character-art/moze-head-70dd1709c2ba.webp",
+      "portrait": "/assets/character-art/moze-portrait-160b60786932.webp",
+      "cloud": "/assets/character-art/moze-cloud-160b60786932.json"
+    },
+    "rappa": {
+      "head": "/assets/character-art/rappa-head-b44537107435.webp",
+      "portrait": "/assets/character-art/rappa-portrait-9fc2e1f6e938.webp",
+      "cloud": "/assets/character-art/rappa-cloud-9fc2e1f6e938.json"
+    },
+    "fugue": {
+      "head": "/assets/character-art/fugue-head-b0107f3307a0.webp",
+      "portrait": "/assets/character-art/fugue-portrait-f51ef0a4a4f6.webp",
+      "cloud": "/assets/character-art/fugue-cloud-f51ef0a4a4f6.json"
+    },
+    "sunday": {
+      "head": "/assets/character-art/sunday-head-b1acea79f635.webp",
+      "portrait": "/assets/character-art/sunday-portrait-eeea662d8733.webp",
+      "cloud": "/assets/character-art/sunday-cloud-eeea662d8733.json"
+    },
+    "aglaea": {
+      "head": "/assets/character-art/aglaea-head-bb6d4342b188.webp",
+      "portrait": "/assets/character-art/aglaea-portrait-c63da906bde7.webp",
+      "cloud": "/assets/character-art/aglaea-cloud-c63da906bde7.json"
+    },
+    "the-herta": {
+      "head": "/assets/character-art/the-herta-head-b67f09e9cb7d.webp",
+      "portrait": "/assets/character-art/the-herta-portrait-d58081f2d996.webp",
+      "cloud": "/assets/character-art/the-herta-cloud-d58081f2d996.json"
+    },
+    "trailblazer-remembrance": {
+      "head": "/assets/character-art/trailblazer-remembrance-head-38ba6a863c7d.webp",
+      "portrait": "/assets/character-art/trailblazer-remembrance-portrait-3e46196cfb8e.webp",
+      "cloud": "/assets/character-art/trailblazer-remembrance-cloud-3e46196cfb8e.json"
+    },
+    "mydei": {
+      "head": "/assets/character-art/mydei-head-b2640bdf6298.webp",
+      "portrait": "/assets/character-art/mydei-portrait-ea9fd532990c.webp",
+      "cloud": "/assets/character-art/mydei-cloud-ea9fd532990c.json"
+    },
+    "tribbie": {
+      "head": "/assets/character-art/tribbie-head-2e72967359a1.webp",
+      "portrait": "/assets/character-art/tribbie-portrait-95ec7ce6c9b1.webp",
+      "cloud": "/assets/character-art/tribbie-cloud-95ec7ce6c9b1.json"
+    },
+    "anaxa": {
+      "head": "/assets/character-art/anaxa-head-34973e3f3104.webp",
+      "portrait": "/assets/character-art/anaxa-portrait-b275c93ac77f.webp",
+      "cloud": "/assets/character-art/anaxa-cloud-b275c93ac77f.json"
+    },
+    "castorice": {
+      "head": "/assets/character-art/castorice-head-6a42f6eec6a0.webp",
+      "portrait": "/assets/character-art/castorice-portrait-a8591025b6b1.webp",
+      "cloud": "/assets/character-art/castorice-cloud-a8591025b6b1.json"
+    },
+    "cipher": {
+      "head": "/assets/character-art/cipher-head-6cddcd54ca3b.webp",
+      "portrait": "/assets/character-art/cipher-portrait-87335b9f5452.webp",
+      "cloud": "/assets/character-art/cipher-cloud-87335b9f5452.json"
+    },
+    "hyacine": {
+      "head": "/assets/character-art/hyacine-head-e2395ed107f1.webp",
+      "portrait": "/assets/character-art/hyacine-portrait-51e62091f0ff.webp",
+      "cloud": "/assets/character-art/hyacine-cloud-51e62091f0ff.json"
+    },
+    "archer": {
+      "head": "/assets/character-art/archer-head-e4c8d948cbad.webp",
+      "portrait": "/assets/character-art/archer-portrait-f04b713bd602.webp",
+      "cloud": "/assets/character-art/archer-cloud-f04b713bd602.json"
+    },
+    "phainon": {
+      "head": "/assets/character-art/phainon-head-0e56f9256019.webp",
+      "portrait": "/assets/character-art/phainon-portrait-6cc74d822ef4.webp",
+      "cloud": "/assets/character-art/phainon-cloud-6cc74d822ef4.json"
+    },
+    "saber": {
+      "head": "/assets/character-art/saber-head-188ff6bc5f66.webp",
+      "portrait": "/assets/character-art/saber-portrait-b57d2c763b0e.webp",
+      "cloud": "/assets/character-art/saber-cloud-b57d2c763b0e.json"
+    },
+    "cerydra": {
+      "head": "/assets/character-art/cerydra-head-d8863fa3a4c1.webp",
+      "portrait": "/assets/character-art/cerydra-portrait-60e2acdc1340.webp",
+      "cloud": "/assets/character-art/cerydra-cloud-60e2acdc1340.json"
+    },
+    "hysilens": {
+      "head": "/assets/character-art/hysilens-head-0a2600452832.webp",
+      "portrait": "/assets/character-art/hysilens-portrait-6fd655cacee5.webp",
+      "cloud": "/assets/character-art/hysilens-cloud-6fd655cacee5.json"
+    },
+    "dan-heng-permansor-terrae": {
+      "head": "/assets/character-art/dan-heng-permansor-terrae-head-a8b5f0a69285.webp",
+      "portrait": "/assets/character-art/dan-heng-permansor-terrae-portrait-085f3dd3c409.webp",
+      "cloud": "/assets/character-art/dan-heng-permansor-terrae-cloud-085f3dd3c409.json"
+    },
+    "evernight": {
+      "head": "/assets/character-art/evernight-head-3b09276114d7.webp",
+      "portrait": "/assets/character-art/evernight-portrait-9ba8b74533ec.webp",
+      "cloud": "/assets/character-art/evernight-cloud-9ba8b74533ec.json"
+    },
+    "cyrene": {
+      "head": "/assets/character-art/cyrene-head-fba494c245a6.webp",
+      "portrait": "/assets/character-art/cyrene-portrait-9f64375c39d6.webp",
+      "cloud": "/assets/character-art/cyrene-cloud-9f64375c39d6.json"
+    },
+    "the-dahlia": {
+      "head": "/assets/character-art/the-dahlia-head-789d987fdb00.webp",
+      "portrait": "/assets/character-art/the-dahlia-portrait-190556bb3a58.webp",
+      "cloud": "/assets/character-art/the-dahlia-cloud-190556bb3a58.json"
+    },
+    "sparxie": {
+      "head": "/assets/character-art/sparxie-head-2d9cf3cb1b8b.webp",
+      "portrait": "/assets/character-art/sparxie-portrait-6205ae44065b.webp",
+      "cloud": "/assets/character-art/sparxie-cloud-6205ae44065b.json"
+    },
+    "yao-guang": {
+      "head": "/assets/character-art/yao-guang-head-4839a12c55e1.webp",
+      "portrait": "/assets/character-art/yao-guang-portrait-a159d6edcba1.webp",
+      "cloud": "/assets/character-art/yao-guang-cloud-a159d6edcba1.json"
+    },
+    "ashveil": {
+      "head": "/assets/character-art/ashveil-head-b3fa454d1e13.webp",
+      "portrait": "/assets/character-art/ashveil-portrait-62190503af65.webp",
+      "cloud": "/assets/character-art/ashveil-cloud-62190503af65.json"
+    },
+    "evanescia": {
+      "head": "/assets/character-art/evanescia-head-f0ab2935eb9e.webp",
+      "portrait": "/assets/character-art/evanescia-portrait-bf6a5390d3de.webp",
+      "cloud": "/assets/character-art/evanescia-cloud-bf6a5390d3de.json"
+    },
+    "silver-wolf-lv-999": {
+      "head": "/assets/character-art/silver-wolf-lv-999-head-a4426ab74bef.webp",
+      "portrait": "/assets/character-art/silver-wolf-lv-999-portrait-bd172f5a8e5c.webp",
+      "cloud": "/assets/character-art/silver-wolf-lv-999-cloud-bd172f5a8e5c.json"
+    },
+    "trailblazer-elation": {
+      "head": "/assets/character-art/trailblazer-elation-head-5e5432f4e42a.webp",
+      "portrait": "/assets/character-art/trailblazer-elation-portrait-e7578c8946b5.webp",
+      "cloud": "/assets/character-art/trailblazer-elation-cloud-e7578c8946b5.json"
+    },
+    "mortenax-blade": {
+      "head": "/assets/character-art/mortenax-blade-head-030c09183e5d.webp",
+      "portrait": "/assets/character-art/mortenax-blade-portrait-51f55b027c2f.webp",
+      "cloud": "/assets/character-art/mortenax-blade-cloud-51f55b027c2f.json"
+    },
+    "gilgamesh": {
+      "head": "/assets/character-art/gilgamesh-head-bb2ab8f334a3.webp",
+      "portrait": "/assets/character-art/gilgamesh-portrait-866fd04106b0.webp",
+      "cloud": "/assets/character-art/gilgamesh-cloud-866fd04106b0.json"
+    },
+    "himeko-nova": {
+      "head": "/assets/character-art/himeko-nova-head-00877db33eb6.webp",
+      "portrait": "/assets/character-art/himeko-nova-portrait-ae56767b7cf3.webp",
+      "cloud": "/assets/character-art/himeko-nova-cloud-ae56767b7cf3.json"
+    },
+    "rin-tohsaka": {
+      "head": "/assets/character-art/rin-tohsaka-head-9f73459789ff.webp",
+      "portrait": "/assets/character-art/rin-tohsaka-portrait-cf1f9cc61c99.webp",
+      "cloud": "/assets/character-art/rin-tohsaka-cloud-cf1f9cc61c99.json"
+    },
+    "aventurine-waveflair": {
+      "head": "/assets/character-art/aventurine-waveflair-head-d1161cc5cc56.webp",
+      "portrait": null,
+      "cloud": null
+    },
+    "robin-summeretto": {
+      "head": "/assets/character-art/robin-summeretto-head-aa0b9a25e601.webp",
+      "portrait": null,
+      "cloud": null
+    }
+  },
+  "sprite": {
+    "path": "/assets/character-art/replay-sprite-b6c230351eae.webp",
+    "size": 64,
+    "columns": 10,
+    "rows": 10,
+    "cells": {
+      "acheron": 0,
+      "aglaea": 1,
+      "anaxa": 2,
+      "archer": 3,
+      "argenti": 4,
+      "arlan": 5,
+      "ashveil": 6,
+      "asta": 7,
+      "aventurine": 8,
+      "aventurine-waveflair": 9,
+      "bailu": 10,
+      "black-swan": 11,
+      "blade": 12,
+      "boothill": 13,
+      "bronya": 14,
+      "castorice": 15,
+      "cerydra": 16,
+      "cipher": 17,
+      "clara": 18,
+      "cyrene": 19,
+      "dan-heng": 20,
+      "dan-heng-il": 21,
+      "dan-heng-permansor-terrae": 22,
+      "dr-ratio": 23,
+      "evanescia": 24,
+      "evernight": 25,
+      "feixiao": 26,
+      "firefly": 27,
+      "fu-xuan": 28,
+      "fugue": 29,
+      "gallagher": 30,
+      "gepard": 31,
+      "gilgamesh": 32,
+      "guinaifen": 33,
+      "hanya": 34,
+      "herta": 35,
+      "himeko": 36,
+      "himeko-nova": 37,
+      "hook": 38,
+      "huohuo": 39,
+      "hyacine": 40,
+      "hysilens": 41,
+      "jade": 42,
+      "jiaoqiu": 43,
+      "jing-yuan": 44,
+      "jingliu": 45,
+      "kafka": 46,
+      "lingsha": 47,
+      "luka": 48,
+      "luocha": 49,
+      "lynx": 50,
+      "march-7th": 51,
+      "march-7th-hunt": 52,
+      "misha": 53,
+      "mortenax-blade": 54,
+      "moze": 55,
+      "mydei": 56,
+      "natasha": 57,
+      "pela": 58,
+      "phainon": 59,
+      "qingque": 60,
+      "rappa": 61,
+      "rin-tohsaka": 62,
+      "robin": 63,
+      "robin-summeretto": 64,
+      "ruan-mei": 65,
+      "saber": 66,
+      "sampo": 67,
+      "seele": 68,
+      "serval": 69,
+      "silver-wolf": 70,
+      "silver-wolf-lv-999": 71,
+      "sparkle": 72,
+      "sparxie": 73,
+      "sunday": 74,
+      "sushang": 75,
+      "the-dahlia": 76,
+      "the-herta": 77,
+      "tingyun": 78,
+      "topaz-and-numby": 79,
+      "trailblazer-destruction": 80,
+      "trailblazer-elation": 81,
+      "trailblazer-harmony": 82,
+      "trailblazer-preservation": 83,
+      "trailblazer-remembrance": 84,
+      "tribbie": 85,
+      "welt": 86,
+      "xueyi": 87,
+      "yanqing": 88,
+      "yao-guang": 89,
+      "yukong": 90,
+      "yunli": 91
+    }
+  }
+}

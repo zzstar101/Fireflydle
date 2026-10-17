@@ -1,4 +1,3 @@
-import { ArrowDown, ArrowUp, Check, CircleDot, CloudFog, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type {
   FieldDefinition,
@@ -21,14 +20,28 @@ const legacyFields = selectSnapshotFieldDefinitions(
   contentManifest.modes.find((mode) => mode.id === "playable")?.fields ?? [],
 );
 
+// 原型 .tile：一致 ✓、接近 ≈ 角标，不符不加角标（靠底色 + 读屏文案区分），未知字段用 ?。
+const STATE_GLYPH: Record<string, string> = {
+  exact: "✓",
+  close: "≈",
+  unavailable: "?",
+  fog: "?",
+};
+
 function StatusIcon({ cell }: { cell: GuessCell }) {
-  if (cell.state === "fog") return <CloudFog size={17} aria-hidden="true" />;
-  if (cell.direction === "higher") return <ArrowUp size={17} aria-hidden="true" />;
-  if (cell.direction === "lower") return <ArrowDown size={17} aria-hidden="true" />;
-  if (cell.state === "exact") return <Check size={17} aria-hidden="true" />;
-  if (cell.state === "close") return <CircleDot size={16} aria-hidden="true" />;
-  return <X size={16} aria-hidden="true" />;
+  const glyph = STATE_GLYPH[cell.state];
+  if (!glyph) return null;
+  return (
+    <span className="feedback-glyph" aria-hidden="true">
+      {glyph}
+    </span>
+  );
 }
+
+const DIRECTION_ARROW: Partial<Record<GuessCell["direction"], string>> = {
+  higher: "↑",
+  lower: "↓",
+};
 
 function cellValue(
   guess: GuessResult,
@@ -163,7 +176,14 @@ export function GuessBoard({
                         <span className="feedback-icon">
                           <StatusIcon cell={status} />
                         </span>
-                        <strong>{value}</strong>
+                        <strong>
+                          {value}
+                          {DIRECTION_ARROW[status.direction] ? (
+                            <span className="feedback-dir" aria-hidden="true">
+                              {DIRECTION_ARROW[status.direction]}
+                            </span>
+                          ) : null}
+                        </strong>
                         <small>{t(`game.${status.state}`)}</small>
                         {direction ? (
                           <small className="feedback-direction">{direction}</small>

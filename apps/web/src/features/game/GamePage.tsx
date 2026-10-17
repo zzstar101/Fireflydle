@@ -1,38 +1,35 @@
-import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  Clock3,
-  Gauge,
-  ImageDown,
-  Info,
-  RadioTower,
-  RotateCcw,
-  Signal,
-  Share2,
-  Sparkles,
-  Trophy,
-  WifiOff,
-} from "lucide-react";
+import { ArrowLeft, ImageDown, Info, RotateCcw, Share2, WifiOff, X } from "lucide-react";
 import type {
   AeonSummary,
+  Character,
   FriendChallenge,
   PersonalStats,
+  PlayableGameEntitySummary,
   PublicGame,
   PublicUser,
   ReplayShareResponse,
   SessionPayload,
 } from "@fireflydle/contracts";
-import { getBeijingDateKey, selectSnapshotFieldDefinitions } from "@fireflydle/game-engine";
-import { CharacterAvatar } from "../../components/CharacterAvatar";
+import {
+  compareCharactersWithRules,
+  getBeijingDateKey,
+  snapshotRulesFromFieldDefinitions,
+} from "@fireflydle/game-engine";
 import { apiRequest, ensureSession } from "../../api/client";
 import { useSession } from "../account/useSession";
 import { usePreferences } from "../../state/preferences";
+import { useCharacterPortrait, useCharacterSprite } from "../../lib/character-art";
+import { fx } from "../../fx/fx";
 import { CharacterCombobox } from "./CharacterCombobox";
 import { GuessBoard } from "./GuessBoard";
-import { InferenceReview } from "./InferenceReview";
+import { InferenceReplay } from "./InferenceReplay";
+import { ResultReveal } from "./ResultReveal";
+import { buildInferenceReplayFrames } from "./inference-replay-model";
+import { hasSeenResultReveal } from "./reveal-memory";
 import { ShareResultDialog } from "./ShareResultDialog";
 import { RulesPanel } from "./RulesPanel";
 import { PlayableTutorial } from "./PlayableTutorial";
@@ -48,16 +45,39 @@ import {
   tryNativeFriendChallengeShare,
 } from "./share-friend-challenge";
 import { useCurrentGames } from "./useCurrentGames";
-import { useGameSession } from "./useGameSession";
+import { createDraftGame, useGameSession } from "./useGameSession";
 import type { SoloContentMode, SoloModeRuntime } from "./mode-runtime";
 import { markInstallEligible } from "../../pwa";
+import { dailyIssueNumber } from "../hub/daily-issue";
 import { useSpecialModePack } from "../../offline/use-special-mode-pack";
 import "./game.css";
+import "./result-screen.css";
+
+interface DraftState {
+  online: boolean;
+  disabled: boolean;
+  /** connection：联网开局失败；offline-pack：特殊模式还没缓存离线包。 */
+  failed: "connection" | "offline-pack" | null;
+  allowOffline: boolean;
+  onRetry: () => void;
+  onOffline: () => void;
+}
 
 interface SharePreview {
   imageUrl: string;
   fileName: string;
   challengeUrl?: string;
+}
+
+/** 原型标题里的日期：「10月11日」/「Oct 11」。dateKey 是北京时间日期。 */
+function formatDateKey(dateKey: string, locale: "zh-CN" | "en" | "ja"): string {
+  const date = new Date(`${dateKey}T12:00:00+08:00`);
+  if (Number.isNaN(date.getTime())) return dateKey;
+  return new Intl.DateTimeFormat(locale, {
+    month: locale === "en" ? "short" : "long",
+    day: "numeric",
+    timeZone: "Asia/Shanghai",
+  }).format(date);
 }
 
 function formatTime(milliseconds: number): string {
@@ -70,23 +90,6 @@ function formatTime(milliseconds: number): string {
 const AeonGuessBoard = lazy(() =>
   import("./AeonGuessBoard").then((module) => ({ default: module.AeonGuessBoard })),
 );
-
-function fieldSummary(
-  locale: "zh-CN" | "en" | "ja",
-  contentModeId: SoloContentMode,
-  runtime: SoloModeRuntime,
-): string {
-  const manifest = runtime.manifest;
-  const mode = manifest.modes.find((entry) => entry.id === contentModeId);
-  const fields = (
-    contentModeId === "playable"
-      ? selectSnapshotFieldDefinitions(mode?.fields ?? [])
-      : (mode?.fields ?? [])
-  )
-    .map((field) => field.label[locale])
-    .join(locale === "ja" ? "・" : ", ");
-  return fields ?? "";
-}
 
 function ruleLabels(t: (key: string) => string, locale: "zh-CN" | "en" | "ja") {
   return {
@@ -108,268 +111,21 @@ function ruleLabels(t: (key: string) => string, locale: "zh-CN" | "en" | "ja") {
   };
 }
 
-function GamePreparation({
-  activityId,
-  contentModeId,
-  runtime,
-  checking,
-  busy,
-  connectionFailed,
-  onStart,
-  onRetry,
-  onOffline,
-  offlineUnavailable,
-  offlinePackState,
-  onRetryOfflinePack,
-  onReplayTutorial,
-}: {
-  activityId: "daily" | "practice";
-  contentModeId: SoloContentMode;
-  runtime: SoloModeRuntime;
-  checking: boolean;
-  busy: boolean;
-  connectionFailed: boolean;
-  onStart: () => void;
-  onRetry: () => void;
-  onOffline: () => void;
-  offlineUnavailable: boolean;
-  offlinePackState?: "checking" | "downloading" | "ready" | "missing" | "unsupported" | "error";
-  onRetryOfflinePack?: () => void;
-  onReplayTutorial?: () => void;
-}) {
-  const { t } = useTranslation();
-  const locale = usePreferences((state) => state.language);
-  const modeDefinition = runtime.manifest.modes.find((entry) => entry.id === contentModeId);
-  const maxAttempts = modeDefinition?.maxAttempts ?? 6;
-  const fields = modeDefinition?.fields ?? [];
-  const poolSize =
-    runtime.manifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
-      .length ?? 0;
-
-  return (
-    <main className={`game-preparation prep-${activityId}`}>
-      <Link className="prep-back" to="/">
-        <ArrowLeft size={16} aria-hidden="true" /> {t("hub.backToHub")}
-      </Link>
-      <header className="prep-header">
-        <div>
-          <p className="eyebrow">
-            {activityId === "daily" ? t("prep.dailyEyebrow") : t("prep.randomEyebrow")}
-          </p>
-          <h1>
-            {contentModeId === "npc"
-              ? "NPC"
-              : contentModeId === "aeon"
-                ? locale === "en"
-                  ? "Aeon image challenge"
-                  : locale === "ja"
-                    ? "星神画像チャレンジ"
-                    : "星神图片挑战"
-                : contentModeId === "currency-wars"
-                  ? locale === "zh-CN"
-                    ? "货币战争"
-                    : locale === "ja"
-                      ? "コイン戦争"
-                      : "Currency Wars"
-                  : activityId === "daily"
-                    ? t("game.daily")
-                    : t("game.random")}
-          </h1>
-          <p>
-            {contentModeId === "npc" ||
-            contentModeId === "currency-wars" ||
-            contentModeId === "aeon"
-              ? fieldSummary(locale, contentModeId, runtime)
-              : activityId === "daily"
-                ? t("prep.dailyIntro")
-                : t("prep.randomIntro")}
-          </p>
-        </div>
-        <div className="prep-route-mark" aria-hidden="true">
-          <span>{activityId === "daily" ? "01" : "02"}</span>
-          <strong>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</strong>
-        </div>
-      </header>
-
-      <section className="prep-console" aria-labelledby="rules-heading">
-        <div className="prep-section-label">
-          <span>01</span>
-          <div>
-            <h2 id="rules-heading">
-              {activityId === "daily"
-                ? locale === "zh-CN"
-                  ? "今日规则"
-                  : locale === "ja"
-                    ? "今日のルール"
-                    : "TODAY'S RULE"
-                : locale === "zh-CN"
-                  ? "练习规则"
-                  : locale === "ja"
-                    ? "練習ルール"
-                    : "PRACTICE RULE"}
-            </h2>
-            <p>
-              {locale === "zh-CN"
-                ? `${contentModeId === "npc" ? "NPC 练习" : contentModeId === "currency-wars" ? "货币战争练习" : activityId === "daily" ? "每日一题" : "练习"}固定 ${maxAttempts} 次猜测${activityId === "daily" ? "，每位玩家每天只有一局。" : "。"}`
-                : locale === "ja"
-                  ? `${contentModeId === "npc" ? "NPC練習" : contentModeId === "currency-wars" ? "コイン戦争練習" : activityId === "daily" ? "デイリー" : "練習"}は${maxAttempts}回固定です${activityId === "daily" ? "。1日1回だけ挑戦できます。" : "。"}`
-                  : `${contentModeId === "npc" ? "NPC practice" : contentModeId === "currency-wars" ? "Currency Wars practice" : activityId === "daily" ? "Daily puzzles" : "Practice"} always allows ${maxAttempts} guesses${activityId === "daily" ? " and one run per player." : "."}`}
-            </p>
-          </div>
-        </div>
-        <div className="prep-daily-rule">
-          <Gauge size={22} aria-hidden="true" />
-          <span>
-            <strong>
-              {locale === "zh-CN"
-                ? "固定猜测次数"
-                : locale === "ja"
-                  ? "固定推測回数"
-                  : "FIXED ATTEMPTS"}
-            </strong>
-            <small>
-              {locale === "zh-CN"
-                ? contentModeId === "npc"
-                  ? "NPC 练习使用独立四猜规则"
-                  : contentModeId === "currency-wars"
-                    ? "货币战争使用独立六猜规则"
-                    : "所有普通角色活动使用相同次数规则"
-                : locale === "ja"
-                  ? contentModeId === "npc"
-                    ? "NPC練習専用の4回ルール"
-                    : contentModeId === "currency-wars"
-                      ? "コイン戦争専用の6回ルール"
-                      : "通常キャラクターの全アクティビティで同じルール"
-                  : contentModeId === "npc"
-                    ? "Four attempts for NPC practice"
-                    : contentModeId === "currency-wars"
-                      ? "Six attempts for Currency Wars practice"
-                      : "The same limit for every playable-character activity"}
-            </small>
-          </span>
-          <b>{maxAttempts}</b>
-          <em>{t("prep.attemptUnit")}</em>
-        </div>
-
-        <div className="prep-start-zone">
-          <div className="timer-notice">
-            <Clock3 size={19} aria-hidden="true" />
-            <span>
-              <strong>{t("prep.timerTitle")}</strong>
-              {t("prep.timerBody")}
-            </span>
-          </div>
-          <button
-            className="ticket-button prep-start-button"
-            type="button"
-            disabled={checking || busy || connectionFailed || offlineUnavailable}
-            onClick={onStart}
-          >
-            {busy || checking ? <span className="button-spinner" /> : <RadioTower size={18} />}
-            {busy ? t("prep.connecting") : checking ? t("prep.checking") : t("prep.start")}
-          </button>
-        </div>
-
-        {contentModeId !== "playable" && offlinePackState ? (
-          <section className="offline-pack-status" role="status">
-            <WifiOff size={20} aria-hidden="true" />
-            <div>
-              <strong>
-                {offlinePackState === "ready"
-                  ? locale === "en"
-                    ? "Available offline"
-                    : locale === "ja"
-                      ? "オフライン利用可"
-                      : "可离线使用"
-                  : offlinePackState === "downloading" || offlinePackState === "checking"
-                    ? locale === "en"
-                      ? "Preparing offline pack"
-                      : locale === "ja"
-                        ? "オフラインパックを準備中"
-                        : "正在准备离线包"
-                    : locale === "en"
-                      ? "Open online once to prepare this mode"
-                      : locale === "ja"
-                        ? "オンラインで一度開いて準備してください"
-                        : "需要联网打开一次以缓存此模式"}
-              </strong>
-              <span>
-                {locale === "en"
-                  ? "Offline games stay on this device and are not uploaded."
-                  : locale === "ja"
-                    ? "オフライン対局は端末内だけに保存され、アップロードされません。"
-                    : "离线对局仅保留在本机，不会上传。"}
-              </span>
-            </div>
-            {offlinePackState === "error" && onRetryOfflinePack ? (
-              <button
-                type="button"
-                className="ticket-button-secondary"
-                onClick={onRetryOfflinePack}
-              >
-                {t("common.retry")}
-              </button>
-            ) : null}
-          </section>
-        ) : null}
-
-        {connectionFailed && activityId === "practice" && !offlineUnavailable && (
-          <section className="connection-choice" role="alert" aria-labelledby="connection-title">
-            <WifiOff size={22} aria-hidden="true" />
-            <div>
-              <h2 id="connection-title">{t("prep.connectionTitle")}</h2>
-              <p>{t("prep.connectionBody")}</p>
-            </div>
-            <div className="connection-actions">
-              <button
-                className="ticket-button-secondary"
-                type="button"
-                disabled={busy}
-                onClick={onRetry}
-              >
-                {t("common.retry")}
-              </button>
-              <button
-                className="offline-practice-button"
-                type="button"
-                disabled={busy}
-                onClick={onOffline}
-              >
-                {t("prep.offlineAction")}
-              </button>
-            </div>
-          </section>
-        )}
-
-        <RulesPanel
-          locale={locale}
-          title={t("prep.rulesTitle")}
-          intro={t("prep.rulesIntro")}
-          poolSize={poolSize}
-          maxAttempts={maxAttempts}
-          fields={fields}
-          labels={ruleLabels(t, locale)}
-          {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
-            ? { onReplayTutorial }
-            : {})}
-        />
-      </section>
-    </main>
-  );
-}
-
 function ActiveGame({
   activityId,
   contentModeId,
   runtime,
   session,
   onReplayTutorial,
+  draft,
 }: {
   activityId: "daily" | "practice";
   contentModeId: SoloContentMode;
   runtime: SoloModeRuntime;
   session: ReturnType<typeof useGameSession> & { game: PublicGame };
   onReplayTutorial?: () => void;
+  /** 尚未开局：棋盘照常渲染，第一次提交才开局。 */
+  draft?: DraftState | undefined;
 }) {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
@@ -386,14 +142,39 @@ function ActiveGame({
   const [challengeCopied, setChallengeCopied] = useState(false);
   const [replayCopied, setReplayCopied] = useState(false);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
+  /**
+   * 结算入场分两段：先播推理回放，立绘点云也聚拢完成，两者都好了才让
+   * `.art-cap` 与 `.panel` 进场（原型里也是回放结束后才 `#artImg` → `#artCap` → `#panel`）。
+   * 已看过这一局揭晓的（revealActive=false）直接呈现终态。
+   */
+  const [portraitDone, setPortraitDone] = useState(true);
+  const [replayDone, setReplayDone] = useState(true);
+  const revealDone = portraitDone && replayDone;
+  /** 「回放」按钮：自增即重挂载 InferenceReplay，重新播一遍。 */
+  const [replayCycle, setReplayCycle] = useState(0);
+  /** 首次入场沿用「同一局第二次打开跳终态」的语义；点「回放」后强制重播一遍。 */
+  const [replayActive, setReplayActive] = useState(true);
+  /** 原型 closeResult()：关掉整层结算遮罩，让底下的对局视图回来。 */
+  const [resultClosed, setResultClosed] = useState(false);
   const gameHeadingRef = useRef<HTMLHeadingElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const abandonButtonRef = useRef<HTMLButtonElement>(null);
   const confirmAbandonButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const observedGuessCountRef = useRef(session.game.guesses.length);
-  const { game, roster, source, busy, errorCode, submitGuess, restart, abandonAndRestart } =
-    session;
+  const {
+    game,
+    roster,
+    source,
+    busy,
+    errorCode,
+    submitGuess,
+    startWithGuess,
+    restart,
+    abandonAndRestart,
+  } = session;
+  const isDraft = Boolean(draft);
+  const previousGameIdRef = useRef(game.id);
   const guessCount = game.guesses.length;
   const modeManifest = runtime.manifest;
   const modeDefinition = modeManifest.modes.find((entry) => entry.id === contentModeId);
@@ -401,12 +182,6 @@ function ActiveGame({
   const rulePoolSize =
     modeManifest.pools.find((pool) => pool.id === modeDefinition?.candidatePoolId)?.candidateIds
       .length ?? 0;
-  const playerStats = useQuery({
-    queryKey: ["stats", "game-rail"],
-    queryFn: () => apiRequest<PersonalStats>("/stats/me"),
-    enabled: source === "server",
-    retry: false,
-  });
 
   useEffect(() => {
     setConfirmAbandon(false);
@@ -414,8 +189,11 @@ function ActiveGame({
     setReplayUrl(null);
     setChallengeError(false);
     setSharePreview(null);
-    observedGuessCountRef.current = game.guesses.length;
-    gameHeadingRef.current?.focus({ preventScroll: true });
+    // 草稿局 → 真实对局是同一次输入的延续：保留输入焦点，并让第一猜照常播放揭晓动画。
+    const fromDraft = previousGameIdRef.current === "draft";
+    previousGameIdRef.current = game.id;
+    observedGuessCountRef.current = fromDraft ? 0 : game.guesses.length;
+    if (!fromDraft && game.id !== "draft") gameHeadingRef.current?.focus({ preventScroll: true });
   }, [game.id]);
 
   useEffect(() => {
@@ -425,6 +203,24 @@ function ActiveGame({
 
     const latestGuess = game.guesses.at(-1);
     triggerGameHaptic(latestGuess?.isCorrect ? "win" : "life-lost");
+
+    // 一致格依次亮起时，把金色星尘洒进背景（错峰与 CSS 的 --cell-delay 对齐）。
+    const row = document.querySelector<HTMLElement>(".guess-board .guess-row.is-latest");
+    if (!row) return;
+    // 原型 animateRow：一致格翻开后 FX.burst(rect, mobile ? 6 : 10)，并把背景按一致数暖化 warm = exact / 6。
+    const mobile = window.matchMedia?.("(max-width: 760px)").matches === true;
+    const exactCells = Array.from(row.querySelectorAll<HTMLElement>("td.state-exact"));
+    const total = row.querySelectorAll("td.feedback-cell").length || 6;
+    fx.tween({ warm: exactCells.length / total }, { duration: 0.8, delay: 0.3 });
+    const timers = exactCells.map((cell, index) =>
+      window.setTimeout(() => fx.burst(cell, mobile ? 6 : 10), 110 + index * 105 + 180),
+    );
+    return () => {
+      for (const timer of timers) window.clearTimeout(timer);
+    };
+    // game.guesses 每次渲染都是新数组，加进依赖会让上面的错峰定时器被反复清掉；
+    // 这里只靠 guessCount 变化触发一次。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentModeId, guessCount]);
 
   useEffect(() => {
@@ -437,10 +233,10 @@ function ActiveGame({
   }, [confirmAbandon]);
 
   useEffect(() => {
-    if (game.status !== "active") return;
+    if (game.status !== "active" || isDraft) return;
     const interval = window.setInterval(() => setNow(Date.now()), 1_000);
     return () => window.clearInterval(interval);
-  }, [game.status]);
+  }, [game.status, isDraft]);
 
   useEffect(
     () => () => {
@@ -449,8 +245,11 @@ function ActiveGame({
     [sharePreview],
   );
 
-  const elapsedMs =
-    game.status === "active" ? now - new Date(game.startedAt).getTime() : game.elapsedMs;
+  const elapsedMs = isDraft
+    ? 0
+    : game.status === "active"
+      ? now - new Date(game.startedAt).getTime()
+      : game.elapsedMs;
   const remaining = Math.max(0, game.maxAttempts - game.guesses.length);
   const guessedIds = useMemo(
     () => new Set(game.guesses.map((guess) => guess.character.id)),
@@ -458,6 +257,126 @@ function ActiveGame({
   );
   const finished = game.status !== "active";
   const shareable = game.status === "won" || game.status === "lost";
+  // 结算立绘：超分后的半身像，索引里没有时回退到头像
+  const answerPortrait = useCharacterPortrait(finished ? game.answer?.id : null);
+  // 推理回放的 93 个头像走一张构建期合成图；拿不到索引时组件自己回退到逐个头像。
+  const replaySprite = useCharacterSprite();
+
+  // 结算演出只在对局刚结束时播一次；同一局再次渲染（计时、分享等）不能中断它，
+  // 所以用 ref 记住第一次判定结果，而不是每次渲染重新算。
+  const revealKey = game.status === "won" ? game.id : null;
+  const revealRef = useRef<{ key: string; active: boolean } | null>(null);
+  if (revealKey && revealRef.current?.key !== revealKey) {
+    revealRef.current = { key: revealKey, active: !hasSeenResultReveal(revealKey) };
+  }
+  const revealActive = revealRef.current?.key === revealKey && revealRef.current.active;
+
+  // 推理回放的每步候选集合：Worker 只公开计数，这里用同一套判题器在本地重放。
+  const replayFrames = useMemo(() => {
+    if (contentModeId !== "playable" || game.guesses.length === 0) return [];
+    const rules = snapshotRulesFromFieldDefinitions(game.fieldDefinitions ?? ruleFields);
+    if (rules.length === 0) return [];
+    const pool = roster.filter(
+      (entity): entity is PlayableGameEntitySummary => "releaseOrder" in entity,
+    );
+    return buildInferenceReplayFrames(pool, game.guesses, (target, guess) =>
+      compareCharactersWithRules(target as Character, guess as Character, rules),
+    );
+  }, [contentModeId, game.guesses, game.fieldDefinitions, ruleFields, roster]);
+
+  const replayCharacters = useMemo(
+    () => roster.filter((entity): entity is PlayableGameEntitySummary => "releaseOrder" in entity),
+    [roster],
+  );
+  // ── 结算页（原型 #result）派生值 ─────────────────────────────────────────
+  // 答案必定是 playable 实体（只有它带 rarity）；不是时按 5★ 呈现。
+  const answerRarity: number = game.answer && "rarity" in game.answer ? game.answer.rarity : 5;
+  // 原型的面板首行是「每日 #312 · 用时 00:02」：#N 是当天在一年中的序号。
+  const dayOfYear = (() => {
+    const key = game.dateKey ?? getBeijingDateKey();
+    const [year, month, day] = key.split("-").map(Number);
+    if (!year || !month || !day) return "";
+    const start = Date.UTC(year, 0, 1);
+    const current = Date.UTC(year, month - 1, day);
+    return String(Math.round((current - start) / 86_400_000) + 1);
+  })();
+  const activityLabel = `${activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")} #${dayOfYear}`;
+  // 标题按语言拼装（i18n 里没有现成的「第 N 次猜中」模板）。
+  const winTitlePrefix = locale === "en" ? "Solved in " : locale === "ja" ? "第 " : "第 ";
+  const winTitleSuffix = locale === "en" ? "" : locale === "ja" ? " 回目で正解" : " 次猜中";
+  // 推理复盘链：开局候选数 → 每一猜之后的剩余候选（原型 .chain）。
+  const inferenceChain = useMemo(() => {
+    const first = replayFrames[0];
+    const opening = first
+      ? first.remainingIds.length + Math.max(0, replayCharacters.length - first.remainingIds.length)
+      : replayCharacters.length;
+    return [opening, ...replayFrames.map((frame) => frame.remainingIds.length)];
+  }, [replayFrames, replayCharacters]);
+  // 面板里的连胜 / 胜率取自 /stats/me；没有数据（未登录、离线）时显示破折号。
+  // 这是只读查询，不改动任何既有 hook 与请求逻辑。
+  const resultStatsQuery = useQuery({
+    queryKey: ["stats", "result"],
+    queryFn: () => apiRequest<PersonalStats>("/stats/me"),
+    enabled: finished && game.status === "won" && source === "server",
+    retry: false,
+    staleTime: 30_000,
+  });
+  const resultStats = resultStatsQuery.data
+    ? {
+        currentStreak: resultStatsQuery.data.currentStreak,
+        winRate:
+          resultStatsQuery.data.dailyPlayed > 0
+            ? Math.round((resultStatsQuery.data.dailyWon / resultStatsQuery.data.dailyPlayed) * 100)
+            : 0,
+      }
+    : null;
+  const handleRevealDone = useCallback(() => setPortraitDone(true), []);
+  const handleReplayDone = useCallback(() => {
+    setReplayActive(false);
+    setReplayDone(true);
+  }, []);
+  const handleReplay = useCallback(() => {
+    // 手动重播不重播面板入场：revealDone 已经为 true，面板保持可见。
+    setReplayActive(true);
+    setReplayCycle((cycle) => cycle + 1);
+  }, []);
+  const handleCloseResult = useCallback(() => {
+    setResultClosed(true);
+  }, []);
+
+  // 每局只重置一次进场状态：已看过揭晓的（revealActive=false）直接呈现终态。
+  // 这一步刻意放在 render 期间而不是 useEffect：effect 要等提交之后才跑，
+  // 那样「对局刚结束」的第一帧会沿用上一局留下的终态，回放动画要等下一帧才开始。
+  // 键取 finished 之后的 game.id —— 对局还活着时 revealKey 为 null、revealActive 必为 false，
+  // 那时若就重置，等真的赢了反而会因为「键没变」而跳过。
+  const resultResetKeyRef = useRef<string | null>(null);
+  const resultResetKey = finished ? game.id : null;
+  if (resultResetKey && resultResetKeyRef.current !== resultResetKey) {
+    resultResetKeyRef.current = resultResetKey;
+    setPortraitDone(!revealActive);
+    setReplayDone(!revealActive);
+    setReplayActive(revealActive);
+    setReplayCycle(0);
+    setResultClosed(false);
+  }
+
+  // 原型 playResult 开头 / closeResult：结算页在场时星海切到 result 态（满亮、暖色归零、轨道 .6），
+  // 移动端结算页自己滚动，形态跟随它的 scrollTop；关掉后回到对局态的压暗背景。
+  const resultVisible =
+    finished && Boolean(game.answer) && contentModeId !== "aeon" && !resultClosed;
+  useEffect(() => {
+    if (!resultVisible) return undefined;
+    const mobile = window.matchMedia("(max-width: 760px)").matches;
+    fx.setMode("result");
+    fx.setScroller(mobile ? () => resultRef.current?.scrollTop ?? 0 : null);
+    const cancel = fx.tween({ dim: 1, warm: 0, rail: 0.6 }, { duration: 0.8 });
+    return () => {
+      cancel();
+      fx.setMode("game");
+      fx.setScroller(null);
+      fx.tween({ morph: 0, shapeAlpha: 1, dim: 0.45, rail: 0.25 }, { duration: 1.2 });
+    };
+  }, [resultVisible]);
 
   const closeSharePreview = useCallback(() => {
     setSharePreview(null);
@@ -574,30 +493,36 @@ function ActiveGame({
   };
 
   return (
-    <main className="game-page running-game-page">
-      <section className="game-hero running-game-hero">
-        <div className="hero-track" aria-hidden="true">
-          <span />
-          <i />
-          <span />
-          <i />
-          <span />
-        </div>
-        <div className="hero-copy">
-          <Link className="game-hub-link" to="/">
-            <ArrowLeft size={15} /> {t("hub.backToHub")}
-          </Link>
-          <p className="eyebrow">
-            {contentModeId === "npc"
-              ? "NPC · TRACER"
-              : contentModeId === "aeon"
-                ? "AEON · IMAGE"
-                : contentModeId === "currency-wars"
-                  ? "CURRENCY WARS · TRACER"
-                  : activityId === "daily"
-                    ? t("prep.dailyEyebrow")
-                    : t("prep.randomEyebrow")}
-          </p>
+    <main
+      className={`game-page running-game-page sr-game${finished ? " is-finished" : ""}${
+        contentModeId === "aeon" ? " is-aeon" : ""
+      }`}
+    >
+      <header className="sr-game-head">
+        <div className="sr-game-title">
+          <nav className="sr-crumb" aria-label={t("hub.backToHub")}>
+            <Link className="game-hub-link" to="/">
+              {t("nav.hub")}
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span>
+              {contentModeId === "npc"
+                ? "NPC"
+                : contentModeId === "aeon"
+                  ? locale === "en"
+                    ? "Aeon"
+                    : "星神"
+                  : contentModeId === "currency-wars"
+                    ? locale === "zh-CN"
+                      ? "货币战争"
+                      : locale === "ja"
+                        ? "コイン戦争"
+                        : "Currency Wars"
+                    : activityId === "daily"
+                      ? t("game.crumbDaily")
+                      : t("hub.modePractice")}
+            </span>
+          </nav>
           <h1 ref={gameHeadingRef} tabIndex={-1}>
             {contentModeId === "npc"
               ? "NPC"
@@ -614,313 +539,411 @@ function ActiveGame({
                       ? "コイン戦争"
                       : "Currency Wars"
                   : activityId === "daily"
-                    ? t("game.daily")
-                    : t("game.random")}
+                    ? t("hub.dailyIssue", {
+                        number: dailyIssueNumber(game.dateKey ?? getBeijingDateKey()),
+                      })
+                    : t("hub.modePractice")}
+            {activityId === "daily" ? (
+              <small>{formatDateKey(game.dateKey ?? getBeijingDateKey(), locale)}</small>
+            ) : null}
           </h1>
-          <p>
-            {contentModeId === "aeon"
-              ? locale === "en"
+          {contentModeId === "aeon" ? (
+            <p className="sr-game-intro">
+              {locale === "en"
                 ? "Identify the Aeon from the gradually revealed image."
                 : locale === "ja"
                   ? "少しずつ開示される画像から星神を当てます。"
-                  : "只根据逐步揭示的图片猜测星神。"
-              : t("prep.activeIntro")}
-          </p>
+                  : "只根据逐步揭示的图片猜测星神。"}
+            </p>
+          ) : null}
         </div>
-        <div className="hero-stamp">
-          <span>{activityId === "daily" ? t("game.dailyShort") : t("game.randomShort")}</span>
-          <strong>
-            {activityId === "daily"
-              ? (game.dateKey ?? getBeijingDateKey()).slice(5).replace("-", ".")
-              : "∞"}
+        <div className="sr-game-meta">
+          <div
+            className="sr-pips"
+            role="img"
+            aria-label={`${t("game.attempts")} ${remaining} / ${game.maxAttempts}`}
+          >
+            {Array.from({ length: game.maxAttempts }, (_, index) => (
+              <i key={index} className={index < remaining ? "on" : ""} />
+            ))}
+          </div>
+          <strong className="sr-timer mono" aria-label={t("game.elapsed")}>
+            {formatTime(elapsedMs)}
           </strong>
-          <small>{activityId === "daily" ? "UTC+8 · 00:00" : t("game.unlimited")}</small>
+          {source === "local" ? (
+            <span className="sr-net local" title={t("prep.offlinePractice")}>
+              <i />
+              {t("prep.offlinePractice")}
+            </span>
+          ) : null}
+          <details className="sr-rules">
+            <summary>{t("game.rulesShort")}</summary>
+            <div className="sr-rules-pop">
+              <RulesPanel
+                locale={locale}
+                title={t("prep.rulesTitle")}
+                intro={t("prep.rulesIntro")}
+                poolSize={rulePoolSize}
+                maxAttempts={game.maxAttempts}
+                fields={ruleFields}
+                labels={ruleLabels(t, locale)}
+                {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
+                  ? { onReplayTutorial }
+                  : {})}
+              />
+            </div>
+          </details>
         </div>
-      </section>
+      </header>
 
-      <section className="game-workspace">
-        <aside className="game-left-rail">
-          <div className="rail-section">
-            <span className="rail-number">01</span>
-            <h2>{locale === "zh-CN" ? "猜测次数" : locale === "ja" ? "推測回数" : "ATTEMPTS"}</h2>
-            <div className="fixed-attempts">
-              <span>{locale === "zh-CN" ? "固定" : locale === "ja" ? "固定" : "FIXED"}</span>
-              <strong>{game.maxAttempts}</strong>
-              <small>
-                {locale === "zh-CN"
-                  ? "所有活动统一"
-                  : locale === "ja"
-                    ? "全アクティビティ共通"
-                    : "SAME FOR EVERY ACTIVITY"}
-              </small>
+      {activityId === "practice" && game.status === "active" && !isDraft && (
+        <div className="active-game-tools">
+          {!confirmAbandon ? (
+            <button
+              ref={abandonButtonRef}
+              type="button"
+              disabled={busy}
+              onClick={() => setConfirmAbandon(true)}
+            >
+              {t("prep.abandon")}
+            </button>
+          ) : (
+            <div className="abandon-confirm" role="alert">
+              <span>
+                <strong>{t("prep.abandonTitle")}</strong>
+                {t("prep.abandonBody")}
+              </span>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setConfirmAbandon(false);
+                  window.requestAnimationFrame(() => abandonButtonRef.current?.focus());
+                }}
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                ref={confirmAbandonButtonRef}
+                className="confirm-abandon"
+                type="button"
+                disabled={busy}
+                onClick={() => void abandonAndRestart()}
+              >
+                {t("prep.abandonConfirm")}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {finished && game.answer && contentModeId !== "aeon" && !resultClosed ? (
+        <section
+          ref={resultRef}
+          className={`result-screen result-${game.status}${revealDone ? " is-revealed" : ""}`}
+          role="status"
+          aria-live="polite"
+          tabIndex={-1}
+        >
+          {/* 原型 .art-slot 的子元素顺序是：.hud → .skip → .cloud → img.art → .art-cap，
+              也就是头像云排在立绘之前（云在立绘背后），所以回放要先于立绘渲染。 */}
+          <div className="art-slot">
+            {replayFrames.length > 0 ? (
+              <InferenceReplay
+                key={replayCycle}
+                characters={replayCharacters}
+                steps={replayFrames}
+                locale={locale}
+                sprite={replaySprite}
+                final={!replayActive}
+                {...(replayActive ? { onDone: handleReplayDone } : {})}
+              />
+            ) : null}
+            {answerPortrait ? (
+              <ResultReveal
+                characterId={game.answer.id}
+                portraitSrc={answerPortrait}
+                rarity={answerRarity}
+                active={revealActive}
+                start={replayDone || replayFrames.length === 0}
+                revealKey={revealKey ?? game.id}
+                onReveal={handleRevealDone}
+              />
+            ) : null}
+            <div className="art-cap">
+              <span className={`stars r${answerRarity}`} aria-hidden="true">
+                {"★".repeat(answerRarity)}
+              </span>
+              <span className="label">{t("game.answer")}</span>
+              <strong>{game.answer.names[locale]}</strong>
             </div>
           </div>
-          <div className="rail-section compact">
-            <span className="rail-number">02</span>
-            <RulesPanel
-              locale={locale}
-              title={t("prep.rulesTitle")}
-              intro={t("prep.rulesIntro")}
-              poolSize={rulePoolSize}
-              maxAttempts={game.maxAttempts}
-              fields={ruleFields}
-              labels={ruleLabels(t, locale)}
-              {...(supportsPlayableTutorial(contentModeId) && onReplayTutorial
-                ? { onReplayTutorial }
-                : {})}
-            />
-          </div>
-        </aside>
-
-        <div className="game-main-column">
-          <div className="metric-strip">
-            <div>
-              <span>
-                <Gauge size={16} /> {t("game.attempts")}
+          <aside className="panel">
+            <div className="panel-head">
+              <span className="label">
+                {activityLabel} · {t("game.elapsed")}{" "}
+                <span className="num">{formatTime(elapsedMs)}</span>
               </span>
-              <strong>
-                {remaining}
-                <small> / {game.maxAttempts}</small>
-              </strong>
+              <h2>
+                {game.status === "won" ? (
+                  <>
+                    {winTitlePrefix}
+                    <em>{game.guesses.length}</em>
+                    {winTitleSuffix}
+                  </>
+                ) : (
+                  t("game.lostTitle")
+                )}
+              </h2>
             </div>
-            <div>
-              <span>
-                <Clock3 size={16} /> {t("game.elapsed")}
-              </span>
-              <strong className="mono">{formatTime(elapsedMs)}</strong>
+            <div className="share" aria-hidden="true">
+              {game.guesses.map((guess, row) => (
+                <div key={row}>
+                  {guess.cells.map((cell, col) => (
+                    <i
+                      key={col}
+                      className={cell.state === "exact" ? "e" : cell.state === "close" ? "c" : ""}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
-            <div>
-              <span>
-                <Signal size={16} />{" "}
-                {activityId === "daily"
-                  ? t("home.dailyNumber", { date: game.dateKey })
-                  : t("game.random")}
-              </span>
-              <strong className="service-state">
-                <i className={source === "server" ? "online" : "local"} />
-                {source === "server" ? t("common.online") : t("prep.offlinePractice")}
-              </strong>
+            <div className="panel-review">
+              <span className="label">{t("game.reviewChain")}</span>
+              <div className="chain num">
+                {inferenceChain.map((count, index) => (
+                  <Fragment key={index}>
+                    {index > 0 ? <i aria-hidden="true">→</i> : null}
+                    <span>{count}</span>
+                  </Fragment>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {activityId === "practice" && game.status === "active" && (
-            <div className="active-game-tools">
-              {!confirmAbandon ? (
+            <div className="stats">
+              <div>
+                <span className="label">{t("game.streak")}</span>
+                <b className="num">{resultStats ? resultStats.currentStreak : "—"}</b>
+              </div>
+              <div>
+                <span className="label">{t("game.winRate")}</span>
+                <b className="num">{resultStats ? `${resultStats.winRate}%` : "—"}</b>
+              </div>
+              <div>
+                <span className="label">{t("game.beaten")}</span>
+                <b className="num">—</b>
+              </div>
+            </div>
+            <div className="actions">
+              {shareable && source === "server" ? (
                 <button
-                  ref={abandonButtonRef}
+                  ref={shareButtonRef}
+                  className="btn btn-ink"
+                  type="button"
+                  disabled={shareBusy}
+                  onClick={() => void createShareImage()}
+                >
+                  {shareBusy ? (
+                    <span className="button-spinner" aria-hidden="true" />
+                  ) : (
+                    <ImageDown size={17} />
+                  )}
+                  {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
+                </button>
+              ) : null}
+              {shareable ? (
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={challengeBusy || source !== "server"}
+                  onClick={() => void shareFriendChallenge()}
+                >
+                  {challengeBusy ? (
+                    <span className="button-spinner" aria-hidden="true" />
+                  ) : (
+                    <Share2 size={17} />
+                  )}
+                  {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
+                </button>
+              ) : null}
+              <button className="btn" type="button" onClick={handleReplay}>
+                <RotateCcw size={17} /> {t("game.replay")}
+              </button>
+              {activityId === "daily" ? (
+                <Link className="btn" to="/">
+                  <ArrowLeft size={17} /> {t("hub.backToHub")}
+                </Link>
+              ) : (
+                <button
+                  className="btn"
                   type="button"
                   disabled={busy}
-                  onClick={() => setConfirmAbandon(true)}
+                  onClick={() => void restart()}
                 >
-                  {t("prep.abandon")}
+                  <RotateCcw size={17} /> {t("game.playAgain")}
                 </button>
-              ) : (
-                <div className="abandon-confirm" role="alert">
-                  <span>
-                    <strong>{t("prep.abandonTitle")}</strong>
-                    {t("prep.abandonBody")}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => {
-                      setConfirmAbandon(false);
-                      window.requestAnimationFrame(() => abandonButtonRef.current?.focus());
-                    }}
-                  >
-                    {t("common.cancel")}
-                  </button>
-                  <button
-                    ref={confirmAbandonButtonRef}
-                    className="confirm-abandon"
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void abandonAndRestart()}
-                  >
-                    {t("prep.abandonConfirm")}
-                  </button>
-                </div>
               )}
             </div>
-          )}
+            {shareError ? (
+              <p className="share-image-error" role="alert">
+                {t("game.shareImageError")}
+              </p>
+            ) : null}
+            {challengeError ? (
+              <p className="share-image-error" role="alert">
+                {t("game.challengeShareError")}
+              </p>
+            ) : null}
+            <button
+              className="icon-btn close-x"
+              type="button"
+              aria-label={t("common.close")}
+              onClick={handleCloseResult}
+            >
+              <X size={18} />
+            </button>
+          </aside>
+        </section>
+      ) : null}
 
-          {contentModeId === "aeon" ? (
-            <AeonGuessBoard
-              gameId={game.aeonRevealSeed ?? game.id}
-              wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
-              answer={
-                game.answer && "imagePath" in game.answer.assets
-                  ? (game.answer as AeonSummary)
-                  : null
-              }
-              imagePath={game.aeonImagePath}
-              imageFocus={game.aeonImageFocus}
-              locale={locale}
-              finished={finished}
-            />
-          ) : null}
+      {draft?.failed ? (
+        <section className="sr-draft-alert" role="alert">
+          <WifiOff size={20} aria-hidden="true" />
+          <div>
+            <strong>
+              {draft.failed === "offline-pack"
+                ? locale === "en"
+                  ? "Open online once to prepare this mode"
+                  : locale === "ja"
+                    ? "オンラインで一度開いて準備してください"
+                    : "需要联网打开一次以缓存此模式"
+                : t("prep.connectionTitle")}
+            </strong>
+            <span>
+              {draft.failed === "offline-pack"
+                ? locale === "en"
+                  ? "Offline games stay on this device and are not uploaded."
+                  : locale === "ja"
+                    ? "オフライン対局は端末内だけに保存され、アップロードされません。"
+                    : "离线对局仅保留在本机，不会上传。"
+                : t("prep.connectionBody")}
+            </span>
+          </div>
+          <div className="sr-draft-actions">
+            <button className="btn sm" type="button" disabled={busy} onClick={draft.onRetry}>
+              {t("common.retry")}
+            </button>
+            {draft.failed === "connection" && draft.allowOffline ? (
+              <button className="btn sm" type="button" disabled={busy} onClick={draft.onOffline}>
+                {t("prep.offlineAction")}
+              </button>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
-          {!finished && (
-            <CharacterCombobox
-              characters={roster}
-              locale={locale}
-              {...(contentModeId === "playable"
-                ? { searchIndex: runtime.manifest.searchIndex }
-                : {})}
-              {...(contentModeId === "aeon"
-                ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
-                : {})}
-              excludedIds={guessedIds}
-              disabled={busy}
-              onSubmit={(id) => {
-                if (contentModeId === "playable") triggerGameHaptic("submit");
-                void submitGuess(id);
-              }}
-            />
-          )}
-
-          {errorCode && (
-            <div className="inline-error" role="alert">
-              <Info size={17} /> {t(`error.${errorCode}`, { defaultValue: t("error.generic") })}
-            </div>
-          )}
-
-          {finished && game.answer && (
-            <>
-              {contentModeId === "playable" && game.status === "won" ? (
-                <div className="settlement-energy" aria-hidden="true">
-                  <i />
-                  <span />
-                  <i />
-                </div>
-              ) : null}
-              <section
-                ref={resultRef}
-                className={`game-result result-${game.status}${contentModeId === "playable" ? " result-animated" : ""}`}
-                role="status"
-                aria-live="polite"
-                tabIndex={-1}
-              >
-                <div className="result-icon">
-                  <Sparkles size={25} />
-                </div>
-                <CharacterAvatar character={game.answer} size="large" priority />
-                <div className="result-copy">
-                  <p>{game.status === "won" ? t("game.wonTitle") : t("game.lostTitle")}</p>
-                  <h2>{game.answer.names[locale]}</h2>
-                  <small>
-                    {t("game.answer")} · {game.guesses.length}/{game.maxAttempts} ·{" "}
-                    {formatTime(game.elapsedMs)}
-                  </small>
-                </div>
-                <div className="result-actions">
-                  {shareable && source === "server" && (
-                    <button
-                      ref={shareButtonRef}
-                      className="ticket-button"
-                      type="button"
-                      disabled={challengeBusy}
-                      onClick={() => void shareFriendChallenge()}
-                    >
-                      {challengeBusy ? (
-                        <span className="button-spinner" aria-hidden="true" />
-                      ) : (
-                        <Share2 size={17} />
-                      )}{" "}
-                      {challengeBusy ? t("game.sharingChallenge") : t("game.shareChallenge")}
-                    </button>
-                  )}
-                  {activityId === "daily" ? (
-                    <Link className="ticket-button" to="/">
-                      <ArrowLeft size={17} /> {t("hub.backToHub")}
-                    </Link>
-                  ) : (
-                    <button
-                      className="ticket-button"
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void restart()}
-                    >
-                      <RotateCcw size={17} /> {t("game.playAgain")}
-                    </button>
-                  )}
-                  {activityId === "practice" && (
-                    <Link className="ticket-button-secondary" to="/">
-                      <ArrowLeft size={17} /> {t("hub.backToHub")}
-                    </Link>
-                  )}
-                  {shareable && source !== "server" && (
-                    <button
-                      ref={shareButtonRef}
-                      className="result-share-button"
-                      type="button"
-                      disabled={shareBusy}
-                      onClick={() => void createShareImage()}
-                    >
-                      {shareBusy ? (
-                        <span className="button-spinner" aria-hidden="true" />
-                      ) : (
-                        <ImageDown size={17} />
-                      )}{" "}
-                      {shareBusy ? t("game.generatingImage") : t("game.shareImage")}
-                    </button>
-                  )}
-                </div>
-                {shareError && (
-                  <p className="share-image-error" role="alert">
-                    {t("game.shareImageError")}
-                  </p>
-                )}
-                {challengeError && (
-                  <p className="share-image-error" role="alert">
-                    {t("game.challengeShareError")}
-                  </p>
-                )}
-              </section>
-            </>
-          )}
-
-          {contentModeId !== "aeon" ? (
-            <>
-              {game.inferenceReview ? (
-                <InferenceReview review={game.inferenceReview} locale={locale} />
-              ) : null}
-              <GuessBoard
-                guesses={game.guesses}
+      <section className="sr-board-wrap game-workspace">
+        {contentModeId === "aeon" ? (
+          <AeonGuessBoard
+            gameId={game.aeonRevealSeed ?? game.id}
+            wrongGuesses={game.guesses.filter((guess) => !guess.isCorrect).length}
+            answer={
+              game.answer && "imagePath" in game.answer.assets ? (game.answer as AeonSummary) : null
+            }
+            imagePath={game.aeonImagePath}
+            imageFocus={game.aeonImageFocus}
+            locale={locale}
+            finished={finished}
+          />
+        ) : (
+          <GuessBoard
+            guesses={game.guesses}
+            locale={locale}
+            fields={game.fieldDefinitions}
+            synergyDefinitions={modeManifest.currencyWars?.synergyDefinitions}
+            animateLatest={contentModeId === "playable"}
+          />
+        )}
+        {!finished ? (
+          <>
+            {contentModeId !== "aeon" ? (
+              // 移动端输入条固定在底部，棋盘里留一行金色虚框占位（原型 .row.active-ghost）。
+              <div className="sr-active-ghost" aria-hidden="true" />
+            ) : null}
+            <div className="sr-composer sr-active-row">
+              <CharacterCombobox
+                variant="row"
+                characters={roster}
                 locale={locale}
-                fields={game.fieldDefinitions}
-                synergyDefinitions={modeManifest.currencyWars?.synergyDefinitions}
-                animateLatest={contentModeId === "playable"}
+                {...(contentModeId === "playable"
+                  ? { searchIndex: runtime.manifest.searchIndex }
+                  : {})}
+                {...(contentModeId === "aeon"
+                  ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
+                  : {})}
+                {...(contentModeId === "playable"
+                  ? { label: t("game.guessPrompt", { number: game.guesses.length + 1 }) }
+                  : {})}
+                excludedIds={guessedIds}
+                disabled={busy || Boolean(draft?.disabled)}
+                onSubmit={(id) => {
+                  if (contentModeId === "playable") triggerGameHaptic("submit");
+                  if (draft) void startWithGuess(id, draft.online);
+                  else void submitGuess(id);
+                }}
               />
-            </>
-          ) : null}
-        </div>
-
-        <aside className="game-right-rail">
-          <div className="game-index-label">{t("game.gameInfo")}</div>
-          <div className="rail-metric">
-            <span>{t("home.streak")}</span>
-            <strong>{playerStats.data?.currentStreak ?? 0}</strong>
-            <small>{t("game.daysUnit")}</small>
-          </div>
-          <div className="rail-metric">
-            <span>{t("game.guessed")}</span>
-            <strong>{game.guesses.length}</strong>
-            <small>{t("prep.attemptUnit")}</small>
-          </div>
-          <div className="rail-metric">
-            <span>{t("hub.nextReset")}</span>
-            <strong>{activityId === "daily" ? "00:00" : "∞"}</strong>
-            <small>{activityId === "daily" ? "UTC+8" : t("game.unlimited")}</small>
-          </div>
-          {activityId === "practice" && source === "server" ? (
-            <Link className="leaderboard-callout" to="/leaderboard">
-              <Trophy size={18} />
-              <span>{t("prep.viewLeaderboard")}</span>
-            </Link>
-          ) : null}
-        </aside>
+            </div>
+            {contentModeId !== "aeon"
+              ? Array.from({ length: Math.max(0, remaining - 1) }, (_, index) => (
+                  <div
+                    key={index}
+                    className="sr-ghost-row"
+                    aria-hidden="true"
+                    style={{ "--sr-cols": ruleFields.length || 6 } as React.CSSProperties}
+                  >
+                    {Array.from({ length: (ruleFields.length || 6) + 1 }, (_, cell) => (
+                      <span key={cell} />
+                    ))}
+                  </div>
+                ))
+              : null}
+          </>
+        ) : null}
       </section>
+
+      {errorCode && !draft && (
+        <div className="inline-error" role="alert">
+          <Info size={17} /> {t(`error.${errorCode}`, { defaultValue: t("error.generic") })}
+        </div>
+      )}
+
+      {contentModeId !== "aeon" && !finished ? (
+        <p className="sr-legend" aria-hidden="true">
+          <span>
+            <i className="exact" />
+            {locale === "en" ? "Match" : locale === "ja" ? "一致" : "一致"}
+          </span>
+          <span>
+            <i className="close" />
+            {locale === "en"
+              ? "Close (same faction group / major version)"
+              : locale === "ja"
+                ? "近い（同じ陣営グループ / 同じメジャー版）"
+                : "接近（同阵营组 / 同大版本）"}
+          </span>
+          <span>
+            <i className="miss" />
+            {locale === "en" ? "Miss" : locale === "ja" ? "不一致" : "不符"}
+          </span>
+          <span>
+            ↑ ↓{" "}
+            {locale === "en"
+              ? "answer is newer / older"
+              : locale === "ja"
+                ? "正解の版が新しい / 古い"
+                : "答案版本更晚 / 更早"}
+          </span>
+        </p>
+      ) : null}
       {sharePreview ? (
         <ShareResultDialog
           imageUrl={sharePreview.imageUrl}
@@ -1088,33 +1111,48 @@ export function ModeGamePage({
     }
   };
 
-  const page = !game ? (
-    <GamePreparation
-      activityId={activityId}
-      contentModeId={contentModeId}
-      runtime={runtime}
-      checking={checking}
-      busy={session.busy}
-      connectionFailed={connectionFailed}
-      offlineUnavailable={offlineUnavailable}
-      {...(specialModeId
-        ? {
-            offlinePackState: offlinePack.state,
-            onRetryOfflinePack: () => void offlinePack.retry(),
-          }
-        : {})}
-      onStart={() => (offlinePack.online ? void session.start() : session.startOffline())}
-      onRetry={retry}
-      onOffline={() => session.startOffline()}
-      onReplayTutorial={replayTutorial}
-    />
-  ) : (
+  // 原型没有准备页：进来就是棋盘，第一次提交才真正开局（计时从这一刻开始）。
+  // 星神题要先看图才能猜，所以进页即开局。
+  const draftGame = useMemo(() => {
+    if (game) return null;
+    const draft = createDraftGame(activityId, runtime);
+    if (contentModeId !== "aeon") return draft;
+    const { aeonImagePath: _path, aeonImageFocus: _focus, ...rest } = draft;
+    return rest as PublicGame;
+  }, [activityId, contentModeId, game, runtime]);
+  const draftReady = !checking && !offlineUnavailable && !lookupFailed;
+  const autoStartRef = useRef(false);
+  useEffect(() => {
+    if (contentModeId !== "aeon" || game || !draftReady || autoStartRef.current) return;
+    autoStartRef.current = true;
+    if (offlinePack.online) void session.start();
+    else session.startOffline();
+  }, [contentModeId, draftReady, game, offlinePack.online, session]);
+
+  const page = (
     <ActiveGame
       activityId={activityId}
       contentModeId={contentModeId}
       runtime={runtime}
-      session={{ ...session, game }}
+      session={{ ...session, game: game ?? draftGame! }}
       onReplayTutorial={replayTutorial}
+      {...(game
+        ? {}
+        : {
+            draft: {
+              online: offlinePack.online,
+              disabled: !draftReady || contentModeId === "aeon",
+              failed: offlineUnavailable ? "offline-pack" : connectionFailed ? "connection" : null,
+              allowOffline: activityId === "practice" && !specialModeId,
+              onRetry: () => {
+                autoStartRef.current = false;
+                if (specialModeId && offlinePack.state === "error") void offlinePack.retry();
+                else if (session.errorCode) session.clearError();
+                else retry();
+              },
+              onOffline: () => session.startOffline(),
+            },
+          })}
     />
   );
 

@@ -10,7 +10,6 @@ import type {
 import { useParams } from "react-router-dom";
 import { apiRequest } from "../../api/client";
 import { LoadingScreen } from "../../components/LoadingScreen";
-import { PageHeader } from "../../components/PageHeader";
 import { CharacterAvatar } from "../../components/CharacterAvatar";
 import { usePreferences } from "../../state/preferences";
 import { GuessBoard } from "./GuessBoard";
@@ -18,6 +17,8 @@ import { AeonGuessBoard } from "./AeonGuessBoard";
 import { InferenceReview } from "./InferenceReview";
 import type { AeonSummary } from "@fireflydle/contracts";
 import "./game.css";
+// 回放页复用玩法页外壳的 v2 页头 / 徽章 / 胶囊按钮积木（PageHeader 还带 v1 eyebrow）。
+import "../modes/mode-shell.css";
 
 function MultiplayerReplayView({ match, locale }: { match: MultiplayerReplay; locale: Locale }) {
   const reason =
@@ -40,20 +41,30 @@ function MultiplayerReplayView({ match, locale }: { match: MultiplayerReplay; lo
             : "Match ended";
   return (
     <main className="page-shell replay-page multiplayer-replay-page">
-      <PageHeader
-        eyebrow={`DUEL REPLAY · ${match.id.slice(0, 8).toUpperCase()}`}
-        title={
-          locale === "zh-CN" ? "多人对战复盘" : locale === "ja" ? "対戦リプレイ" : "Duel replay"
-        }
-        intro={`BO${match.format} · ${match.ranked ? (locale === "zh-CN" ? "排位赛" : "RANKED") : locale === "zh-CN" ? "休闲赛" : "CASUAL"} · ${reason}`}
-        aside={
-          <div className="rank-live">
-            <LockKeyhole size={16} />
-            <span>PRIVATE</span>
-            <strong>{match.rounds.length} R</strong>
-          </div>
-        }
-      />
+      <header className="mode-shell-head">
+        <div className="mode-shell-head-copy">
+          <p className="mode-shell-kicker">{`DUEL REPLAY · ${match.id.slice(0, 8).toUpperCase()}`}</p>
+          <h1 className="mode-shell-title">
+            {locale === "zh-CN" ? "多人对战复盘" : locale === "ja" ? "対戦リプレイ" : "Duel replay"}
+          </h1>
+          <p className="mode-shell-intro">
+            {`BO${match.format} · ${
+              match.ranked
+                ? locale === "zh-CN"
+                  ? "排位赛"
+                  : "RANKED"
+                : locale === "zh-CN"
+                  ? "休闲赛"
+                  : "CASUAL"
+            } · ${reason}`}
+          </p>
+        </div>
+        <div className="mode-shell-badge">
+          <LockKeyhole size={16} />
+          <span>PRIVATE</span>
+          <strong>{match.rounds.length} R</strong>
+        </div>
+      </header>
       <section
         className="replay-scoreboard"
         aria-label={locale === "zh-CN" ? "最终比分" : "Final score"}
@@ -247,20 +258,24 @@ export default function ReplayPage() {
   };
   return (
     <main className="page-shell replay-page">
-      <PageHeader
-        eyebrow={`REPLAY · ${game.id.slice(0, 8).toUpperCase()}`}
-        title={locale === "zh-CN" ? "对局回放" : locale === "ja" ? "対局リプレイ" : "Game replay"}
-        intro={`${game.modeId.toUpperCase()} · ${game.activityId.toUpperCase()} · ${game.status.toUpperCase()}`}
-        aside={
-          <div className="rank-live">
-            {replay.data.visibility === "private" ? <LockKeyhole size={16} /> : <Eye size={16} />}
-            <span>{replay.data.visibility.toUpperCase()}</span>
-            <strong>
-              {game.guesses.length}/{game.maxAttempts}
-            </strong>
-          </div>
-        }
-      />
+      <header className="mode-shell-head">
+        <div className="mode-shell-head-copy">
+          <p className="mode-shell-kicker">{`REPLAY · ${game.id.slice(0, 8).toUpperCase()}`}</p>
+          <h1 className="mode-shell-title">
+            {locale === "zh-CN" ? "对局回放" : locale === "ja" ? "対局リプレイ" : "Game replay"}
+          </h1>
+          <p className="mode-shell-intro">
+            {`${game.modeId.toUpperCase()} · ${game.activityId.toUpperCase()} · ${game.status.toUpperCase()}`}
+          </p>
+        </div>
+        <div className="mode-shell-badge">
+          {replay.data.visibility === "private" ? <LockKeyhole size={16} /> : <Eye size={16} />}
+          <span>{replay.data.visibility.toUpperCase()}</span>
+          <strong>
+            {game.guesses.length}/{game.maxAttempts}
+          </strong>
+        </div>
+      </header>
       <div className="metric-strip">
         <div>
           <span>
@@ -311,7 +326,7 @@ export default function ReplayPage() {
         {replay.data.visibility === "private" ? (
           <>
             <button
-              className="ticket-button-secondary"
+              className="mode-shell-ghost"
               type="button"
               disabled={busy}
               onClick={() => void createShare()}
@@ -337,7 +352,7 @@ export default function ReplayPage() {
             </button>
             {shareUrl ? (
               <button
-                className="ticket-button-secondary"
+                className="mode-shell-ghost"
                 type="button"
                 disabled={busy}
                 onClick={() => void revokeShare()}
@@ -348,11 +363,7 @@ export default function ReplayPage() {
             ) : null}
           </>
         ) : null}
-        <button
-          className="ticket-button-secondary"
-          type="button"
-          onClick={() => void copySummary()}
-        >
+        <button className="mode-shell-ghost" type="button" onClick={() => void copySummary()}>
           <Copy size={17} />
           {summaryCopied
             ? locale === "zh-CN"

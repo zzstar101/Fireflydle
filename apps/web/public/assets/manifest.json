@@ -6,12 +6,2750 @@
   "policy": "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
   "files": [
     {
-      "bytes": 5299,
+      "bytes": 21087,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/acheron-cloud-0f9ea28aafce.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "a081d62d797c9e942cceea68512500cfaa574aca1f0b6ee79e05ea93ab523828",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1308.png"
+    },
+    {
+      "bytes": 18910,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/acheron-head-a64da6fbc603.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "6d37e78eb12306f82573891f0649d4ff2cc42c18454ba4e6bc9b72a04ef64ecd",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1308.png"
+    },
+    {
+      "bytes": 477354,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/acheron-portrait-0f9ea28aafce.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "a62f0262030a3c0dee8c85b626ad2762a260342b7f0451bc025681550ba4f5a4",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1308.png"
+    },
+    {
+      "bytes": 20555,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/aglaea-cloud-c63da906bde7.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "41e6028ccb4a62e9e69a723f656aeb03ef67babe238db0cb25d66ef1cdf1a348",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1402.png"
+    },
+    {
+      "bytes": 25062,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/aglaea-head-bb6d4342b188.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4a39894b1e7d1a20765f9968d388b2c5b42eed27b48698b0b8021f2750e948e3",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1402.png"
+    },
+    {
+      "bytes": 363818,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/aglaea-portrait-c63da906bde7.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "251be15d3083b9f5536ea573a8f63e166c8af86fe73ab28448197fbbc68e4578",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1402.png"
+    },
+    {
+      "bytes": 25095,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/anaxa-cloud-b275c93ac77f.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "b11667cc31ca797c30e5f6cc4ff64e36c62210c8b19d455db4432cee3e417780",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1405.png"
+    },
+    {
+      "bytes": 23750,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/anaxa-head-34973e3f3104.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "67082a33d94e211d69135461efd332bc4b5188999133090b4e50601c50766096",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1405.png"
+    },
+    {
+      "bytes": 424142,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/anaxa-portrait-b275c93ac77f.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "7dfb6f57a370ee8fbcd90077cb9fefece2dd302edbc2b7873014745310743899",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1405.png"
+    },
+    {
+      "bytes": 19107,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/archer-cloud-f04b713bd602.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "afa73f6a3e5cac06744ee5266d49546ee0452a80b065931afb395e28d99eef89",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1015.png"
+    },
+    {
+      "bytes": 18666,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/archer-head-e4c8d948cbad.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "addfb061df88fff48a435e7b641cc4fcb4e7e7c0057aa2f23be07689b64898ed",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1015.png"
+    },
+    {
+      "bytes": 269348,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/archer-portrait-f04b713bd602.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "c8cba7feda8cb639fbd01204240a2ff34bb0ea7da4d6d6463899d3f253805f3a",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1015.png"
+    },
+    {
+      "bytes": 23855,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/argenti-cloud-0597b544a9fa.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "e5ae4525148cd15f6b83d1c4b55745164c4040ae758b9cf1837ffd18a81e82d6",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1302.png"
+    },
+    {
+      "bytes": 18716,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/argenti-head-752354bb1f34.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4b719d93e436bef293c66d7c98bc4ded254fa1b00ec5ae8e678e6a2973fe0864",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1302.png"
+    },
+    {
+      "bytes": 351090,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/argenti-portrait-0597b544a9fa.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "5a51f173bb586e898d809412fba46ec26962c22435c46a84754c328e8fc8b328",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1302.png"
+    },
+    {
+      "bytes": 18291,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/arlan-cloud-b4d711ef463f.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "8dc7b30d64ac07085a3ff35d38f0296ec8d7fb2a9dd7f1143808703e20c34331",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1008.png"
+    },
+    {
+      "bytes": 18778,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/arlan-head-9dcc984178dc.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "a37909d6c9dd0d2ff448e2487e6e4bcae70e27cc9ce9ecb401dd34974aca939a",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1008.png"
+    },
+    {
+      "bytes": 273006,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/arlan-portrait-b4d711ef463f.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "1b159b7768870ebb0593cf4e12c995745d24bc5079fa6f674081dd79c4cabb21",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1008.png"
+    },
+    {
+      "bytes": 25695,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/ashveil-cloud-62190503af65.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "a1d1d000d0d02b61057d1d39451fe07cdd01e370a0818226d81c8817e4b47299",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1504.png"
+    },
+    {
+      "bytes": 20802,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/ashveil-head-b3fa454d1e13.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "0379218b39600f84861039fbc6020902de303171d0377a6140c848b08c5ab883",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1504.png"
+    },
+    {
+      "bytes": 374602,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/ashveil-portrait-62190503af65.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "589ae315dbfee6eb1146fe9aa73f5b757736f734d3b156282a3c23dc6a62f0a8",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1504.png"
+    },
+    {
+      "bytes": 18471,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/asta-cloud-1e09985f7e20.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "e25477d0e8962cb44f339307da0ba1d42f27c646158d9d3026d25907d68c616b",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1009.png"
+    },
+    {
+      "bytes": 15094,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/asta-head-6e335150bffe.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "ee951b62fc960b592db98db80674d581f7e06a48bbaf260d67448c7aff8f8db0",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1009.png"
+    },
+    {
+      "bytes": 287424,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/asta-portrait-1e09985f7e20.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "935e6a4e1b43e00dfb0d559200bbfa9652e9231a2d7e6a73d896b1ffa3e19517",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1009.png"
+    },
+    {
+      "bytes": 24199,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/aventurine-cloud-e72a8625c036.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "66fabb4982da154d2a2a10edac900f58d8ce8e0ca3d9bf2f313252443d3a7b6e",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1304.png"
+    },
+    {
+      "bytes": 17728,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/aventurine-head-59d52e4c1be6.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "59dd8adb05969e4bea76bb0c611cd5a4d509df7a55228c97fcd08dfbf738b268",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1304.png"
+    },
+    {
+      "bytes": 369398,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/aventurine-portrait-e72a8625c036.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "2e1c6765cb04559e2e5bda823602a4a26a21cd52c204666282ec11dbc60f7971",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1304.png"
+    },
+    {
+      "bytes": 20508,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/aventurine-waveflair-head-d1161cc5cc56.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "3c37303c62309c62ed43c6b9c597134eb3e47f5e972bc1a2ecf11da2dd5c7970",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1513.png"
+    },
+    {
+      "bytes": 18999,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/bailu-cloud-e0392913fb5f.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "7e948ccbe1bc36dac58f2936272e1181cfe865543f38cd57193ceb161e8857d4",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1211.png"
+    },
+    {
+      "bytes": 16492,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/bailu-head-0a6efdadf05f.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "c6f090b54b2e4aa5b5cba54a49f013174a95ecd0f7ee39d611502b07a49b34fb",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1211.png"
+    },
+    {
+      "bytes": 301654,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/bailu-portrait-e0392913fb5f.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "d1d2869f0358f236ab1cdc78700f33242828585efc0644126393ead9e4bf934b",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1211.png"
+    },
+    {
+      "bytes": 19443,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/black-swan-cloud-3cc1550dee2f.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "a49b489582c0861327c69e28a60c37fc5a6318fe4eb5408915b413eee2c236d5",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1307.png"
+    },
+    {
+      "bytes": 18104,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/black-swan-head-32fad3566920.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "36ed4e0191a8efb2dc370c18cfdac3478e32296de1e86c072b1d8921dd86e484",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1307.png"
+    },
+    {
+      "bytes": 399638,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/black-swan-portrait-3cc1550dee2f.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "52082dadd21d2c8080c397fdd0eddd3f6664732323323e2aae5258d7c2377666",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1307.png"
+    },
+    {
+      "bytes": 19623,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/blade-cloud-468e271c2dd3.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "2d1091a2a486b2171311b5a3728170cf87730b878e6c47462fbe12267da46a25",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1205.png"
+    },
+    {
+      "bytes": 18662,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/blade-head-6a00d53ce03b.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "cc0525881159d0e051173ffbb0e0378a995cd1dda978be94c551ccfd17750571",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1205.png"
+    },
+    {
+      "bytes": 296766,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/blade-portrait-468e271c2dd3.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "9383cb018323a5944fbfcf1f4a2cdc5e6e7df1575cae65c524feb23f43ee78bc",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1205.png"
+    },
+    {
+      "bytes": 19955,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/boothill-cloud-212cea9b70ec.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "82818ba81ed5e488d68593459c5467728593dbb5becb126bae06d0c5517472ab",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1315.png"
+    },
+    {
+      "bytes": 21162,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/boothill-head-5b96d285167e.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "98ddb45c0048c91bbdb71042f7c5239b8a680f833873fd5a643ec88cd88dec4c",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1315.png"
+    },
+    {
+      "bytes": 408974,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/boothill-portrait-212cea9b70ec.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "7e9720ffbffa35e7536d1ea28bc6d38280c48c4b12559e866123703e4ab023c5",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1315.png"
+    },
+    {
+      "bytes": 25559,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/bronya-cloud-f74d24ec85b6.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "92273c4d360df6a983ee5c2c5f4e3e78a1a0437f7d2b574b248c629c8ebca452",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1101.png"
+    },
+    {
+      "bytes": 17622,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/bronya-head-1fd43f2a32d3.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "646e9bd130e3bebcc8a031341668effd8edf615a7f1b44a347ca09c09c87833a",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1101.png"
+    },
+    {
+      "bytes": 413418,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/bronya-portrait-f74d24ec85b6.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "6c5fe7fc49debb60a1cb6ae3aefea0ae1a4379912e7363dea0a1d5f9b9ace776",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1101.png"
+    },
+    {
+      "bytes": 21287,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/castorice-cloud-a8591025b6b1.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "74da861347fe265d0cf51f37678b0b29df79b9d03685146b58cacc2992784634",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1407.png"
+    },
+    {
+      "bytes": 20584,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/castorice-head-6a42f6eec6a0.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "7aefe0d0c237d76344ea228d8fe816abf6957d57aef5e49ec211745ba49c44b9",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1407.png"
+    },
+    {
+      "bytes": 373922,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/castorice-portrait-a8591025b6b1.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "a29c366e20c889c680349f9c9352a8adb4d45c5aef1fcef5100128270d160888",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1407.png"
+    },
+    {
+      "bytes": 23707,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/cerydra-cloud-60e2acdc1340.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "f5d3df43e1dbc5ce3744ac78ef406d64c475635bfd974804a85fe57e275f77a4",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1412.png"
+    },
+    {
+      "bytes": 21808,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/cerydra-head-d8863fa3a4c1.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "fb8045ae609553b0dc1ce4b231cbd7185cb766b4470035be54ebccafccb0eda7",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1412.png"
+    },
+    {
+      "bytes": 463000,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/cerydra-portrait-60e2acdc1340.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "64983376af1a5088b120d5adec873a88a1ee4de8f269001aa0738cdad61a378f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1412.png"
+    },
+    {
+      "bytes": 19531,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/cipher-cloud-87335b9f5452.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "67b798fb7bdff4d56b959380cdd8032e4474c62c162de45d9a8e5e4386d6f101",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1406.png"
+    },
+    {
+      "bytes": 21976,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/cipher-head-6cddcd54ca3b.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "ca009199e3678efaf1e5013760e22e0c133a708541ed7ca0985bc299f178d373",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1406.png"
+    },
+    {
+      "bytes": 359722,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/cipher-portrait-87335b9f5452.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "949ce5027bb1d881c7d03d7f4d5de3bf9eaf40af759a0c9ea735160df071bc52",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1406.png"
+    },
+    {
+      "bytes": 23923,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/clara-cloud-b9e87ed50b9d.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "33e630122f008ac6618f5f8f46d4236b99efac1443826118e39a8d9e2a037975",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1107.png"
+    },
+    {
+      "bytes": 14432,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/clara-head-4d767ee4115f.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "cc83ee7db90b61d1dccf840f3605071735df5c902ecdc13d2c233d8de9939323",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1107.png"
+    },
+    {
+      "bytes": 358658,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/clara-portrait-b9e87ed50b9d.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "f4543a82eb8a47d2b0e426fd13b3710c8244f2b34e3fcf20189f62a37a1e036f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1107.png"
+    },
+    {
+      "bytes": 22675,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/cyrene-cloud-9f64375c39d6.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "3db7a96382b1c035ff56cbc4d9b1ff83e7a1a15e517d563a458a0d2fa18ba28e",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1415.png"
+    },
+    {
+      "bytes": 20924,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/cyrene-head-fba494c245a6.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "63d64bdda469490e7e0ab419f9004395d2bdef2898adf754ef27b3c189881187",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1415.png"
+    },
+    {
+      "bytes": 561058,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/cyrene-portrait-9f64375c39d6.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "70129f255d17587a78c28afece120e1841be6a105fda1291fee06791860feb62",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1415.png"
+    },
+    {
+      "bytes": 20415,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/dan-heng-cloud-0573960bfc7a.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "00309f8ce01259ef473930237757406effdb92635d56e0002f8e99744798ecb8",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1002.png"
+    },
+    {
+      "bytes": 15878,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dan-heng-head-2b9c29ae4f2d.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "7e341c57963bc8dc71ca5b0ee3670c5010d454b11405aa8925fee52d4864d924",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1002.png"
+    },
+    {
+      "bytes": 21319,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/dan-heng-il-cloud-c61db23fe151.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "080430e3998dde4ad4f08cd0526ff2b62905466d8017c3e36209b6914e41c2a5",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1213.png"
+    },
+    {
+      "bytes": 15684,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dan-heng-il-head-8dc7e1b75e99.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "aecbfc22bf0fde9332efe9b33c882a43b8ecbbf2ef0215cd5230562e6a566ee4",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1213.png"
+    },
+    {
+      "bytes": 309216,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dan-heng-il-portrait-c61db23fe151.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "9d38105918367e285229af73628572daf89e1b8f2b3490e2c7060100eec084b7",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1213.png"
+    },
+    {
+      "bytes": 21711,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/dan-heng-permansor-terrae-cloud-085f3dd3c409.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "0c0f8ffccea5d103e159bb05cbdc7150c2deda7d227da1516ad8c63dc51d8a46",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1414.png"
+    },
+    {
+      "bytes": 19302,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dan-heng-permansor-terrae-head-a8b5f0a69285.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "0a100c567c9cfbdec41503c40a7a4f847ccd52d0b077f4ea294c2b2ab59ef6d4",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1414.png"
+    },
+    {
+      "bytes": 346414,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dan-heng-permansor-terrae-portrait-085f3dd3c409.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "0213e9c9b14942de574492466da750da67dc7b3eaaeddd8875130c8405058789",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1414.png"
+    },
+    {
+      "bytes": 308158,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dan-heng-portrait-0573960bfc7a.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "e70d36bcf36ae8039a5400f507004841ce6174f1cae36d53b0358e6f400bde86",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1002.png"
+    },
+    {
+      "bytes": 22623,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/dr-ratio-cloud-d612452fa566.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "6f6e5790641ea511ff024f31251b28c5ae955ecc3f229a2ff18742c838cb9c89",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1305.png"
+    },
+    {
+      "bytes": 18430,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dr-ratio-head-3da1246c8949.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "f4f777fdc330c75b963f9c938c3d0fa7f0f49f2821a0dc5393e1719c2903ca2f",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1305.png"
+    },
+    {
+      "bytes": 306320,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/dr-ratio-portrait-d612452fa566.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "77c3b113bfdedb49f66bc36295e0a7376ab682d7868d2130e2db168bae1eae66",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1305.png"
+    },
+    {
+      "bytes": 23403,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/evanescia-cloud-bf6a5390d3de.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "88f017acdd57fc5e951eab432351ae61aac39594480e5167c3540afb7b758c97",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1505.png"
+    },
+    {
+      "bytes": 22578,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/evanescia-head-f0ab2935eb9e.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "1fc04d7dac43b95269ab544d834424eaaad4098923a202dcb68af5709a18d780",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1505.png"
+    },
+    {
+      "bytes": 411864,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/evanescia-portrait-bf6a5390d3de.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "ed59df61592dc41d3451f1e7b2db9e0259f9c54b22e1b227dec9c9ce00ca7ceb",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1505.png"
+    },
+    {
+      "bytes": 20443,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/evernight-cloud-9ba8b74533ec.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "b6664fb785cd365356f848317721fc7ad8e03dbc31d2d739e39c4be81aef35d6",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1413.png"
+    },
+    {
+      "bytes": 23196,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/evernight-head-3b09276114d7.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "809734e21a009f6d5e4602068758ed47847625d1dae130547311d55aa19ae4ec",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1413.png"
+    },
+    {
+      "bytes": 338512,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/evernight-portrait-9ba8b74533ec.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "fc2a1b51fe07764f9425248c06e52e06d3a5519bb79c5377f654c8332aab640f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1413.png"
+    },
+    {
+      "bytes": 19251,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/feixiao-cloud-e2da4159ab39.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "61624361526ad2fb1cc1735deaf1a092a2cd11b88ad143f72ec8505ad78fc05b",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1220.png"
+    },
+    {
+      "bytes": 25910,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/feixiao-head-91383785ccde.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4e897e0302d5d1643d374b5c1764f361f755b5c4e6bc027d99a7550ea9f7cc9b",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1220.png"
+    },
+    {
+      "bytes": 538078,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/feixiao-portrait-e2da4159ab39.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "6cfdad01d2d0f14b63184c85a3648663fde14832e55689870a06016b7c9cb0b2",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1220.png"
+    },
+    {
+      "bytes": 19095,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/firefly-cloud-b15170f49eae.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "7a562295cc58f01d5758dddd0ac71260b1322f232542df94b7a09210e8b44fd4",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1310.png"
+    },
+    {
+      "bytes": 22142,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/firefly-head-749d1e028e02.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "dd1f41e72b85dad58a5f647c6c202e82ed8aa8cb56fd4e42c8782e7fd3881977",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1310.png"
+    },
+    {
+      "bytes": 463378,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/firefly-portrait-b15170f49eae.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "b9d25dfb7369a0530ad98b504a00d7c4a734a78a549816fe09db243ec6d6bcbb",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1310.png"
+    },
+    {
+      "bytes": 24135,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/fu-xuan-cloud-8db21b74e3f2.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "daf95d46369ebb136943599f671ee3b322ee1f57bfcfd8c8b490c4d57e0209fe",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1208.png"
+    },
+    {
+      "bytes": 21974,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/fu-xuan-head-f390518210ec.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "1b451bf520021b0c9845420c1d873038896f6b701468975adc71641ad6b46f9b",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1208.png"
+    },
+    {
+      "bytes": 418290,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/fu-xuan-portrait-8db21b74e3f2.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "384bdc528bbd7cfe71882617214b9e3620d82c18f3ea90080b7568d0fa4a6065",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1208.png"
+    },
+    {
+      "bytes": 19923,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/fugue-cloud-f51ef0a4a4f6.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "7f67722e598c3e5236cdd1a778c04a49914f3c132b598ed13b290cf6bef579d2",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1225.png"
+    },
+    {
+      "bytes": 17692,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/fugue-head-b0107f3307a0.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "810ca01e7ef987d3cdf235f0210878b4bf6cd0b27af6a5b4c1af4229c6e87270",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1225.png"
+    },
+    {
+      "bytes": 450814,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/fugue-portrait-f51ef0a4a4f6.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "7f86eb4f8c508eea856079ea84b23b29c78f2549beb75869a82f0890402c407e",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1225.png"
+    },
+    {
+      "bytes": 22963,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/gallagher-cloud-77f2a9afcdad.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "65a81afadec8e909bc3bc48b8aabee5e8a82bfc4dba5a0d2f3c0090763dd18c0",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1301.png"
+    },
+    {
+      "bytes": 16042,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/gallagher-head-f9d7ef5d2952.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "8d78c6265cdf4009c337f61f64780bdbddc5ed3b6c674da3b8abef66b7458a7e",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1301.png"
+    },
+    {
+      "bytes": 313254,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/gallagher-portrait-77f2a9afcdad.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "f1e2160f7b7de682a9bb551c717753341b809029bbbd74154c11f69305be27b6",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1301.png"
+    },
+    {
+      "bytes": 21443,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/gepard-cloud-e2eefe5b01a2.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "916a781215129a62f88424f8f13ac3d22c097c06f0fb86f654375dc46c4d3a26",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1104.png"
+    },
+    {
+      "bytes": 18026,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/gepard-head-10dcc5d3c32e.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "1f948cfdad183514952f69d58b1ad7439a5110288f7f1a79d9485139ecb243e1",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1104.png"
+    },
+    {
+      "bytes": 355792,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/gepard-portrait-e2eefe5b01a2.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "eeb0c29ae31938b4336b5ef5e44570b1fee77a752a45c09fcdb20543e2b26e6a",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1104.png"
+    },
+    {
+      "bytes": 18735,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/gilgamesh-cloud-866fd04106b0.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "287c2f6785772987f73c432e4ad274d37c724e36e8a92796190cc6445a03f4bb",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1509.png"
+    },
+    {
+      "bytes": 17608,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/gilgamesh-head-bb2ab8f334a3.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "6228cf36ed0794b03660ffb0449485a2206221c3365f3767574c13075df1f6fd",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1509.png"
+    },
+    {
+      "bytes": 275850,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/gilgamesh-portrait-866fd04106b0.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "666c542631908f554326a30c73dcc4f0ebb9e146c293c566fab1a90bacfad1cb",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1509.png"
+    },
+    {
+      "bytes": 21967,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/guinaifen-cloud-2d8b220ba1c8.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "1f27d2c89ecebdfb5b40bf2c0040752f55a7863d4c458011ffae85284ec1f0cb",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1210.png"
+    },
+    {
+      "bytes": 21330,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/guinaifen-head-bb084fb892ea.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "3c3345d943e38beebd6a1df1c4268c0d81754f50a04ed8f9457d1a3347961131",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1210.png"
+    },
+    {
+      "bytes": 398426,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/guinaifen-portrait-2d8b220ba1c8.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "87e4a24382c5124ab23b737f50198e9f296224de1a08b24f18a6184a846c1210",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1210.png"
+    },
+    {
+      "bytes": 21167,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/hanya-cloud-3669596d2751.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "6371c78b62466d5da3a1fd94fff5b0d74d133863cfa83a83b9e5b0ff92b4f7d9",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1215.png"
+    },
+    {
+      "bytes": 17892,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hanya-head-d63858e269d2.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "bc612b0d5ee2666d64ca034e151e3c4c2efea4d658b138da2ae311aa5d4d1c38",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1215.png"
+    },
+    {
+      "bytes": 322606,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hanya-portrait-3669596d2751.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "ecffaf64bd8a27c9811403d2d21156787b99c08ef83e25845ad3935c7435216f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1215.png"
+    },
+    {
+      "bytes": 24987,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/herta-cloud-0550e71890bb.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "04d0cc54c55b74fcdbeff074a40ea2fe28477f810e1fa540181b1e629aff2203",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1013.png"
+    },
+    {
+      "bytes": 17490,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/herta-head-63e9a63abe80.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "984a963ad196d55642b4ab1f26dbcb07468a8c12b487775a5b2c835f6ee2b523",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1013.png"
+    },
+    {
+      "bytes": 392914,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/herta-portrait-0550e71890bb.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "827312187e56ec07b16ae31189c287ef82d1437fd65041e2e3bd901451e6fd9e",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1013.png"
+    },
+    {
+      "bytes": 26815,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/himeko-cloud-5fe1d9163833.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "f71c5d9771bf9c73bfc1b85ae24a174906cb6029c45207c060098721efee2aad",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1003.png"
+    },
+    {
+      "bytes": 17952,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/himeko-head-0a58db801a80.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "3dc9c338cadbf683522e0e8f6eb5e4ee1a2db1a1e350372ff0aa1fe432c0ec31",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1003.png"
+    },
+    {
+      "bytes": 28043,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/himeko-nova-cloud-ae56767b7cf3.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "496b7fe5d82b75ce13baac47c50f4aa0062d7793ab074f8b8d9714c5d105bba6",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1510.png"
+    },
+    {
+      "bytes": 20892,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/himeko-nova-head-00877db33eb6.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "93f6c5b8494a12c04afa60ce702dcf4f233f741f452ffdfbe29440c2c3ccbc08",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1510.png"
+    },
+    {
+      "bytes": 476788,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/himeko-nova-portrait-ae56767b7cf3.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "e2b97ebfc9033ec6dd8103527ef05d7b63b84a75a9abe8cd896064aac0f4b734",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1510.png"
+    },
+    {
+      "bytes": 407220,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/himeko-portrait-5fe1d9163833.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "4f4eb5ffc4c74afebb4abe42bcf189d721baec8d8821f23586808c2ccde15ab3",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1003.png"
+    },
+    {
+      "bytes": 25883,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/hook-cloud-52d00e4a4f29.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "787011d76d6df8fccd5c620246af737e81e1a8ba14d736407a0dd3e74b44aee9",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1109.png"
+    },
+    {
+      "bytes": 18248,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hook-head-92e6b2988346.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "63d76f27c1adc429c87ee79e42929a609b77087cecd55c024a8bbf36078fd91f",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1109.png"
+    },
+    {
+      "bytes": 389512,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hook-portrait-52d00e4a4f29.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "b800813a938c18ef994f8757fe988c2b4fca655af308dca9e3c48035326bd713",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1109.png"
+    },
+    {
+      "bytes": 24011,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/huohuo-cloud-ca87aaace71c.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "51dd122f7e3955d6f21da2279387c77e7e782ff0d2c2bb87ae2bdd0cf0f70d30",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1217.png"
+    },
+    {
+      "bytes": 18438,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/huohuo-head-2bb4125af84c.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "46eff96dcabb4bd997501ff1c59875fd5cad5f282667e3a8470dc153990c38f8",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1217.png"
+    },
+    {
+      "bytes": 353260,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/huohuo-portrait-ca87aaace71c.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "77706ee2b83414e4c1abbca9087a6612d0ad7b36722acec917ae3ec6b27d58a0",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1217.png"
+    },
+    {
+      "bytes": 27567,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/hyacine-cloud-51e62091f0ff.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "623f152653e7aca39b5e45a1d4f3493d89258b7b4dd234efafa96ab58cffe864",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1409.png"
+    },
+    {
+      "bytes": 25450,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hyacine-head-e2395ed107f1.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "bf8e1d3fe1b26b84c1e7c54ee4e63e948e0b18625738770599d6b727da62071f",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1409.png"
+    },
+    {
+      "bytes": 446064,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hyacine-portrait-51e62091f0ff.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "0d116d78f49aac9fd7d95a8bf2d33ac69fbe1e38741819b8dda98c055dd49882",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1409.png"
+    },
+    {
+      "bytes": 22047,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/hysilens-cloud-6fd655cacee5.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "d678b000a39da63bdefabfb15d52c27bd73189d610f8fa6fe361edb0dc7128a0",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1410.png"
+    },
+    {
+      "bytes": 21118,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hysilens-head-0a2600452832.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "bf21d883131477feb5b419e7ce2ad2e551d42c3e69238a88918aad5002c0cec9",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1410.png"
+    },
+    {
+      "bytes": 342400,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/hysilens-portrait-6fd655cacee5.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "dd68e62129e070bfb7e8d4d7c07c74508a67675d23d9236aa8744923fdd356c3",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1410.png"
+    },
+    {
+      "bytes": 24844,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/index.json",
+      "roles": ["character-art", "index", "fallback"],
+      "sha256": "8e8b265f7f912ea8ff6711c64b0bdc7265cfea05c107af20fc9689bdebe8babb"
+    },
+    {
+      "bytes": 26607,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/jade-cloud-9a278c22ca05.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "e37439ac19532f050390302d315723f992fa008446406e9c4da5b80abd3bd152",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1314.png"
+    },
+    {
+      "bytes": 20220,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jade-head-eac30eb32477.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "ef86045e1df75f5bf24ab69a8c4ade362f32cf9fad40060306534a61c35ad1a9",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1314.png"
+    },
+    {
+      "bytes": 395634,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jade-portrait-9a278c22ca05.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "89a1b11fa1d9a82f9039262c37f06ac7e3c67423915f3c17670a544b43ef8ee7",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1314.png"
+    },
+    {
+      "bytes": 24519,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/jiaoqiu-cloud-559b7f86b495.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "7039e91019ea312d1b7294b883f0230353fc4322bacba6992d8b0fc80cdda3d5",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1218.png"
+    },
+    {
+      "bytes": 20466,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jiaoqiu-head-f47b7d7044f5.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "1151ec4c6e950473f673e7def28f1ef6291d01f0d43dea7fda07b45de07e7d41",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1218.png"
+    },
+    {
+      "bytes": 352094,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jiaoqiu-portrait-559b7f86b495.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "7cfb4446181aa86bc117cce655b3e344330adafcd87e891d13ea6ed3fb2bb154",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1218.png"
+    },
+    {
+      "bytes": 20091,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/jing-yuan-cloud-69fb05b6f536.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "e6deadce428b49070eff5be659fb508dd54289cf071e837670d72650de6ed558",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1204.png"
+    },
+    {
+      "bytes": 23432,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jing-yuan-head-09dbf6663168.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "bbf24aec1b0d280ed5df2e188a254701e6613b94541a5b856a0666e7c653a76e",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1204.png"
+    },
+    {
+      "bytes": 462226,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jing-yuan-portrait-69fb05b6f536.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "716daff9555f67ca97dc2f2a0cf661147177ea610ed318a164af8d7ea7c9590b",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1204.png"
+    },
+    {
+      "bytes": 22207,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/jingliu-cloud-9d538ec60eaf.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "58461acf7a5b65e3d1d308ada9a46ea5318791af3f050550e63d6154ccab8c9e",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1212.png"
+    },
+    {
+      "bytes": 20060,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jingliu-head-99dff580fde1.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4174f23cdeaaa6bc591779d0aa5292d80f65c9ef332bb64ac83833b0bc9e63fe",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1212.png"
+    },
+    {
+      "bytes": 392132,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/jingliu-portrait-9d538ec60eaf.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "be18fe5df03ea2f4ec4848f81f813d2049d5102ff4c3b935a06d5f301a9f0cc5",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1212.png"
+    },
+    {
+      "bytes": 22627,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/kafka-cloud-b450cf6973f1.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "cffdf03dbb3bf42ec172fb16d3e5569e4917a78f1e075c3f4de667989c6146a9",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1005.png"
+    },
+    {
+      "bytes": 15380,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/kafka-head-da2892dfd0d2.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "bd09e7c2148beccf8884c027e39559a481cbf36d1444018b2d415370ff86344e",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1005.png"
+    },
+    {
+      "bytes": 316946,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/kafka-portrait-b450cf6973f1.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "ada91f188f027651914d45f81ecb03efa14d1889f99e8ba786eeda43afb645cc",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1005.png"
+    },
+    {
+      "bytes": 20371,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/lingsha-cloud-03fc89794eab.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "a34715179decf272d54f550fa497820ba2f53e8f22ea4c625aedfa0b24b27476",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1222.png"
+    },
+    {
+      "bytes": 17444,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/lingsha-head-67d4222e73eb.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "e868a733f99137e94f3d9268c81f5d607f507667ff66fb114138019bd439f7d0",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1222.png"
+    },
+    {
+      "bytes": 331214,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/lingsha-portrait-03fc89794eab.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "311805ce82e6024bce6104aad90c3c674c756c2e4d8605ab87d353d8a2b5bc39",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1222.png"
+    },
+    {
+      "bytes": 23771,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/luka-cloud-671c5e93c8dc.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "24f09fa2395cc08eb4322db53f35e11f910b31305d721a1fb5ed7be977aa31ed",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1111.png"
+    },
+    {
+      "bytes": 19826,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/luka-head-1d049a6f6a83.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "59579bd7513d743716c85de9ed1f0db8ee76d2bc18f929abaec0424d266f7013",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1111.png"
+    },
+    {
+      "bytes": 342864,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/luka-portrait-671c5e93c8dc.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "8968c2104b1611e2c52bada19ab12226a6a5093d258183e7a7d24f1ee6a66eb8",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1111.png"
+    },
+    {
+      "bytes": 23651,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/luocha-cloud-2f7a938797ec.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "25aebff37edf70ddef2d94ae7423c6072d1a3b0750fb9216d60271abd9d3de07",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1203.png"
+    },
+    {
+      "bytes": 18476,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/luocha-head-2c4b24493258.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "f2c9bea6026a0cfd96993aa8eeff15b33015efb096109fbbc41bc85c76907346",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1203.png"
+    },
+    {
+      "bytes": 356254,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/luocha-portrait-2f7a938797ec.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "869aa903cfd3b41f55cd45628d25cc4a7cb135f3d84ea2e061d550d81171b3e7",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1203.png"
+    },
+    {
+      "bytes": 21023,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/lynx-cloud-cf82fbdeda6d.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "8d5b0ddef1a0cab979fd0920235ccf0691ecf82751d76f87fd0aee4b4eba2949",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1110.png"
+    },
+    {
+      "bytes": 18810,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/lynx-head-21bbe4ad18ac.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "138b5efeac6c184d0264287e0e984add61dcfd88dcb430090771a3730853e076",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1110.png"
+    },
+    {
+      "bytes": 308550,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/lynx-portrait-cf82fbdeda6d.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "470c1c796c69f8708cb36f6e7b32a72bf5ffd425dca3e72410e5e11ce943c40a",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1110.png"
+    },
+    {
+      "bytes": 22783,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/march-7th-cloud-dcef180c940a.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "8774c9bf0c6981d142c123c2ecef608485113a0356db048dd4784a20d5d0cf9b",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1001.png"
+    },
+    {
+      "bytes": 21548,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/march-7th-head-3cd391be97cd.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "1cbd314579dcdeda277a82658f15c9c6a720759eee588cef9c9d17dbf699d8d8",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1001.png"
+    },
+    {
+      "bytes": 18459,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/march-7th-hunt-cloud-14accf27af73.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "cfeaaa2f9901fcdfebd539208d4b49dbb62527f05f40a45eedf64e60f84f4686",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1224.png"
+    },
+    {
+      "bytes": 22670,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/march-7th-hunt-head-dc6475d6036f.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "a751ab26c4f3acf6d4053022c5509533f46d389d22ce5af17deb35b98ecfe761",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1224.png"
+    },
+    {
+      "bytes": 318668,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/march-7th-hunt-portrait-14accf27af73.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "bdb74c65956bd14de108b78e8b44b0e77546ec937305d72cd794be2c04ba469f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1224.png"
+    },
+    {
+      "bytes": 410750,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/march-7th-portrait-dcef180c940a.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "5b7e92c84718c55ce6aa34d63fa7237b3fb7f8b9fbc7f39a94fb3e3a46077f65",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1001.png"
+    },
+    {
+      "bytes": 18135,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/misha-cloud-e3c77861ba4d.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "b60467a61d6bee1df7503d79f68fd432ed594c4cc6e68c8475715e7e1d7ebf59",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1312.png"
+    },
+    {
+      "bytes": 18750,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/misha-head-1050f0311c16.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "99543c01fd8d38d60dcbff603f01b16a0f77e262e30d15fd7ed85e4745bbb76b",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1312.png"
+    },
+    {
+      "bytes": 282156,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/misha-portrait-e3c77861ba4d.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "edbba9df61738212b170c599e0a6b2ca957bc7339745c225e5320c91bcb143b6",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1312.png"
+    },
+    {
+      "bytes": 27739,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/mortenax-blade-cloud-51f55b027c2f.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "21c981732081c2956c5b75822de80642c3369262987a0d99ce9beefcf7dbebd5",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1507.png"
+    },
+    {
+      "bytes": 18454,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/mortenax-blade-head-030c09183e5d.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "8d9033191812d14553b0504121a9f452bc739be27d857198d601092cd53bf91c",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1507.png"
+    },
+    {
+      "bytes": 478540,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/mortenax-blade-portrait-51f55b027c2f.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "b2d5f3ea00a3dcc6c08c78baee6fdbc2943bfec6dcf9ecc37d09385c211f4e24",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1507.png"
+    },
+    {
+      "bytes": 27255,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/moze-cloud-160b60786932.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "8a1c96f357048eaa6b1cd70556049343b36dcc043b8595db6ada760a32888576",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1223.png"
+    },
+    {
+      "bytes": 18896,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/moze-head-70dd1709c2ba.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4fbe1ff8a500a7e501f000456236d387de01aca30d3fdea8a03ef3173b8f753a",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1223.png"
+    },
+    {
+      "bytes": 384232,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/moze-portrait-160b60786932.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "360cb102a1aa0f259693e1db9ebc10f16fe1bf1291924801200b555e714aa3db",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1223.png"
+    },
+    {
+      "bytes": 23991,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/mydei-cloud-ea9fd532990c.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "12f070fe629c8101d374e0df902a743067f7ab002054db09b1c2459c4de94990",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1404.png"
+    },
+    {
+      "bytes": 23396,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/mydei-head-b2640bdf6298.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "73a731ebd859dcf1ee58f197b9525b90edb50dbdf21059fd35bbb2707db30266",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1404.png"
+    },
+    {
+      "bytes": 377722,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/mydei-portrait-ea9fd532990c.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "1a74c11c7b5997fa44deac2fa8e1e84adba3f14c5770c66bc8a278c6521976c5",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1404.png"
+    },
+    {
+      "bytes": 19111,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/natasha-cloud-581598dae3c1.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "ecdcb4df80145767ad953e855c9110c18840b9856261841ef356d2c51901d8a8",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1105.png"
+    },
+    {
+      "bytes": 16292,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/natasha-head-f706fcd61c92.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "798a9b4ccfee40e50c7c42bf56dc13b083d3b9912c8b1490ca899dcb064a919f",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1105.png"
+    },
+    {
+      "bytes": 315100,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/natasha-portrait-581598dae3c1.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "ffa3dac3be97d528f0ef4db22efe8d989a1b2298cb43fb80a506259259454fa8",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1105.png"
+    },
+    {
+      "bytes": 25867,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/pela-cloud-9d6de8392d3b.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "c7663f344c8269cdd3115dad1665acf6244b41b7ed073531aaeab0ca9f28eef0",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1106.png"
+    },
+    {
+      "bytes": 16918,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/pela-head-266a0457c5ab.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "f9f10c8d7f6d463401d6cf81976784421a936bc7083cb19aded074beab60b3a9",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1106.png"
+    },
+    {
+      "bytes": 374438,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/pela-portrait-9d6de8392d3b.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "fd9a734717d3391c5f1cd3c08028cdc4567eaed40c5ea849068e57fcecfee416",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1106.png"
+    },
+    {
+      "bytes": 25495,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/phainon-cloud-6cc74d822ef4.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "a519e098c1f7559a99bca0eef84bd803c3f1988fefe16f2f203de8e27ee1782c",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1408.png"
+    },
+    {
+      "bytes": 22778,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/phainon-head-0e56f9256019.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "f77e89daa6a7f855d96c483e1f6aa4504441ae14becea0c9145023b415aabc40",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1408.png"
+    },
+    {
+      "bytes": 404476,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/phainon-portrait-6cc74d822ef4.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "301dfeac60155fba221390115f9856b1d1a08a86f311de69072422c8e9d1e6af",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1408.png"
+    },
+    {
+      "bytes": 23455,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/qingque-cloud-6caf94295140.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "4ddacaf00a830e5cfa45fe2df07e41f91d279d9b608191fd5aab0e782db607bf",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1201.png"
+    },
+    {
+      "bytes": 17488,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/qingque-head-a6870b3df826.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "12adedfa54f07321b87e09d84b8b753d5f8f70b97d92376ce2a842703f89b8fa",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1201.png"
+    },
+    {
+      "bytes": 350256,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/qingque-portrait-6caf94295140.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "506f2690b70baa271bd9b627ee82e362ea9d53a5be72d55e3586b1dd3a71cbdf",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1201.png"
+    },
+    {
+      "bytes": 24111,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/rappa-cloud-9fc2e1f6e938.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "385558ad89f272804404cf5f193c0a3b7a93b433401dd9cb922a8f16f06e06e3",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1317.png"
+    },
+    {
+      "bytes": 23506,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/rappa-head-b44537107435.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "658dde37cb8862e5d6addc82275fe6e3fb74cc1f9e23156a83dcab8b538719f3",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1317.png"
+    },
+    {
+      "bytes": 388812,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/rappa-portrait-9fc2e1f6e938.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "4596087d98951360f5de5175a2ee7057e7b598c283a56422ff0b2ade2fcd3e01",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1317.png"
+    },
+    {
+      "bytes": 207968,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/replay-sprite-b6c230351eae.webp",
+      "roles": ["character-art", "sprite", "fallback"],
+      "sha256": "a1bd3079b035afdb97715fc6fd1ee28af2b7e5af431672196e50e5c67646aa81",
+      "sourceKind": "sprite-sheet",
+      "sourceUrl": "/assets/character-art/replay-sprite-b6c230351eae.webp"
+    },
+    {
+      "bytes": 19211,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/rin-tohsaka-cloud-cf1f9cc61c99.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "363a7863b35de9454c7471c893fa9d1c4dff6638a867d4b4c9441660fa67967c",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1508.png"
+    },
+    {
+      "bytes": 18834,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/rin-tohsaka-head-9f73459789ff.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "fd73d7c7e6485d19d1231a25bbd3c48da7a8e1068a76ba21d995391d09b871c7",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1508.png"
+    },
+    {
+      "bytes": 435928,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/rin-tohsaka-portrait-cf1f9cc61c99.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "a68aec7d8a306bcde8b9338797312d2d2e0e7d55523f46c3600099879fa5a24c",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1508.png"
+    },
+    {
+      "bytes": 24467,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/robin-cloud-0a4f893f6e7b.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "d298fa3630a6807c0192a5af1c281d3d62bde4f2dbcfda5d16c8ad9b18b5c78b",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1309.png"
+    },
+    {
+      "bytes": 22202,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/robin-head-47c44fc7b434.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "eb94ffd2200d0e7a4af0057fdf5c6281602c5d7368b2839badbc927aa32fcfd8",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1309.png"
+    },
+    {
+      "bytes": 404568,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/robin-portrait-0a4f893f6e7b.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "fd7a8ad2397a2382ae0d6a3696e84725d116b42b8d892d2e205600921ae3df8f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1309.png"
+    },
+    {
+      "bytes": 25840,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/robin-summeretto-head-aa0b9a25e601.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "67282182ac68da33929a75c2473b21758249c94d5cca70a0b0bcc6ee3fef79e4",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1512.png"
+    },
+    {
+      "bytes": 20279,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/ruan-mei-cloud-7b971785e784.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "80411cafcc6bc2c1ab7a4991c1f26bae5316930d2f014dd81ba2a06b5c8e13a5",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1303.png"
+    },
+    {
+      "bytes": 18878,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/ruan-mei-head-c2ed2fe4ceab.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "6154967e60354ea49a95051f1b28950629179f14639671cb23d01feac72e7716",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1303.png"
+    },
+    {
+      "bytes": 340936,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/ruan-mei-portrait-7b971785e784.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "6f710e4126ca1ff791f635c01b59593d514e2a3bb6830196a84fc5807664aae6",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1303.png"
+    },
+    {
+      "bytes": 21487,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/saber-cloud-b57d2c763b0e.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "a05af63787a5f94ace992cdc3f43df9febd1555ac87995066fe03aa782b88476",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1014.png"
+    },
+    {
+      "bytes": 22254,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/saber-head-188ff6bc5f66.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "cb339e81ce303a71ec6806f760d38c32ba8a515c6150e783d378a915af61c186",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1014.png"
+    },
+    {
+      "bytes": 381262,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/saber-portrait-b57d2c763b0e.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "ab8beaf7447555ccd624206e25c4287645c81b0586a038c146d1304dd568ce9e",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1014.png"
+    },
+    {
+      "bytes": 24395,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/sampo-cloud-8787ef20a5aa.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "db6bbf6f7e896337c6540ce6e7dba07e5d396ab050efb493bccbe3aab8fee6c7",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1108.png"
+    },
+    {
+      "bytes": 19404,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sampo-head-79fd1d86376e.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "97997b2d9317b0a074cbe90b50c4af007572553c3797ddb00a21ba2e2c0a4161",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1108.png"
+    },
+    {
+      "bytes": 359066,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sampo-portrait-8787ef20a5aa.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "52c8f58bdbcc73605f57c3eda99f4ca962b27e44bc237cc1a4e111e674c8dec9",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1108.png"
+    },
+    {
+      "bytes": 21047,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/seele-cloud-f3a80d3ecba1.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "db947d4263c5b13181835e5aedef6b62f7140ea55ca44ea9dcea9fa5a902db6f",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1102.png"
+    },
+    {
+      "bytes": 17668,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/seele-head-347a0f0a3728.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "8a1fbfe30b23b535c235b7adc2186ad8ec485a0c05da32f16cc62a870e00c7c4",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1102.png"
+    },
+    {
+      "bytes": 301012,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/seele-portrait-f3a80d3ecba1.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "998db378dbc2064e8d83652b67d652e7694f2be35a5c94e6fe69f0382454240e",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1102.png"
+    },
+    {
+      "bytes": 22031,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/serval-cloud-5852ab5eb777.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "26674908242087bc2491549b911d49097a7824100f04121ed020dc0a2dcdd5e0",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1103.png"
+    },
+    {
+      "bytes": 15970,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/serval-head-6f017df1175d.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4500e0628ee4e537ddaf2d1a85f5b733f2c7cab12d661756520b4beae9986bd1",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1103.png"
+    },
+    {
+      "bytes": 333790,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/serval-portrait-5852ab5eb777.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "1075c671a933eaedc97b32f5f4a120e2a78bcd694e6af7889930f36ab8b49165",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1103.png"
+    },
+    {
+      "bytes": 24015,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/silver-wolf-cloud-0dc0cff975b3.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "e8bb76bae217e08f50838b3a5590f8dd5f5779e90a70a9f7d7b03123479d6d7d",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1006.png"
+    },
+    {
+      "bytes": 23662,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/silver-wolf-head-a00cb22ba50b.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "cce43cfe79d82eb5e32b79c72264a1b987aaa4e6284727d13043106ed683ed3d",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1006.png"
+    },
+    {
+      "bytes": 26007,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/silver-wolf-lv-999-cloud-bd172f5a8e5c.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "b920ea3e13dbf6b162ffe02df8c4a29392da12d2b80ffe78fdd3ed23270a5d28",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1506.png"
+    },
+    {
+      "bytes": 23056,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/silver-wolf-lv-999-head-a4426ab74bef.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "da392fb54b83e81814c7f8e3b73141c6f0bc2fcbfed9891a7df05a8c79a2e48c",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1506.png"
+    },
+    {
+      "bytes": 433654,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/silver-wolf-lv-999-portrait-bd172f5a8e5c.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "66001af139fd81a011d736b27d49c60b39a053ecacb4b84f0712d1e54d947935",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1506.png"
+    },
+    {
+      "bytes": 399970,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/silver-wolf-portrait-0dc0cff975b3.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "0692a2c9510c4669b4825e0674b10db642c3f532069a8793e128dbe071f9f007",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1006.png"
+    },
+    {
+      "bytes": 24411,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/sparkle-cloud-6ba229670941.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "f09d8d713208cac4ab67e3d691d0ef2b8eaa8937c3d88eb1de3baeadfeecb553",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1306.png"
+    },
+    {
+      "bytes": 19638,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sparkle-head-29e298837115.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "9dcc8dc3bfcf00563f9af684349dcd5ff26d0f18c9a14dbf2eeaca97452cfc7a",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1306.png"
+    },
+    {
+      "bytes": 406854,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sparkle-portrait-6ba229670941.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "bb3ec07c5ce8dd4ebc4a70d90ee2fbbb0cbdc179960840d85c6aa0d18a6b99e4",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1306.png"
+    },
+    {
+      "bytes": 25031,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/sparxie-cloud-6205ae44065b.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "9f60b8e0419f466c6ac581caad8b26d2dbbba1458788cc7511a282ef51e6f6f0",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1501.png"
+    },
+    {
+      "bytes": 21582,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sparxie-head-2d9cf3cb1b8b.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "450752d32afa25d32ad0f9b233ddf30c9fd68717140d8881e95cbf489dda7e32",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1501.png"
+    },
+    {
+      "bytes": 414308,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sparxie-portrait-6205ae44065b.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "5220f5d51609b71172e741ef59de8b1c6e7d0fb7479bd7ac4f2089df274ea0ce",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1501.png"
+    },
+    {
+      "bytes": 19111,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/sunday-cloud-eeea662d8733.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "e55d4d3e166a403c690eb24d7b0d688219f44666eda094037323f009b06624df",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1313.png"
+    },
+    {
+      "bytes": 23782,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sunday-head-b1acea79f635.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "51fea33b570ebc812a7d122bae478c238960db23034f993f3986c9627f7b1ce2",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1313.png"
+    },
+    {
+      "bytes": 455266,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sunday-portrait-eeea662d8733.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "33c131065f15d718f6ac5b5a29d0c03a1979f0619e892d11eb6bb9c462756afa",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1313.png"
+    },
+    {
+      "bytes": 23739,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/sushang-cloud-301742cb51f3.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "610725ff1078e792a0d31147148e2acdd1f7f12024a759b162b14c952051cc00",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1206.png"
+    },
+    {
+      "bytes": 18246,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sushang-head-547bf82459b2.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "21f39017fe0b15d4bccaa4fda9d8e1a1b9637556136bd6650988bdc1b8389af6",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1206.png"
+    },
+    {
+      "bytes": 412844,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/sushang-portrait-301742cb51f3.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "bd3990c195a69c1d5e60fd41ca4bbefcd6724cb7a5984cd0462532852b90de9d",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1206.png"
+    },
+    {
+      "bytes": 23219,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/the-dahlia-cloud-190556bb3a58.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "d766f2a50e64262dd68a72a7fdc49f9dbdd9e6221a2d822c4ced990a36907bb7",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1321.png"
+    },
+    {
+      "bytes": 20216,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/the-dahlia-head-789d987fdb00.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "074e253f0d15a93f1fec74acbdf4cf4c9ef919d272eec735d0f6284ed548d2b9",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1321.png"
+    },
+    {
+      "bytes": 385914,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/the-dahlia-portrait-190556bb3a58.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "4a75e53cd388df3315674e3ab429853483174d2e668ebd964195b89e2566dc7a",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1321.png"
+    },
+    {
+      "bytes": 27075,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/the-herta-cloud-d58081f2d996.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "70f8b84e88861e6bdd1f00f82594e0478256d67e9b381719a3fafb4d5a3aae03",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1401.png"
+    },
+    {
+      "bytes": 21180,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/the-herta-head-b67f09e9cb7d.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "44455a2eff741fa0a25883961c91acbd4e3a8ed087e8003d3674be9ad26a369c",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1401.png"
+    },
+    {
+      "bytes": 404854,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/the-herta-portrait-d58081f2d996.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "0ef0f61e62378f3b5e7e32cf95362f2ef21da410893fe24848798a1832bed4bf",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1401.png"
+    },
+    {
+      "bytes": 19787,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/tingyun-cloud-d11aecc0f82e.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "843832feb60d45c4141399acaf976af971bf2a16bda54b2247ec4a8ef6804db5",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1202.png"
+    },
+    {
+      "bytes": 16286,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/tingyun-head-2be42f614fe9.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "47c988c9805b2f1e1cad5d91eff30310958d18b6b28c64242274a5adbd30f6ac",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1202.png"
+    },
+    {
+      "bytes": 409998,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/tingyun-portrait-d11aecc0f82e.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "db7da642bb76f9801751c769e9452de44329a96d1cfd2bee27521da01c88bd2f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1202.png"
+    },
+    {
+      "bytes": 24367,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/topaz-and-numby-cloud-f17fd4664175.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "c66f101e5ae0affe7e94996c9c740b8d630bb56f9bc7e43907a49ff99ebe5f53",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1112.png"
+    },
+    {
+      "bytes": 22344,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/topaz-and-numby-head-2b27256cb354.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "5146b4b7798bfac25cbb8a6c9893c7c1985d3c549be89aaae894db32be532648",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1112.png"
+    },
+    {
+      "bytes": 388156,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/topaz-and-numby-portrait-f17fd4664175.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "636c85941d976d4a858b3b810f6bd74efddab5af85b2fe9d0342e83d276ccf80",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1112.png"
+    },
+    {
+      "bytes": 31315,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/trailblazer-destruction-cloud-b393edb2e6a0.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "fc64a2ed1014041e64bb6abd997e3bfe17f35d74ea15cf958452dc96ee593fe8",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/8001.png"
+    },
+    {
+      "bytes": 17872,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-destruction-head-e8ee5e05c9c1.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "ace06c816f8d0f7db49c9e19ec7d7fcbab2f8b56eaa55de586e09eb07abab0bf",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/8001.png"
+    },
+    {
+      "bytes": 300872,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-destruction-portrait-b393edb2e6a0.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "5bdd37de8b37dce01c129bbe232513208cd56a8f9380d63285ce274f33d322c0",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/8001.png"
+    },
+    {
+      "bytes": 25391,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/trailblazer-elation-cloud-e7578c8946b5.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "448b317a0bd4b2fba8123a9108cb5bc94689f143aac7fc51d464a76dce16e26a",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/8009.png"
+    },
+    {
+      "bytes": 17602,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-elation-head-5e5432f4e42a.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "0500ac38bc6ab87ca92b27a87df8e6fba15be9849c61d1d42a70531ed8ae079e",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/8009.png"
+    },
+    {
+      "bytes": 334046,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-elation-portrait-e7578c8946b5.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "98a546776e2b633d164452d5e336a2c39eba6b9ee491609ac1a1546e3676d1a4",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/8009.png"
+    },
+    {
+      "bytes": 24991,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/trailblazer-harmony-cloud-d128f8f59273.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "34acd92a303aa6ffd4f102207548bc039c5e8e2b07c84051e3346541741a747b",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/8005.png"
+    },
+    {
+      "bytes": 17874,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-harmony-head-8ab0f9082b98.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "fa48a6b103785d98f9bdccc1d2eb39e48af11114c6bd232a4592956710878942",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/8005.png"
+    },
+    {
+      "bytes": 331106,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-harmony-portrait-d128f8f59273.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "f4b43c00b880ad81023153fd8261939e4ab8f4ed27d811fb1d0d4c975e5dcc9c",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/8005.png"
+    },
+    {
+      "bytes": 23327,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/trailblazer-preservation-cloud-4cdf815cbd9b.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "c00988c4e2863205bf2c7fed997b6a7039c50eeb163470ab50f7378a865e0417",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/8003.png"
+    },
+    {
+      "bytes": 13796,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-preservation-head-d52e840e15c3.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "fdd8040b8221858260a2c3825784654aa1f3ac598e4df7dd0c7e6b7e3fb593b1",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/8003.png"
+    },
+    {
+      "bytes": 323584,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-preservation-portrait-4cdf815cbd9b.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "b0d71f2e0552cdf85d17941d6f2a09465eaeb5cfd2360eb588a4e6857c6fe8f2",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/8003.png"
+    },
+    {
+      "bytes": 22447,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/trailblazer-remembrance-cloud-3e46196cfb8e.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "f6a0e2d501bada9f944c14ae6757157b2572a17e549470cc89a231d2904ffbb6",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/8007.png"
+    },
+    {
+      "bytes": 20950,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-remembrance-head-38ba6a863c7d.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "37a04049a6604cf0e8f395beaad14dde2b41bd421f6bbc78e12a17891064339f",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/8007.png"
+    },
+    {
+      "bytes": 347626,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/trailblazer-remembrance-portrait-3e46196cfb8e.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "37704c283930503da1953f8743b3fa23f46427842fcf2fc1e4e782cea818f73f",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/8007.png"
+    },
+    {
+      "bytes": 22687,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/tribbie-cloud-95ec7ce6c9b1.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "23332cdf39d16cf04bee29d61df43b2b7e0768f24a03f1e1853fb586edcdfc7a",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1403.png"
+    },
+    {
+      "bytes": 21156,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/tribbie-head-2e72967359a1.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4a9e5155104bfe0193b41641ffa60bd1b2663f6a0d0a62b19e5f73658355dd5e",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1403.png"
+    },
+    {
+      "bytes": 343970,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/tribbie-portrait-95ec7ce6c9b1.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "32968c8c43cdc41979e371494e66fbeec25599ae5a09fc7b34fa9abbe1b4edb6",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1403.png"
+    },
+    {
+      "bytes": 22131,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/welt-cloud-f190942d3f87.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "083fd87bca766fe1b58d41ca2e8fbe66e79e8a1477a7138e80627eaf0de1fe67",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1004.png"
+    },
+    {
+      "bytes": 17792,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/welt-head-5beb79039547.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "33e0c00bb0b7a5436c3bb9154690150d14c8893aaf555e6db47d1b4ebd43ec77",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1004.png"
+    },
+    {
+      "bytes": 303046,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/welt-portrait-f190942d3f87.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "bb1a253cf0277e8530acdb979f4709ecb6c008b9868fa8227bac986ee2c6354e",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1004.png"
+    },
+    {
+      "bytes": 21527,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/xueyi-cloud-63021414dca8.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "2750e932df3ab8640637af80bec218956d65fe18d66041f303337ea5ebc8650c",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1214.png"
+    },
+    {
+      "bytes": 15798,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/xueyi-head-50de3a10fc39.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "4ac8ccf9aab3a33cf5a7bec16e9b6de6f743f188a4c1ed03fef308830e8e90e3",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1214.png"
+    },
+    {
+      "bytes": 323856,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/xueyi-portrait-63021414dca8.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "662853f710c41d1ec914de4647dd56500ccf0c6ed909643e08befa4b4dd08e01",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1214.png"
+    },
+    {
+      "bytes": 22683,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/yanqing-cloud-7a1971d4f5ba.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "3128f863b091121022bb62baaffdaac21439d0c2d2440d1e34315b6d282fd855",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1209.png"
+    },
+    {
+      "bytes": 21584,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yanqing-head-ed10ad1daa38.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "b05e9e7984c79b45266d8275ca49ea87ededad4e92dfb3629415336db766d5f4",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1209.png"
+    },
+    {
+      "bytes": 353800,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yanqing-portrait-7a1971d4f5ba.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "62c27fabcf4c8a919b9e167de29ba62c9a54f3f48e8a5ab81e613f4ccf354225",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1209.png"
+    },
+    {
+      "bytes": 24763,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/yao-guang-cloud-a159d6edcba1.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "3d6e08afbf1de75334b30a8b17591cf501eb8f2062b1d78db55a1593c8cc5a81",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1502.png"
+    },
+    {
+      "bytes": 20132,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yao-guang-head-4839a12c55e1.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "f077e22ccf30b932d22b7d920bb709b609e2ee6afe22c8e835a10a010e22414b",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1502.png"
+    },
+    {
+      "bytes": 441130,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yao-guang-portrait-a159d6edcba1.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "bd394c9485cbf6a31867890c1215dbef38f7f71c124352c410dd0b19a1626a17",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1502.png"
+    },
+    {
+      "bytes": 25091,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/yukong-cloud-ad0633e6998a.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "3041f2e456c6a3bba435a0b9d65f2fdda2aeec1b90a4d6b3f8663121466b46bb",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1207.png"
+    },
+    {
+      "bytes": 17410,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yukong-head-5148fc55df2c.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "7a6d609caf8be197b0c9615725ab61777a918d6941eb3b572775f6a8aa689e4c",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1207.png"
+    },
+    {
+      "bytes": 355300,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yukong-portrait-ad0633e6998a.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "9a70f2ecefbe3701b9a27adc0d886cb14f07a782d84511e73af5c10edfbc4410",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1207.png"
+    },
+    {
+      "bytes": 26227,
+      "format": "json",
+      "mimeType": "application/json",
+      "path": "/assets/character-art/yunli-cloud-aecace5b6aad.json",
+      "roles": ["character-art", "portrait-cloud", "fallback"],
+      "sha256": "049459cdcf57ce4a918f9722605af9e009b92729629ec40c9f184cc96f118f2b",
+      "sourceKind": "audited-local-portrait-upscaled-point-cloud",
+      "sourceUrl": "/assets/portraits/1221.png"
+    },
+    {
+      "bytes": 21638,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yunli-head-ca9f827b3d77.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "599c14e6c28a4c1b9b3f0b02713f04f3b1857bd4f96aa68e232c5a81fce145e2",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1221.png"
+    },
+    {
+      "bytes": 440720,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/yunli-portrait-aecace5b6aad.webp",
+      "roles": ["character-art", "portrait", "fallback"],
+      "sha256": "65f4d1a2190f8a32aa8239b903173107d3c878691eab07bb02b82aebfd2f4fc0",
+      "sourceKind": "audited-local-portrait-upscaled",
+      "sourceUrl": "/assets/portraits/1221.png"
+    },
+    {
+      "bytes": 5296,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/acheron-avatar-7676548cd1fd-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "8e27a18f9a726bd42776619ae33acd5f172385a25538c777a420080ab4accd2d",
+      "sha256": "5e82e5e2a7f50b094690357d8b8dd3d2829724317bb87505beecd00f08d27f95",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122837/7bbabff9dde54156d00585fc1d45605b_4199325960554656142.png",
       "width": 160
@@ -231,12 +2969,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155154/48d81bdfd6d7feca4edcc9f27d776b06_1716219330657468352.png"
     },
     {
-      "bytes": 4818,
+      "bytes": 4868,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/archer-avatar-0ed79ec7f8fa-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "90b201e613bedb2f7494cbf70e78882abe68171d211a8800ced6c2fb36b21861",
+      "sha256": "d00c95c8bc162378d14db222976a5bdb2fc74fa7eb6dca5374d052f8ac16378d",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156035/01020be8a2962c7709466c6232f2591f_2398576073763782685.png",
       "width": 160
@@ -275,12 +3013,12 @@
       "width": 40
     },
     {
-      "bytes": 2096,
+      "bytes": 2106,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/archer-avatar-0ed79ec7f8fa-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "7db4b6581f6c56879a2004907edfc0d6439be819d85697a0cc64dbaa8391635f",
+      "sha256": "6d089649558f2b94c1e3d0dafefbd45d0742b02972336bb80a8066bbd3f94eaf",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156035/01020be8a2962c7709466c6232f2591f_2398576073763782685.png",
       "width": 80
@@ -306,12 +3044,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156035/01020be8a2962c7709466c6232f2591f_2398576073763782685.png"
     },
     {
-      "bytes": 4902,
+      "bytes": 4896,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/argenti-avatar-6e67ada6f633-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "70ee41cebd7d5f6b51ac2fa2876bf08080579035dd6b289ebddda3c6ccd026a5",
+      "sha256": "09262dd50f0f205ef7df8423f6c004c1affeccb2afacc68b4945aa35311625cd",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113551/2bd119b8c3be5a8981f21e308d0ff9df_6080004376791968215.png",
       "width": 160
@@ -350,12 +3088,12 @@
       "width": 40
     },
     {
-      "bytes": 2210,
+      "bytes": 2206,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/argenti-avatar-6e67ada6f633-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "ebfa5cc095613d42b5ab588b72898739dfd026917d6a81a4de58d33fc2298c33",
+      "sha256": "a11bec4f8943992a2904df64f987728b0d8630943b541bcdbb6a1d902e9774ed",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113551/2bd119b8c3be5a8981f21e308d0ff9df_6080004376791968215.png",
       "width": 80
@@ -381,12 +3119,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113551/2bd119b8c3be5a8981f21e308d0ff9df_6080004376791968215.png"
     },
     {
-      "bytes": 4962,
+      "bytes": 4977,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/arlan-avatar-e6a98c2dc505-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "1b76c6c5d6f32d6a7cd7b80b47f90074d6b84f10ab6809cf959255572dcc6036",
+      "sha256": "794efdb4fa7d82415a0d566e84abfcdbcbaaed5850e0c60e7bde09a58842bb85",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/7213a47385a0b5c05e68b564733f2b19_6873881480647261389.png",
       "width": 160
@@ -531,12 +3269,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163118/3dc92660fc87730376952fbb62e48c43_9152923416788276017.png"
     },
     {
-      "bytes": 4814,
+      "bytes": 4810,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/asta-avatar-1f9e66fd19bc-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "ae4058790a80f434f81e92603128032035d80c3cddea6bea78fcd7b2535548f7",
+      "sha256": "7af8ffc1aa77d4ec1e12fd9d30f0e1f8f057ee9167a3ecf6772c1a0e8ef69f1a",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/99bb21e5ceb72b3f76c0a3b5148dfe08_8925972045760071235.png",
       "width": 160
@@ -606,12 +3344,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/99bb21e5ceb72b3f76c0a3b5148dfe08_8925972045760071235.png"
     },
     {
-      "bytes": 4937,
+      "bytes": 4941,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/aventurine-avatar-0ff97f429972-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "a16f68ded94c132b7bd22195b4880ee5d5c466aab1b79e7aa7efe1fd36280640",
+      "sha256": "171c5b60b32d77edde48efac49d13dab180ead1cc6ccefa74918e2e59fd13088",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122838/03821220467396a333cd5362ebe0e1d1_6315724069120210502.png",
       "width": 160
@@ -831,12 +3569,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/1ce1708b783a06ad419257b4be29ea99_202970771385396270.png"
     },
     {
-      "bytes": 5870,
+      "bytes": 5885,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/black-swan-avatar-59452a1c84d4-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "dd22445917222450f734d6d1a2756c4cd553fc1f2e485745092f2c93b0a3a6f6",
+      "sha256": "a970be0f33c4e5e38ecf9ba84e9b1d175fc2450213ecd1bec701d41433c5428d",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122114/e09b820993f140deb0f552391784cb7e_2387142678634153379.png",
       "width": 160
@@ -1056,12 +3794,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123310/52a05c95d460a51ffd0b26d5cccc95cb_5771592969358909617.png"
     },
     {
-      "bytes": 5606,
+      "bytes": 5609,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/bronya-avatar-849f365d21d2-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "6d8298f73db4631a4f496911c8ef1d8a88628b95c69bbb7ff10afbd8f91d590a",
+      "sha256": "6fce069641d0fd0af6e6cbc01f18b399506047ef715946868eb658624b50b1b5",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/c6ab1f4cd2ece504b02e16d5f7a5af44_8279603082960819796.png",
       "width": 160
@@ -1356,12 +4094,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/155820/88e3029fd6043521440d24d2a9e048db_4294339742656763641.png"
     },
     {
-      "bytes": 5409,
+      "bytes": 5413,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/clara-avatar-c6dcdc1da181-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "ff395f643d970a8fb94f2bbf248a64fe9678d8f461d1e02074b900df00dc1738",
+      "sha256": "e80d111265371236a184284d7042ac07103327f7bece717454aa67a2bce4b396",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/e4a5b2e737c5c59f7f0ddde372fa8ea2_146075503384718263.png",
       "width": 160
@@ -1656,12 +4394,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/0ca26d025d72bd31944a00600f700a99_5701144537156840973.png"
     },
     {
-      "bytes": 4946,
+      "bytes": 4964,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/dan-heng-permansor-terrae-avatar-33cdba88f3c1-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "d028c7093cd64c8e58557d6771db7219f0ff7d728bdd8fa32b185914456c5613",
+      "sha256": "d38d6ca1dd0fa31d9d092079b9cdbd56cfbc83b4373f4be7b95be5b93821a00c",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159044/67a1543c3383367986b19471148bdefe_8194524210788351868.png",
       "width": 160
@@ -1881,12 +4619,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163485/5504bc6527fc4074d6743dab62f2be25_6605944294444025287.png"
     },
     {
-      "bytes": 5792,
+      "bytes": 5824,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/evernight-avatar-f387ff953a14-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "f1cec1f7bdaed750b2c569bfe1362dfa1ec0a4c56531f3b17d589b9509f0c96a",
+      "sha256": "3158fb434168935f48af957c5d1ccc71d027f5b774792040c4e2fadbe836cd2d",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159043/9afd392f1b8068e06832559fe4163529_3491875745193218742.png",
       "width": 160
@@ -1956,12 +4694,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/159043/9afd392f1b8068e06832559fe4163529_3491875745193218742.png"
     },
     {
-      "bytes": 6199,
+      "bytes": 6207,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/feixiao-avatar-3979450d3733-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "833522aa6f66a0cf2a9d868aa4402761111591027945eb35820e883cd619a0b8",
+      "sha256": "3497e368c8b3a04f2a0dffe917b6c06b010f05981733ea8c4fadfff5018f080b",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125609/951a91c3fe715d0240d2206613f7c919_5034276035636498391.png",
       "width": 160
@@ -2106,12 +4844,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123957/863ae8d7ebc3a8ccba6d1500f105793f_2481513828224126028.png"
     },
     {
-      "bytes": 5397,
+      "bytes": 5405,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/fu-xuan-avatar-0eaf018b940e-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "8a671ef8934d0050bfddb405cb92c15d2173665b93ecf94abc94d45db80c48f6",
+      "sha256": "f278276f329035204fca5abd6d89c233b3bdbb6abf186f3f61f1e9fc7db5747e",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/bc0e8b39012e1e51b7f1e1bd2c78ddde_7333911698729337874.png",
       "width": 160
@@ -2150,12 +4888,12 @@
       "width": 40
     },
     {
-      "bytes": 2308,
+      "bytes": 2345,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/fu-xuan-avatar-0eaf018b940e-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "fe8bc860bb3b5c55b471170ef9b3e8f299b238e0bc7c5df7eb33829a39eff701",
+      "sha256": "1ec2e4d33ad55d59f37051a88bc51675f0efb08ea8ffd75f28b2d96da29f841b",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/28/bc0e8b39012e1e51b7f1e1bd2c78ddde_7333911698729337874.png",
       "width": 80
@@ -2653,12 +5391,12 @@
       "width": 160
     },
     {
-      "bytes": 1045,
+      "bytes": 1040,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/herta-avatar-fe1944cd8443-40.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "068a1eca56244553401f7bb0ed58a861352c77fe98537adb244d69fc4196e3cc",
+      "sha256": "9fe934aef43f882fa7123ff0e0638eb76f7d96120ae99e2ad2ca6c472eb39e7c",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8f38072eccd10ce1b4df485c9d9f34d3_7138207484725960049.png",
       "width": 40
@@ -2706,12 +5444,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8f38072eccd10ce1b4df485c9d9f34d3_7138207484725960049.png"
     },
     {
-      "bytes": 5968,
+      "bytes": 5956,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/himeko-avatar-e301ca0969fd-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "8dd229685c6e0a543da552c4f0d04c084bf41a23739a2802ffed3a7345ec16a6",
+      "sha256": "dfbe183530240f81e1acbb7c09a400d8c2c2839066ee40c740707da5beead4e7",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/906705d02e536b45b29285f6d80c6f34_6762729813999787667.png",
       "width": 160
@@ -2825,12 +5563,12 @@
       "width": 40
     },
     {
-      "bytes": 2509,
+      "bytes": 2512,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/himeko-nova-avatar-21948f59b870-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "ca49531669709547b0d547c97c115b17ab7225bc6eff9b8f69126a078b3c501f",
+      "sha256": "8e1bd35e4cc415728e65a84e9e92b46ee653fef004b4e1451f71a909ab45c693",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164773/c5b7769a158a07bd6a2b80ac2e4cfd67_5579859607159442001.png",
       "width": 80
@@ -2861,7 +5599,7 @@
       "mimeType": "image/avif",
       "path": "/assets/characters/hook-avatar-62ceae5b0d48-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "6196500f61319405dc3f687fb121120626b51f52bf0d0b27a63a02b1a90be344",
+      "sha256": "b336c25261b7995d389fa328a3362450baccc0f1144f5f0b952988fab7963ce6",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/15/b6aeab86bea6ec7770817da70da341bc_7127072739336792149.png",
       "width": 160
@@ -2931,12 +5669,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/15/b6aeab86bea6ec7770817da70da341bc_7127072739336792149.png"
     },
     {
-      "bytes": 5294,
+      "bytes": 5322,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/huohuo-avatar-3a8f2742bd7a-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "64a2577d8d5acbf957e7d17a7739e4e1622fc9d4f04e81cf33bbe7aa5a3b669b",
+      "sha256": "069a2078edd2efeb304870e25f05eae210efd97a81d16b6128594529fc03c92c",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113549/6241e29b78992e78f7be09ecc9a095d8_9119778655003994988.png",
       "width": 160
@@ -3456,12 +6194,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113257/6b1caa6dcac86b51754256a626d7089a_6047546758250201368.png"
     },
     {
-      "bytes": 4957,
+      "bytes": 5003,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/kafka-avatar-0d83f3fa9f98-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "523b8913b86f6ba287b7ed4d6654620a3a3c36d3f53702c295d1e8f708a5d931",
+      "sha256": "ddebb297710cd0f0eab8aa63096a2f4ee059a068060360f9e3dc58f564c67457",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/a27a7f23e023aeea841d151ca864f6d7_8275876235530321253.png",
       "width": 160
@@ -3500,12 +6238,12 @@
       "width": 40
     },
     {
-      "bytes": 2118,
+      "bytes": 2121,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/kafka-avatar-0d83f3fa9f98-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "ef432afdb511ad24f5cc916ae98f2505a34ff4fe3001cc6dd9b4e73a169ba2ab",
+      "sha256": "85d59c93cc68679527a247bbc1c4584d0cbb35cc8d497de29cae6088aa7a9380",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/a27a7f23e023aeea841d151ca864f6d7_8275876235530321253.png",
       "width": 80
@@ -3575,12 +6313,12 @@
       "width": 40
     },
     {
-      "bytes": 2216,
+      "bytes": 2205,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/lingsha-avatar-e67420fda0c0-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "273481b172975a147d370f31bb88bc29167c2ba197078fd8480c7bf3f617d65c",
+      "sha256": "525169828eab0ae0b3924a22bfa7d6b108e5dc9e4c5624269cc97405e7bdcb56",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125610/932874b29ac1dfb4bdfe63d7ff4dea8f_3082176141300282450.png",
       "width": 80
@@ -3606,12 +6344,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125610/932874b29ac1dfb4bdfe63d7ff4dea8f_3082176141300282450.png"
     },
     {
-      "bytes": 5190,
+      "bytes": 5188,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/luka-avatar-386a0a2094bd-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "68de8b9658679b7aede5443b7185f8aaf0535010a1c83bc0f78363c718a59a20",
+      "sha256": "f076c8d79b010073ec12d05df33a370d8a28b64ef6ab15117373d0db9b4462a6",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/b14015c52224fdb12e9479c15415df45_9163441622556196278.png",
       "width": 160
@@ -3681,12 +6419,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/b14015c52224fdb12e9479c15415df45_9163441622556196278.png"
     },
     {
-      "bytes": 5379,
+      "bytes": 5380,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/luocha-avatar-30c268081c6e-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "621c0d9c81b74d98e4fec83e96b08231dcc445f37dd2d47bb6b30e5d11335581",
+      "sha256": "cf45c8dccd36aae6505367801c63063f9a66b4bf5a528387c14ca0b3dcbaba1b",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/07/18/0df33e59f26280cb1f79227f9660a174_249196615581888334.png",
       "width": 160
@@ -3800,12 +6538,12 @@
       "width": 40
     },
     {
-      "bytes": 2345,
+      "bytes": 2324,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/lynx-avatar-69660d7cc9dc-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "280e5ca5c86bba5e4c3c1740b926bc864caf9d05394682cd6b3463391178894f",
+      "sha256": "bceb5454119321cc08821539f2ddf9ba47943137962bff24b1fae16472ff4c31",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/08/25/5d370b56f9b501cd9ceece492bda2757_7669076470419531973.png",
       "width": 80
@@ -3981,12 +6719,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/124841/10bd1dcd95f5749cdc16b088bb98ff5f_2845915467121228499.png"
     },
     {
-      "bytes": 4859,
+      "bytes": 4821,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/misha-avatar-82816a770116-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "254c6c1d310a6603c5221deaf87cbc8469d62505de60da1c7a7ff484b8835444",
+      "sha256": "f9a45874b316c5cc3c9219e6f346969e4f73a0043f9d6aa617e8964c1f195b5f",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122125/1f6734903188a4e52392a944b7038424_4429179718536429240.png",
       "width": 160
@@ -4206,12 +6944,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/125611/29163c8057be125dbb30bf1cc95df68e_11877494415624128.png"
     },
     {
-      "bytes": 5998,
+      "bytes": 6021,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/mydei-avatar-567729274be4-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "9a3bb6cd6109d3adddc0f292b50a964a43041c9253d32ca3d95713ffcadb67d6",
+      "sha256": "5c74dc2edd29f5995d81842db6fe3437371ef1c84cb4b181f8b71b0d85e64e16",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/154335/65e716ba532efb6f0ad20631965cf604_3824046770472296744.png",
       "width": 160
@@ -4356,12 +7094,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/e9691b64bd3a0449d12265a659d5b301_2800750704985905201.png"
     },
     {
-      "bytes": 6240,
+      "bytes": 6239,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/pearl-avatar-9cd0c611d16d-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "5326f64b6369bef1e55a280c342f33b6010a7147b8af8dea86535b7b0054102c",
+      "sha256": "cd2789c035f83705d952c98836e3456f5aceada1b600b15305a7f0b40990e3e0",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/166147/87c1bfd81714cba853c80a2e63465519_1558412978746074903.png",
       "width": 160
@@ -4431,12 +7169,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/166147/87c1bfd81714cba853c80a2e63465519_1558412978746074903.png"
     },
     {
-      "bytes": 5634,
+      "bytes": 5626,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/pela-avatar-4edf90ea2af8-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "fea33988fa46d598c1c006919454c0deb6059e5bb9d821292f5df221a886587b",
+      "sha256": "1590c917c2ea537b6f5539839faeb8f8a0ccdc8e66a045c5b0702af74bd6e80f",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2023/01/20/8eb8fe9b661c44c15018e750e94678ba_7455952861324727421.png",
       "width": 160
@@ -4581,12 +7319,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/157029/19f6ae9cdb8cc618ec9bfefce3e462a3_4906914154538392654.png"
     },
     {
-      "bytes": 4671,
+      "bytes": 4661,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/qingque-avatar-fe0137247376-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "c6fc4736a27840bfe5a76c3883574c620a348806511395b7e842bb6092d13665",
+      "sha256": "a89d51fdca068374955077a114074af776eec17d63e285d05e83fdfba3bffdee",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/22/2ce85064a040397a94b9633ba9ffc08b_4345980989372534083.png",
       "width": 160
@@ -4806,12 +7544,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/164607/0e8ff84f06000f23307c1aed931ea68e_4824633473356387700.png"
     },
     {
-      "bytes": 5989,
+      "bytes": 5973,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/robin-avatar-831c516c3714-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "fe5f2177c9196d2d85651fd0a1082a6dda7348a6fedfada3f88899bc6e76ac49",
+      "sha256": "031ac0a0d887e37655da09a223e45c5004f089de1e865179902bfd780122e2b7",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/123309/ff40360a998bb038bb8336d56bf11318_5103405246540367373.png",
       "width": 160
@@ -4886,7 +7624,7 @@
       "mimeType": "image/avif",
       "path": "/assets/characters/robin-summeretto-avatar-13163e99fe13-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "005813f4a390e3a07e03d5949e70cd119144f233621c5fbb9d48fadf2e3a6fc4",
+      "sha256": "5dd0a82bb4eaf0f933dd9ba2f5033f169cd9a2cd774ab3ece7dfa71b5c8379cb",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png",
       "width": 160
@@ -4956,12 +7694,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/165435/918e9fb33aa9ea405f5bac6733462567_5622650737230269602.png"
     },
     {
-      "bytes": 4785,
+      "bytes": 4758,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/ruan-mei-avatar-a1e997242931-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "ac6f834f87166343bdab9c1e8392f3eb32d9e79ba20111dab8bca56858def9af",
+      "sha256": "51140071d297b65fd755c2074eadc6e55a9f34c4e69a6a86671d30f49b24c3be",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114133/13f82e11d0a64fc4a7765a11e52ce63d_553982494913934113.png",
       "width": 160
@@ -5106,12 +7844,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/156034/d5079fea19bd9bf28fbefaf2f18860bd_1399164401629468736.png"
     },
     {
-      "bytes": 5390,
+      "bytes": 5371,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/sampo-avatar-c86d956e648f-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "7b1bfea13aa7788b808d4c529b87081c95c70f88f676cdd0d105a4d91ea5cc47",
+      "sha256": "c79d0db64dfda1894522d4c22aa2eaefa20807f190dabba884610f6b0b16a3c0",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8bec1b8404758c78c799ae109e97ba68_9077892686689126095.png",
       "width": 160
@@ -5181,12 +7919,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/8bec1b8404758c78c799ae109e97ba68_9077892686689126095.png"
     },
     {
-      "bytes": 5510,
+      "bytes": 5524,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/seele-avatar-878809ffa01c-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "673f6a6107e6b0ffede2ac914dd36ac54a9dc912bcd24f44318f7b5142f35b09",
+      "sha256": "ecade403f95a9841dabecc815b04638341ad7f15aecfed85051256040672aeeb",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/41b2379465748b66c324949833871a37_3791760123368611675.png",
       "width": 160
@@ -5203,12 +7941,12 @@
       "width": 160
     },
     {
-      "bytes": 1039,
+      "bytes": 1046,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/seele-avatar-878809ffa01c-40.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "03e45a088b2f732e563bfb8241177e4fdac35e5fbb4e68798eb42a6b17212e73",
+      "sha256": "4cee30339cf5fce638e6f4578421cc1d3df864e00c49587c1b597e630e17e48f",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/41b2379465748b66c324949833871a37_3791760123368611675.png",
       "width": 40
@@ -5481,12 +8219,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/163484/f9ec0f43294492ae8a4834bdb5274a58_7208557037416297672.png"
     },
     {
-      "bytes": 5443,
+      "bytes": 5447,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/sparkle-avatar-d4e241c4b49b-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "96db830e944abfc8ee93f97359b393b8260eab798f1e3d637f35f1b66dbd304b",
+      "sha256": "a8202773c6e1b281832018d042eeb512a61f12ac053eb0b7db5b50dc0704bfd6",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122124/418ee59a48e96cb3a8f5dbfd009200a1_2144754028775142076.png",
       "width": 160
@@ -5556,12 +8294,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122124/418ee59a48e96cb3a8f5dbfd009200a1_2144754028775142076.png"
     },
     {
-      "bytes": 5864,
+      "bytes": 5860,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/sparxie-avatar-59851d4b7fcc-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "f30144fe30852cc72a2881e25569c190880b6f899bde7f63cb0e0d8c919b80b8",
+      "sha256": "f80f4666365d765d80fd11a173b3b3355d1d01612646c3605cbdfa49b62a1b55",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/162607/46ddcca9e2579e4878ef46e4231ae781_3507480203580811267.png",
       "width": 160
@@ -5706,12 +8444,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/127020/f3bb89ca79422032f554aaf7086178d7_5070348504428165390.png"
     },
     {
-      "bytes": 5856,
+      "bytes": 5875,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/sushang-avatar-171bf00dcaef-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "6ddb7fbec4a88fb0bd93c6e02770eb2930b94e3a75df4fabc4cd80e095e54c72",
+      "sha256": "454add47bf47b0cb43dcf3e55a75919e1dd6c6ba072eb3d7466f144771de84c8",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/56757405fd0bb121c4aa4dddb000d9c0_2139642753198143676.png",
       "width": 160
@@ -5750,12 +8488,12 @@
       "width": 40
     },
     {
-      "bytes": 2451,
+      "bytes": 2461,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/sushang-avatar-171bf00dcaef-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "5232b79bbcae82c421e082e974151c6f7d98257ded089c77402858e7a1113cb8",
+      "sha256": "9130d5aca6476a3d60ba5b5b8222aad45c0e1c8a406d5733174681d67e6ce83e",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/56757405fd0bb121c4aa4dddb000d9c0_2139642753198143676.png",
       "width": 80
@@ -6011,7 +8749,7 @@
       "mimeType": "image/avif",
       "path": "/assets/characters/topaz-and-numby-avatar-a67a6106a0ff-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "87aa8460ebf5780fa8f208f73c7a93b6c5639a616a15685ce9168b2973f4ad57",
+      "sha256": "5550f60ec332758d91e6204af94d05ce36ac77ec49661b40dc742eb06f2d4dd8",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/113259/aec4e9e1f59e78ff72d8d1b8b9dd0712_4605153740160210783.png",
       "width": 160
@@ -6381,12 +9119,12 @@
       "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png"
     },
     {
-      "bytes": 7032,
+      "bytes": 7019,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/trailblazer-remembrance-avatar-38ba6a863c7d-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "263a94aa230c93287bf8e8864d71cb899be6d05721b8cac9d5b4b095fd13e822",
+      "sha256": "4d156f0fa5540ee10c3e52db0dba77aee2ab70fc5023d536d9f4207f9e5770e1",
       "sourceKind": "starrailres-trailblazer-fallback",
       "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
       "width": 160
@@ -6606,12 +9344,12 @@
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/04/11/bd5a57d0d35792277c457a067fc72492_8449768500674894029.png"
     },
     {
-      "bytes": 4552,
+      "bytes": 4548,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/xueyi-avatar-3b5c911839ee-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "928615dc2202d37e384e799805e53985e4b54e9eff2721e11b94fe2229093a58",
+      "sha256": "a6ab25f4eb0378e04b7989496126835f82cff7108942be62d8a802dfc83fdd84",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114135/015f96e57ba7744d32137dc761104eb4_8612953409015173590.png",
       "width": 160
@@ -6681,12 +9419,12 @@
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/114135/015f96e57ba7744d32137dc761104eb4_8612953409015173590.png"
     },
     {
-      "bytes": 5642,
+      "bytes": 5574,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/yanqing-avatar-48a950b171f5-160.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "0aeb1b54ac00b6d73112535d65b9abdcd98ed650b4a2231d4f9031da7de45161",
+      "sha256": "aa0aabe4c6becdb4369c6d51e0698a93eabdf5e3b07236cf59029a445fe5fcbd",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/34a4acaaf047598b582f86cfcf0a6893_8415297720164363304.png",
       "width": 160
@@ -6725,12 +9463,12 @@
       "width": 40
     },
     {
-      "bytes": 2454,
+      "bytes": 2441,
       "format": "avif",
       "mimeType": "image/avif",
       "path": "/assets/characters/yanqing-avatar-48a950b171f5-80.avif",
       "roles": ["avatar", "responsive"],
-      "sha256": "b7f392813d81015813e5e7cc6ba2b393b65ab26713179827b44c7859a0b4e6ef",
+      "sha256": "7718dd657661150e066a08c848869dd96958506d9d462fe40f733f196ed955b9",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://webstatic.hoyoverse.com/upload/op-public/2022/09/21/34a4acaaf047598b582f86cfcf0a6893_8415297720164363304.png",
       "width": 80

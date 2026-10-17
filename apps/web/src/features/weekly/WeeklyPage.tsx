@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Flag, LoaderCircle, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, Flag, LoaderCircle, Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type {
   ContentModeId,
@@ -38,6 +39,127 @@ const modeLabels: Record<ContentModeId, Record<Locale, string>> = {
 export function weeklyModePath(modeId: ContentModeId): string {
   return `/${modeId}/weekly`;
 }
+
+/**
+ * 周赛页的可见文案。放在页内字典而不是 i18n 资源里，是为了跟 EndlessPage 的既有做法保持一致：
+ * 这些文案只服务于这一个页面的排版，且大多带插值，集中在一处更好对照三种语言。
+ */
+const copy = {
+  "zh-CN": {
+    unavailableTitle: (mode: string) => `本周轮到${mode}`,
+    unavailableBody: "周赛入口只在当周内容模式开放。",
+    unavailableCta: "前往本周周赛",
+    title: (mode: string) => `${mode}周赛`,
+    weekly: "周赛",
+    snapshot: (manifest: string, rules: string) => `题库 ${manifest} · 规则 ${rules}`,
+    questionLabel: (n: number) => `第 ${n} / 5 题`,
+    headerIntro: "五题使用同一份题库与规则快照，成绩进入统一周榜。",
+    startTitle: (mode: string) => `5 题 · ${mode}`,
+    startBody: "失败题会继续下一题；排名依次比较答对数、猜测数和累计耗时。",
+    startCta: "开始本周挑战",
+    scoreAria: "周赛进度",
+    scoreQuestions: "题目",
+    scoreCorrect: "答对",
+    scoreFailed: "失败",
+    scoreGuesses: "猜测",
+    scoreTime: "累计耗时",
+    completeTitle: "本周挑战完成",
+    completeBody: (correct: number, guesses: number, time: string) =>
+      `${correct}/5 答对 · ${guesses} 次猜测 · ${time}`,
+    completeCta: "查看统一排名",
+    roundCompleteTitle: (completed: number) => `第 ${completed} 题已记录`,
+    roundNext: (next: number) => `正在进入第 ${next} 题`,
+    roundLock: "锁定答案",
+    roundForfeit: "结束本题",
+    errorPrefix: "周赛请求失败",
+    boardTitle: "本周统一排名",
+    thRank: "排名",
+    thPlayer: "玩家",
+    thCorrect: "答对",
+    thGuesses: "猜测",
+    thTime: "耗时",
+    boardLoading: "正在同步排名…",
+    boardEmpty: "本周还没有正式完赛成绩。",
+    back: "返回模式站",
+    aeonEntity: "星神",
+  },
+  en: {
+    unavailableTitle: (mode: string) => `This week is ${mode}`,
+    unavailableBody: "The weekly run only opens for the mode of the current week.",
+    unavailableCta: "Go to this week's run",
+    title: (mode: string) => `${mode} Weekly`,
+    weekly: "Weekly",
+    snapshot: (manifest: string, rules: string) => `Pool ${manifest} · Rules ${rules}`,
+    questionLabel: (n: number) => `Question ${n} of 5`,
+    headerIntro: "All five questions share one snapshot; scores feed a single weekly board.",
+    startTitle: (mode: string) => `5 questions · ${mode}`,
+    startBody: "A failed question moves on; ranking compares solved, guesses, then total time.",
+    startCta: "Start this week's run",
+    scoreAria: "Weekly progress",
+    scoreQuestions: "Questions",
+    scoreCorrect: "Solved",
+    scoreFailed: "Failed",
+    scoreGuesses: "Guesses",
+    scoreTime: "Total time",
+    completeTitle: "This week's run is complete",
+    completeBody: (correct: number, guesses: number, time: string) =>
+      `${correct}/5 solved · ${guesses} guesses · ${time}`,
+    completeCta: "View the unified board",
+    roundCompleteTitle: (completed: number) => `Question ${completed} recorded`,
+    roundNext: (next: number) => `Loading question ${next}`,
+    roundLock: "Lock in the answer",
+    roundForfeit: "End this question",
+    errorPrefix: "Weekly request failed",
+    boardTitle: "Unified weekly ranking",
+    thRank: "Rank",
+    thPlayer: "Player",
+    thCorrect: "Solved",
+    thGuesses: "Guesses",
+    thTime: "Time",
+    boardLoading: "Syncing the ranking…",
+    boardEmpty: "No official result this week yet.",
+    back: "Back to the mode station",
+    aeonEntity: "Aeon",
+  },
+  ja: {
+    unavailableTitle: (mode: string) => `今週は${mode}`,
+    unavailableBody: "週間ランは今週のモードでのみ開催されます。",
+    unavailableCta: "今週の週間ランへ",
+    title: (mode: string) => `${mode}週間ラン`,
+    weekly: "週間ラン",
+    snapshot: (manifest: string, rules: string) => `データ ${manifest} · ルール ${rules}`,
+    questionLabel: (n: number) => `第 ${n} / 5 問`,
+    headerIntro: "5 問は同じスナップショットを共有し、成績は単一の週間ランキングに入ります。",
+    startTitle: (mode: string) => `5 問 · ${mode}`,
+    startBody: "失敗した問題は次へ進みます。順位は正解数、推測数、合計時間の順に比較します。",
+    startCta: "今週の挑戦を開始",
+    scoreAria: "週間ランの進捗",
+    scoreQuestions: "問題",
+    scoreCorrect: "正解",
+    scoreFailed: "失敗",
+    scoreGuesses: "推測",
+    scoreTime: "合計時間",
+    completeTitle: "今週の挑戦は完了",
+    completeBody: (correct: number, guesses: number, time: string) =>
+      `${correct}/5 正解 · ${guesses} 回推測 · ${time}`,
+    completeCta: "統合ランキングを見る",
+    roundCompleteTitle: (completed: number) => `第 ${completed} 問を記録しました`,
+    roundNext: (next: number) => `第 ${next} 問へ移動中`,
+    roundLock: "答えを確定",
+    roundForfeit: "この問題を終了",
+    errorPrefix: "週間リクエストに失敗しました",
+    boardTitle: "今週の統合ランキング",
+    thRank: "順位",
+    thPlayer: "プレイヤー",
+    thCorrect: "正解",
+    thGuesses: "推測",
+    thTime: "時間",
+    boardLoading: "ランキングを同期中…",
+    boardEmpty: "今週はまだ正式な完走記録がありません。",
+    back: "モード站に戻る",
+    aeonEntity: "星神",
+  },
+} as const;
 
 export function weeklyModeLabel(modeId: ContentModeId, locale: Locale): string {
   return modeLabels[modeId][locale];
@@ -81,7 +203,9 @@ function rosterFor(modeId: ContentModeId) {
 }
 
 export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId }) {
+  const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
+  const text = copy[locale];
   const session = useSession();
   const queryClient = useQueryClient();
   const [now, setNow] = useState(Date.now());
@@ -155,15 +279,40 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
     onSuccess: applyRun,
   });
 
+  const modeLabel = weeklyModeLabel(routeModeId, locale);
+  const crumb = (
+    <nav className="sr-crumb" aria-label={t("hub.backToHub")}>
+      <Link className="game-hub-link" to="/">
+        {t("nav.hub")}
+      </Link>
+      <span aria-hidden="true">/</span>
+      <span>
+        {modeLabel} · {text.weekly}
+      </span>
+    </nav>
+  );
+
   if (routeModeId !== currentModeId) {
+    const currentLabel = weeklyModeLabel(currentModeId, locale);
     return (
-      <main className="weekly-page weekly-unavailable">
-        <p className="eyebrow">WEEKLY ROTATION</p>
-        <h1>本周轮到{weeklyModeLabel(currentModeId, locale)}</h1>
-        <p>周赛入口只在当周内容模式开放。</p>
-        <Link className="ticket-button" to={weeklyModePath(currentModeId)}>
-          前往本周周赛
-        </Link>
+      <main className="sr-game weekly-page is-finished">
+        <header className="sr-game-head">
+          <div className="sr-game-title">
+            {crumb}
+            <h1>{text.title(modeLabel)}</h1>
+            <p className="sr-game-intro">{text.headerIntro}</p>
+          </div>
+        </header>
+        <section className="sr-board-wrap weekly-state weekly-unavailable">
+          <span className="weekly-state-icon" aria-hidden="true">
+            <CalendarClock size={22} />
+          </span>
+          <h2>{text.unavailableTitle(currentLabel)}</h2>
+          <p>{text.unavailableBody}</p>
+          <Link className="ticket-button" to={weeklyModePath(currentModeId)}>
+            {text.unavailableCta} <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </section>
       </main>
     );
   }
@@ -178,27 +327,57 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
   const elapsed = run
     ? run.elapsedMs + (run.status === "active" ? Math.max(0, now - current.dataUpdatedAt) : 0)
     : 0;
+  const questionNumber = run ? Math.min(run.games.length + (game ? 0 : 1), 5) : 0;
+  const pipState = (index: number) => {
+    const entry = run?.games[index];
+    if (!entry) return "";
+    if (entry.status === "won") return "is-won";
+    if (entry.status === "active") return "is-current";
+    return "is-lost";
+  };
 
   return (
-    <main className="weekly-page">
-      <header className="weekly-header">
-        <div>
-          <p className="eyebrow">WEEKLY ROTATION · {routeModeId.toUpperCase()}</p>
-          <h1>{weeklyModeLabel(routeModeId, locale)}周赛</h1>
-          <p>五题使用同一份题库与规则快照，成绩进入统一周榜。</p>
+    <main className={`sr-game weekly-page${game && !roundTransition ? "" : " is-finished"}`}>
+      <header className="sr-game-head">
+        <div className="sr-game-title">
+          {crumb}
+          <h1>{text.title(modeLabel)}</h1>
+          <p className="sr-game-intro">{text.headerIntro}</p>
           {run ? (
             <small className="weekly-snapshot">
-              MANIFEST {run.manifestVersion} · RULES {run.rulesVersion}
+              {text.snapshot(run.manifestVersion, run.rulesVersion)}
             </small>
           ) : null}
         </div>
-        <Trophy size={44} aria-hidden="true" />
+        {run ? (
+          <div className="sr-game-meta">
+            <ol className="weekly-pips" aria-label={text.scoreAria}>
+              {Array.from({ length: 5 }, (_, index) => (
+                <li key={index} className={pipState(index)}>
+                  <span className="sr-only">
+                    {text.questionLabel(index + 1)}: {pipState(index) || "—"}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <span className="weekly-question">
+              <b>{String(questionNumber).padStart(2, "0")}</b>
+              <small>/ 05</small>
+            </span>
+            <strong className="sr-timer mono" aria-label={text.scoreTime}>
+              {formatTime(elapsed)}
+            </strong>
+          </div>
+        ) : null}
       </header>
 
       {!run ? (
-        <section className="weekly-start" aria-live="polite">
-          <strong>5 题 · {weeklyModeLabel(routeModeId, locale)}</strong>
-          <p>失败题会继续下一题；排名依次比较答对数、猜测数和累计耗时。</p>
+        <section className="sr-board-wrap weekly-state weekly-start" aria-live="polite">
+          <span className="weekly-state-icon" aria-hidden="true">
+            <Trophy size={22} />
+          </span>
+          <h2>{text.startTitle(modeLabel)}</h2>
+          <p>{text.startBody}</p>
           <button
             className="ticket-button"
             type="button"
@@ -206,73 +385,69 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
             onClick={() => start.mutate()}
           >
             {busy || current.isPending ? (
-              <LoaderCircle className="weekly-spinner" size={17} />
+              <LoaderCircle className="weekly-spinner" size={17} aria-hidden="true" />
             ) : null}
-            开始本周挑战
+            {text.startCta}
           </button>
         </section>
       ) : (
         <>
-          <section className="weekly-score" aria-label="周赛进度">
+          <dl className="weekly-stats" aria-label={text.scoreAria}>
             <div>
-              <span>题目</span>
-              <strong>{Math.min(run.games.length + (game ? 0 : 1), 5)} / 5</strong>
+              <dt>{text.scoreCorrect}</dt>
+              <dd>{run.correctCount}</dd>
             </div>
             <div>
-              <span>答对</span>
-              <strong>{run.correctCount}</strong>
+              <dt>{text.scoreFailed}</dt>
+              <dd>{run.failedCount}</dd>
             </div>
             <div>
-              <span>失败</span>
-              <strong>{run.failedCount}</strong>
+              <dt>{text.scoreGuesses}</dt>
+              <dd>{run.totalGuesses + (game?.guesses.length ?? 0)}</dd>
             </div>
-            <div>
-              <span>猜测</span>
-              <strong>{run.totalGuesses + (game?.guesses.length ?? 0)}</strong>
-            </div>
-            <div>
-              <span>累计耗时</span>
-              <strong>{formatTime(elapsed)}</strong>
-            </div>
-          </section>
+          </dl>
 
           {run.status === "completed" ? (
-            <section className="weekly-complete" role="status">
-              <Trophy size={30} aria-hidden="true" />
-              <h2>本周挑战完成</h2>
-              <p>
-                {run.correctCount}/5 答对 · {run.totalGuesses} 次猜测 · {formatTime(run.elapsedMs)}
+            <section className="sr-board-wrap weekly-state weekly-complete" role="status">
+              <span className="weekly-state-icon is-lit" aria-hidden="true">
+                <Trophy size={22} />
+              </span>
+              <h2>{text.completeTitle}</h2>
+              <p className="mono">
+                {text.completeBody(run.correctCount, run.totalGuesses, formatTime(run.elapsedMs))}
               </p>
               <a className="ticket-button" href="#weekly-leaderboard">
-                查看统一排名
+                {text.completeCta}
               </a>
             </section>
           ) : roundTransition ? (
-            <section className="weekly-round-transition" role="status" aria-live="assertive">
-              <span>QUESTION {roundTransition.completedQuestion} COMPLETE</span>
-              <h2>第 {roundTransition.completedQuestion} 题已记录</h2>
-              <div aria-hidden="true">
-                <ArrowRight size={20} />
+            <section
+              className="sr-board-wrap weekly-state weekly-round-transition"
+              role="status"
+              aria-live="assertive"
+            >
+              <span className="weekly-state-icon" aria-hidden="true">
                 <LoaderCircle className="weekly-spinner" size={22} />
-              </div>
-              <p>正在进入第 {roundTransition.nextQuestion} 题</p>
+              </span>
+              <h2>{text.roundCompleteTitle(roundTransition.completedQuestion)}</h2>
+              <p>{text.roundNext(roundTransition.nextQuestion)}</p>
             </section>
           ) : game ? (
-            <section className="weekly-game" aria-labelledby="weekly-round-title">
+            <section className="sr-board-wrap weekly-game" aria-labelledby="weekly-round-title">
               <div className="weekly-round-heading">
                 <div>
-                  <span>QUESTION {run.games.length} / 5</span>
+                  <span>{text.questionLabel(run.games.length)}</span>
                   <h2 id="weekly-round-title" ref={roundHeadingRef} tabIndex={-1}>
-                    锁定答案
+                    {text.roundLock}
                   </h2>
                 </div>
                 <button
-                  className="weekly-forfeit"
+                  className="weekly-pill"
                   type="button"
                   disabled={busy}
                   onClick={() => forfeit.mutate()}
                 >
-                  <Flag size={16} aria-hidden="true" /> 结束本题
+                  <Flag size={15} aria-hidden="true" /> {text.roundForfeit}
                 </button>
               </div>
               {routeModeId === "aeon" ? (
@@ -286,20 +461,7 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                   answer={null}
                 />
               ) : null}
-              <CharacterCombobox
-                characters={roster}
-                locale={locale}
-                {...(routeModeId === "playable"
-                  ? { searchIndex: contentManifest.searchIndex }
-                  : {})}
-                {...(routeModeId === "aeon"
-                  ? { entityLabel: locale === "en" ? "Aeon" : "星神", showImages: false }
-                  : {})}
-                excludedIds={guessedIds}
-                disabled={busy}
-                onSubmit={(id) => guess.mutate(id)}
-              />
-              {routeModeId !== "aeon" ? (
+              {routeModeId !== "aeon" && game.guesses.length > 0 ? (
                 <GuessBoard
                   guesses={game.guesses}
                   locale={locale}
@@ -311,14 +473,30 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
                   }
                 />
               ) : null}
+              <div className="sr-composer sr-active-row">
+                <CharacterCombobox
+                  variant="row"
+                  characters={roster}
+                  locale={locale}
+                  {...(routeModeId === "playable"
+                    ? { searchIndex: contentManifest.searchIndex }
+                    : {})}
+                  {...(routeModeId === "aeon"
+                    ? { entityLabel: text.aeonEntity, showImages: false }
+                    : {})}
+                  excludedIds={guessedIds}
+                  disabled={busy}
+                  onSubmit={(id) => guess.mutate(id)}
+                />
+              </div>
             </section>
           ) : null}
         </>
       )}
 
       {errorCode ? (
-        <p className="inline-error" role="alert">
-          周赛请求失败：{errorCode}
+        <p className="weekly-error" role="alert">
+          {text.errorPrefix}: <span className="mono">{errorCode}</span>
         </p>
       ) : null}
       <section
@@ -327,27 +505,29 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
         aria-labelledby="weekly-board-title"
       >
         <div className="weekly-leaderboard-heading">
-          <div>
-            <p className="eyebrow">UNIFIED RANKING</p>
-            <h2 id="weekly-board-title">本周统一排名</h2>
-          </div>
-          <span>{weekKey}</span>
+          <h2 id="weekly-board-title">
+            <Trophy size={17} aria-hidden="true" /> {text.boardTitle}
+          </h2>
+          <span className="mono">{weekKey}</span>
         </div>
         {leaderboard.data?.length ? (
           <div className="weekly-leaderboard-scroll">
             <table>
               <thead>
                 <tr>
-                  <th>排名</th>
-                  <th>玩家</th>
-                  <th>答对</th>
-                  <th>猜测</th>
-                  <th>耗时</th>
+                  <th>{text.thRank}</th>
+                  <th>{text.thPlayer}</th>
+                  <th>{text.thCorrect}</th>
+                  <th>{text.thGuesses}</th>
+                  <th>{text.thTime}</th>
                 </tr>
               </thead>
               <tbody>
                 {leaderboard.data.map((entry) => (
-                  <tr key={`${entry.rank}-${entry.displayName}`}>
+                  <tr
+                    key={`${entry.rank}-${entry.displayName}`}
+                    className={entry.rank <= 3 ? "is-top" : undefined}
+                  >
                     <td>{String(entry.rank).padStart(2, "0")}</td>
                     <th scope="row">{entry.displayName}</th>
                     <td>{entry.correctCount}/5</td>
@@ -360,12 +540,12 @@ export default function WeeklyPage({ routeModeId }: { routeModeId: ContentModeId
           </div>
         ) : (
           <p className="weekly-leaderboard-empty">
-            {leaderboard.isPending ? "正在同步排名…" : "本周还没有正式完赛成绩。"}
+            {leaderboard.isPending ? text.boardLoading : text.boardEmpty}
           </p>
         )}
       </section>
-      <Link className="weekly-back" to="/playable">
-        <ArrowLeft size={16} /> 返回模式站
+      <Link className="weekly-pill weekly-back" to="/playable">
+        <ArrowLeft size={15} aria-hidden="true" /> {text.back}
       </Link>
     </main>
   );

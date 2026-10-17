@@ -48,9 +48,10 @@
     "validate:npc-manifest": "bun scripts/validate-npc-manifest.ts",
     "generate:assets": "bun scripts/generate-responsive-assets.ts",
     "assets:build": "bun scripts/generate-responsive-assets.ts",
+    "assets:art": "bun scripts/generate-character-art.ts",
     "assets:validate": "bun scripts/validate-assets.ts",
     "assets:upload": "bun scripts/upload-r2-assets.ts",
-    "test:assets": "bun run assets:build && bunx vitest run scripts/responsive-assets.test.ts",
+    "test:assets": "bun run assets:build && bunx vitest@4.1.11 run --testTimeout=60000 scripts/responsive-assets.test.ts scripts/character-art.test.ts",
     "test:web-artifact": "bun scripts/verify-web-artifact.ts",
     "test:web-budget": "bun scripts/verify-web-bundle.ts",
     "deploy:api": "bun --cwd apps/api deploy"

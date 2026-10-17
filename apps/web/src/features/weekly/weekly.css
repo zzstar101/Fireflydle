@@ -1,218 +1,177 @@
-.weekly-page {
-  width: min(calc(100% - 40px), 1120px);
-  margin: 0 auto;
-  padding: 64px 0 88px;
+/*
+ * 周赛（docs/design/redesign-v2/README.md）。
+ *
+ * 页面骨架复用每日对局页的 .sr-game / .sr-game-head / .sr-board-wrap / .sr-composer
+ * （game.css）。这里只补周赛特有的部分：五题进度点、次要指标行、各状态面板
+ * （未开放 / 开始 / 题间过渡 / 完赛）、本题动作、错误条和统一周榜。
+ */
+
+.sr-game.weekly-page {
+  width: min(1080px, calc(100% - 48px));
 }
 
-.weekly-header {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  padding-bottom: 30px;
-  gap: 24px;
-  border-bottom: 1px solid var(--border);
-}
+/* ── 页头 ───────────────────────────────────────────────── */
 
-.weekly-header h1,
-.weekly-unavailable h1 {
-  margin: 8px 0 12px;
-  font-size: clamp(2.3rem, 5vw, 4.8rem);
-  line-height: 1;
-}
-
-.weekly-header > svg {
-  color: var(--gold);
-}
 .weekly-snapshot {
   display: block;
-  margin-top: 12px;
-  color: var(--text-faint);
+  margin-top: 8px;
+  color: var(--faint);
   font-family: var(--font-mono);
-}
-.weekly-header p:last-child,
-.weekly-start p,
-.weekly-unavailable > p {
-  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.weekly-start,
-.weekly-complete,
-.weekly-unavailable {
-  padding: 54px 0;
-}
-
-.weekly-start .ticket-button,
-.weekly-complete .ticket-button,
-.weekly-unavailable .ticket-button {
-  margin-top: 20px;
-}
-
-.weekly-spinner {
-  animation: weekly-spin 800ms linear infinite;
-}
-
-.weekly-score {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-bottom: 1px solid var(--border);
-}
-
-.weekly-score div {
+/* 五题进度：金 = 答对，红 = 失败，描边 = 当前题。 */
+.weekly-pips {
   display: flex;
-  min-width: 0;
-  padding: 20px 18px;
-  flex-direction: column;
   gap: 5px;
-  border-right: 1px solid var(--border);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.weekly-score div:last-child {
-  border-right: 0;
-}
-.weekly-score span {
-  color: var(--text-faint);
-  font-size: 0.65rem;
-}
-.weekly-score strong {
-  color: var(--gold);
-  font-family: var(--font-mono);
-  font-size: 1rem;
+.weekly-pips li {
+  width: 9px;
+  height: 26px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 10%);
+  transition:
+    background 0.4s var(--ease),
+    box-shadow 0.4s var(--ease);
 }
 
-.weekly-game {
-  padding-top: 34px;
+.weekly-pips li.is-won {
+  background: var(--lit);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--lit) 45%, transparent);
 }
-.weekly-round-transition {
-  display: grid;
-  min-height: 320px;
-  place-content: center;
-  justify-items: center;
-  padding: 42px 20px;
-  border-bottom: 1px solid var(--border);
-  text-align: center;
+
+.weekly-pips li.is-lost {
+  background: rgb(255 122 133 / 55%);
 }
-.weekly-round-transition > span {
-  color: var(--text-faint);
+
+.weekly-pips li.is-current {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--lit);
+}
+
+.weekly-question {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.weekly-round-transition h2 {
-  margin: 12px 0 20px;
-  font-size: 1.8rem;
+
+.weekly-question b {
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 700;
 }
-.weekly-round-transition > div {
+
+.weekly-question small {
+  font-size: 0.82rem;
+}
+
+/* ── 次要指标 ───────────────────────────────────────────── */
+
+.weekly-stats {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  color: var(--gold);
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
 }
-.weekly-round-transition p {
-  margin: 14px 0 0;
-  color: var(--text-muted);
-}
-.weekly-round-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-.weekly-round-heading span {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-}
-.weekly-round-heading h2 {
-  margin: 6px 0 0;
-  font-size: 1.7rem;
-}
-.weekly-forfeit,
-.weekly-back {
+
+.weekly-stats > div {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-.weekly-forfeit {
-  padding: 10px 0;
-  color: var(--text-muted);
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-.weekly-forfeit:disabled {
-  cursor: wait;
-  opacity: 0.55;
-}
-.weekly-back {
-  margin-top: 32px;
-  color: var(--text-muted);
-  font-size: 0.76rem;
-}
-.weekly-complete {
-  text-align: center;
-}
-.weekly-complete svg {
-  color: var(--gold);
-}
-.weekly-complete h2 {
-  margin: 14px 0 8px;
-  font-size: 2rem;
-}
-.weekly-complete p {
-  color: var(--text-muted);
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+  font-size: 12.5px;
+  font-weight: 700;
 }
 
-.weekly-leaderboard {
-  padding-top: 58px;
-  margin-top: 40px;
-  border-top: 1px solid var(--border);
+.weekly-stats dt {
+  color: var(--muted);
 }
-.weekly-leaderboard-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 22px;
-}
-.weekly-leaderboard-heading h2 {
-  margin: 6px 0 0;
-  font-size: 1.65rem;
-}
-.weekly-leaderboard-heading > span {
-  color: var(--text-faint);
+
+.weekly-stats dd {
+  margin: 0;
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
 }
-.weekly-leaderboard-scroll {
-  overflow-x: auto;
+
+/* ── 状态面板：未开放 / 开始 / 题间过渡 / 完赛 ──────────── */
+
+.sr-game .sr-board-wrap.weekly-state {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 12px;
+  min-height: 260px;
+  padding: 36px 24px;
+  text-align: center;
 }
-.weekly-leaderboard table {
-  width: 100%;
-  min-width: 580px;
-  border-collapse: collapse;
+
+.weekly-state h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
-.weekly-leaderboard th,
-.weekly-leaderboard td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
+
+.weekly-state p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  text-wrap: pretty;
 }
-.weekly-leaderboard thead th {
-  color: var(--text-faint);
-  font-size: 0.62rem;
-  font-weight: 500;
+
+.weekly-state .ticket-button {
+  margin-top: 8px;
 }
-.weekly-leaderboard tbody td {
-  color: var(--text-muted);
+
+.weekly-state-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 4%);
+  color: var(--muted);
+}
+
+.weekly-state-icon.is-lit,
+.weekly-start .weekly-state-icon {
+  border-color: rgb(242 205 122 / 30%);
+  background: rgb(242 205 122 / 10%);
+  color: var(--lit);
+}
+
+.sr-game .sr-board-wrap.weekly-complete {
+  border-color: rgb(242 205 122 / 28%);
+  background: linear-gradient(rgb(242 205 122 / 7%), rgb(242 205 122 / 7%)), rgb(11 15 36 / 92%);
+}
+
+.weekly-complete p {
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
 }
-.weekly-leaderboard tbody th {
-  font-size: 0.8rem;
+
+.weekly-round-transition .weekly-state-icon {
+  color: var(--lit);
 }
-.weekly-leaderboard-empty {
-  padding: 28px 0;
-  color: var(--text-muted);
+
+.weekly-spinner {
+  animation: weekly-spin 0.9s linear infinite;
 }
 
 @keyframes weekly-spin {
@@ -221,39 +180,262 @@
   }
 }
 
+/* ── 本题 ───────────────────────────────────────────────── */
+
+.sr-game .sr-board-wrap.weekly-game {
+  display: grid;
+  gap: 16px;
+}
+
+.weekly-round-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.weekly-round-heading > div {
+  display: grid;
+  gap: 2px;
+}
+
+.weekly-round-heading span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.weekly-round-heading h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.weekly-round-heading h2:focus {
+  outline: none;
+}
+
+.weekly-round-heading h2:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.sr-game .weekly-game .sr-composer {
+  margin: 0;
+}
+
+/* v2 小号胶囊（h36）。 */
+.weekly-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 180ms var(--ease);
+}
+
+.weekly-pill svg {
+  color: var(--muted);
+}
+
+.weekly-pill:hover:not(:disabled) {
+  background: rgb(255 255 255 / 6%);
+}
+
+.weekly-pill:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.weekly-pill:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 3px;
+}
+
+.weekly-back {
+  justify-self: start;
+}
+
+.weekly-error {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 14px;
+  background: rgb(255 122 133 / 10%);
+  color: #ff9aa3;
+  font-size: 0.9rem;
+}
+
+.weekly-error .mono {
+  font-family: var(--font-mono);
+}
+
+/* ── 统一周榜 ───────────────────────────────────────────── */
+
+.weekly-leaderboard {
+  display: grid;
+  gap: 12px;
+  padding: 20px 22px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.weekly-leaderboard-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.weekly-leaderboard-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.weekly-leaderboard-heading h2 svg {
+  color: var(--lit);
+}
+
+.weekly-leaderboard-heading > span {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.weekly-leaderboard-scroll {
+  overflow-x: auto;
+}
+
+.weekly-leaderboard table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: 0.9rem;
+}
+
+.weekly-leaderboard thead th {
+  padding: 4px 12px;
+  color: var(--faint);
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.weekly-leaderboard tbody td,
+.weekly-leaderboard tbody th {
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.weekly-leaderboard tbody th {
+  overflow: hidden;
+  max-width: 260px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weekly-leaderboard tbody td {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.weekly-leaderboard tbody td:first-child {
+  width: 48px;
+  color: var(--faint);
+  font-weight: 700;
+}
+
+.weekly-leaderboard tbody tr > :first-child {
+  border-radius: var(--r-tile) 0 0 var(--r-tile);
+}
+
+.weekly-leaderboard tbody tr > :last-child {
+  border-radius: 0 var(--r-tile) var(--r-tile) 0;
+}
+
+/* 前三名点亮 */
+.weekly-leaderboard tbody tr.is-top > * {
+  background: rgb(242 205 122 / 7%);
+}
+
+.weekly-leaderboard tbody tr.is-top td:first-child {
+  color: var(--lit);
+}
+
+.weekly-leaderboard-empty {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ── 响应式 ─────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .sr-game.weekly-page {
+    width: calc(100% - 24px);
+  }
+
+  .sr-game .sr-board-wrap.weekly-state {
+    min-height: 220px;
+    padding: 28px 18px;
+  }
+
+  .sr-game .sr-board-wrap.weekly-game {
+    padding: 14px 12px;
+  }
+
+  .weekly-question b {
+    font-size: 1.05rem;
+  }
+
+  .weekly-leaderboard {
+    padding: 16px 14px 12px;
+  }
+
+  .weekly-leaderboard tbody td,
+  .weekly-leaderboard tbody th,
+  .weekly-leaderboard thead th {
+    padding-inline: 8px;
+  }
+}
+
+/* ── 减少动态效果（双开关） ─────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
   .weekly-spinner {
     animation: none;
   }
+
+  .weekly-pips li,
+  .weekly-pill {
+    transition: none;
+  }
 }
 
-@media (max-width: 720px) {
-  .weekly-page {
-    width: min(calc(100% - 24px), 1120px);
-    padding-top: 42px;
-  }
-  .weekly-header {
-    align-items: start;
-  }
-  .weekly-header > svg {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 auto;
-  }
-  .weekly-score {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .weekly-score div {
-    border-bottom: 1px solid var(--border);
-  }
-  .weekly-score div:nth-child(even) {
-    border-right: 0;
-  }
-  .weekly-score div:last-child {
-    grid-column: 1 / -1;
-    border-bottom: 0;
-  }
-  .weekly-round-heading {
-    align-items: start;
-  }
+:root[data-motion="reduced"] .weekly-spinner {
+  animation: none;
+}
+
+:root[data-motion="reduced"] .weekly-pips li,
+:root[data-motion="reduced"] .weekly-pill {
+  transition: none;
 }

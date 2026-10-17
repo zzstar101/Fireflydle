@@ -3,6 +3,12 @@ tmp/r2-assets/
 apps/web/public/assets/**
 !apps/web/public/assets/manifest.json
 !apps/web/public/assets/manifest.sha256
+!apps/web/public/assets/character-art/
+!apps/web/public/assets/character-art/index.json
+!apps/web/public/assets/character-art/*.webp
+# 立绘点云（<id>-cloud-<hash>.json）：index.json 与 manifest 都引用它，
+# 不进版本库的话全新克隆会缺文件、assets:validate 直接失败。
+!apps/web/public/assets/character-art/*.json
 dist/
 .wrangler/
 .dev.vars

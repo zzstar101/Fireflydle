@@ -8,6 +8,7 @@ import type {
   Character,
   Direction,
   FeedbackState,
+  GameEntitySummary,
   GuessCell,
   GuessField,
   GuessResult,
@@ -322,16 +323,51 @@ export function createInferenceReview(
   guesses: readonly GuessResult[],
   rules: readonly SnapshotFieldRule[],
 ): InferenceReview {
-  return createInferenceReviewForEntities(candidates, guesses, (target, guess) =>
-    compareCharactersWithRules(target, guess, rules),
+  return createInferenceReviewForEntities(
+    candidates,
+    guesses,
+    (target, guess) => compareCharactersWithRules(target, guess, rules),
+    { toSummary: (character) => PlayableGameEntitySummarySchema.parse(character) },
   );
 }
 
-/** 按模式专用判题器重放结算反馈，候选实体本身不会进入公开复盘。 */
+interface GuessInformation {
+  informationBits: number;
+  expectedRemaining: number;
+}
+
+/** 仅使用当时的候选先验，不使用真实答案衡量猜测质量。 */
+function guessInformation<T extends { id: string }>(
+  remaining: readonly T[],
+  guess: T,
+  compare: (target: T, guess: T) => GuessCell[],
+): GuessInformation {
+  if (remaining.length === 0) return { informationBits: 0, expectedRemaining: 0 };
+  const groups = new Map<string, number>();
+  for (const answer of remaining) {
+    const signature = JSON.stringify([
+      answer.id === guess.id,
+      compare(answer, guess).map(({ field, state, direction }) => [field, state, direction]),
+    ]);
+    groups.set(signature, (groups.get(signature) ?? 0) + 1);
+  }
+  let informationBits = 0;
+  let squaredSizes = 0;
+  // 固定求和顺序，避免候选遍历顺序的浮点误差影响并列选择。
+  for (const size of [...groups.values()].sort((left, right) => left - right)) {
+    const probability = size / remaining.length;
+    informationBits += probability * Math.log2(1 / probability);
+    squaredSizes += size * size;
+  }
+  return { informationBits, expectedRemaining: squaredSizes / remaining.length };
+}
+
+/** 按模式专用判题器重放结算反馈，仅通过 toSummary 公开最佳猜测摘要。 */
 export function createInferenceReviewForEntities<T extends { id: string }>(
   candidates: readonly T[],
   guesses: readonly GuessResult[],
   compare: (target: T, guess: T) => GuessCell[],
+  options: { toSummary?: (entity: T) => GameEntitySummary } = {},
 ): InferenceReview {
   let remaining = [...candidates];
   let bestGuessNumber: number | null = null;
@@ -339,6 +375,44 @@ export function createInferenceReviewForEntities<T extends { id: string }>(
   const steps = guesses.map((result, index) => {
     const before = remaining.length;
     const guess = candidates.find((candidate) => candidate.id === result.character.id);
+    const remainingIds = new Set(remaining.map((candidate) => candidate.id));
+    // Worker CPU 预算：池大小 × 剩余候选数超过 60000 时，只在剩余候选中找最佳猜测。
+    const searchPool = candidates.length * before > 60_000 ? remaining : candidates;
+    let best: { entity: T; information: GuessInformation } | null = null;
+    let actual: GuessInformation | undefined;
+    for (const candidate of searchPool) {
+      const information = guessInformation(remaining, candidate, compare);
+      if (candidate.id === guess?.id) actual = information;
+      // 等价分组的熵可能存在浮点尾差，以极小容差判定并列。
+      const entropyDifference =
+        information.informationBits - (best?.information.informationBits ?? 0);
+      const expectedDifference =
+        information.expectedRemaining - (best?.information.expectedRemaining ?? 0);
+      const candidatePriority = Number(remainingIds.has(candidate.id));
+      const bestPriority = Number(best !== null && remainingIds.has(best.entity.id));
+      if (
+        best === null ||
+        entropyDifference > 1e-12 ||
+        (Math.abs(entropyDifference) <= 1e-12 &&
+          (expectedDifference < 0 ||
+            (expectedDifference === 0 &&
+              (candidatePriority > bestPriority ||
+                (candidatePriority === bestPriority && candidate.id < best.entity.id)))))
+      ) {
+        best = { entity: candidate, information };
+      }
+    }
+    // 降级搜索不能漏掉玩家实际选择；旧快照缺失该实体时按无信息处理。
+    actual ??= guess
+      ? guessInformation(remaining, guess, compare)
+      : { informationBits: 0, expectedRemaining: before };
+    const bestInformationBits = best?.information.informationBits ?? 0;
+    const skill =
+      before <= 1 || bestInformationBits === 0
+        ? result.isCorrect
+          ? 100
+          : 0
+        : Math.round(100 * Math.min(1, actual.informationBits / bestInformationBits));
     remaining = guess
       ? remaining.filter(
           (candidate) =>
@@ -356,11 +430,35 @@ export function createInferenceReviewForEntities<T extends { id: string }>(
       remainingCandidates: remaining.length,
       eliminatedCandidates,
       isBest: false,
+      candidatesBefore: before,
+      ...actual,
+      bestInformationBits,
+      bestExpectedRemaining: best?.information.expectedRemaining ?? 0,
+      ...(options.toSummary ? { bestGuess: best ? options.toSummary(best.entity) : null } : {}),
+      skill,
     };
   });
+  const score =
+    steps.length === 0
+      ? null
+      : Math.round(steps.reduce((sum, step) => sum + step.skill, 0) / steps.length);
+  const grade =
+    score === null
+      ? null
+      : score >= 90
+        ? "S"
+        : score >= 75
+          ? "A"
+          : score >= 60
+            ? "B"
+            : score >= 40
+              ? "C"
+              : "D";
   return {
     initialCandidates: candidates.length,
     bestGuessNumber,
+    score,
+    grade,
     steps: steps.map((step) => ({ ...step, isBest: step.guessNumber === bestGuessNumber })),
   };
 }

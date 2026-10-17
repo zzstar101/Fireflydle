@@ -86,7 +86,7 @@ export default function EmailVerificationPage() {
             <MailCheck size={30} />
           )}
         </div>
-        <p className="eyebrow">{tr("验证邮箱", "メール確認", "EMAIL VERIFICATION")}</p>
+        <p className="eyebrow">{tr("账号安全", "アカウントの安全", "Account security")}</p>
         <h1>
           {complete
             ? tr("邮箱验证成功", "メールを確認しました", "Email verified")

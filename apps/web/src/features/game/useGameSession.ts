@@ -30,6 +30,8 @@ interface GameSession {
   start: () => Promise<boolean>;
   startOffline: () => boolean;
   submitGuess: (characterId: string) => Promise<void>;
+  /** 草稿局的第一猜：先开局（此刻开始计时）再提交，原型里没有单独的“开始”步骤。 */
+  startWithGuess: (characterId: string, online: boolean) => Promise<boolean>;
   restart: () => Promise<void>;
   abandonAndRestart: () => Promise<boolean>;
   acknowledgeNavigation: () => void;
@@ -101,6 +103,16 @@ function targetFor(
   const target = eligible[stringHash(seed) % eligible.length];
   if (!target) throw new Error("题库为空");
   return target;
+}
+
+/**
+ * 还没开局时用来渲染棋盘的占位局：字段、次数与真实对局一致，计时停在 00:00，
+ * 第一次提交时才真正创建对局。
+ */
+export function createDraftGame(activityId: SoloActivity, runtime: SoloModeRuntime): PublicGame {
+  const placeholder = runtime.roster[0];
+  if (!placeholder) throw new Error("题库为空");
+  return { ...createLocalGame(activityId, runtime, placeholder), id: "draft" };
 }
 
 function createLocalGame(
@@ -326,6 +338,75 @@ export function useGameSession(
     [game, queryClient, runtime, source, writeCurrentCache],
   );
 
+  const startWithGuess = useCallback(
+    async (characterId: string, online: boolean) => {
+      if (submitting.current) return false;
+      if (!online) {
+        const target = targetFor(activityId, runtime, String(Date.now()));
+        const guess = runtime.roster.find((entity) => entity.id === characterId);
+        if (!guess) {
+          setErrorCode("NOT_FOUND");
+          return false;
+        }
+        const localGame = createLocalGame(activityId, runtime, target);
+        const result = runtime.createGuessResult(target, guess);
+        const ended = result.isCorrect || localGame.maxAttempts <= 1;
+        ++startSequence.current;
+        sessionEpoch.current += 1;
+        localTargetId.current = target.id;
+        setRoster(runtime.roster);
+        setGameState({
+          ...localGame,
+          guesses: [result],
+          status: result.isCorrect ? "won" : ended ? "lost" : "active",
+          completedAt: ended ? new Date().toISOString() : null,
+          answer: ended ? target : null,
+        });
+        setSourceState("local");
+        setNavigationGameId(null);
+        setErrorCode(null);
+        setBusy(false);
+        return true;
+      }
+
+      const sequence = ++startSequence.current;
+      submitting.current = true;
+      setBusy(true);
+      setErrorCode(null);
+      try {
+        const started = await startServerGame(queryClient, activityId, runtime);
+        if (sequence !== startSequence.current) return false;
+        applyServerStart(started);
+        // 服务端可能返回已有的对局（例如今日题已在别处开过）：结束了或已猜过同一角色就不再提交。
+        if (
+          started.game.status !== "active" ||
+          hasDuplicateGuess(started.game.guesses, characterId)
+        ) {
+          return true;
+        }
+        const requestEpoch = sessionEpoch.current;
+        const updated = await apiRequest<PublicGame>(`/games/${started.game.id}/guesses`, {
+          method: "POST",
+          body: JSON.stringify({ characterId }),
+        });
+        if (requestEpoch !== sessionEpoch.current || updated.id !== started.game.id) return true;
+        setGameState(updated);
+        writeCurrentCache(updated);
+        if (updated.status !== "active") {
+          void queryClient.invalidateQueries({ queryKey: ["stats"] });
+        }
+        return true;
+      } catch (error) {
+        if (sequence === startSequence.current) setErrorCode(errorCodeOf(error));
+        return false;
+      } finally {
+        submitting.current = false;
+        if (sequence === startSequence.current) setBusy(false);
+      }
+    },
+    [activityId, applyServerStart, queryClient, runtime, writeCurrentCache],
+  );
+
   const restart = useCallback(async () => {
     if (activityId === "daily") return;
     if (source === "local") {
@@ -385,6 +466,7 @@ export function useGameSession(
     start,
     startOffline,
     submitGuess,
+    startWithGuess,
     restart,
     abandonAndRestart,
     acknowledgeNavigation,

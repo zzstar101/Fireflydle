@@ -1,236 +1,423 @@
-.endless-page {
-  width: min(100%, var(--content));
-  margin: 0 auto;
-  padding: 42px 28px 72px;
+/*
+ * 无尽挑战（docs/design/redesign-v2/README.md）。
+ *
+ * 页面骨架复用每日对局页的 .sr-game / .sr-game-head / .sr-board-wrap / .sr-composer
+ * （game.css），这里只补无尽特有的部分：页头里的生命与题次、次要指标行、
+ * 小号胶囊动作、回合结果条和排行侧栏。
+ */
+
+.sr-game.endless-page {
+  width: min(1240px, calc(100% - 48px));
 }
 
-.endless-hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 32px;
-  padding: 28px 0 32px;
-  border-bottom: 1px solid var(--border-strong);
-}
+/* ── 页头右侧：生命 / 题次 ─────────────────────────────── */
 
-.endless-hero > div {
-  max-width: 760px;
-}
-.endless-hero p {
-  margin: 0 0 10px;
-  color: var(--gold);
-  font: 700 12px/1.2 var(--font-mono);
-  text-transform: uppercase;
-}
-.endless-hero h1 {
-  margin: 0;
-  font: 600 52px/1.05 var(--font-display);
-  letter-spacing: 0;
-}
-.endless-hero span {
-  display: block;
-  margin-top: 14px;
-  color: var(--text-muted);
-  line-height: 1.7;
-}
-.endless-hero > svg {
-  color: var(--cyan);
-  flex: 0 0 auto;
-}
-
-.endless-metrics {
-  display: grid;
-  grid-template-columns: 1.5fr repeat(3, minmax(130px, 1fr));
-  border-bottom: 1px solid var(--border);
-}
-
-.endless-metrics > div {
-  min-height: 104px;
-  padding: 20px 22px;
-  border-right: 1px solid var(--border);
-}
-.endless-metrics > div:last-child {
-  border-right: 0;
-}
-.endless-metrics span {
+.endless-lives {
   display: flex;
   align-items: center;
-  gap: 7px;
-  color: var(--text-muted);
-  font-size: 12px;
+  gap: 4px;
 }
-.endless-metrics strong {
-  display: flex;
-  gap: 5px;
-  margin-top: 13px;
-  font: 600 28px/1 var(--font-mono);
+
+.endless-lives svg {
+  flex: none;
 }
-.endless-metrics .is-live {
-  color: var(--danger);
-  fill: var(--danger);
+
+/* 生命：金色实心 = 剩余，褪色 + 熄灭动画 = 失去。 */
+.endless-lives .is-live {
+  color: var(--lit);
+  fill: var(--lit);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--lit) 40%, transparent));
 }
-.endless-metrics .is-lost {
-  color: var(--text-faint);
-  opacity: 0.32;
-  animation: endless-life-extinguish 420ms var(--motion-ease) both;
+
+.endless-lives .is-lost {
+  color: var(--faint);
+  opacity: 0.45;
+  animation: endless-life-extinguish 420ms var(--ease) both;
 }
+
+.endless-round {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.endless-round small {
+  font-family: inherit;
+  font-size: 0.82rem;
+}
+
+.endless-round small:first-child {
+  font-family: var(--font-body, inherit);
+}
+
+.endless-round b {
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* ── 主体：对局列 + 排行侧栏 ───────────────────────────── */
 
 .endless-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 310px;
-  gap: 36px;
-  padding-top: 34px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: start;
+  gap: 24px;
 }
+
 .endless-play-area {
+  display: grid;
+  gap: 14px;
   min-width: 0;
 }
-.endless-round-header {
+
+/* 次要指标 + 动作 */
+.endless-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  min-height: 36px;
 }
-.endless-round-header > div {
+
+.endless-stats {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
 }
-.endless-round-header span,
-.endless-round-header small {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-.endless-round-header strong {
-  font: 600 34px/1 var(--font-mono);
-}
-.endless-round-header button,
-.endless-loading-state button {
+
+.endless-stats > div {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  min-height: 42px;
-  padding: 0 16px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  background: var(--surface);
-  cursor: pointer;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+  font-size: 12.5px;
+  font-weight: 700;
 }
-.endless-round-header button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+
+.endless-stats dt {
+  color: var(--muted);
 }
-.endless-round-actions {
+
+.endless-stats dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.endless-actions,
+.endless-confirm > div {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.endless-finish-confirm {
+
+.endless-confirm {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 8px;
-}
-.endless-finish-confirm span {
-  color: var(--text-muted);
-  font-size: 0.62rem;
-}
-.endless-finish-confirm .is-danger {
-  color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 60%, var(--border));
+  gap: 8px 12px;
 }
 
+.endless-confirm > span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+/* v2 小号胶囊（h36）。 */
+.endless-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 180ms var(--ease);
+}
+
+.endless-pill:hover:not(:disabled) {
+  background: rgb(255 255 255 / 6%);
+}
+
+.endless-pill:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.endless-pill svg {
+  color: var(--muted);
+}
+
+.endless-pill.is-danger {
+  border-color: rgb(255 122 133 / 35%);
+  color: #ff9aa3;
+}
+
+.endless-pill.is-danger:hover:not(:disabled) {
+  background: rgb(255 122 133 / 10%);
+}
+
+.endless-restart {
+  min-height: 42px;
+}
+
+/* 回合结果：软面板 + 字形（✓ / ✕ / ⏭），颜色只是补充。 */
 .endless-round-result {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-  padding: 14px 16px;
-  border-left: 3px solid var(--gold);
-  background: var(--surface-soft);
-}
-.endless-round-result strong {
-  color: var(--gold-bright);
-}
-.endless-round-result span {
-  color: var(--text-muted);
-}
-.endless-round-result.result-won {
-  border-color: var(--exact);
-}
-.endless-round-result.result-lost,
-.endless-round-result.result-skipped {
-  border-color: var(--danger);
-}
-.endless-error {
-  color: var(--danger);
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
 }
 
-.endless-board {
-  border-left: 1px solid var(--border);
-  padding-left: 28px;
+.endless-result-glyph {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 6%);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
 }
+
+.endless-result-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.endless-round-result strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.endless-round-result span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.endless-round-result.result-won {
+  border-color: rgb(242 205 122 / 28%);
+  background: rgb(242 205 122 / 9%);
+}
+
+.endless-round-result.result-won .endless-result-glyph {
+  background: var(--lit);
+  color: var(--lit-ink);
+}
+
+.endless-round-result.result-won strong {
+  color: var(--lit);
+}
+
+.endless-round-result.result-lost {
+  border-color: rgb(255 122 133 / 22%);
+  background: rgb(255 122 133 / 10%);
+}
+
+.endless-round-result.result-lost .endless-result-glyph {
+  background: rgb(255 122 133 / 18%);
+  color: #ff9aa3;
+}
+
+.endless-round-result.result-lost strong {
+  color: #ff9aa3;
+}
+
+/* 棋盘面板（.sr-board-wrap 已给出底板与圆角） */
+.sr-game .endless-board-wrap {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* GuessBoard 内联了桌面 min-width（175 + n×142）；无尽页旁边有排行侧栏，
+   棋盘列更窄，改为按列宽自适应，避免表格溢出压到侧栏。 */
+.sr-game.endless-page .guess-board {
+  min-width: 0 !important;
+}
+
+@media (min-width: 761px) {
+  .sr-game.endless-page .guess-board thead th:first-child,
+  .sr-game.endless-page .guess-board tbody th {
+    width: 190px;
+  }
+
+  .sr-game.endless-page .sr-ghost-row {
+    grid-template-columns: 190px repeat(var(--sr-cols, 6), minmax(0, 1fr));
+  }
+}
+
+/* 立绘无尽：遮罩立绘居中，猜测记录在下方 */
+.sr-game .endless-board-wrap.is-portrait {
+  display: grid;
+  gap: 16px;
+}
+
+.sr-game .endless-board-wrap.is-portrait .sr-composer {
+  margin: 0;
+}
+
+.sr-game .endless-board-wrap.is-portrait .endless-portrait-board-wrap {
+  width: min(100%, 360px, max(220px, calc((100svh - 440px) * 0.75)));
+  margin: 0 auto;
+}
+
+.endless-error {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 14px;
+  background: rgb(255 122 133 / 10%);
+  color: #ff9aa3;
+  font-size: 0.9rem;
+}
+
+/* ── 排行侧栏 ───────────────────────────────────────────── */
+
+.endless-board {
+  display: grid;
+  gap: 12px;
+  padding: 20px 20px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
 .endless-board h2 {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin: 0 0 18px;
-  font: 600 18px/1.2 var(--font-body);
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
 }
+
+.endless-board h2 svg {
+  color: var(--lit);
+}
+
 .endless-board > p {
-  color: var(--text-muted);
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.88rem;
   line-height: 1.6;
 }
+
 .endless-board ol {
-  list-style: none;
+  display: grid;
+  gap: 4px;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
+
 .endless-board li {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) auto;
-  gap: 7px 10px;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--border);
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 10px;
+  padding: 9px 10px;
+  border-radius: var(--r-tile);
 }
+
 .endless-board li b {
   grid-row: 1 / 3;
-  color: var(--text-faint);
-  font: 500 12px/1.5 var(--font-mono);
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
+
 .endless-board li span {
   overflow: hidden;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .endless-board li strong {
-  color: var(--gold-bright);
-  font: 600 18px/1 var(--font-mono);
-}
-.endless-board li small {
-  color: var(--text-muted);
-  font: 500 11px/1.2 var(--font-mono);
+  grid-row: 1 / 3;
+  grid-column: 3;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.endless-loading-state {
-  min-height: 55vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
+.endless-board li small {
+  grid-column: 2;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 前三名点亮 */
+.endless-board li.is-top {
+  background: rgb(242 205 122 / 7%);
+}
+
+.endless-board li.is-top b,
+.endless-board li.is-top strong {
+  color: var(--lit);
+}
+
+/* ── 加载 / 失败态 ──────────────────────────────────────── */
+
+.sr-game .endless-state {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  min-height: 280px;
   text-align: center;
 }
-.endless-loading-state h1 {
+
+.endless-state p {
   margin: 0;
-  font: 600 25px/1.2 var(--font-display);
+  color: var(--muted);
 }
+
+.endless-state.is-error p {
+  color: #ff9aa3;
+}
+
+.endless-state > svg {
+  color: var(--lit);
+}
+
 .endless-spinner {
   animation: endless-spin 0.9s linear infinite;
 }
+
 @keyframes endless-spin {
   to {
     transform: rotate(360deg);
@@ -242,83 +429,88 @@
     opacity: 1;
     transform: scale(1);
   }
+
   45% {
     opacity: 0.9;
     transform: scale(1.18) rotate(-8deg);
   }
+
   100% {
-    opacity: 0.32;
+    opacity: 0.45;
     transform: scale(0.92) rotate(0deg);
   }
 }
 
-@media (max-width: 900px) {
-  .endless-metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .endless-metrics > div:nth-child(2) {
-    border-right: 0;
-  }
+/* ── 响应式 ─────────────────────────────────────────────── */
+
+@media (max-width: 1080px) {
   .endless-layout {
-    grid-template-columns: 1fr;
-  }
-  .endless-board {
-    border-left: 0;
-    border-top: 1px solid var(--border);
-    padding: 28px 0 0;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 560px) {
-  .endless-page {
-    padding: 24px 16px 56px;
+@media (max-width: 760px) {
+  .sr-game.endless-page {
+    width: calc(100% - 24px);
   }
-  .endless-hero h1 {
-    font-size: 38px;
+
+  .endless-lives {
+    gap: 2px;
   }
-  .endless-hero {
-    align-items: flex-start;
+
+  .endless-lives svg {
+    width: 17px;
+    height: 17px;
   }
-  .endless-hero > svg {
-    width: 38px;
-    height: 38px;
+
+  .endless-round b {
+    font-size: 1.05rem;
   }
-  .endless-metrics > div {
-    min-height: 88px;
-    padding: 16px 12px;
+
+  .endless-toolbar {
+    gap: 10px;
   }
-  .endless-metrics strong {
-    font-size: 22px;
-  }
-  .endless-metrics strong svg {
-    width: 18px;
-  }
-  .endless-round-header {
-    align-items: flex-start;
-  }
-  .endless-round-actions,
-  .endless-finish-confirm {
+
+  .endless-actions,
+  .endless-confirm,
+  .endless-confirm > div {
     width: 100%;
+  }
+
+  .endless-confirm {
     justify-content: stretch;
   }
-  .endless-round-actions button,
-  .endless-finish-confirm button {
+
+  .endless-actions .endless-pill,
+  .endless-confirm .endless-pill {
     flex: 1;
   }
-  .endless-round-result {
-    flex-direction: column;
+
+  .endless-restart {
+    width: 100%;
   }
 }
+
+/* ── 减少动态效果（双开关） ─────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   .endless-spinner,
-  .endless-metrics .is-lost {
+  .endless-lives .is-lost {
     animation: none;
     transform: none;
   }
+
+  .endless-pill {
+    transition: none;
+  }
 }
 
-:root[data-motion="reduced"] .endless-metrics .is-lost {
+:root[data-motion="reduced"] .endless-spinner,
+:root[data-motion="reduced"] .endless-lives .is-lost {
   animation: none;
   transform: none;
+}
+
+:root[data-motion="reduced"] .endless-pill {
+  transition: none;
 }

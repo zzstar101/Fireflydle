@@ -27,6 +27,7 @@ import { usePreferences } from "../../state/preferences";
 import { emailVerificationState } from "./email-verification-state";
 import { registrationErrorDetails } from "./registration-error";
 import { useRefreshSession, useSession } from "./useSession";
+import { AccountShortcuts } from "./AccountShortcuts";
 import "./account.css";
 
 export default function AccountPage() {
@@ -224,20 +225,20 @@ export default function AccountPage() {
             <UserRound size={36} />
           </div>
           <div>
-            <p className="eyebrow">{tr("账号信息", "アカウント情報", "ACCOUNT")}</p>
+            <p className="eyebrow">{tr("账号信息", "アカウント情報", "Account")}</p>
             <h1>{user.displayName}</h1>
             <span className={`profile-email-state profile-email-state-${emailState}`}>
               {emailState === "verified" ? (
                 <>
-                  <ShieldCheck size={15} /> {tr("邮箱已验证", "メール確認済み", "EMAIL VERIFIED")}
+                  <ShieldCheck size={15} /> {tr("邮箱已验证", "メール確認済み", "Email verified")}
                 </>
               ) : emailState === "pending" ? (
                 <>
-                  <MailWarning size={15} /> {tr("邮箱待验证", "メール未確認", "EMAIL UNVERIFIED")}
+                  <MailWarning size={15} /> {tr("邮箱待验证", "メール未確認", "Email unverified")}
                 </>
               ) : (
                 <>
-                  <AtSign size={15} /> {tr("未绑定邮箱", "メール未登録", "NO EMAIL")}
+                  <AtSign size={15} /> {tr("未绑定邮箱", "メール未登録", "No email")}
                 </>
               )}
             </span>
@@ -258,23 +259,23 @@ export default function AccountPage() {
         </section>
         <section className="account-metrics">
           <div>
-            <span>{tr("ELO 评分", "ELO レート", "ELO RATING")}</span>
+            <span>{tr("Elo 评分", "Elo レート", "Elo rating")}</span>
             <strong>{user.elo}</strong>
             <small>
               {user.leaderboardEligible
-                ? tr("公开", "公開", "PUBLIC")
-                : tr("已被管理员隐藏", "管理者により非公開", "HIDDEN BY ADMIN")}
+                ? tr("公开", "公開", "Public")
+                : tr("已被管理员隐藏", "管理者により非公開", "Hidden by admin")}
             </small>
           </div>
           <div>
-            <span>{tr("排位场次", "ランク対戦数", "RANKED MATCHES")}</span>
+            <span>{tr("排位场次", "ランク対戦数", "Ranked matches")}</span>
             <strong>{user.rankedMatches}</strong>
-            <small>{tr("全部", "通算", "ALL TIME")}</small>
+            <small>{tr("全部", "通算", "All time")}</small>
           </div>
           <div>
-            <span>{tr("昵称", "表示名", "DISPLAY NAME")}</span>
+            <span>{tr("昵称", "表示名", "Display name")}</span>
             <strong className="small-value">{user.displayName}</strong>
-            <small>{tr("每 30 天可修改", "30日に1回変更可能", "CHANGE EVERY 30 DAYS")}</small>
+            <small>{tr("每 30 天可修改", "30日に1回変更可能", "Change every 30 days")}</small>
           </div>
         </section>
         {emailState === "pending" && (
@@ -381,6 +382,7 @@ export default function AccountPage() {
                   : "Request deletion"}
           </button>
         </section>
+        <AccountShortcuts />
       </main>
     );
   }
@@ -388,7 +390,7 @@ export default function AccountPage() {
   return (
     <main className="page-shell account-page auth-layout">
       <section className="auth-intro">
-        <p className="eyebrow">{tr("账号与战绩", "アカウントと戦績", "ACCOUNT & PROGRESS")}</p>
+        <p className="eyebrow">{tr("账号与战绩", "アカウントと戦績", "Account & progress")}</p>
         <h1>
           {locale === "zh-CN"
             ? "登录后可以保留并同步战绩。"
@@ -533,7 +535,7 @@ export default function AccountPage() {
                   {tr(
                     "不会公开，注册后不可修改",
                     "非公開・登録後は変更不可",
-                    "PRIVATE · CANNOT BE CHANGED",
+                    "Private · cannot be changed",
                   )}
                 </small>
               </span>
@@ -554,7 +556,7 @@ export default function AccountPage() {
               <span>
                 {t("account.displayName")}
                 <small>
-                  {tr("公开显示，不能与他人重复", "公開表示・重複不可", "PUBLIC · MUST BE UNIQUE")}
+                  {tr("公开显示，不能与他人重复", "公開表示・重複不可", "Public · must be unique")}
                 </small>
               </span>
               <input
@@ -594,7 +596,7 @@ export default function AccountPage() {
                   {tr(
                     `至少 ${PASSWORD_MIN_LENGTH} 位`,
                     `${PASSWORD_MIN_LENGTH}文字以上`,
-                    `${PASSWORD_MIN_LENGTH}+ CHARACTERS`,
+                    `${PASSWORD_MIN_LENGTH}+ characters`,
                   )}
                 </small>
               </span>
@@ -620,6 +622,7 @@ export default function AccountPage() {
           </div>
         )}
       </section>
+      <AccountShortcuts />
     </main>
   );
 }

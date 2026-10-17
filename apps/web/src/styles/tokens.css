@@ -1,55 +1,66 @@
+/*
+ * 「星轨」设计令牌（docs/design/redesign-v2/README.md）。
+ * 旧变量名保留并映射到新取值，现有页面样式无需逐个改名即可换肤；
+ * 新组件优先使用下方 v2 变量（--bg/--ink/--lit/--near…）。
+ */
 :root {
-  --font-display: "Iowan Old Style", "Noto Serif SC", "Noto Serif JP", Georgia, serif;
-  --font-body: Inter, "Segoe UI", "Noto Sans SC", "Noto Sans JP", system-ui, sans-serif;
-  --font-mono: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
-  --canvas: #07101d;
-  --canvas-deep: #040a12;
-  --surface: #0d1a2a;
-  --surface-raised: #13243a;
-  --surface-soft: #112033;
-  --text: #f6f0df;
-  --text-muted: #9aa8b9;
-  --text-faint: #6f7e91;
-  --gold: #d8b66b;
-  --gold-bright: #f0d68b;
-  --cyan: #79d7e8;
-  --exact: #2eaa7b;
-  --close: #d59a35;
-  --miss: #3b4658;
-  --danger: #e36b6b;
-  --border: rgb(216 182 107 / 22%);
-  --border-strong: rgb(216 182 107 / 46%);
-  --shadow: 0 24px 70px rgb(0 0 0 / 30%);
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 24px;
-  --content: 1440px;
+  color-scheme: dark;
+
+  /* v2 原始令牌 */
+  --bg: #050817;
+  --ink: #f4f0e6;
+  --muted: #98a0ba;
+  --faint: #5b6483;
+  --line: rgb(214 222 255 / 9%);
+  --line-2: rgb(236 226 205 / 18%);
+  --panel: rgb(11 15 36 / 70%);
+  --panel-2: rgb(13 17 40 / 95%);
+  --lit: #f2cd7a; /* 星光金：一致 / 5★ */
+  --lit-ink: #241703;
+  --near: #9077ee; /* 星云紫：接近 / 4★ */
+  --near-ink: #fff;
+  --cta: linear-gradient(180deg, #fdf0d2, #e8c171);
+  --cta-ink: #1d1406;
+  --r-tile: 12px;
+  --r-card: 26px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* 兼容旧变量名 */
+  --font-display:
+    "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Noto Sans SC", "Noto Sans JP", system-ui,
+    sans-serif;
+  --font-body:
+    "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Noto Sans SC", "Noto Sans JP", system-ui,
+    sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --canvas: var(--bg);
+  --canvas-deep: #03050f;
+  --surface: rgb(13 17 40 / 82%);
+  --surface-raised: rgb(22 27 56 / 92%);
+  --surface-soft: rgb(170 185 255 / 5%);
+  --text: var(--ink);
+  --text-muted: var(--muted);
+  --text-faint: var(--faint);
+  --gold: var(--lit);
+  --gold-bright: #fde3a4;
+  --cyan: #a9b8ff;
+  --exact: var(--lit);
+  --close: var(--near);
+  --miss: rgb(170 185 255 / 8%);
+  --danger: #ff7a85;
+  --border: var(--line);
+  --border-strong: var(--line-2);
+  --shadow: 0 24px 70px rgb(0 0 0 / 40%);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: var(--r-card);
+  /* 原型 .wrap = min(1240px, 100% - 64px)，全站容器宽度以它为准。 */
+  --content: 1240px;
   --reading: 1180px;
   --motion-fast: 140ms;
   --motion-page: 260ms;
   --motion-signal: 3.4s;
-  --motion-ease: cubic-bezier(0.2, 0.72, 0.25, 1);
-}
-
-:root[data-theme="light"] {
-  --canvas: #f4f1e8;
-  --canvas-deep: #e9e4d8;
-  --surface: #fffdf7;
-  --surface-raised: #fff;
-  --surface-soft: #f0ede5;
-  --text: #182433;
-  --text-muted: #637080;
-  --text-faint: #8993a0;
-  --gold: #94702e;
-  --gold-bright: #76571e;
-  --cyan: #137d92;
-  --exact: #1c805c;
-  --close: #9a6817;
-  --miss: #d9dde2;
-  --danger: #b73f48;
-  --border: rgb(94 70 24 / 20%);
-  --border-strong: rgb(94 70 24 / 40%);
-  --shadow: 0 22px 58px rgb(65 50 26 / 13%);
+  --motion-ease: var(--ease);
 }
 
 /* 命途奖励主题只替换站点强调色，判题颜色保持固定。 */

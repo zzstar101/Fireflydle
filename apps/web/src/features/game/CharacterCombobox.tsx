@@ -13,7 +13,9 @@ export function CharacterCombobox({
   disabled,
   onSubmit,
   entityLabel,
+  label,
   showImages = true,
+  variant = "default",
 }: {
   characters: readonly GameEntitySummary[];
   locale: Locale;
@@ -22,8 +24,16 @@ export function CharacterCombobox({
   disabled: boolean;
   onSubmit: (characterId: string) => void;
   entityLabel?: string;
+  /** 覆盖输入框上方的可见标签（例如「第 3 猜：角色名、英文或拼音」）。 */
+  label?: string;
   showImages?: boolean;
+  /**
+   * row：原型里作为棋盘「当前行」的输入条——标签只给读屏，占位符即「第 N 猜：…」，
+   * 右侧 Enter 提示 + 短按钮「猜」。
+   */
+  variant?: "default" | "row";
 }) {
+  const isRow = variant === "row";
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -76,8 +86,11 @@ export function CharacterCombobox({
 
   return (
     <div className="guess-composer">
-      <label className="combobox-label" htmlFor="character-search">
-        {entityLabel ?? t("game.prompt")}
+      <label
+        className={isRow ? "combobox-label sr-only" : "combobox-label"}
+        htmlFor="character-search"
+      >
+        {label ?? entityLabel ?? t("game.prompt")}
       </label>
       <div className="combobox-row">
         <div className="character-combobox">
@@ -96,7 +109,9 @@ export function CharacterCombobox({
                 : undefined
             }
             autoComplete="off"
-            placeholder={entityLabel ? `${entityLabel}...` : t("game.placeholder")}
+            placeholder={
+              isRow && label ? label : entityLabel ? `${entityLabel}...` : t("game.placeholder")
+            }
             value={query}
             disabled={disabled}
             onFocus={() => setOpen(Boolean(query.trim()))}
@@ -139,13 +154,24 @@ export function CharacterCombobox({
             </div>
           )}
         </div>
+        {isRow ? (
+          <kbd className="combobox-kbd" aria-hidden="true">
+            Enter
+          </kbd>
+        ) : null}
         <button
-          className="ticket-button guess-submit"
+          className={isRow ? "btn btn-ink guess-submit" : "ticket-button guess-submit"}
           type="button"
           onClick={submit}
           disabled={disabled || (!selectedId && (!query.trim() || results.length === 0))}
         >
-          <Send size={17} aria-hidden="true" /> <span>{t("game.submit")}</span>
+          {isRow ? (
+            <span>{t("game.submitShort")}</span>
+          ) : (
+            <>
+              <Send size={17} aria-hidden="true" /> <span>{t("game.submit")}</span>
+            </>
+          )}
         </button>
       </div>
     </div>

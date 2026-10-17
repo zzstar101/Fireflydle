@@ -1312,12 +1312,22 @@ export default function AdminPage() {
     return (
       <main className="center-page admin-denied">
         <ShieldCheck size={42} />
-        <p className="eyebrow">RESTRICTED SECTOR</p>
-        <h1>{locale === "zh-CN" ? "管理权限是必需的" : "Administrative access required"}</h1>
+        <p className="eyebrow">
+          {locale === "zh-CN" ? "管理台" : locale === "ja" ? "管理画面" : "Admin console"}
+        </p>
+        <h1>
+          {locale === "zh-CN"
+            ? "管理权限是必需的"
+            : locale === "ja"
+              ? "管理者権限が必要です"
+              : "Administrative access required"}
+        </h1>
         <p className="muted">
           {locale === "zh-CN"
             ? "此入口用于角色资料、公告、用户与排行榜维护。普通玩家无法访问。"
-            : "This area manages character data, announcements, users, and leaderboards."}
+            : locale === "ja"
+              ? "キャラクター資料、お知らせ、ユーザー、ランキングを管理する画面です。一般プレイヤーはアクセスできません。"
+              : "This area manages character data, announcements, users, and leaderboards."}
         </p>
       </main>
     );
@@ -1325,7 +1335,7 @@ export default function AdminPage() {
   return (
     <main className="page-shell admin-page">
       <PageHeader
-        eyebrow="ADMIN"
+        eyebrow={locale === "zh-CN" ? "管理" : locale === "ja" ? "管理" : "Admin"}
         title={locale === "zh-CN" ? "萤一把管理台" : "Fireflydle operations"}
         intro={
           locale === "zh-CN"

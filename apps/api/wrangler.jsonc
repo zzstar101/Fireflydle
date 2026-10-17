@@ -41,12 +41,20 @@
         "name": "MATCHMAKER",
         "class_name": "Matchmaker",
       },
+      {
+        "name": "PARTY_ROOM",
+        "class_name": "PartyRoom",
+      },
     ],
   },
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": ["GameRoom", "Matchmaker"],
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["PartyRoom"],
     },
   ],
   "triggers": {

@@ -1,107 +1,395 @@
-.portrait-page {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 52px 22px 80px;
+/*
+ * 立绘挑战 / 立绘无尽（docs/design/redesign-v2/README.md）。
+ *
+ * 页面骨架复用每日对局页的 .sr-game / .sr-game-head / .sr-board-wrap / .sr-composer
+ * （game.css）。这里只补立绘特有的部分：页头胶囊动作、遮罩棋盘（含加载骨架）、
+ * 侧栏的题次 / 反馈 / 已猜列表，以及把 game.css 里 v1 切角结算卡改回 v2 面板。
+ *
+ * 遮罩棋盘：立绘 PNG 约 3:4，用 contain 铺满 3:4 棋盘；未揭示格子是比面板略亮的
+ * 棋盘格方块 + 内描边，让 8×8 网格本身可见——否则只揭开的两格看上去像“碎图”。
+ */
+
+.sr-game.portrait-page {
+  width: min(1180px, calc(100% - 48px));
 }
-.portrait-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--border);
+
+/* ── 页头：剩余次数 + 横向胶囊动作 ─────────────────────── */
+
+.portrait-meta-head {
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
-.portrait-head h1 {
-  margin: 10px 0 8px;
-  font-size: clamp(2rem, 6vw, 4.3rem);
-}
-.portrait-head p {
-  max-width: 520px;
-  margin: 0;
-  color: var(--text-muted);
-}
+
 .portrait-actions {
   display: flex;
-  align-items: start;
-  gap: 9px;
+  align-items: center;
+  gap: 8px;
 }
-.portrait-actions a,
-.portrait-actions button {
+
+.portrait-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  min-height: 38px;
-  padding: 0 12px;
-  color: var(--text);
-  border: 1px solid var(--border);
-  background: var(--surface);
-}
-.portrait-actions button {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background 180ms var(--ease);
 }
+
+.portrait-pill svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.portrait-pill:hover {
+  background: rgb(255 255 255 / 6%);
+}
+
+.portrait-pill:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 3px;
+}
+
+.portrait-pill.is-icon {
+  width: 36px;
+  padding: 0;
+}
+
+/* ── 舞台：棋盘 + 侧栏 ──────────────────────────────────── */
+
+.sr-game .sr-board-wrap.portrait-stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+  padding: 22px;
+}
+
+.portrait-stage .portrait-board-wrap {
+  /* auto 列里百分比宽度会解析为 0，这里用绝对宽度。 */
+  width: min(400px, max(260px, calc((100svh - 300px) * 0.75)));
+}
+
+.portrait-side {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ── 遮罩棋盘（立绘挑战与立绘无尽共用） ─────────────────── */
+
 .portrait-board-wrap {
-  max-width: 520px;
-  margin: 34px auto 0;
+  /* 宽度同时受容器与视口高度约束，保证整块 3:4 棋盘在首屏内。 */
+  width: min(100%, 400px, max(240px, calc((100svh - 300px) * 0.75)));
+  margin: 0 auto;
 }
+
 .portrait-board {
   position: relative;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background-color: #0b0f15;
+  border: 1px solid var(--line-2);
+  border-radius: 18px;
+  background-color: rgb(255 255 255 / 5%);
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  box-shadow: 0 20px 80px rgb(0 0 0 / 35%);
 }
+
 .portrait-board.has-skin {
-  box-shadow:
-    0 20px 80px rgb(231 185 79 / 28%),
-    0 0 0 1px rgb(231 185 79 / 24%);
+  border-color: color-mix(in srgb, var(--lit) 40%, var(--line-2));
 }
+
 .portrait-board i {
-  background: #0b0f15;
-  transition: opacity 0.3s ease;
+  background: #141a38;
+  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 7%);
+  transition: opacity 0.35s var(--ease);
 }
+
+/* 棋盘格明暗交替，让遮罩读起来是“格子”而不是一块空板。 */
+.portrait-board i:nth-child(16n + 2),
+.portrait-board i:nth-child(16n + 4),
+.portrait-board i:nth-child(16n + 6),
+.portrait-board i:nth-child(16n + 8),
+.portrait-board i:nth-child(16n + 9),
+.portrait-board i:nth-child(16n + 11),
+.portrait-board i:nth-child(16n + 13),
+.portrait-board i:nth-child(16n + 15) {
+  background: #10152f;
+}
+
 .portrait-board i.is-revealed {
   opacity: 0;
 }
+
+/* 加载骨架：格子整体呼吸。 */
+.portrait-board.is-loading i {
+  animation: portrait-skeleton 1.4s var(--ease) infinite alternate;
+}
+
 .portrait-loading {
   position: absolute;
   inset: 50% auto auto 50%;
   display: inline-flex;
-  gap: 6px;
-  color: var(--gold);
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  max-width: calc(100% - 32px);
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgb(11 15 36 / 92%);
+  color: var(--muted);
+  font-size: 0.86rem;
+  text-align: center;
   transform: translate(-50%, -50%);
 }
-.portrait-feedback {
-  margin: 14px 0 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  font-weight: 600;
-  text-align: center;
+
+.portrait-loading[role="alert"] {
+  border-color: rgb(255 122 133 / 22%);
+  color: #ff9aa3;
 }
-.portrait-feedback.is-wrong {
-  color: var(--text-muted);
+
+.portrait-loading svg {
+  color: var(--lit);
 }
+
+/* ── 侧栏 ───────────────────────────────────────────────── */
+
 .portrait-meta {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  padding: 12px 0;
-  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.portrait-meta > span:first-child {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
 }
-.portrait-picker {
-  max-width: 620px;
-  margin: 18px auto 0;
+
+.portrait-meta b {
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 700;
 }
-@media (max-width: 650px) {
-  .portrait-head {
-    display: grid;
+
+.portrait-meta > span:last-child {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sr-game .portrait-side .sr-composer {
+  margin: 0;
+}
+
+/* 猜错反馈：软红面板 + 字形，不只靠颜色。 */
+.portrait-feedback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 14px;
+  background: rgb(255 122 133 / 10%);
+  color: #ff9aa3;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.portrait-feedback::before {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgb(255 122 133 / 18%);
+  font-size: 0.72rem;
+  content: "✕";
+}
+
+.portrait-guesses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portrait-guesses li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 4px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.portrait-guesses li > :first-child {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+.portrait-guesses li b {
+  color: #ff9aa3;
+  font-size: 0.72rem;
+}
+
+.portrait-guesses li.is-correct {
+  background: rgb(242 205 122 / 12%);
+  color: var(--lit);
+}
+
+.portrait-guesses li.is-correct b {
+  color: var(--lit);
+}
+
+.portrait-hint {
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+/* ── 结算卡（game.css 的 v1 切角改回 v2 软面板） ─────────── */
+
+.portrait-page .game-result {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px 16px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid rgb(242 205 122 / 28%);
+  border-radius: 18px;
+  background: rgb(242 205 122 / 9%);
+  clip-path: none;
+}
+
+.portrait-page .game-result .result-icon {
+  display: none;
+}
+
+.portrait-page .game-result .result-copy p {
+  margin: 0;
+  color: var(--lit);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.portrait-page .game-result .result-copy small {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.portrait-page .game-result .result-actions {
+  grid-column: 1 / -1;
+}
+
+.portrait-page .result-actions .ticket-button {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cta);
+  color: var(--cta-ink);
+  font-weight: 700;
+  clip-path: none;
+}
+
+/* ── 响应式 ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .sr-game .sr-board-wrap.portrait-stage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
   }
-  .portrait-actions {
+
+  .portrait-stage .portrait-board-wrap {
+    width: min(100%, 400px);
+  }
+}
+
+@media (max-width: 760px) {
+  .sr-game.portrait-page {
+    width: calc(100% - 24px);
+  }
+
+  .portrait-meta-head {
     justify-content: space-between;
   }
+
+  .sr-game .sr-board-wrap.portrait-stage {
+    padding: 14px;
+  }
+
+  .portrait-board-wrap,
+  .portrait-stage .portrait-board-wrap {
+    width: min(100%, 320px);
+  }
+
+  .portrait-pill {
+    padding: 0 12px;
+  }
+}
+
+@keyframes portrait-skeleton {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* ── 减少动态效果（双开关） ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-board i,
+  .portrait-pill {
+    transition: none;
+  }
+
+  .portrait-board.is-loading i {
+    animation: none;
+  }
+}
+
+:root[data-motion="reduced"] .portrait-board i,
+:root[data-motion="reduced"] .portrait-pill {
+  transition: none;
+}
+
+:root[data-motion="reduced"] .portrait-board.is-loading i {
+  animation: none;
 }

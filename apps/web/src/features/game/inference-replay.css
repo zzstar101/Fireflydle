@@ -1,0 +1,157 @@
+/*
+ * 结算 · 推理回放（docs/design/redesign-v2/prototype.html，第 1277–1307 行 .cloud/.cav）。
+ *
+ * 回放不自带方框舞台：HUD、跳过按钮、头像云都是 `.art-slot` 的直接子元素，
+ * 分别对应原型的 `.hud`、`.skip`、`.cloud`。
+ * 几何来自原型的 `spiral(n, w, hgt)`（prototype.html:4779），换成容器查询单位后
+ * 放在内联自定义属性 --replay-x / --replay-y（cqmin）与 --replay-size 里，
+ * 只由 left / top / width / height 消费：`.replay-stage` 是 size container，
+ * `1cqmin` 正好是 `min(舞台宽, 舞台高)` 的 1%。
+ */
+
+/* 与原型 .hud 一致：舞台顶部居中，三行（标签 / 候选数 / 单位）。 */
+.hud {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+/* 原型在 hero 定住时 `to(["#hud", "#skip"], { opacity: 0 })`：终态退场，但保留在 DOM 里。 */
+.hud[data-done="true"] {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms var(--motion-ease);
+}
+
+.hud b {
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hud .label {
+  min-height: 1.4em;
+}
+
+/* 与原型 .skip 一致：舞台右上角。按钮外观来自全局 .btn.sm。 */
+.skip {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 3;
+}
+
+/*
+ * 与原型 .cloud 一致：铺满舞台的定位容器，子元素围绕舞台中心排布。
+ * 这里也是 size container —— 头像的 cqmin / cqw 以内联属性写死，
+ * 换成容器查询单位后必须有一个同尺寸的容器作参照。
+ * 刻意不给 z-index：原型靠 DOM 顺序让后面的 img.art 盖住头像云。
+ */
+.replay-stage {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+}
+
+/* 终态：原型把 hero 放大到 4 倍后淡出，结算页只剩立绘，所以整片云随之消失。 */
+.replay-stage[data-settled="true"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 450ms ease-in 350ms;
+}
+
+/* 与原型 .cav 一致：圆角方块。尺寸与偏移都来自内联自定义属性。 */
+.replay-avatar {
+  position: absolute;
+  left: calc(50% + var(--replay-x, 0px));
+  top: calc(50% + var(--replay-y, 0px));
+  width: var(--replay-size, 44px);
+  height: var(--replay-size, 44px);
+  margin: calc(var(--replay-size, 44px) / -2) 0 0 calc(var(--replay-size, 44px) / -2);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 12px;
+  background: #10141a;
+  /* 原型入场：从舞台中心 scale(0) 弹出，逐个错开 0.005s。刻意不写 will-change：
+     92 个常驻图层反而更吃内存。 */
+  animation: replay-avatar-in 800ms var(--motion-ease) backwards;
+  animation-delay: var(--replay-delay, 0ms);
+  transition:
+    transform 750ms var(--motion-ease),
+    opacity 500ms var(--motion-ease);
+}
+
+@keyframes replay-avatar-in {
+  from {
+    opacity: 0;
+    transform: translate(calc(-1 * var(--replay-x, 0px)), calc(-1 * var(--replay-y, 0px))) scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 头像组件与雪碧图格子都铺满这个方块。 */
+.replay-avatar .character-avatar,
+.replay-avatar .replay-avatar-art {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  font-size: 0.78rem;
+}
+
+/* 雪碧图取格由内联的百分比 background-size / position 决定（见 InferenceReplay 的
+   spritePercent），方块放大到多少都只露出一个格子。 */
+.replay-avatar .replay-avatar-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-repeat: no-repeat;
+}
+
+.replay-avatar .character-avatar::after {
+  height: 3px;
+}
+
+/* 被淘汰：原型 `{ opacity: 0, scale: 0.15, y: "+=50" }`，向下坠落并缩小消失。 */
+.replay-avatar.is-fallen {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(50px) scale(0.15);
+}
+
+/* 只剩最后一位候选：原型 .cav.ans.r4 / .cav.ans 的紫光与金光。 */
+.replay-avatar.ans.r4 {
+  border-color: var(--near);
+  box-shadow: 0 0 22px rgb(144 119 238 / 70%);
+}
+
+.replay-avatar.ans.r5 {
+  border-color: var(--lit);
+  box-shadow: 0 0 22px rgb(242 205 122 / 60%);
+}
+
+/* 答案留在中心时，原型还会 `to(hero, { scale: 2.6 })`：2.6 / 2.4 ≈ 1.08。 */
+.replay-avatar.is-answer {
+  scale: 1.08;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .replay-avatar {
+    animation: none;
+    transition: none;
+  }
+
+  .replay-stage[data-settled="true"] {
+    transition: none;
+  }
+}

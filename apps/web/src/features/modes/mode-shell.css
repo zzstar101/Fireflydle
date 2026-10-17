@@ -1,133 +1,293 @@
-.mode-shell-navigation {
-  width: 100%;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--canvas) 92%, var(--surface-soft));
+/*
+ * 玩法页外壳与共用积木（docs/design/redesign-v2/README.md §2 设计令牌）。
+ *
+ * v2 只用令牌表达视觉：1px --line 描边、--r-card / --r-tile 圆角、--panel 半透明底板、
+ * 粗无衬线标题、金色胶囊主按钮（--cta / --cta-ink）。
+ *
+ * 旧版的活动切换导航（.mode-shell-navigation / .mode-switcher / .activity-switcher，
+ * 金色下划线 + 老令牌 --canvas / --gold / --cyan）已整体删除：玩法切换改由总站的玩法卡承担，
+ * 外壳不再渲染独立导航（结构由 ModeShell.test.tsx 锁定）。
+ *
+ * 这里同时提供回放页（features/game/ReplayPage.tsx）复用的页头 / 徽章 / 胶囊按钮积木：
+ * 回放页没有自己的 CSS 文件，只能复用 game.css，v2 版式收敛到这里。
+ */
+
+/* 外壳只是包裹层，不参与布局，避免影响总站满宽 hero。 */
+.mode-shell {
+  display: contents;
 }
 
-.mode-shell-navigation,
-.mode-switcher a,
-.activity-switcher a,
-.activity-switcher > span {
-  transition:
-    opacity var(--motion-fast) ease,
-    transform var(--motion-fast) ease;
-}
+/* ── 页头 ───────────────────────────────────────────────── */
 
-.mode-shell-navigation-inner {
+.mode-shell-head {
   display: flex;
-  align-items: stretch;
-  width: min(calc(100% - 40px), var(--content));
-  min-height: 58px;
-  margin: 0 auto;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line);
 }
 
-.mode-switcher,
-.activity-switcher {
-  display: flex;
-  align-items: stretch;
+.mode-shell-head-copy {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  max-width: 62ch;
 }
 
-.mode-switcher {
-  flex: 0 0 auto;
-  padding-right: 22px;
-  border-right: 1px solid var(--border);
+/* v2 的小标题：muted 常规字重，不用 v1 的等宽大写 + 前置横线。 */
+.mode-shell-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
-.activity-switcher {
-  min-width: 0;
-  padding-left: 22px;
-  gap: 4px;
+.mode-shell-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 
-.mode-switcher a,
-.activity-switcher a,
-.activity-switcher > span {
-  position: relative;
+.mode-shell-intro {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.mode-shell-badge {
   display: inline-flex;
   align-items: center;
-  min-height: 58px;
-  padding: 0 14px;
+  gap: 9px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mode-shell-badge svg {
+  color: var(--lit);
+}
+
+.mode-shell-badge strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ── 面板 ───────────────────────────────────────────────── */
+
+.mode-shell-panel {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+/* ── 按钮 ───────────────────────────────────────────────── */
+
+.mode-shell-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cta);
+  color: var(--cta-ink);
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--ease),
+    filter 180ms var(--ease);
+}
+
+.mode-shell-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.mode-shell-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 650;
-  white-space: nowrap;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 180ms var(--ease);
 }
 
-.activity-switcher > span.activity-disabled {
+.mode-shell-ghost:hover {
+  border-color: color-mix(in srgb, var(--lit) 45%, var(--line-2));
+}
+
+.mode-shell-cta:disabled,
+.mode-shell-ghost:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
-  opacity: 0.42;
+  transform: none;
+  filter: none;
 }
 
-.mode-switcher a::after,
-.activity-switcher a::after {
-  position: absolute;
-  right: 14px;
-  bottom: -1px;
-  left: 14px;
-  height: 2px;
-  content: "";
-  background: var(--gold);
-  transform: scaleX(0);
-  transition: transform 160ms ease;
+.mode-shell-cta:focus-visible,
+.mode-shell-ghost:focus-visible {
+  outline: 2px solid var(--lit);
+  outline-offset: 3px;
 }
 
-.mode-switcher a:hover,
-.activity-switcher a:hover,
-.mode-switcher a[aria-current="page"],
-.activity-switcher a[aria-current="page"] {
-  color: var(--text);
+/* ── 回放页局部覆盖 ─────────────────────────────────────── */
+
+.replay-page .mode-shell-head {
+  margin-bottom: 26px;
 }
 
-.mode-switcher a[aria-current="page"]::after,
-.activity-switcher a[aria-current="page"]::after {
-  transform: scaleX(1);
+/* 指标条在 game.css 里还是 v1 的上下通栏细线，这里换成 v2 圆角面板。 */
+.replay-page .metric-strip {
+  grid-template-columns: 0.7fr 0.8fr 1.5fr;
+  margin-bottom: 26px;
+  border: 0;
+  gap: 12px;
 }
 
-.mode-switcher a:focus-visible,
-.activity-switcher a:focus-visible {
-  outline: 2px solid var(--gold-bright);
-  outline-offset: -3px;
+.replay-page .metric-strip > div {
+  min-height: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+  justify-content: space-between;
 }
 
-.mode-switcher svg {
-  color: var(--gold);
+.replay-page .metric-strip > div + div {
+  border-left: 1px solid var(--line);
 }
 
-.activity-switcher svg {
-  color: var(--cyan);
+.replay-page .metric-strip span {
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
-@media (max-width: 680px) {
-  .mode-shell-navigation-inner {
-    display: block;
-    width: 100%;
+.replay-page .metric-strip strong {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 底部动作区：去掉 v1 的上下细线，按钮改用胶囊。 */
+.replay-page .replay-actions {
+  padding: 22px 0 0;
+  margin-top: 26px;
+  border: 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.replay-page .replay-actions p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.replay-page .replay-message {
+  padding: 13px 16px;
+  margin-top: 14px;
+  border: 1px solid color-mix(in srgb, var(--lit) 34%, var(--line));
+  border-radius: var(--r-tile);
+  background: var(--panel);
+  color: var(--lit);
+  font-size: 0.84rem;
+}
+
+/* 多人复盘记分板（ReplayPage 的多人分支）：v1 的上下通栏线换成圆角面板。 */
+.replay-page .replay-scoreboard {
+  margin-bottom: 28px;
+  border: 0;
+  gap: 14px;
+}
+
+.replay-page .replay-scoreboard > div {
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.replay-page .replay-scoreboard > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.replay-page .replay-scoreboard .winner {
+  border-color: color-mix(in srgb, var(--lit) 40%, var(--line));
+}
+
+.replay-page .replay-scoreboard span,
+.replay-page .replay-scoreboard small {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-page .replay-scoreboard b {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-page .replay-scoreboard .winner b {
+  color: var(--lit);
+}
+
+.replay-page .replay-round {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.replay-page .replay-round > header span,
+.replay-page .replay-answer small {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+/* ── 状态与降级 ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-shell-cta,
+  .mode-shell-ghost {
+    transition: none;
   }
 
-  .mode-switcher,
-  .activity-switcher {
-    overflow-x: auto;
-    scrollbar-width: thin;
+  .mode-shell-cta:hover {
+    transform: none;
+    filter: none;
   }
+}
 
-  .mode-switcher {
-    min-height: 48px;
-    padding: 0 12px;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
+:root[data-motion="reduced"] .mode-shell-cta,
+:root[data-motion="reduced"] .mode-shell-ghost {
+  transition: none;
+}
 
-  .activity-switcher {
-    min-height: 52px;
-    padding: 0 12px;
-  }
-
-  .mode-switcher a {
-    min-height: 48px;
-  }
-
-  .activity-switcher a,
-  .activity-switcher > span {
-    min-height: 52px;
-  }
+:root[data-motion="reduced"] .mode-shell-cta:hover {
+  transform: none;
+  filter: none;
 }

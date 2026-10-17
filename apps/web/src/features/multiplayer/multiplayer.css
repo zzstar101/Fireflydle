@@ -1,235 +1,12 @@
-.duel-live {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: center;
-  padding-left: 22px;
-  gap: 2px 8px;
-  border-left: 1px solid var(--border);
-}
-.duel-live svg {
-  grid-row: 1 / 3;
-  color: var(--exact);
-}
-.duel-live span {
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-}
-.duel-live strong {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-}
-.duel-stage {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 70px;
-  border-top: 1px solid var(--border);
-  border-left: 1px solid var(--border);
-}
-.duel-stage.has-ranked {
-  grid-template-columns: 1.15fr 1fr 1fr;
-}
-.duel-signal {
-  position: absolute;
-  top: -39px;
-  left: 50%;
-  display: flex;
-  align-items: center;
-  width: min(480px, 60%);
-  gap: 10px;
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-  transform: translateX(-50%);
-}
-.duel-signal i {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-.duel-signal b {
-  display: grid;
-  width: 33px;
-  height: 33px;
-  place-items: center;
-  color: var(--gold);
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
-  font-size: 0.6rem;
-}
-.match-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-height: 430px;
-  padding: clamp(28px, 4vw, 52px);
-  overflow: hidden;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.match-card::after {
-  position: absolute;
-  right: -70px;
-  bottom: -70px;
-  width: 180px;
-  height: 180px;
-  content: "";
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  box-shadow:
-    inset 0 0 0 24px var(--canvas),
-    inset 0 0 0 25px var(--border);
-}
-.primary-match-card {
-  background: linear-gradient(145deg, rgb(121 215 232 / 7%), transparent 55%);
-}
-.match-card > svg {
-  margin: 36px 0 20px;
-  color: var(--gold-bright);
-}
-.match-card-number {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-}
-.match-card h2 {
-  margin-bottom: 10px;
-  font-size: clamp(1.4rem, 2.2vw, 2rem);
-}
-.match-card p {
-  min-height: 48px;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-}
-.match-card > button {
-  z-index: 1;
-  width: 100%;
-  margin-top: auto;
-}
-.match-card button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-.elo-band {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  width: 100%;
-  padding: 13px 0;
-  margin: 5px 0 23px;
-  gap: 0 12px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.elo-band span {
-  grid-row: 1 / 3;
-  color: var(--gold);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-}
-.elo-band strong {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  line-height: 1;
-}
-.elo-band small {
-  color: var(--text-faint);
-  font-size: 0.58rem;
-}
-.format-picker {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  width: 100%;
-  margin: 5px 0 24px;
-  border: 1px solid var(--border);
-}
-.format-picker button {
-  height: 44px;
-  color: var(--text-muted);
-  cursor: pointer;
-  border: 0;
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-}
-.format-picker button + button {
-  border-left: 1px solid var(--border);
-}
-.format-picker button.active {
-  color: #111a27;
-  background: var(--gold-bright);
-}
-.room-config-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 100%;
-  margin: -10px 0 24px;
-  gap: 10px;
-}
-.room-config-fields label {
-  display: grid;
-  gap: 6px;
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-}
-.room-config-fields select {
-  width: 100%;
-  height: 42px;
-  padding: 0 10px;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--canvas-deep);
-  font: inherit;
-}
-.room-config-fields select:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
-}
-.room-preview {
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr repeat(4, auto);
-  align-items: center;
-  width: 100%;
-  padding: 11px 12px;
-  margin: -12px 0 16px;
-  gap: 8px;
-  color: var(--text-muted);
-  border: 1px solid var(--border-strong);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-}
-.room-preview strong {
-  color: var(--text);
-}
-.room-code-input {
-  display: block;
-  width: 100%;
-  margin: 5px 0 24px;
-}
-.room-code-input input {
-  width: 100%;
-  height: 54px;
-  padding: 0 15px;
-  color: var(--gold-bright);
-  border: 1px solid var(--border);
-  outline: 0;
-  background: var(--canvas-deep);
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  letter-spacing: 0.25em;
-  text-align: center;
-  text-transform: uppercase;
-}
-.room-code-input input:focus {
-  border-color: var(--gold);
-}
+/* ============================================================
+   v2 主题：实时对战大厅（DuelPage）/ 对战房间（RoomPage）/
+   好友同题挑战（FriendChallengePage 复用本表）。
+   规则见 THEME_SPEC：面板 1px var(--line) + r26；内块 r12；
+   胶囊/芯片；分段控件选中为墨白；数字等宽；不用切角、轨道、左侧强调条。
+   房间页棋盘直接复用每日页 .sr-game 外观（game.css），这里只做布局适配。
+   ============================================================ */
+
+/* --- 全局共用：按钮加载圈（Leaderboard / Tutorial / GamePage 等也在用） --- */
 .button-spinner {
   width: 15px;
   height: 15px;
@@ -238,638 +15,1130 @@
   border-radius: 50%;
   animation: orbit 700ms linear infinite;
 }
+
+/* ============================================================
+   对战大厅
+   ============================================================ */
+.duel-page .page-header-aside {
+  align-self: end;
+}
+
+.duel-live .num {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.duel-stage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.duel-stage.has-ranked {
+  grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr));
+}
+
+.match-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  transition: border-color 180ms var(--ease);
+}
+
+.match-card:hover {
+  border-color: var(--line-2);
+}
+
+.match-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+}
+
+.match-card-head .chip svg {
+  flex: none;
+}
+
+.duel-vs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.duel-vs b {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.match-card h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: clamp(1.4rem, 2vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.match-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.match-card > .ticket-button,
+.match-card > .ticket-button-secondary {
+  width: 100%;
+  margin-top: auto;
+}
+
+/* Elo 统计块 */
+.elo-band {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--miss);
+}
+
+.elo-band > span {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.elo-band strong {
+  color: var(--lit);
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.elo-band small {
+  color: var(--muted);
+  font-size: 12px;
+  justify-self: end;
+  text-align: right;
+}
+
+/* 分段控件：BO1 / BO3 / BO5 / BO7 */
+.format-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+}
+
+.format-picker button {
+  height: 34px;
+  padding: 0 8px;
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    background 160ms var(--ease),
+    color 160ms var(--ease);
+}
+
+.format-picker button:hover:not(:disabled):not(.active) {
+  color: var(--ink);
+}
+
+.format-picker button.active {
+  background: var(--ink);
+  color: #000;
+}
+
+.format-picker button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 选择框 / 输入框 */
+.room-config-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.room-config-fields label {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.room-config-fields label > span {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.room-config-fields select,
+.room-code-input input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  outline: none;
+  background-color: rgb(255 255 255 / 4%);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 160ms var(--ease);
+}
+
+.room-config-fields select {
+  padding-right: 36px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 19px) 50%,
+    calc(100% - 14px) 50%;
+  background-repeat: no-repeat;
+  background-size: 5px 5px;
+}
+
+.room-config-fields select option {
+  background: #0d1128;
+  color: var(--ink);
+}
+
+.room-config-fields select:focus,
+.room-code-input input:focus {
+  border-color: var(--lit);
+}
+
+.room-config-fields select:disabled,
+.room-code-input input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.room-code-input {
+  display: block;
+}
+
+.room-code-input input {
+  min-height: 58px;
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.room-code-input input::placeholder {
+  color: var(--faint);
+}
+
+/* 加入前的房间配置确认 */
+.room-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--miss);
+  animation: room-status-in 220ms var(--ease);
+}
+
+.room-preview strong {
+  width: 100%;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.room-preview span {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.room-preview span.num {
+  font-family: var(--font-mono);
+}
+
+/* 错误与登录提示 */
 .duel-error {
   display: flex;
   align-items: center;
-  padding: 15px 18px;
-  margin-top: 20px;
   gap: 10px;
-  color: var(--danger);
-  border-left: 2px solid var(--danger);
-  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  margin-top: 18px;
+  padding: 12px 16px;
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 14px;
+  background: rgb(255 122 133 / 10%);
+  color: #ff9aa3;
+  font-size: 14px;
 }
+
+.duel-error svg {
+  flex: none;
+}
+
 .duel-account-notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.duel-account-notice > svg {
+  flex: none;
+  color: var(--lit);
+}
+
+.duel-account-notice > span {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.duel-account-notice strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.duel-account-notice .ticket-button-secondary {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* 规则说明 */
+.duel-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.duel-rules > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.duel-rules svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--lit);
+}
+
+/* 匹配中对话框 */
+.matchmaking-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(4 6 16 / 72%);
+}
+
+.matchmaking-dialog {
+  display: grid;
+  justify-items: center;
+  width: min(440px, 100%);
+  gap: 10px;
+  padding: 32px 28px 28px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel-2);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+  text-align: center;
+}
+
+.matchmaking-dialog .eyebrow {
+  margin: 8px 0 0;
+}
+
+.matchmaking-dialog h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.matchmaking-dialog p:not(.eyebrow) {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.matchmaking-dialog .ticket-button-secondary {
+  min-width: 140px;
+}
+
+/* 三点信号（匹配中 / 等待对手） */
+.room-radar,
+.room-state-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.room-radar i,
+.room-state-signal i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lit);
+  animation: radar-pulse 1.4s var(--ease) infinite;
+}
+
+.room-radar i:nth-child(2),
+.room-state-signal i:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.room-radar i:nth-child(3),
+.room-state-signal i:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+.room-state-signal i {
+  width: 6px;
+  height: 6px;
+}
+
+/* ============================================================
+   对战房间（main.room-page.sr-game，沿用每日页棋盘）
+   ============================================================ */
+.room-page .sr-game-title h1 {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 14px;
+}
+
+.room-page .sr-game-title h1 .num {
+  font-family: var(--font-mono);
+}
+
+.room-page .sr-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.room-code-crumb {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.room-page .sr-game-meta {
+  align-items: center;
+  gap: 12px;
+}
+
+.room-page .sr-net.closed {
+  color: #ff9aa3;
+}
+
+.room-page .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 连接中 / 等待房间 */
+.room-waiting {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 56px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  text-align: center;
+}
+
+.room-waiting h2 {
+  margin: 10px 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.room-waiting p {
+  max-width: 440px;
+  margin: 0;
+  color: var(--muted);
+}
+
+/* 比分板：玩家 A | 计时 | 玩家 B */
+.versus-scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "a clock b";
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: rgb(11 15 36 / 92%);
+}
+
+.versus-player {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  padding: 16px 18px;
-  margin-top: 20px;
-  gap: 12px;
-  border-left: 2px solid var(--gold);
-  background: rgb(216 182 107 / 7%);
-}
-.duel-account-notice > svg {
-  color: var(--gold);
-}
-.duel-account-notice > span {
-  display: grid;
-  color: var(--text-muted);
-  font-size: 0.68rem;
-}
-.duel-account-notice strong {
-  color: var(--text);
-  font-size: 0.74rem;
-}
-.duel-account-notice a {
-  min-height: 42px;
-}
-.duel-rules {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin-top: 46px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.duel-rules > div {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  min-height: 90px;
-  padding: 18px 28px;
-  gap: 2px 13px;
-}
-.duel-rules > div + div {
-  border-left: 1px solid var(--border);
-}
-.duel-rules svg {
-  grid-row: 1 / 3;
-  color: var(--gold);
-}
-.duel-rules span {
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-.duel-rules small {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-}
-.matchmaking-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  padding: 20px;
-  place-items: center;
-  background: rgb(0 0 0 / 68%);
-  backdrop-filter: blur(9px);
-}
-.matchmaking-dialog {
-  display: grid;
-  width: min(500px, 100%);
-  padding: clamp(32px, 6vw, 58px);
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  text-align: center;
-  clip-path: polygon(
-    14px 0,
-    100% 0,
-    100% calc(100% - 14px),
-    calc(100% - 14px) 100%,
-    0 100%,
-    0 14px
-  );
-}
-.matchmaking-dialog .room-radar {
-  width: 82px;
-  height: 82px;
-  margin-bottom: 25px;
-}
-.matchmaking-dialog h2 {
-  font-size: clamp(1.5rem, 4vw, 2.3rem);
-}
-.matchmaking-dialog > p:not(.eyebrow) {
-  color: var(--text-muted);
-}
-.matchmaking-dialog button {
-  margin-top: 15px;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--miss);
 }
 
-.room-header {
-  display: flex;
-  align-items: center;
-  padding-bottom: 32px;
-  gap: 18px;
-  border-bottom: 1px solid var(--border);
+.versus-player.player-0 {
+  grid-area: a;
 }
-.room-header > div:first-child {
-  margin-right: auto;
-}
-.room-header h1 {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3.6rem);
-}
-.connection-badge {
-  display: flex;
-  align-items: center;
-  padding: 7px 12px;
-  gap: 7px;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  font-size: 0.67rem;
-}
-.connection-badge.open {
-  color: var(--exact);
-}
-.connection-badge.closed {
-  color: var(--danger);
-}
-.room-waiting {
-  display: grid;
-  min-height: 520px;
-  place-items: center;
-  align-content: center;
-  text-align: center;
-}
-.room-waiting h2 {
-  margin: 25px 0 8px;
-}
-.room-waiting p {
-  max-width: 520px;
-  color: var(--text-muted);
-}
-.locked-room-config {
-  display: flex;
-  align-items: center;
-  padding: 11px 16px;
-  gap: 14px;
-  color: var(--text-muted);
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  border-left: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-}
-.locked-room-config strong {
-  color: var(--gold-bright);
-}
-.locked-room-config small {
-  margin-left: auto;
-  color: var(--text-faint);
-}
-.room-radar {
-  position: relative;
-  display: grid;
-  width: 100px;
-  height: 100px;
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
-}
-.room-radar::before,
-.room-radar::after {
-  position: absolute;
-  content: "";
-  border: 1px solid var(--border);
-  border-radius: 50%;
-}
-.room-radar::before {
-  inset: 17px;
-}
-.room-radar::after {
-  inset: 34px;
-}
-.room-radar i {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--cyan);
-  animation: radar-pulse 1.8s ease-in-out infinite;
-}
-.room-radar i:nth-child(1) {
-  top: 13px;
-  left: 48%;
-}
-.room-radar i:nth-child(2) {
-  right: 17px;
-  bottom: 23px;
-  animation-delay: 600ms;
-}
-.room-radar i:nth-child(3) {
-  bottom: 18px;
-  left: 20px;
-  animation-delay: 1200ms;
-}
-.versus-scoreboard {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: stretch;
-  margin: 28px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.versus-player {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  min-height: 102px;
-  padding: 18px 24px;
-  gap: 13px;
-}
+
 .versus-player.player-1 {
-  flex-direction: row-reverse;
-  text-align: right;
+  grid-area: b;
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
+
+.versus-player.is-self {
+  border-color: color-mix(in srgb, var(--lit) 30%, transparent);
+}
+
 .player-avatar {
   display: grid;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 50%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: rgb(255 255 255 / 4%);
+  color: var(--muted);
 }
+
+.versus-player.is-self .player-avatar {
+  color: var(--lit);
+}
+
 .versus-player > span:nth-child(2) {
   display: grid;
   min-width: 0;
+  gap: 2px;
 }
+
 .versus-player small {
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 0.54rem;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
 }
+
 .versus-player strong {
   overflow: hidden;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .versus-player i {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  color: var(--exact);
-  font-size: 0.55rem;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
   font-style: normal;
 }
+
+.versus-player i.is-online {
+  color: var(--lit);
+}
+
+.versus-player i.is-offline {
+  color: #ff9aa3;
+}
+
 .versus-player b {
-  margin-left: auto;
-  font-family: var(--font-display);
-  font-size: 2.4rem;
+  min-width: 1.4ch;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
-.versus-player.player-1 b {
-  margin: 0 auto 0 0;
+
+.versus-player.is-self b {
+  color: var(--lit);
 }
+
 .round-clock {
   display: grid;
-  min-width: 110px;
-  padding: 10px 22px;
-  place-items: center;
-  align-content: center;
-  color: var(--gold-bright);
-  border-right: 1px solid var(--border);
-  border-left: 1px solid var(--border);
-  background: var(--surface);
+  grid-area: clock;
+  justify-items: center;
+  min-width: 132px;
+  gap: 2px;
+  padding: 8px 12px;
+  color: var(--muted);
 }
+
 .round-clock strong {
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 1.65rem;
+  font-size: 1.7rem;
+  font-weight: 700;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
+
 .round-clock small {
-  color: var(--text-muted);
-  font-size: 0.53rem;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
-.round-clock.state-paused {
-  color: var(--danger);
+
+.round-clock.state-playing svg {
+  color: var(--lit);
 }
-.invite-strip,
-.pause-alert {
+
+.round-clock.state-paused strong,
+.round-clock.state-paused svg {
+  color: #ff9aa3;
+}
+
+/* 已锁定配置：一排芯片 */
+.locked-room-config {
   display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  margin-bottom: 24px;
-  gap: 12px;
-  border-left: 2px solid var(--gold);
-  background: rgb(216 182 107 / 7%);
-}
-.draw-controls {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-height: 44px;
-  margin-bottom: 18px;
-  gap: 14px;
-}
-.skip-controls {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  min-height: 54px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  gap: 10px;
-  border-left: 2px solid var(--cyan);
-  background: color-mix(in srgb, var(--cyan) 7%, transparent);
-}
-.skip-controls > svg {
-  color: var(--cyan);
-}
-.skip-controls p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.72rem;
-}
-.skip-controls > div {
-  display: flex;
-  gap: 10px;
-}
-.skip-controls.state-cancelled {
-  border-left-color: var(--gold);
-  background: rgb(216 182 107 / 7%);
-}
-.skip-controls.state-executed {
-  border-left-color: var(--exact);
-  background: color-mix(in srgb, var(--exact) 7%, transparent);
-}
-.draw-controls p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.72rem;
-}
-.draw-controls > div,
-.match-finished-actions {
-  display: flex;
-  gap: 10px;
-}
-.invite-strip span {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  color: var(--text-muted);
 }
-.room-state-signal {
-  position: relative;
-  display: inline-grid !important;
-  width: 26px;
-  height: 26px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
+
+.locked-room-config .chip.num {
+  font-family: var(--font-mono);
 }
-.room-state-signal::before {
-  position: absolute;
-  inset: 5px;
-  content: "";
-  border: 1px solid var(--border);
-  border-radius: 50%;
+
+.locked-room-config small {
+  margin-left: auto;
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 600;
 }
-.room-state-signal i {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--cyan);
-  animation: radar-pulse 1.8s ease-in-out infinite;
+
+/* 邀请条 */
+.invite-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  animation: room-status-in 220ms var(--ease);
 }
-.room-state-signal i:nth-child(2) {
-  animation-delay: 600ms;
+
+.invite-strip > span:nth-child(2) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
 }
-.room-state-signal i:nth-child(3) {
-  animation-delay: 1200ms;
+
+.invite-strip strong {
+  color: var(--lit);
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
 }
-.guess-submit-status {
+
+.invite-strip .btn {
+  margin-left: auto;
+}
+
+/* 暂停提示 */
+.pause-alert {
   display: flex;
   align-items: center;
-  min-height: 32px;
-  padding: 7px 10px;
-  margin: -8px 0 16px;
-  color: var(--cyan);
-  border-left: 2px solid var(--cyan);
-  background: color-mix(in srgb, var(--cyan) 6%, transparent);
-  font-size: 0.7rem;
-  animation: room-status-in 180ms ease-out both;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid rgb(255 122 133 / 22%);
+  border-radius: 14px;
+  background: rgb(255 122 133 / 10%);
+  color: #ff9aa3;
+  font-size: 14px;
+  animation: room-status-in 220ms var(--ease);
 }
-.invite-strip strong {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 1.2rem;
-  letter-spacing: 0.18em;
+
+.pause-alert svg {
+  flex: none;
 }
-.invite-strip button {
-  color: var(--gold);
-  cursor: pointer;
-  border: 0;
-  background: transparent;
+
+/* 跳过 / 平局协商 */
+.room-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.pause-alert {
-  color: var(--danger);
-  border-left-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 8%, transparent);
-}
-.room-page .guess-composer {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-.round-reveal {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+
+.skip-controls,
+.draw-controls {
+  display: flex;
+  flex: 1 1 320px;
+  flex-wrap: wrap;
   align-items: center;
-  min-height: 118px;
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  gap: 18px;
-  border: 1px solid var(--border-strong);
-  border-left: 3px solid var(--gold);
-  background: var(--surface);
+  gap: 10px 14px;
+  min-width: 0;
+  padding: 10px 10px 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13.5px;
 }
-.round-reveal p,
-.round-reveal h2 {
+
+.draw-controls {
+  flex: 0 1 auto;
+}
+
+.draw-controls:has(> button:only-child) {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.skip-controls > svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.skip-controls p,
+.draw-controls p {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
 }
+
+.skip-controls > div,
+.draw-controls > div {
+  display: flex;
+  gap: 8px;
+}
+
+.skip-controls.state-pending,
+.draw-controls:has(> div) {
+  border-color: color-mix(in srgb, var(--lit) 35%, transparent);
+  color: var(--ink);
+}
+
+.skip-controls.state-pending > svg {
+  color: var(--lit);
+}
+
+.skip-controls.state-executed {
+  color: var(--ink);
+}
+
+/* 回合揭晓 */
+.round-reveal {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: rgb(11 15 36 / 92%);
+  animation: room-status-in 260ms var(--ease);
+}
+
+.round-reveal .character-avatar {
+  flex: none;
+  border-radius: var(--r-tile);
+}
+
+.round-reveal > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
 .round-reveal p {
-  color: var(--gold);
-  font-family: var(--font-mono);
-  font-size: 0.61rem;
-  letter-spacing: 0.08em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
+
+.round-reveal.outcome-won {
+  border-color: color-mix(in srgb, var(--lit) 35%, transparent);
+}
+
+.round-reveal.outcome-won p {
+  color: var(--lit);
+}
+
+.round-reveal.outcome-lost p {
+  color: #b9a6ff;
+}
+
 .round-reveal h2 {
-  margin: 3px 0;
-  font-size: 1.55rem;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
+
 .round-reveal span {
-  color: var(--text-muted);
-  font-size: 0.69rem;
+  color: var(--muted);
+  font-size: 13.5px;
 }
+
+.guess-submit-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  animation: room-status-in 220ms var(--ease);
+}
+
+.room-page > .inline-error {
+  margin: 0;
+}
+
+/* 双方棋盘 */
 .multiplayer-boards {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.7fr);
-  gap: 28px;
-  margin-top: 30px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  align-items: start;
+  gap: 18px;
 }
+
 .multiplayer-boards > section {
+  display: grid;
   min-width: 0;
+  gap: 8px;
+  padding: 18px 22px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: rgb(11 15 36 / 92%);
 }
-.multiplayer-boards section > header {
+
+.multiplayer-boards > section > header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.multiplayer-boards > section > header strong {
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
-.opponent-board {
-  padding-left: 28px;
-  border-left: 1px solid var(--border);
+
+.room-own-board .sr-composer {
+  margin-top: 8px;
 }
-.opponent-board > p {
-  padding: 45px 10px;
-  color: var(--text-faint);
-  font-size: 0.72rem;
-  text-align: center;
+
+/* 房间棋盘比每日页窄：取消 GuessBoard 内联最小宽度，首列收窄 */
+@media (min-width: 761px) {
+  .room-page .guess-board {
+    min-width: 0 !important;
+  }
+
+  .room-page .guess-board thead th:first-child,
+  .room-page .guess-board tbody th {
+    width: 170px;
+  }
+
+  .room-page .feedback-cell {
+    padding: 4px;
+  }
+
+  .room-page .feedback-cell strong {
+    font-size: 0.86rem;
+  }
+
+  .room-page .sr-ghost-row {
+    grid-template-columns: 170px repeat(var(--sr-cols, 6), minmax(0, 1fr));
+  }
 }
-.masked-feedback-grid {
+
+/* 对手反馈：只露颜色的小方格 */
+.opponent-feedback-head,
+.masked-feedback-grid > div {
   display: grid;
-  gap: 9px;
-  padding-top: 16px;
+  grid-template-columns: 30px repeat(6, minmax(0, 1fr));
+  align-items: center;
+  gap: 6px;
 }
-.opponent-feedback-head {
-  display: grid;
-  grid-template-columns: 28px repeat(6, minmax(0, 1fr));
-  gap: 5px;
-  padding-top: 14px;
-}
+
 .opponent-feedback-head b {
   overflow: hidden;
-  color: var(--text-faint);
-  font-size: 0.52rem;
+  color: var(--faint);
+  font-size: 10.5px;
   font-weight: 600;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.masked-feedback-grid > div {
+
+.masked-feedback-grid {
   display: grid;
-  grid-template-columns: 28px repeat(6, 1fr);
-  gap: 5px;
+  gap: 6px;
 }
-.masked-feedback-grid > div.is-latest i {
-  animation: opponent-signal-in 260ms var(--motion-ease) both;
-  animation-delay: var(--cell-delay);
-}
+
 .masked-feedback-grid span {
-  align-self: center;
-  color: var(--text-faint);
+  color: var(--faint);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 12px;
+  font-weight: 600;
 }
-.masked-feedback-grid i {
+
+.masked-feedback-grid i,
+.feedback-legend i {
   display: grid;
-  height: 37px;
   place-items: center;
-  border-radius: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
   background: var(--miss);
+  color: var(--muted);
 }
+
+.masked-feedback-grid i {
+  height: 34px;
+}
+
+.masked-feedback-grid i.state-exact,
+.feedback-legend i.state-exact {
+  border-color: transparent;
+  background: var(--lit);
+  color: var(--lit-ink);
+}
+
+.masked-feedback-grid i.state-close,
+.feedback-legend i.state-close {
+  border-color: transparent;
+  background: var(--near);
+  color: var(--near-ink);
+}
+
 .masked-feedback-grid i.state-fog,
 .feedback-legend i.state-fog {
-  color: var(--text);
-  border: 1px dashed var(--border-strong);
-  background: color-mix(in srgb, var(--surface) 72%, var(--text-faint));
+  border-style: dashed;
+  background: rgb(255 255 255 / 2%);
+  color: var(--faint);
 }
-.masked-feedback-grid i.state-exact {
-  background: var(--exact);
+
+.masked-feedback-grid > div.is-latest i {
+  animation: opponent-signal-in 320ms var(--ease) both;
+  animation-delay: var(--cell-delay, 0ms);
 }
-.masked-feedback-grid i.state-close {
-  background: var(--close);
-}
+
 .feedback-legend {
   display: flex;
   flex-wrap: wrap;
-  padding-top: 14px;
   gap: 8px 14px;
-  color: var(--text-muted);
-  font-size: 0.58rem;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
 }
+
 .feedback-legend span {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
+
 .feedback-legend i {
-  display: grid;
   width: 18px;
   height: 18px;
+  border-radius: 5px;
+}
+
+.opponent-board > p {
+  margin: 4px 0 0;
+  color: var(--faint);
+  font-size: 13px;
+}
+
+/* 对战结算 */
+.match-finished {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "icon title actions"
+    "rating rating rating";
+  align-items: center;
+  gap: 0 16px;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--lit) 28%, transparent);
+  border-radius: var(--r-card);
+  background: rgb(11 15 36 / 92%);
+  animation: room-status-in 260ms var(--ease);
+}
+
+.match-finished-icon {
+  display: grid;
+  grid-area: icon;
+  width: 48px;
+  height: 48px;
   place-items: center;
-  border-radius: 3px;
-  color: #fff;
-  background: var(--miss);
+  border-radius: 14px;
+  background: rgb(242 205 122 / 12%);
+  color: var(--lit);
 }
-.feedback-legend i.state-exact {
-  background: var(--exact);
+
+.match-finished > div:nth-child(2) {
+  display: grid;
+  grid-area: title;
+  gap: 4px;
 }
-.feedback-legend i.state-close {
-  background: var(--close);
+
+.match-finished p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
+
+.match-finished h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .rating-settlement {
   display: grid;
-  min-width: min(100%, 300px);
-  border: 1px solid var(--border);
+  grid-area: rating;
+  margin-top: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
+
 .rating-change {
   display: grid;
-  grid-template-columns: minmax(80px, 1fr) auto 42px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  gap: 12px;
-  padding: 8px 10px;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--miss);
 }
-.rating-change + .rating-change {
-  border-top: 1px solid var(--border);
-}
+
 .rating-change span {
   overflow: hidden;
-  color: var(--text-muted);
-  font-size: 0.7rem;
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.rating-change b,
+
+.rating-change b {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+}
+
 .rating-change strong {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-align: right;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.rating-change b {
-  color: var(--text-faint);
-  font-weight: 500;
-}
-.rating-change strong {
-  color: var(--text-muted);
-}
+
 .rating-change.positive strong {
-  color: var(--exact);
+  color: var(--lit);
 }
+
 .rating-change.negative strong {
-  color: var(--danger);
+  color: #b9a6ff;
 }
-.match-finished {
-  display: flex;
-  align-items: center;
-  padding: 26px;
-  margin-top: 30px;
-  gap: 18px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
+
+.rating-change.neutral strong {
+  color: var(--muted);
 }
-.match-finished > svg {
-  color: var(--gold);
-}
-.match-finished p {
-  margin: 0;
-  color: var(--gold);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-}
-.match-finished h2 {
-  margin: 0;
-}
+
 .match-finished-actions {
-  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  grid-area: actions;
+  justify-content: flex-end;
+  gap: 10px;
 }
+
+/* --- 关键帧 --- */
 @keyframes radar-pulse {
   0%,
   100% {
@@ -878,10 +1147,10 @@
   }
   50% {
     opacity: 1;
-    transform: scale(1.2);
-    box-shadow: 0 0 12px var(--cyan);
+    transform: scale(1.15);
   }
 }
+
 @keyframes opponent-signal-in {
   from {
     opacity: 0.35;
@@ -892,178 +1161,346 @@
     transform: scale(1);
   }
 }
+
 @keyframes room-status-in {
   from {
     opacity: 0;
     transform: translateY(-3px);
   }
 }
-@media (max-width: 900px) {
-  .duel-stage {
-    grid-template-columns: 1fr 1fr;
-  }
-  .primary-match-card {
-    grid-column: 1 / -1;
-    min-height: 350px;
-  }
-  .match-card {
-    min-height: 390px;
-  }
+
+/* --- 响应式 --- */
+@media (max-width: 1100px) {
   .multiplayer-boards {
-    grid-template-columns: 1fr;
-  }
-  .opponent-board {
-    padding: 0;
-    border-left: 0;
-    border-top: 1px solid var(--border);
-  }
-  .room-header {
-    flex-wrap: wrap;
-  }
-  .room-header > div:first-child {
-    width: 100%;
-  }
-  .versus-player {
-    padding: 14px;
-  }
-  .versus-player b {
-    font-size: 1.8rem;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
-@media (max-width: 600px) {
-  .duel-account-notice {
-    grid-template-columns: auto 1fr;
+
+@media (max-width: 1000px) {
+  .duel-stage,
+  .duel-stage.has-ranked {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .duel-account-notice a {
+
+  .duel-stage.has-ranked .primary-match-card {
     grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .duel-stage,
+  .duel-stage.has-ranked {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .match-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .duel-rules {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .duel-account-notice {
+    flex-wrap: wrap;
+  }
+
+  .duel-account-notice .ticket-button-secondary {
     width: 100%;
   }
-  .duel-stage {
-    grid-template-columns: 1fr;
+
+  /* 房间：比分板改为上下两人 + 中间计时一行 */
+  .room-page .sr-game-head {
+    align-items: flex-start;
   }
-  .primary-match-card {
-    grid-column: auto;
-  }
-  .match-card {
-    min-height: 360px;
-  }
-  .room-config-fields {
-    grid-template-columns: 1fr;
-  }
-  .room-preview {
-    grid-template-columns: 1fr 1fr;
-  }
-  .room-preview strong {
-    grid-column: 1 / -1;
-  }
-  .duel-signal {
-    width: 80%;
-  }
-  .duel-rules {
-    grid-template-columns: 1fr;
-  }
-  .duel-rules > div + div {
-    border-left: 0;
-    border-top: 1px solid var(--border);
-  }
-  .connection-badge {
-    order: 3;
-  }
-  .room-header .ticket-button-secondary {
-    width: auto;
-  }
+
   .versus-scoreboard {
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "clock clock"
+      "a b";
+    gap: 8px;
+    padding: 10px;
+    border-radius: 20px;
   }
+
   .versus-player {
-    display: grid;
-    place-items: center;
-    text-align: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
   }
-  .versus-player.player-1 {
-    flex-direction: initial;
-    text-align: center;
-  }
-  .versus-player b,
-  .versus-player.player-1 b {
-    margin: 0;
-  }
-  .player-avatar {
+
+  .versus-player .player-avatar {
     display: none;
   }
+
+  .versus-player b {
+    font-size: 24px;
+  }
+
   .round-clock {
-    min-width: 72px;
-    padding: 8px;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 2px;
   }
+
   .round-clock strong {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
   }
-  .invite-strip {
-    flex-wrap: wrap;
-  }
-  .locked-room-config {
-    flex-wrap: wrap;
-    gap: 8px 14px;
-  }
+
   .locked-room-config small {
     width: 100%;
     margin-left: 0;
   }
-  .invite-strip strong {
-    order: 2;
-    margin: 0;
+
+  .invite-strip {
+    padding: 14px 16px;
   }
-  .invite-strip button {
-    order: 3;
-    margin-left: auto;
-  }
-  .match-finished {
-    flex-wrap: wrap;
-  }
-  .rating-settlement {
-    width: 100%;
-  }
-  .draw-controls {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .draw-controls > div,
-  .skip-controls > div,
-  .match-finished-actions {
-    width: 100%;
-    flex-direction: column;
-  }
-  .skip-controls {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-  .skip-controls > button,
-  .skip-controls > div {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-  .skip-controls > div {
-    flex-direction: row;
-  }
-  .skip-controls > div button {
+
+  .invite-strip > span:nth-child(2) {
     flex: 1;
   }
-  .match-finished-actions {
+
+  .invite-strip .btn {
     margin-left: 0;
   }
-  .match-finished-actions button {
-    width: 100%;
+
+  .skip-controls,
+  .draw-controls:not(:has(> button:only-child)) {
+    flex-basis: 100%;
+    padding: 10px 10px 10px 14px;
   }
+
   .round-reveal {
-    padding: 16px;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 20px;
   }
-  .match-finished button {
-    width: 100%;
-    margin: 0;
+
+  .round-reveal h2,
+  .match-finished h2 {
+    font-size: 1.3rem;
+  }
+
+  .multiplayer-boards {
+    gap: 12px;
+  }
+
+  .multiplayer-boards > section {
+    padding: 14px 12px 16px;
+    border-radius: 20px;
+  }
+
+  .match-finished {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "icon title"
+      "rating rating"
+      "actions actions";
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .rating-settlement {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .match-finished-actions {
+    margin-top: 16px;
+  }
+
+  .match-finished-actions > * {
+    flex: 1 1 100%;
   }
 }
 
+/* ============================================================
+   好友同题挑战（FriendChallengePage 复用本表）
+   ============================================================ */
+.friend-challenge-page .eyebrow::before {
+  content: none;
+}
+
+.friend-challenge-page .eyebrow {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.friend-challenge-page .ticket-button,
+.friend-challenge-page .ticket-button-secondary {
+  border-radius: 999px;
+  clip-path: none;
+  transition:
+    transform 180ms var(--ease),
+    border-color 180ms var(--ease),
+    background 180ms var(--ease);
+}
+
+.friend-challenge-page .ticket-button {
+  color: var(--cta-ink);
+  border: 1px solid transparent;
+  background: var(--cta);
+  box-shadow: 0 12px 34px rgb(232 193 113 / 22%);
+}
+
+.friend-challenge-page .ticket-button-secondary {
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  background: rgb(255 255 255 / 4%);
+  box-shadow: none;
+}
+
+.friend-challenge-page .ticket-button-secondary:hover {
+  border-color: var(--lit);
+}
+
+.friend-challenge-page {
+  width: min(calc(100% - 40px), var(--content));
+  padding: clamp(40px, 6vw, 72px) 0 90px;
+}
+
+.friend-challenge-page .challenge-header {
+  max-width: 760px;
+  padding: 0 0 30px;
+  border-bottom: 0;
+}
+
+.friend-challenge-page .challenge-header h1 {
+  margin: 8px 0 14px;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.friend-challenge-page .challenge-header > p:last-child {
+  color: var(--muted);
+}
+
+.friend-challenge-page .challenge-score-strip {
+  gap: 12px;
+  border: 0;
+  background: none;
+}
+
+.friend-challenge-page .challenge-score-strip > div {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-score-strip > div:first-child {
+  padding-left: 18px;
+}
+
+.friend-challenge-page .challenge-score-strip span,
+.friend-challenge-page .challenge-status-line > span:first-child {
+  color: var(--muted);
+}
+
+.friend-challenge-page .challenge-score-strip strong {
+  color: var(--ink);
+}
+
+.friend-challenge-page .challenge-workspace {
+  padding-top: 28px;
+}
+
+.friend-challenge-page .challenge-start {
+  min-height: 300px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-start > svg {
+  color: var(--lit);
+}
+
+.friend-challenge-page .challenge-status-line {
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-tile);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-status-line > span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.friend-challenge-page .challenge-result {
+  padding: 22px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--panel);
+}
+
+.friend-challenge-page .challenge-result p {
+  color: var(--lit);
+}
+
+.friend-challenge-page .challenge-result h2 {
+  margin: 4px 0 8px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* --- 减少动态效果：与 :root[data-motion="reduced"] 双开关同时生效 --- */
+@media (prefers-reduced-motion: reduce) {
+  .room-radar i,
+  .room-state-signal i,
+  .room-preview,
+  .invite-strip,
+  .pause-alert,
+  .round-reveal,
+  .match-finished,
+  .guess-submit-status,
+  .button-spinner,
+  .masked-feedback-grid > div.is-latest i {
+    animation: none;
+  }
+
+  .match-card,
+  .format-picker button,
+  .friend-challenge-page .ticket-button,
+  .friend-challenge-page .ticket-button-secondary {
+    transition: none;
+  }
+
+  .friend-challenge-page .ticket-button:hover,
+  .friend-challenge-page .ticket-button-secondary:hover {
+    transform: none;
+  }
+}
+
+:root[data-motion="reduced"] .room-radar i,
 :root[data-motion="reduced"] .room-state-signal i,
+:root[data-motion="reduced"] .room-preview,
+:root[data-motion="reduced"] .invite-strip,
+:root[data-motion="reduced"] .pause-alert,
+:root[data-motion="reduced"] .round-reveal,
+:root[data-motion="reduced"] .match-finished,
 :root[data-motion="reduced"] .guess-submit-status,
-:root[data-motion="reduced"] .masked-feedback-grid > div.is-latest i {
+:root[data-motion="reduced"] .button-spinner,
+:root[data-motion="reduced"] .masked-feedback-grid > div.is-latest i,
+:root[data-motion="reduced"] .match-card,
+:root[data-motion="reduced"] .format-picker button,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button-secondary {
   animation: none;
+  transition: none;
+}
+
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button:hover,
+:root[data-motion="reduced"] .friend-challenge-page .ticket-button-secondary:hover {
+  transform: none;
 }

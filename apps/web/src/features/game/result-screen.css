@@ -1,0 +1,306 @@
+/*
+ * 结算页。
+ *
+ * 逐值照抄 docs/design/redesign-v2/prototype.html：
+ * - `#result` 第 1243–1257 行
+ * - `.art-slot` 第 1263–1266 行
+ * - `.hud` 第 1277–1298 行（在 inference-replay.css 里，因为归回放组件管）
+ * - `.art-cap` 第 1309–1338 行
+ * - `.panel` 第 1340–1420 行
+ * - `.flash` 与 `img.art` 在 result-reveal.css 里，归 ResultReveal 管
+ * - 移动端分支第 1704–1729 行
+ *
+ * 作用域限定在 `.sr-game`（GamePage 的 <main> 上已有的类），
+ * 避免和 game.css / PortraitChallengePage 抢类名。
+ */
+
+.sr-game .result-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: 1fr minmax(380px, 450px);
+  gap: 28px;
+  padding: 88px 32px 32px;
+  /*
+   * 原型的 html/body 没有 line-height（默认 normal），而本站 global.css 的 body 是 1.6。
+   * 不覆盖的话 .stats b / .chain span / .art-cap strong 这些继承行高的盒子都会被撑高
+   * （例如 .stats b 高 48px 而不是 35px），与原型的 90px 统计条对不上。
+   */
+  line-height: normal;
+}
+
+/*
+ * 原型的 `.num`（第 93 行）除了等宽数字还带 letter-spacing: -0.02em；
+ * global.css 里的 .num 没有这一条，在这里补齐，让 .hud b / .stats b / .chain 的字距一致。
+ */
+.sr-game .result-screen .num {
+  letter-spacing: -0.02em;
+}
+
+/*
+ * 原型结算开场是 `to("#game", { opacity: 0, scale: 0.97 })`：底下的对局视图整个淡出，
+ * 只剩星空与全局顶栏。用 `:has()` 限定「真的渲染了结算页」时生效——aeon 模式
+ * 没有结算页（GamePage.tsx 的 contentModeId !== "aeon" 守卫），棋盘必须照常显示。
+ */
+.sr-game:has(.result-screen) .sr-game-head,
+.sr-game:has(.result-screen) .active-game-tools,
+.sr-game:has(.result-screen) .sr-board-wrap {
+  opacity: 0;
+  scale: 0.97;
+  pointer-events: none;
+  transition:
+    opacity 500ms var(--motion-ease),
+    scale 500ms var(--motion-ease);
+}
+
+/* 原型的 #result 盖住整页：全站页脚（免责声明）也要一起退场，否则会透过结算面板。 */
+body:has(.result-screen) .site-footer {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 500ms var(--motion-ease),
+    visibility 0s linear 500ms;
+}
+
+.sr-game .result-screen:focus,
+.sr-game .result-screen:focus-visible {
+  outline: none;
+}
+
+.sr-game .art-slot {
+  position: relative;
+  min-height: 0;
+}
+
+/* ── 立绘说明（原型 .art-cap）──────────────────────────────────────────── */
+
+.sr-game .art-cap {
+  position: absolute;
+  left: 6%;
+  bottom: 4%;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 80%);
+  transform: translateY(16px);
+  transition:
+    opacity 800ms var(--motion-ease),
+    transform 800ms var(--motion-ease);
+}
+
+.sr-game .art-cap .stars {
+  display: block;
+  color: var(--lit);
+  letter-spacing: 0.25em;
+  font-size: 15px;
+  text-shadow: 0 0 12px rgb(242 205 122 / 70%);
+}
+
+.sr-game .art-cap .stars.r4 {
+  color: #b9a6ff;
+  text-shadow: 0 0 12px rgb(144 119 238 / 70%);
+}
+
+.sr-game .art-cap .label {
+  /* 原型里这个 span 是行内元素，行盒高度由外层 strut 决定；不要改成 block。 */
+  display: inline;
+}
+
+.sr-game .art-cap strong {
+  display: block;
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* ── 右侧面板（原型 .panel）───────────────────────────────────────────── */
+
+.sr-game .result-screen .panel {
+  position: relative;
+  align-self: center;
+  max-height: 100%;
+  overflow: auto;
+  padding: 30px;
+  border: 1px solid var(--line-2);
+  border-radius: 30px;
+  background: var(--panel-2);
+  display: grid;
+  gap: 22px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(40px);
+  transition:
+    opacity 800ms var(--motion-ease),
+    transform 800ms var(--motion-ease);
+}
+
+.sr-game .panel .panel-head h2 {
+  margin: 6px 0 0;
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  /* 原型的 h2 没有行高规则（继承 normal，40px → 56px）；global.css 给 h2 设了 1.2。 */
+  line-height: normal;
+}
+
+.sr-game .panel .panel-head h2 em {
+  font-style: normal;
+  color: var(--lit);
+}
+
+/* 判定格分享条（原型 .share） */
+.sr-game .panel .share {
+  display: grid;
+  gap: 5px;
+}
+
+.sr-game .panel .share div {
+  display: flex;
+  gap: 5px;
+}
+
+.sr-game .panel .share i {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 9%);
+}
+
+.sr-game .panel .share i.e {
+  background: var(--lit);
+  box-shadow: 0 0 12px rgb(242 205 122 / 40%);
+}
+
+.sr-game .panel .share i.c {
+  background: var(--near);
+}
+
+/* 推理复盘链（原型 .chain） */
+.sr-game .panel .chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.sr-game .panel .chain i {
+  font-style: normal;
+  color: var(--faint);
+  font-size: 18px;
+}
+
+.sr-game .panel .chain span:last-child {
+  color: var(--lit);
+}
+
+/* 三列统计（原型 .stats） */
+.sr-game .panel .stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.sr-game .panel .stats div {
+  display: grid;
+  gap: 4px;
+  padding: 16px 0;
+}
+
+.sr-game .panel .stats div + div {
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+}
+
+.sr-game .panel .stats b {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+/* 操作区（原型 .actions） */
+.sr-game .panel .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 关闭按钮（原型 .close-x + .icon-btn） */
+.sr-game .panel .close-x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.sr-game .panel .icon-btn {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+}
+
+.sr-game .panel .icon-btn:hover {
+  color: var(--ink);
+  background: rgb(255 255 255 / 6%);
+}
+
+/* ── 进场：立绘揭晓后 `.art-cap` 与 `.panel` 才淡入 ───────────────────── */
+
+.sr-game .result-screen.is-revealed .art-cap {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sr-game .result-screen.is-revealed .panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+@media (max-width: 760px) {
+  .sr-game .result-screen {
+    grid-template-columns: 1fr;
+    grid-template-rows: 54svh auto;
+    gap: 16px;
+    padding: 112px 16px 100px;
+    overflow-y: auto;
+  }
+
+  .sr-game .art-cap strong {
+    font-size: 36px;
+  }
+
+  .sr-game .result-screen .panel {
+    align-self: start;
+    max-height: none;
+    overflow: visible;
+    padding: 22px;
+    border-radius: 24px;
+    transform: translateY(30px);
+  }
+
+  .sr-game .result-screen.is-revealed .panel {
+    transform: translateY(0);
+  }
+
+  .sr-game .panel .panel-head h2 {
+    font-size: 30px;
+  }
+
+  .sr-game .panel .stats b {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-game .art-cap,
+  .sr-game .result-screen .panel {
+    transition: none;
+  }
+}

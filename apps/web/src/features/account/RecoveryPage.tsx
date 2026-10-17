@@ -60,7 +60,7 @@ export default function RecoveryPage() {
             <AtSign size={30} />
           )}
         </div>
-        <p className="eyebrow">{tr("找回密码", "パスワードの再設定", "PASSWORD RECOVERY")}</p>
+        <p className="eyebrow">{tr("账号安全", "アカウントの安全", "Account security")}</p>
         <h1>
           {done
             ? tr("请求已经记录", "リクエスト完了", "Request complete")
@@ -101,12 +101,12 @@ export default function RecoveryPage() {
             {token ? (
               <label>
                 <span>
-                  {tr("新密码", "新しいパスワード", "NEW PASSWORD")}
+                  {tr("新密码", "新しいパスワード", "New password")}
                   <small>
                     {tr(
                       `至少 ${PASSWORD_MIN_LENGTH} 位`,
                       `${PASSWORD_MIN_LENGTH}文字以上`,
-                      `${PASSWORD_MIN_LENGTH}+ CHARACTERS`,
+                      `${PASSWORD_MIN_LENGTH}+ characters`,
                     )}
                   </small>
                 </span>
@@ -122,7 +122,7 @@ export default function RecoveryPage() {
               </label>
             ) : (
               <label>
-                <span>{tr("已验证邮箱", "確認済みメール", "VERIFIED EMAIL")}</span>
+                <span>{tr("已验证邮箱", "確認済みメール", "Verified email")}</span>
                 <input
                   name="email"
                   required

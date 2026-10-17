@@ -1,20 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  BarChart3,
-  BookOpen,
-  Download,
-  Home,
-  Languages,
-  Menu,
-  MoonStar,
-  MessageSquareText,
-  Sun,
-  UserRound,
-  X,
-} from "lucide-react";
+import { House, LayoutGrid, Trophy, UserRound } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import type { Locale } from "@fireflydle/contracts";
 import { usePreferences } from "../state/preferences";
 import { useSession } from "../features/account/useSession";
 import { BrandMark } from "./BrandMark";
@@ -22,28 +9,52 @@ import { GitHubMark } from "./GitHubMark";
 import { AnnouncementCenter } from "./AnnouncementCenter";
 import { getDefaultMode } from "../features/modes/mode-registry";
 import { motionModeFromPreference, motionPausedForPage } from "./motion";
+import { qualityFlags } from "./quality-flags";
 import { PwaInstallPrompt } from "./PwaInstallPrompt";
-import { requestInstallFromMenu } from "../pwa";
+import { LanguageMenu } from "./LanguageMenu";
 import { assetUrl } from "../lib/asset-url";
+import { useCharacterHead } from "../lib/character-art";
+import { StarField } from "../fx/StarField";
+import { fx } from "../fx/fx";
+
+const gameplayPathPattern = /^(\/playable|\/currency-wars|\/aeon|\/room|\/challenge|\/party)/;
 
 const mainNavigation = [
-  { to: getDefaultMode().path, key: "nav.hub", icon: Home, end: true },
-  { to: "/leaderboard", key: "nav.leaderboard", icon: BarChart3, end: false },
-  { to: "/collection", key: "nav.collection", icon: BookOpen, end: false },
-  { to: "/feedback", key: "nav.feedback", icon: MessageSquareText, end: false },
+  { to: getDefaultMode().path, key: "nav.hub", end: true },
+  { to: "/leaderboard", key: "nav.leaderboard", end: false },
+  { to: "/collection", key: "nav.collection", end: false },
+  { to: "/feedback", key: "nav.feedback", end: false },
 ] as const;
+
+/** 原型移动端底栏：总站 / 排行 / 图鉴 / 我的。 */
+const tabNavigation = [
+  { to: getDefaultMode().path, key: "nav.hub", icon: House, end: true },
+  { to: "/leaderboard", key: "nav.leaderboardShort", icon: Trophy, end: false },
+  { to: "/collection", key: "nav.collection", icon: LayoutGrid, end: false },
+  { to: "/account", key: "nav.me", icon: UserRound, end: false },
+] as const;
+
+/** 顶栏头像：原型用流萤头像代表访客。 */
+const meAvatarCharacter = "firefly";
 
 const sourceRepository = "https://github.com/zzstar101/fireflydle";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { t, i18n } = useTranslation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const drawerRef = useRef<HTMLElement>(null);
-  const drawerCloseRef = useRef<HTMLButtonElement>(null);
-  const { theme, language, setTheme, setLanguage, collectionRewardId } = usePreferences();
+  const { t } = useTranslation();
+  const { language, collectionRewardId } = usePreferences();
+  const meAvatar = useCharacterHead(meAvatarCharacter);
   const collectionRewardImage = usePreferences((state) => state.collectionRewardImage);
   const session = useSession();
   const location = useLocation();
+  const gameplay = gameplayPathPattern.test(location.pathname);
+
+  // 原型 showGame / closeResult：除总站与结算外，背景都是压暗的"对局态"，形态不跟随滚动。
+  // layout effect 先于所有被动 effect 执行，总站 hero 与结算页再各自覆盖成 hub / result。
+  useLayoutEffect(() => {
+    fx.setMode("game");
+    fx.setScroller(null);
+    fx.tween({ dim: 0.45, rail: 0.25 }, { duration: 1.2 });
+  }, [location.pathname]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -54,9 +65,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (rewardImage)
       root.style.setProperty("--collection-reward-image", `url("${assetUrl(rewardImage)}")`);
     else root.style.removeProperty("--collection-reward-image");
-    const gameplay = /^(\/playable|\/currency-wars|\/aeon|\/room|\/challenge)/.test(
-      location.pathname,
-    );
     root.dataset.rewardVisible = String(Boolean(collectionRewardId) && !gameplay);
     if (factionTheme) root.dataset.collectionFaction = factionTheme;
     else delete root.dataset.collectionFaction;
@@ -69,14 +77,15 @@ export function AppShell({ children }: { children: ReactNode }) {
       delete root.dataset.collectionTheme;
       root.style.removeProperty("--collection-reward-image");
     };
-  }, [collectionRewardId, collectionRewardImage, location.pathname]);
+  }, [collectionRewardId, collectionRewardImage, gameplay]);
 
   useEffect(() => {
     const root = document.documentElement;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     let hasFocus = document.hasFocus();
     const sync = () => {
-      root.dataset.motion = motionModeFromPreference(media.matches);
+      // `?reduce` 用来在截图回归里强制降级，与系统偏好取并集
+      root.dataset.motion = motionModeFromPreference(media.matches || qualityFlags().reduceMotion);
       root.dataset.motionPaused = String(
         motionPausedForPage(document.visibilityState === "visible", hasFocus),
       );
@@ -105,91 +114,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const toggleTheme = () =>
-    setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark");
-  const nextThemeLabel =
-    theme === "dark"
-      ? language === "zh-CN"
-        ? "浅色主题"
-        : language === "ja"
-          ? "ライトテーマ"
-          : "Light theme"
-      : theme === "light"
-        ? language === "zh-CN"
-          ? "跟随系统"
-          : language === "ja"
-            ? "システム設定"
-            : "Use system theme"
-        : language === "zh-CN"
-          ? "深色主题"
-          : language === "ja"
-            ? "ダークテーマ"
-            : "Dark theme";
+  const displayName = session.data?.user.isGuest
+    ? t("account.guest")
+    : (session.data?.user.displayName ?? t("account.guest"));
   const navigationLabel =
     language === "zh-CN"
       ? "主导航"
       : language === "ja"
         ? "メインナビゲーション"
         : "Main navigation";
-  const openMenuLabel =
-    language === "zh-CN"
-      ? "打开导航"
-      : language === "ja"
-        ? "ナビゲーションを開く"
-        : "Open navigation";
-  const closeMenuLabel =
-    language === "zh-CN"
-      ? "关闭导航"
-      : language === "ja"
-        ? "ナビゲーションを閉じる"
-        : "Close navigation";
-
-  const changeLanguage = (value: string) => {
-    const locale = value as Locale;
-    setLanguage(locale);
-    window.localStorage.setItem("fireflydle-language", locale);
-    void i18n.changeLanguage(locale);
-  };
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const previousFocus =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    drawerCloseRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-        return;
-      }
-      if (event.key !== "Tab" || !drawerRef.current) return;
-      const focusable = Array.from(
-        drawerRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ),
-      );
-      const first = focusable[0];
-      const last = focusable.at(-1);
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-      previousFocus?.focus();
-    };
-  }, [menuOpen]);
-
   return (
     <div className="app-frame" data-motion-scope="app">
+      <StarField intensity={gameplay ? "calm" : "full"} />
       <a className="skip-link" href="#main-content">
         {language === "zh-CN"
           ? "跳到主要内容"
@@ -214,7 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="header-actions">
             <a
-              className="header-icon-link"
+              className="icon-btn hide-m"
               href={sourceRepository}
               target="_blank"
               rel="noreferrer"
@@ -223,135 +159,24 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <GitHubMark />
             </a>
-            <label className="language-select" title="Language">
-              <Languages size={17} aria-hidden="true" />
-              <span className="sr-only">Language</span>
-              <select value={language} onChange={(event) => changeLanguage(event.target.value)}>
-                <option value="zh-CN">中</option>
-                <option value="en">EN</option>
-                <option value="ja">日</option>
-              </select>
-            </label>
+            <LanguageMenu className="hide-m" />
             <AnnouncementCenter />
-            <button
-              className="icon-button"
-              type="button"
-              onClick={toggleTheme}
-              title={nextThemeLabel}
-            >
-              {theme === "light" ? <Sun size={18} /> : <MoonStar size={18} />}
-              <span className="sr-only">{nextThemeLabel}</span>
-            </button>
-            <Link className="account-link" to="/account">
-              <UserRound size={17} aria-hidden="true" />
-              <span>
-                {session.data?.user.isGuest
-                  ? t("account.guest")
-                  : (session.data?.user.displayName ?? t("account.guest"))}
-              </span>
+            <Link className="me" to="/account" aria-label={displayName}>
+              {meAvatar ? (
+                <img src={meAvatar} alt="" />
+              ) : (
+                <UserRound size={18} aria-hidden="true" />
+              )}
+              <span>{displayName}</span>
             </Link>
-            <button
-              className="mobile-menu-button"
-              type="button"
-              onClick={() => setMenuOpen(true)}
-              aria-expanded={menuOpen}
-              aria-label={openMenuLabel}
-            >
-              <Menu size={22} />
-            </button>
           </div>
         </div>
       </header>
 
-      {menuOpen && (
-        <div
-          className="mobile-drawer-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-label={navigationLabel}
-          onClick={() => setMenuOpen(false)}
-        >
-          <nav
-            ref={drawerRef}
-            className="mobile-drawer"
-            aria-label={navigationLabel}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="drawer-head">
-              <BrandMark compact />
-              <button
-                ref={drawerCloseRef}
-                className="icon-button"
-                type="button"
-                onClick={() => setMenuOpen(false)}
-                aria-label={closeMenuLabel}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            {mainNavigation.map(({ to, key, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                onClick={() => setMenuOpen(false)}
-                className={({ isActive }) => (isActive ? "active" : undefined)}
-              >
-                <Icon size={18} aria-hidden="true" /> {t(key)}
-              </NavLink>
-            ))}
-            <NavLink to="/stats" onClick={() => setMenuOpen(false)}>
-              <BarChart3 size={18} /> {t("nav.stats")}
-            </NavLink>
-            <div className="drawer-controls">
-              <a
-                href={sourceRepository}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setMenuOpen(false)}
-              >
-                <GitHubMark />
-                <span>{t("footer.source")}</span>
-              </a>
-              <button type="button" onClick={() => requestInstallFromMenu()}>
-                <Download size={18} aria-hidden="true" />
-                <span>{t("pwa.menu")}</span>
-              </button>
-              <label title="Language">
-                <Languages size={17} aria-hidden="true" />
-                <span className="sr-only">Language</span>
-                <select value={language} onChange={(event) => changeLanguage(event.target.value)}>
-                  <option value="zh-CN">中文</option>
-                  <option value="en">English</option>
-                  <option value="ja">日本語</option>
-                </select>
-              </label>
-              <button type="button" onClick={toggleTheme}>
-                {theme === "light" ? <Sun size={18} /> : <MoonStar size={18} />}
-                <span>{nextThemeLabel}</span>
-              </button>
-              <Link to="/account" onClick={() => setMenuOpen(false)}>
-                <UserRound size={17} aria-hidden="true" />
-                <span>
-                  {session.data?.user.isGuest
-                    ? t("account.guest")
-                    : (session.data?.user.displayName ?? t("account.guest"))}
-                </span>
-              </Link>
-            </div>
-          </nav>
-        </div>
-      )}
-
-      <div
-        id="main-content"
-        className="site-content"
-        tabIndex={-1}
-        inert={menuOpen ? true : undefined}
-      >
+      <div id="main-content" className="site-content" tabIndex={-1}>
         {children}
       </div>
-      <footer className="site-footer" inert={menuOpen ? true : undefined}>
+      <footer className="site-footer">
         <div className="footer-rail" aria-hidden="true">
           <span />
           <i />
@@ -365,6 +190,19 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+      <nav className="tabbar" aria-label={t("nav.bottom")}>
+        {tabNavigation.map(({ to, key, icon: Icon, end }) => (
+          <NavLink
+            key={key}
+            to={to}
+            end={end}
+            className={({ isActive }) => (isActive ? "on" : undefined)}
+          >
+            <Icon size={20} strokeWidth={1.7} aria-hidden="true" />
+            {t(key)}
+          </NavLink>
+        ))}
+      </nav>
       <PwaInstallPrompt />
     </div>
   );

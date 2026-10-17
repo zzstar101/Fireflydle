@@ -8,7 +8,6 @@ import {
   CloudFog,
   Copy,
   LogOut,
-  Radio,
   ShieldAlert,
   SkipForward,
   Trophy,
@@ -179,14 +178,14 @@ export default function RoomPage() {
   const canGuess = connection === "open" && snapshot?.state === "playing";
   const roomStateLabel = snapshot
     ? snapshot.state === "waiting"
-      ? tr("等待对手", "対戦相手を待機", "WAITING")
+      ? tr("等待对手", "対戦相手を待機", "Waiting")
       : snapshot.state === "playing"
-        ? tr("对局进行中", "対戦中", "PLAYING")
+        ? tr("对局进行中", "対戦中", "In play")
         : snapshot.state === "paused"
-          ? tr("等待重连", "再接続待ち", "RECONNECT")
+          ? tr("等待重连", "再接続待ち", "Reconnecting")
           : snapshot.state === "round-ended"
-            ? tr("本回合结束", "ラウンド終了", "ROUND ENDED")
-            : tr("对战结束", "対戦終了", "FINISHED")
+            ? tr("本回合结束", "ラウンド終了", "Round over")
+            : tr("对战结束", "対戦終了", "Finished")
     : "";
   const liveStatus = snapshot
     ? tr(
@@ -247,32 +246,67 @@ export default function RoomPage() {
     }
   };
 
+  const outcome = !snapshot?.roundWinnerId
+    ? "draw"
+    : snapshot.roundWinnerId === session.data?.user.id
+      ? "won"
+      : "lost";
+  const playing = snapshot?.state === "playing";
+  // 与每日页一致的虚框占位行；回合猜测上限可能较大，最多预留 4 行以免页面过长。
+  const ghostRows = snapshot
+    ? Math.min(4, Math.max(0, snapshot.configuration.maxAttempts - snapshot.ownGuesses.length - 1))
+    : 0;
+
   return (
-    <main className="page-shell room-page">
+    <main className={`room-page sr-game${playing ? "" : " is-finished"}`}>
       {snapshot ? (
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {liveStatus}
         </p>
       ) : null}
-      <header className="room-header">
-        <div>
-          <p className="eyebrow">LIVE ROOM · {snapshot?.code ?? "-----"}</p>
+      <header className="sr-game-head room-header">
+        <div className="sr-game-title">
+          <p className="sr-crumb">
+            <span>{tr("实时对战", "リアルタイム対戦", "Live duel")}</span>
+            <span aria-hidden="true">/</span>
+            <span>
+              {tr("房间", "ルーム", "Room")}{" "}
+              <span className="num room-code-crumb">{snapshot?.code ?? "-----"}</span>
+            </span>
+          </p>
           <h1>
-            {snapshot ? `BO${snapshot.format} · ROUND ${snapshot.round}` : t("common.loading")}
+            {snapshot ? (
+              <>
+                <span className="num">BO{snapshot.format}</span>
+                <small>
+                  {tr(
+                    `第 ${snapshot.round} 回合`,
+                    `第${snapshot.round}ラウンド`,
+                    `Round ${snapshot.round}`,
+                  )}
+                </small>
+              </>
+            ) : (
+              t("common.loading")
+            )}
           </h1>
         </div>
-        <div className={`connection-badge ${connection}`}>
-          <Radio size={15} />{" "}
-          {connection === "open"
-            ? t("common.online")
-            : connection === "connecting"
-              ? t("common.loading")
-              : t("common.offline")}
+        <div className="sr-game-meta">
+          <span
+            className={`sr-net connection-badge ${connection}${connection === "open" ? " online" : ""}`}
+          >
+            <i aria-hidden="true" />
+            {connection === "open"
+              ? t("common.online")
+              : connection === "connecting"
+                ? t("common.loading")
+                : t("common.offline")}
+          </span>
+          <button className="btn sm room-leave" type="button" onClick={() => void leave()}>
+            <LogOut size={15} aria-hidden="true" />
+            {locale === "zh-CN" ? "离开房间" : locale === "ja" ? "退出" : "Leave"}
+          </button>
         </div>
-        <button className="ticket-button-secondary" type="button" onClick={() => void leave()}>
-          <LogOut size={16} />{" "}
-          {locale === "zh-CN" ? "离开房间" : locale === "ja" ? "退出" : "Leave"}
-        </button>
       </header>
 
       {!snapshot ? (
@@ -309,30 +343,42 @@ export default function RoomPage() {
         <>
           <section className="versus-scoreboard">
             {snapshot.players.map((player, index) => (
-              <div key={player.playerId} className={`versus-player player-${index}`}>
+              <div
+                key={player.playerId}
+                className={`versus-player player-${index}${
+                  player.playerId === session.data?.user.id ? " is-self" : ""
+                }`}
+              >
                 <span className="player-avatar">
-                  <UserRound size={24} />
+                  <UserRound size={22} aria-hidden="true" />
                 </span>
                 <span>
                   <small>
                     {index === 0
-                      ? tr("玩家 A", "プレイヤー A", "PLAYER A")
-                      : tr("玩家 B", "プレイヤー B", "PLAYER B")}
+                      ? tr("玩家 A", "プレイヤー A", "Player A")
+                      : tr("玩家 B", "プレイヤー B", "Player B")}
+                    {player.playerId === session.data?.user.id
+                      ? ` · ${tr("你", "あなた", "You")}`
+                      : ""}
                   </small>
                   <strong>{player.displayName}</strong>
-                  <i>
-                    {player.connected ? <Wifi size={13} /> : <WifiOff size={13} />}{" "}
+                  <i className={player.connected ? "is-online" : "is-offline"}>
+                    {player.connected ? (
+                      <Wifi size={12} aria-hidden="true" />
+                    ) : (
+                      <WifiOff size={12} aria-hidden="true" />
+                    )}
                     {player.connected
-                      ? tr("已连接", "接続済み", "LINKED")
-                      : tr("已离线", "オフライン", "OFFLINE")}
+                      ? tr("已连接", "接続済み", "Connected")
+                      : tr("已离线", "オフライン", "Offline")}
                   </i>
                 </span>
-                <b>{player.score}</b>
+                <b className="num">{player.score}</b>
               </div>
             ))}
             <div className={`round-clock state-${snapshot.state}`}>
-              <Clock3 size={18} />
-              <strong>{clockLabel}</strong>
+              <Clock3 size={16} aria-hidden="true" />
+              <strong className="num">{clockLabel}</strong>
               <small>{roomStateLabel}</small>
             </div>
           </section>
@@ -341,22 +387,25 @@ export default function RoomPage() {
             className="locked-room-config"
             aria-label={tr("已锁定的房间配置", "固定されたルーム設定", "Locked room settings")}
           >
-            <span>{tr("普通角色", "通常キャラクター", "Characters")}</span>
-            <strong>BO{snapshot.configuration.format}</strong>
-            <span>
+            <span className="chip">{tr("普通角色", "通常キャラクター", "Characters")}</span>
+            <strong className="chip lit num">
+              <i aria-hidden="true" />
+              BO{snapshot.configuration.format}
+            </strong>
+            <span className="chip num">
               {snapshot.configuration.roundTimeSeconds === null
                 ? tr("不限时", "無制限", "Unlimited")
                 : `${snapshot.configuration.roundTimeSeconds}s`}
             </span>
-            <span>
+            <span className="chip num">
               {snapshot.configuration.maxAttempts} {tr("猜", "回", "guesses")}
             </span>
             {snapshot.configuration.modifier === "speed" ? (
-              <span>
+              <span className="chip near">
                 {tr("极速：错误 -5 秒", "スピード：ミスごとに -5 秒", "Speed: -5s per miss")}
               </span>
             ) : snapshot.configuration.modifier === "fog" ? (
-              <span>{tr("迷雾", "霧", "Fog")}</span>
+              <span className="chip near">{tr("迷雾", "霧", "Fog")}</span>
             ) : null}
             <small>
               {snapshot.state === "waiting"
@@ -373,11 +422,16 @@ export default function RoomPage() {
                 <i />
               </span>
               <span>
-                <Copy size={17} />
+                <Copy size={16} aria-hidden="true" />
                 {tr("邀请好友使用房间码", "ルームコードを共有", "Share room code")}
               </span>
-              <strong>{snapshot.code}</strong>
-              <button type="button" aria-live="polite" onClick={() => void copyRoomCode()}>
+              <strong className="num">{snapshot.code}</strong>
+              <button
+                className="btn sm"
+                type="button"
+                aria-live="polite"
+                onClick={() => void copyRoomCode()}
+              >
                 {codeCopied
                   ? t("common.copied")
                   : locale === "zh-CN"
@@ -390,7 +444,7 @@ export default function RoomPage() {
           )}
           {snapshot.state === "paused" && (
             <div className="pause-alert" role="alert">
-              <ShieldAlert size={18} />
+              <ShieldAlert size={18} aria-hidden="true" />
               <span>
                 {locale === "zh-CN"
                   ? "连接中断，对局已暂停。30 秒内重连可恢复本回合。"
@@ -401,146 +455,144 @@ export default function RoomPage() {
             </div>
           )}
 
-          {snapshot.state === "playing" && (
-            <section
-              className={`skip-controls state-${snapshot.roundSkip.status}`}
-              aria-label={tr("协商跳过本题", "問題のスキップ交渉", "Skip question")}
-              role="status"
-            >
-              <SkipForward size={18} />
-              {snapshot.roundSkip.status === "pending" &&
-              snapshot.roundSkip.requestedByPlayerId === session.data?.user.id ? (
-                <p>
-                  {tr(
-                    `已请求跳过，等待对手确认（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
-                    `スキップを申請しました。相手の確認待ち（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
-                    `Skip requested. Waiting for your opponent (${formatSeconds(snapshot.roundSkip.expiresAt - now)})`,
+          {!["waiting", "finished"].includes(snapshot.state) ? (
+            <div className="room-actions">
+              {snapshot.state === "playing" && (
+                <section
+                  className={`skip-controls state-${snapshot.roundSkip.status}`}
+                  aria-label={tr("协商跳过本题", "問題のスキップ交渉", "Skip question")}
+                  role="status"
+                >
+                  <SkipForward size={16} aria-hidden="true" />
+                  {snapshot.roundSkip.status === "pending" &&
+                  snapshot.roundSkip.requestedByPlayerId === session.data?.user.id ? (
+                    <p>
+                      {tr(
+                        `已请求跳过，等待对手确认（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
+                        `スキップを申請しました。相手の確認待ち（${formatSeconds(snapshot.roundSkip.expiresAt - now)}）`,
+                        `Skip requested. Waiting for your opponent (${formatSeconds(snapshot.roundSkip.expiresAt - now)})`,
+                      )}
+                    </p>
+                  ) : snapshot.roundSkip.status === "pending" ? (
+                    <>
+                      <p>
+                        {tr(
+                          "对手请求跳过本题",
+                          "相手が問題のスキップを申請しました",
+                          "Your opponent wants to skip this question",
+                        )}
+                      </p>
+                      <div>
+                        <button
+                          className="btn sm btn-ink"
+                          type="button"
+                          onClick={() => respondSkip(true)}
+                        >
+                          <Check size={15} aria-hidden="true" />{" "}
+                          {tr("同意跳过", "スキップ", "Skip")}
+                        </button>
+                        <button className="btn sm" type="button" onClick={() => respondSkip(false)}>
+                          <X size={15} aria-hidden="true" /> {tr("拒绝", "拒否", "Decline")}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        {snapshot.roundSkip.status === "cancelled"
+                          ? snapshot.roundSkip.reason === "timeout"
+                            ? tr(
+                                "跳过请求已超时，本题继续",
+                                "申請がタイムアウトしました。この問題を続けます",
+                                "Skip request timed out. This question continues",
+                              )
+                            : tr(
+                                "跳过请求已拒绝，本题继续",
+                                "申請は拒否されました。この問題を続けます",
+                                "Skip request declined. This question continues",
+                              )
+                          : snapshot.roundSkip.status === "executed"
+                            ? tr(
+                                `第 ${snapshot.roundSkip.round} 题已共同跳过，双方均不得分`,
+                                `第${snapshot.roundSkip.round}問は合意によりスキップされ、得点はありません`,
+                                `Question ${snapshot.roundSkip.round} was skipped by agreement. No points awarded`,
+                              )
+                            : tr(
+                                "需要对手同意才能跳过本题",
+                                "相手の同意がある場合のみスキップできます",
+                                "Your opponent must agree to skip",
+                              )}
+                      </p>
+                      <button
+                        className="btn sm"
+                        type="button"
+                        disabled={connection !== "open"}
+                        onClick={requestSkip}
+                      >
+                        {tr("请求跳过", "スキップを申請", "Request skip")}
+                      </button>
+                    </>
                   )}
-                </p>
-              ) : snapshot.roundSkip.status === "pending" ? (
-                <>
-                  <p>
-                    {tr(
-                      "对手请求跳过本题",
-                      "相手が問題のスキップを申請しました",
-                      "Your opponent wants to skip this question",
-                    )}
-                  </p>
-                  <div>
-                    <button
-                      className="ticket-button"
-                      type="button"
-                      onClick={() => respondSkip(true)}
-                    >
-                      <Check size={16} /> {tr("同意跳过", "スキップ", "Skip")}
-                    </button>
-                    <button
-                      className="ticket-button-secondary"
-                      type="button"
-                      onClick={() => respondSkip(false)}
-                    >
-                      <X size={16} /> {tr("拒绝", "拒否", "Decline")}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p>
-                    {snapshot.roundSkip.status === "cancelled"
-                      ? snapshot.roundSkip.reason === "timeout"
-                        ? tr(
-                            "跳过请求已超时，本题继续",
-                            "申請がタイムアウトしました。この問題を続けます",
-                            "Skip request timed out. This question continues",
-                          )
-                        : tr(
-                            "跳过请求已拒绝，本题继续",
-                            "申請は拒否されました。この問題を続けます",
-                            "Skip request declined. This question continues",
-                          )
-                      : snapshot.roundSkip.status === "executed"
-                        ? tr(
-                            `第 ${snapshot.roundSkip.round} 题已共同跳过，双方均不得分`,
-                            `第${snapshot.roundSkip.round}問は合意によりスキップされ、得点はありません`,
-                            `Question ${snapshot.roundSkip.round} was skipped by agreement. No points awarded`,
-                          )
-                        : tr(
-                            "需要对手同意才能跳过本题",
-                            "相手の同意がある場合のみスキップできます",
-                            "Your opponent must agree to skip",
-                          )}
-                  </p>
-                  <button
-                    className="ticket-button-secondary"
-                    type="button"
-                    disabled={connection !== "open"}
-                    onClick={requestSkip}
-                  >
-                    {tr("请求跳过", "スキップを申請", "Request skip")}
-                  </button>
-                </>
+                </section>
               )}
-            </section>
-          )}
 
-          {!["waiting", "finished"].includes(snapshot.state) && (
-            <section
-              className="draw-controls"
-              aria-label={tr("平局协商", "引き分け交渉", "Draw offer")}
-            >
-              {snapshot.drawOfferByPlayerId === session.data?.user.id ? (
-                <p>
-                  {tr(
-                    "已提出平局，等待对手回应",
-                    "引き分けを提案しました。相手の返答を待っています",
-                    "Draw offered. Waiting for your opponent",
-                  )}
-                </p>
-              ) : snapshot.drawOfferByPlayerId ? (
-                <>
+              <section
+                className="draw-controls"
+                aria-label={tr("平局协商", "引き分け交渉", "Draw offer")}
+              >
+                {snapshot.drawOfferByPlayerId === session.data?.user.id ? (
                   <p>
                     {tr(
-                      "对手提议本场平局",
-                      "相手が引き分けを提案しました",
-                      "Your opponent offered a draw",
+                      "已提出平局，等待对手回应",
+                      "引き分けを提案しました。相手の返答を待っています",
+                      "Draw offered. Waiting for your opponent",
                     )}
                   </p>
-                  <div>
-                    <button
-                      className="ticket-button"
-                      type="button"
-                      onClick={() => respondDraw(true)}
-                    >
-                      <Check size={16} /> {tr("接受", "承諾", "Accept")}
-                    </button>
-                    <button
-                      className="ticket-button-secondary"
-                      type="button"
-                      onClick={() => respondDraw(false)}
-                    >
-                      <X size={16} /> {tr("拒绝", "拒否", "Decline")}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <button className="ticket-button-secondary" type="button" onClick={offerDraw}>
-                  {tr("提议平局", "引き分けを提案", "Offer draw")}
-                </button>
-              )}
-            </section>
-          )}
+                ) : snapshot.drawOfferByPlayerId ? (
+                  <>
+                    <p>
+                      {tr(
+                        "对手提议本场平局",
+                        "相手が引き分けを提案しました",
+                        "Your opponent offered a draw",
+                      )}
+                    </p>
+                    <div>
+                      <button
+                        className="btn sm btn-ink"
+                        type="button"
+                        onClick={() => respondDraw(true)}
+                      >
+                        <Check size={15} aria-hidden="true" /> {tr("接受", "承諾", "Accept")}
+                      </button>
+                      <button className="btn sm" type="button" onClick={() => respondDraw(false)}>
+                        <X size={15} aria-hidden="true" /> {tr("拒绝", "拒否", "Decline")}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button className="btn sm" type="button" onClick={offerDraw}>
+                    {tr("提议平局", "引き分けを提案", "Offer draw")}
+                  </button>
+                )}
+              </section>
+            </div>
+          ) : null}
 
           {(snapshot.state === "round-ended" || snapshot.state === "finished") &&
             snapshot.roundAnswer && (
-              <section className="round-reveal" aria-labelledby="round-reveal-title">
+              <section
+                className={`round-reveal outcome-${outcome}`}
+                aria-labelledby="round-reveal-title"
+              >
                 <CharacterAvatar character={snapshot.roundAnswer} size="large" />
                 <div>
                   <p>
                     {snapshot.roundWinnerId
                       ? snapshot.roundWinnerId === session.data?.user.id
-                        ? tr("你赢得本回合", "このラウンドに勝利", "ROUND WON")
-                        : tr("对手赢得本回合", "相手がラウンド勝利", "RIVAL WON")
-                      : tr("本回合平局", "このラウンドは引き分け", "ROUND DRAW")}
+                        ? tr("你赢得本回合", "このラウンドに勝利", "Round won")
+                        : tr("对手赢得本回合", "相手がラウンド勝利", "Rival won the round")
+                      : tr("本回合平局", "このラウンドは引き分け", "Round drawn")}
                   </p>
                   <h2 id="round-reveal-title">{snapshot.roundAnswer.names[locale]}</h2>
                   <span>
@@ -556,21 +608,6 @@ export default function RoomPage() {
               </section>
             )}
 
-          {snapshot.state === "playing" && (
-            <CharacterCombobox
-              characters={roster}
-              locale={locale}
-              searchIndex={contentManifest.searchIndex}
-              showImages={snapshot.configuration.modeId !== "aeon"}
-              excludedIds={ownGuessedIds}
-              disabled={
-                !canGuess ||
-                guessPending ||
-                snapshot.ownGuesses.length >= snapshot.configuration.maxAttempts
-              }
-              onSubmit={submit}
-            />
-          )}
           {snapshot.state === "playing" && guessPending ? (
             <p className="guess-submit-status" role="status" aria-live="polite">
               {tr(
@@ -586,20 +623,138 @@ export default function RoomPage() {
             </div>
           )}
 
+          {snapshot.state === "finished" && (
+            <section className="match-finished" aria-labelledby="match-finished-title">
+              <span className="match-finished-icon" aria-hidden="true">
+                <Trophy size={22} />
+              </span>
+              <div>
+                <p>{tr("对战完成", "対戦完了", "Match complete")}</p>
+                <h2 id="match-finished-title">
+                  {snapshot.winnerId
+                    ? snapshot.winnerId === session.data?.user.id
+                      ? locale === "zh-CN"
+                        ? "你赢得了本场对战"
+                        : locale === "ja"
+                          ? "対戦に勝利しました"
+                          : "You won the match"
+                      : locale === "zh-CN"
+                        ? "你在本场对战中落败"
+                        : locale === "ja"
+                          ? "今回は敗北しました"
+                          : "You lost the match"
+                    : locale === "zh-CN"
+                      ? snapshot.finishReason === "agreed-draw"
+                        ? "双方同意，本场平局"
+                        : "本场无胜者"
+                      : locale === "ja"
+                        ? snapshot.finishReason === "agreed-draw"
+                          ? "合意により引き分け"
+                          : "勝者なし"
+                        : snapshot.finishReason === "agreed-draw"
+                          ? "Draw by agreement"
+                          : "No winner"}
+                </h2>
+              </div>
+              {snapshot.ranked && snapshot.ratingChanges.length === 2 ? (
+                <div
+                  className="rating-settlement"
+                  aria-label={tr(
+                    "双方永久评分变化",
+                    "両者の常設レート変動",
+                    "Permanent rating changes",
+                  )}
+                >
+                  {snapshot.players.map((player) => {
+                    const change = snapshot.ratingChanges.find(
+                      (entry) => entry.playerId === player.playerId,
+                    );
+                    if (!change) return null;
+                    const tone =
+                      change.delta > 0 ? "positive" : change.delta < 0 ? "negative" : "neutral";
+                    return (
+                      <div className={`rating-change ${tone}`} key={player.playerId}>
+                        <span>{player.displayName}</span>
+                        <b className="num">
+                          {change.before} → {change.after}
+                        </b>
+                        <strong className="num">
+                          {change.delta > 0 ? "+" : ""}
+                          {change.delta}
+                        </strong>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+              <div className="match-finished-actions">
+                <button
+                  className="btn sm"
+                  type="button"
+                  onClick={() => navigate(`/replay/${snapshot.roomId}`)}
+                >
+                  {tr("查看完整复盘", "完全なリプレイを見る", "View full replay")}
+                </button>
+                <button
+                  className="btn sm btn-ink"
+                  type="button"
+                  onClick={() =>
+                    void acknowledgeMatchTicket().finally(() => navigate(duelLobbyPath))
+                  }
+                >
+                  {tr("返回对战大厅", "対戦ロビーへ戻る", "Back to lobby")}
+                </button>
+              </div>
+            </section>
+          )}
+
           <div className="multiplayer-boards">
-            <section>
+            <section className="room-own-board">
               <header>
-                <span>{tr("你的猜测", "あなたの回答", "YOUR GUESSES")}</span>
-                <strong>
+                <span>{tr("你的猜测", "あなたの回答", "Your guesses")}</span>
+                <strong className="num">
                   {snapshot.ownGuesses.length} / {snapshot.configuration.maxAttempts}
                 </strong>
               </header>
               <GuessBoard guesses={snapshot.ownGuesses} locale={locale} />
+              {snapshot.state === "playing" ? (
+                <>
+                  <div className="sr-active-ghost" aria-hidden="true" />
+                  <div className="sr-composer sr-active-row">
+                    <CharacterCombobox
+                      variant="row"
+                      characters={roster}
+                      locale={locale}
+                      searchIndex={contentManifest.searchIndex}
+                      showImages={snapshot.configuration.modeId !== "aeon"}
+                      excludedIds={ownGuessedIds}
+                      disabled={
+                        !canGuess ||
+                        guessPending ||
+                        snapshot.ownGuesses.length >= snapshot.configuration.maxAttempts
+                      }
+                      onSubmit={submit}
+                    />
+                  </div>
+                  {Array.from({ length: ghostRows }, (_, index) => (
+                    <div
+                      key={index}
+                      className="sr-ghost-row"
+                      aria-hidden="true"
+                      style={{ "--sr-cols": GUESS_FIELDS.length } as CSSProperties}
+                    >
+                      {Array.from({ length: GUESS_FIELDS.length + 1 }, (_, cell) => (
+                        <span key={cell} />
+                      ))}
+                    </div>
+                  ))}
+                </>
+              ) : null}
             </section>
             <section className="opponent-board">
               <header>
-                <span>{tr("对手反馈", "相手のフィードバック", "RIVAL SIGNALS")}</span>
-                <strong>
+                <span>{tr("对手反馈", "相手のフィードバック", "Rival feedback")}</span>
+                <strong className="num">
                   {snapshot.opponentFeedback.length} / {snapshot.configuration.maxAttempts}
                 </strong>
               </header>
@@ -675,89 +830,6 @@ export default function RoomPage() {
               )}
             </section>
           </div>
-
-          {snapshot.state === "finished" && (
-            <section className="match-finished" aria-labelledby="match-finished-title">
-              <Trophy size={30} />
-              <div>
-                <p>{tr("对战完成", "対戦完了", "MATCH COMPLETE")}</p>
-                <h2 id="match-finished-title">
-                  {snapshot.winnerId
-                    ? snapshot.winnerId === session.data?.user.id
-                      ? locale === "zh-CN"
-                        ? "你赢得了本场对战"
-                        : locale === "ja"
-                          ? "対戦に勝利しました"
-                          : "You won the match"
-                      : locale === "zh-CN"
-                        ? "你在本场对战中落败"
-                        : locale === "ja"
-                          ? "今回は敗北しました"
-                          : "You lost the match"
-                    : locale === "zh-CN"
-                      ? snapshot.finishReason === "agreed-draw"
-                        ? "双方同意，本场平局"
-                        : "本场无胜者"
-                      : locale === "ja"
-                        ? snapshot.finishReason === "agreed-draw"
-                          ? "合意により引き分け"
-                          : "勝者なし"
-                        : snapshot.finishReason === "agreed-draw"
-                          ? "Draw by agreement"
-                          : "No winner"}
-                </h2>
-              </div>
-              {snapshot.ranked && snapshot.ratingChanges.length === 2 ? (
-                <div
-                  className="rating-settlement"
-                  aria-label={tr(
-                    "双方永久评分变化",
-                    "両者の常設レート変動",
-                    "Permanent rating changes",
-                  )}
-                >
-                  {snapshot.players.map((player) => {
-                    const change = snapshot.ratingChanges.find(
-                      (entry) => entry.playerId === player.playerId,
-                    );
-                    if (!change) return null;
-                    const tone =
-                      change.delta > 0 ? "positive" : change.delta < 0 ? "negative" : "neutral";
-                    return (
-                      <div className={`rating-change ${tone}`} key={player.playerId}>
-                        <span>{player.displayName}</span>
-                        <b>
-                          {change.before} → {change.after}
-                        </b>
-                        <strong>
-                          {change.delta > 0 ? "+" : ""}
-                          {change.delta}
-                        </strong>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
-              <div className="match-finished-actions">
-                <button
-                  className="ticket-button-secondary"
-                  type="button"
-                  onClick={() => navigate(`/replay/${snapshot.roomId}`)}
-                >
-                  {tr("查看完整复盘", "完全なリプレイを見る", "View full replay")}
-                </button>
-                <button
-                  className="ticket-button"
-                  type="button"
-                  onClick={() =>
-                    void acknowledgeMatchTicket().finally(() => navigate(duelLobbyPath))
-                  }
-                >
-                  {tr("返回对战大厅", "対戦ロビーへ戻る", "Back to lobby")}
-                </button>
-              </div>
-            </section>
-          )}
         </>
       )}
     </main>

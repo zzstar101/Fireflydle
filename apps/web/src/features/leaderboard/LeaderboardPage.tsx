@@ -1,7 +1,7 @@
 import type { EloLeaderboardEntry } from "@fireflydle/contracts";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Award, Radio, ShieldCheck } from "lucide-react";
+import { Award, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../../api/client";
 import { PageHeader } from "../../components/PageHeader";
@@ -52,21 +52,20 @@ export default function LeaderboardPage() {
         title={t("leaderboard.title")}
         intro={t("leaderboard.intro")}
         aside={
-          <div className="rank-live">
-            <Radio size={16} />
-            <span>{board === "elo" ? "ELO" : locale === "zh-CN" ? "每日题" : "DAILY"}</span>
-            <strong>
-              {board === "elo"
-                ? locale === "ja"
+          <span className="chip lit leaderboard-scope">
+            <i aria-hidden="true" />
+            {board === "elo"
+              ? locale === "zh-CN"
+                ? "常设榜"
+                : locale === "ja"
                   ? "常設"
-                  : "PERMANENT"
-                : locale === "zh-CN"
-                  ? "今日"
-                  : locale === "ja"
-                    ? "本日"
-                    : "TODAY"}
-            </strong>
-          </div>
+                  : "Permanent"
+              : locale === "zh-CN"
+                ? "今日"
+                : locale === "ja"
+                  ? "本日"
+                  : "Today"}
+          </span>
         }
       />
 
@@ -76,7 +75,7 @@ export default function LeaderboardPage() {
           className={board === "elo" ? "is-active" : ""}
           onClick={() => setBoard("elo")}
         >
-          ELO
+          Elo
         </button>
         <button
           type="button"
@@ -102,16 +101,18 @@ export default function LeaderboardPage() {
               <th>{t("leaderboard.player")}</th>
               <th>
                 {board === "elo"
-                  ? "ELO"
+                  ? "Elo"
                   : board === "daily"
                     ? locale === "zh-CN"
                       ? "结果"
                       : locale === "ja"
                         ? "結果"
-                        : "RESULT"
+                        : "Result"
                     : locale === "zh-CN"
                       ? "通关"
-                      : "CLEARS"}
+                      : locale === "ja"
+                        ? "クリア"
+                        : "Clears"}
               </th>
               <th>
                 {board === "elo"
@@ -119,20 +120,21 @@ export default function LeaderboardPage() {
                     ? "排位场次"
                     : locale === "ja"
                       ? "対戦数"
-                      : "MATCHES"
-                  : board === "daily"
-                    ? locale === "zh-CN"
-                      ? "猜测 / 用时"
-                      : "GUESSES / TIME"
-                    : locale === "zh-CN"
-                      ? "猜测 / 用时"
-                      : "GUESSES / TIME"}
+                      : "Matches"
+                  : locale === "zh-CN"
+                    ? "猜测 / 用时"
+                    : locale === "ja"
+                      ? "推測 / 時間"
+                      : "Guesses / time"}
               </th>
             </tr>
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={`${entry.rank}-${entry.displayName}`}>
+              <tr
+                key={`${entry.rank}-${entry.displayName}`}
+                className={entry.rank <= 3 ? `is-top is-top-${entry.rank}` : undefined}
+              >
                 <td>
                   <span className={`rank-number rank-${entry.rank}`}>
                     {String(entry.rank).padStart(2, "0")}
@@ -146,23 +148,29 @@ export default function LeaderboardPage() {
                 </td>
                 {board === "elo" ? (
                   <>
-                    <td>
+                    <td className="is-num">
                       <b>{(entry as EloLeaderboardEntry).elo}</b>
                     </td>
-                    <td>{(entry as EloLeaderboardEntry).rankedMatches}</td>
+                    <td className="is-num">{(entry as EloLeaderboardEntry).rankedMatches}</td>
                   </>
                 ) : board === "daily" ? (
                   <>
-                    <td>{(entry as DailyLeaderboardEntry).result === "won" ? "✓" : "—"}</td>
-                    <td>
+                    <td
+                      className={(entry as DailyLeaderboardEntry).result === "won" ? "is-won" : ""}
+                    >
+                      {(entry as DailyLeaderboardEntry).result === "won" ? "✓" : "—"}
+                    </td>
+                    <td className="is-num">
                       {(entry as DailyLeaderboardEntry).guesses} /{" "}
                       {Math.ceil((entry as DailyLeaderboardEntry).elapsedMs / 1000)}s
                     </td>
                   </>
                 ) : (
                   <>
-                    <td>{(entry as EndlessLeaderboardEntry).clears}</td>
-                    <td>
+                    <td className="is-num">
+                      <b>{(entry as EndlessLeaderboardEntry).clears}</b>
+                    </td>
+                    <td className="is-num">
                       {(entry as EndlessLeaderboardEntry).totalGuesses} /{" "}
                       {Math.ceil((entry as EndlessLeaderboardEntry).elapsedMs / 1000)}s
                     </td>
@@ -174,17 +182,17 @@ export default function LeaderboardPage() {
         </table>
         {!leaderboard.isLoading && entries.length === 0 ? (
           <div className="leaderboard-empty">
-            <Award size={34} />
+            <Award size={26} />
             <h2>{t("leaderboard.empty")}</h2>
-            <p>
-              {leaderboard.isError
-                ? locale === "zh-CN"
+            {leaderboard.isError ? (
+              <p>
+                {locale === "zh-CN"
                   ? "排行榜暂时无法加载，请稍后重试。"
                   : locale === "ja"
                     ? "ランキングを読み込めません。しばらくしてからお試しください。"
-                    : "The leaderboard could not be loaded. Please try again later."
-                : t("leaderboard.empty")}
-            </p>
+                    : "The leaderboard could not be loaded. Please try again later."}
+              </p>
+            ) : null}
           </div>
         ) : null}
         {leaderboard.isLoading ? (
@@ -204,7 +212,7 @@ export default function LeaderboardPage() {
                 ? "上榜条件"
                 : locale === "ja"
                   ? "公開条件"
-                  : "PUBLIC ELIGIBILITY"}
+                  : "Public eligibility"}
             </strong>
             <span>
               {locale === "zh-CN"

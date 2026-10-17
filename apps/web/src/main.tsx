@@ -4,9 +4,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./i18n";
 import { App } from "./app/App";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
+import { applyQualityFlags } from "./components/quality-flags";
 import "./styles/tokens.css";
 import "./styles/global.css";
 import { initializePwaInstall, registerPwaServiceWorker } from "./pwa";
+
+// 降级开关必须在首帧前落到 <html> 上，避免先渲染再降级造成闪烁
+applyQualityFlags();
 
 const queryClient = new QueryClient({
   defaultOptions: {

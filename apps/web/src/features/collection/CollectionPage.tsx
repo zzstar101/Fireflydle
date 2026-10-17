@@ -16,6 +16,7 @@ import { PageHeader } from "../../components/PageHeader";
 import { usePreferences } from "../../state/preferences";
 import { localTestMode } from "../../dev/local-test-mode";
 import { assetUrl } from "../../lib/asset-url";
+import { useCharacterHeads } from "../../lib/character-art";
 import introductions from "./introductions.zh-CN.json";
 import "./collection.css";
 
@@ -95,10 +96,69 @@ function localizedCharacterName(
   return character.names[locale];
 }
 
-function collectionImagePath(character: CollectionCharacter): string {
-  return character.officialId
-    ? `/assets/collection/${character.officialId}.png`
-    : character.assets.portraitPath || character.assets.avatarPath;
+const collectionDetailCopy = {
+  "zh-CN": {
+    back: "返回图鉴",
+    notFound: "未找到这个角色。",
+    unknownName: "角色",
+    lockedAlt: "未解锁角色",
+    introductionTitle: "角色简介",
+    introductionSource: "资料来源：BWiki 角色图鉴",
+    element: "属性",
+    rarity: "稀有度",
+    region: "地区",
+    version: "实装版本",
+    rarityValue: (rarity: number) => `${rarity} 星`,
+    skinsTitle: "官方皮肤",
+    lockedHint: "猜中这个角色后解锁资料。",
+  },
+  en: {
+    back: "Back to collection",
+    notFound: "Character not found.",
+    unknownName: "Character",
+    lockedAlt: "Locked character",
+    introductionTitle: "Character profile",
+    introductionSource: "Source: BWiki character collection",
+    element: "Element",
+    rarity: "Rarity",
+    region: "Region",
+    version: "Release",
+    rarityValue: (rarity: number) => `${rarity}-star`,
+    skinsTitle: "Official skins",
+    lockedHint: "Guess this character to unlock their profile.",
+  },
+  ja: {
+    back: "図鑑に戻る",
+    notFound: "このキャラクターは見つかりませんでした。",
+    unknownName: "キャラクター",
+    lockedAlt: "未解放キャラクター",
+    introductionTitle: "キャラクター紹介",
+    introductionSource: "出典：BWiki キャラクター図鑑",
+    element: "属性",
+    rarity: "レア度",
+    region: "地域",
+    version: "実装版",
+    rarityValue: (rarity: number) => `${rarity} 星`,
+    skinsTitle: "公式スキン",
+    lockedHint: "このキャラクターを当てるとプロフィールが解放されます。",
+  },
+} as const;
+
+/**
+ * 图鉴卡片图：优先用 character-art 索引里的超分头像（覆盖新角色/皮肤角色），
+ * 其次是 StarRailRes 头像（只有数字官方 ID 才有），最后退回角色头像。
+ */
+function collectionImageSrc(
+  character: CollectionCharacter,
+  heads: Record<string, string> | null,
+): string {
+  const head = heads?.[character.id];
+  if (head) return head;
+  const path =
+    character.officialId && /^\d+$/.test(character.officialId)
+      ? `/assets/collection/${character.officialId}.png`
+      : character.assets.portraitPath || character.assets.avatarPath;
+  return assetUrl(path);
 }
 
 export const pathRewardImages: Record<string, string> = {
@@ -166,6 +226,7 @@ export default function CollectionPage() {
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
   const collection = useCollectionData();
+  const heads = useCharacterHeads();
   const data = collection.data;
   const selectedRewardId = usePreferences((state) => state.collectionRewardId);
   const setCollectionReward = usePreferences((state) => state.setCollectionReward);
@@ -211,10 +272,11 @@ export default function CollectionPage() {
         }
         aside={
           <div className="collection-counter">
-            <strong>{data?.unlockedCount ?? 0}</strong>
-            <span>
-              / {data?.total ?? "—"} {unlockedLabel}
-            </span>
+            <span>{unlockedLabel}</span>
+            <strong>
+              {data?.unlockedCount ?? 0}
+              <small> / {data?.total ?? "—"}</small>
+            </strong>
           </div>
         }
       />
@@ -222,7 +284,7 @@ export default function CollectionPage() {
         {Object.entries(data?.pathProgress ?? {}).map(([path, progress]) => (
           <div key={path} className="collection-progress-item">
             <span>{localizedPath(path, locale)}</span>
-            <strong>
+            <strong className={progress.unlocked >= progress.total ? "is-complete" : undefined}>
               {progress.unlocked}/{progress.total}
             </strong>
             <i>
@@ -249,8 +311,8 @@ export default function CollectionPage() {
                   : "Complete a path or faction to unlock its visual reward"}
             </h2>
           </div>
-          <span className="collection-reward-count">
-            <Award size={16} />{" "}
+          <span className="chip lit collection-reward-count">
+            <Award size={14} aria-hidden="true" />
             {
               rewardCards.filter((reward) => reward.progress.unlocked >= reward.progress.total)
                 .length
@@ -331,7 +393,7 @@ export default function CollectionPage() {
             >
               <div className="collection-art-wrap">
                 <img
-                  src={assetUrl(collectionImagePath(character))}
+                  src={collectionImageSrc(character, heads)}
                   alt={character.unlocked ? name : lockedLabel}
                   loading="lazy"
                 />
@@ -377,9 +439,11 @@ export function CollectionCharacterPage() {
   const { characterId } = useParams();
   const { t } = useTranslation();
   const locale = usePreferences((state) => state.language);
+  const copy = collectionDetailCopy[locale];
   const collection = useCollectionData();
+  const heads = useCharacterHeads();
   const character = collection.data?.characters.find((item) => item.id === characterId);
-  const name = character ? localizedCharacterName(character, locale) : "角色";
+  const name = character ? localizedCharacterName(character, locale) : copy.unknownName;
   const skins = character
     ? (collection.data?.skins ?? []).filter((skin) => skin.characterId === character.id)
     : [];
@@ -397,9 +461,9 @@ export function CollectionCharacterPage() {
     return (
       <main className="page-shell collection-detail-page">
         <Link className="collection-back-link" to="/collection">
-          <ArrowLeft size={16} /> 返回图鉴
+          <ArrowLeft size={16} /> {copy.back}
         </Link>
-        <p className="collection-error">未找到这个角色。</p>
+        <p className="collection-error">{copy.notFound}</p>
       </main>
     );
   }
@@ -407,13 +471,13 @@ export function CollectionCharacterPage() {
   return (
     <main className="page-shell collection-detail-page">
       <Link className="collection-back-link" to="/collection">
-        <ArrowLeft size={16} /> 返回图鉴
+        <ArrowLeft size={16} /> {copy.back}
       </Link>
       <section className={`collection-detail${character.unlocked ? "" : " is-locked"}`}>
         <div className="collection-detail-art">
           <img
-            src={assetUrl(collectionImagePath(character))}
-            alt={character.unlocked ? name : "未解锁角色"}
+            src={collectionImageSrc(character, heads)}
+            alt={character.unlocked ? name : copy.lockedAlt}
           />
           {!character.unlocked ? <LockKeyhole size={26} aria-hidden="true" /> : null}
         </div>
@@ -423,39 +487,39 @@ export function CollectionCharacterPage() {
           {character.unlocked ? (
             <>
               <p className="collection-detail-meta">
-                {localizedPath(character.path, locale)} ·{" "}
-                {localizedFaction(character.factionId, locale)}
+                <span className="chip lit">{localizedPath(character.path, locale)}</span>
+                <span className="chip">{localizedFaction(character.factionId, locale)}</span>
               </p>
               {introduction ? (
                 <section className="collection-introduction">
-                  <h2>角色简介</h2>
+                  <h2>{copy.introductionTitle}</h2>
                   <p>{introduction}</p>
                   <a href="https://wiki.biligame.com/sr/角色图鉴" target="_blank" rel="noreferrer">
-                    资料来源：BWiki 角色图鉴
+                    {copy.introductionSource}
                   </a>
                 </section>
               ) : null}
               <dl className="collection-facts">
                 <div>
-                  <dt>属性</dt>
+                  <dt>{copy.element}</dt>
                   <dd>{localizedElement(character.element, locale)}</dd>
                 </div>
                 <div>
-                  <dt>稀有度</dt>
-                  <dd>{character.rarity} 星</dd>
+                  <dt>{copy.rarity}</dt>
+                  <dd>{copy.rarityValue(character.rarity)}</dd>
                 </div>
                 <div>
-                  <dt>地区</dt>
+                  <dt>{copy.region}</dt>
                   <dd>{getRegionName(character.regionId, locale)}</dd>
                 </div>
                 <div>
-                  <dt>实装版本</dt>
+                  <dt>{copy.version}</dt>
                   <dd>{character.releaseVersionId}</dd>
                 </div>
               </dl>
               {skins.length > 0 ? (
                 <div className="collection-skin-gallery">
-                  <h2>官方皮肤</h2>
+                  <h2>{copy.skinsTitle}</h2>
                   <div>
                     {skins.map((skin) => (
                       <figure key={skin.id}>
@@ -468,7 +532,7 @@ export function CollectionCharacterPage() {
               ) : null}
             </>
           ) : (
-            <p className="collection-detail-locked">猜中这个角色后解锁资料。</p>
+            <p className="collection-detail-locked">{copy.lockedHint}</p>
           )}
         </div>
       </section>
