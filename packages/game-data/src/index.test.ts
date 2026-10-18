@@ -85,7 +85,7 @@ describe("4.6 角色同步", () => {
   test("真珠进入普通角色题池并保留 Wiki 校验后的属性", () => {
     const pearl = characters.find((character) => character.id === "pearl");
     expect(pearl).toMatchObject({
-      officialId: "hoyo:88",
+      officialId: "1503",
       names: { "zh-CN": "真珠", en: "Pearl" },
       element: "ice",
       path: "elation",

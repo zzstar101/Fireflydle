@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-09-28",
-  "sourceRevision": "hoyo-content-v2-8382780d4b2e+starrailres-d226befe3db1+overrides-c09562637530",
+  "asOf": "2026-10-18",
+  "sourceRevision": "hoyo-content-v2-97a6e706871b+starrailres-dbe8cdfcfb0b+overrides-c09562637530",
   "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
   "policy": "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
   "files": [
@@ -8826,7 +8826,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "57bb5479a08ec11869f6809e7c18131e7ad810822e1a6e9c0e6e38909e7a7fa0",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png",
       "width": 160
     },
     {
@@ -8837,7 +8837,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "8c33e7ea0bbc620584518b969fc125cd4678054c92207712c14c21e69c335ae5",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png",
       "width": 160
     },
     {
@@ -8848,7 +8848,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "991363dc5429f75a248b02daa8771c87ac336f4f3a12e9498d9da48a76f33bca",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png",
       "width": 40
     },
     {
@@ -8859,7 +8859,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "ab91abda7b3a72b1785908d9dffc70dd371a24c51d0c1b2e443eb514f2533328",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png",
       "width": 40
     },
     {
@@ -8870,7 +8870,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "ce419cf801d258f2f8c557b53922009fbc2d4daf60e967cfb587f6b39e79ebe9",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png",
       "width": 80
     },
     {
@@ -8881,7 +8881,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "8c06e409dbff3d7fbc4e375fb574747d59cc44c4df6a9212f8a94992730d182d",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png",
       "width": 80
     },
     {
@@ -8891,7 +8891,7 @@
       "roles": ["avatar", "portrait", "fallback"],
       "sha256": "e8ee5e05c9c12239e7260f3b2949c2d1e76d1985c1515bf16b889fc550d5f0de",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8001.png"
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8001.png"
     },
     {
       "bytes": 6826,
@@ -8901,7 +8901,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "9caf5b1bb8003f219d340f88a3593b58659833ebee49e13dfc31c9d8c3280ff0",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png",
       "width": 160
     },
     {
@@ -8912,7 +8912,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "e35c20312b47c09fa7a8fffcdd7e4a7a7654c7b1e016f0125ac681a42be37d34",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png",
       "width": 160
     },
     {
@@ -8923,7 +8923,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "b68fe0db1fc5388998621f458eddcefceaeafb8d40918cedff52f4cb713b1322",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png",
       "width": 40
     },
     {
@@ -8934,7 +8934,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "2bb2e30f105aed6846549aa3c8ea382da9f533277c11275448c2d19f860b489e",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png",
       "width": 40
     },
     {
@@ -8945,7 +8945,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "5284f6396353978911f060f7465b72cb6df417880a3745b2e89fe09d72cdb8e4",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png",
       "width": 80
     },
     {
@@ -8956,7 +8956,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "7eda1fba9a6810a4b15c9b724dc0303da8e9a8469536ff59ee0603016125db6c",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png",
       "width": 80
     },
     {
@@ -8966,7 +8966,7 @@
       "roles": ["avatar", "portrait", "fallback"],
       "sha256": "5e5432f4e42a39993153381252360518e0ec62ef6f93b4f493122b27b3d0e6d2",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8009.png"
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8009.png"
     },
     {
       "bytes": 6814,
@@ -8976,7 +8976,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "446445e09b08e9b855ee0bac8c94c414863d7cc60c0fbdf6a14ad147da65e3b5",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png",
       "width": 160
     },
     {
@@ -8987,7 +8987,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "5d6b92c87dda20f81174aa3a8302b1f8d383a6fc519626deb11e37d1139ababd",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png",
       "width": 160
     },
     {
@@ -8998,7 +8998,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "9aff6534e0c8253b1ce1a1b95a2cfc3d5bd466072286128ae2a26ccb11ed3300",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png",
       "width": 40
     },
     {
@@ -9009,7 +9009,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "6875b17dab1d5e11e8eb888892e24428ca36a3da2d9b9fc28df525499f55eaa2",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png",
       "width": 40
     },
     {
@@ -9020,7 +9020,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "541a97588db9d61c6900478be3a4a2eb70ad7eca887e925ec5aa8bced091b547",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png",
       "width": 80
     },
     {
@@ -9031,7 +9031,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "9449d109d8217002390bc319f16a69e8c88c146e9377483b71b4f12c14b5ee74",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png",
       "width": 80
     },
     {
@@ -9041,7 +9041,7 @@
       "roles": ["avatar", "portrait", "fallback"],
       "sha256": "8ab0f9082b9840d46d21d0cee9cb090cb24fe61c5b964d6954a384ca110e8a2d",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8005.png"
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8005.png"
     },
     {
       "bytes": 5515,
@@ -9051,7 +9051,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "9f9edec1f7e08bd65c7204b439dd2d446e797a57d4499bbc60d7a0eac1b61ed1",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png",
       "width": 160
     },
     {
@@ -9062,7 +9062,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "36b1c6edca7ddf9b9d73483c9e81c00c04fb00f3673e2a531f9f2f6ae719e8b9",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png",
       "width": 160
     },
     {
@@ -9073,7 +9073,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "198a2c99b06c7119b1e0de3a88d8682beb245d2f5a978329d67d9966da1b240e",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png",
       "width": 40
     },
     {
@@ -9084,7 +9084,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "2dec673d6d7607c844fbdf003aada1a9cf0caf5084da0048e5ed06d654145220",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png",
       "width": 40
     },
     {
@@ -9095,7 +9095,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "70fee41b64924879077920373ac17674605f511cb8624e88dc2b417addbc2d48",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png",
       "width": 80
     },
     {
@@ -9106,7 +9106,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "b310ec8d84a78c6210824a28275c07d2eea75abdca1009bc83fdee917fe2d6ad",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png",
       "width": 80
     },
     {
@@ -9116,7 +9116,7 @@
       "roles": ["avatar", "portrait", "fallback"],
       "sha256": "d52e840e15c3605f71c6c5acb22beace03edef00d1a3cf71229a0e23a4491422",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8003.png"
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8003.png"
     },
     {
       "bytes": 7019,
@@ -9126,7 +9126,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "4d156f0fa5540ee10c3e52db0dba77aee2ab70fc5023d536d9f4207f9e5770e1",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png",
       "width": 160
     },
     {
@@ -9137,7 +9137,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "44105367eaa4652140e6cebf89332e490cd16af4ad99d7fbd6153c777e82b316",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png",
       "width": 160
     },
     {
@@ -9148,7 +9148,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "b4946bdffe2d27518cdb5fdbdb3af1918d84918c75be5bd1ecde19334ac4f012",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png",
       "width": 40
     },
     {
@@ -9159,7 +9159,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "7fd84a065c6c97e5089e2061a1c42ea9c63da947048a4e0138aa940edb496ed9",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png",
       "width": 40
     },
     {
@@ -9170,7 +9170,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "cbf819a81c64ce432a72acb188e3f689c7453df0befaf41702ca5e05c7fb16c9",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png",
       "width": 80
     },
     {
@@ -9181,7 +9181,7 @@
       "roles": ["avatar", "responsive"],
       "sha256": "79c6e6f492c14492c5a65dac001254a0486bfb97f01b5d9aefcb9e9133628e63",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png",
       "width": 80
     },
     {
@@ -9191,7 +9191,7 @@
       "roles": ["avatar", "portrait", "fallback"],
       "sha256": "38ba6a863c7dcce077ec6b02f84d994ae88c9aba526881460028a8ec99eb1831",
       "sourceKind": "starrailres-trailblazer-fallback",
-      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/d226befe3db13f2ec15f4161d5f34b1b607643fe/icon/character/8007.png"
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/dbe8cdfcfb0bf657b9fe1cf92d5537f118ccb487/icon/character/8007.png"
     },
     {
       "bytes": 6500,
