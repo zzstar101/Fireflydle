@@ -58,10 +58,10 @@
     "sync:currency-wars": "bun scripts/sync-currency-wars.ts"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.0",
-    "prettier": "^3.9.6",
+    "@types/bun": "^1.4.4",
+    "prettier": "^3.9.10",
     "sharp": "0.35.4",
     "typescript": "7.0.2",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   }
 }
