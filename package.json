@@ -1,6 +1,6 @@
 {
   "name": "fireflydle",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.4.0",
@@ -54,7 +54,8 @@
     "test:assets": "bun run assets:build && bunx vitest@4.1.11 run --testTimeout=60000 scripts/responsive-assets.test.ts scripts/character-art.test.ts",
     "test:web-artifact": "bun scripts/verify-web-artifact.ts",
     "test:web-budget": "bun scripts/verify-web-bundle.ts",
-    "deploy:api": "bun --cwd apps/api deploy"
+    "deploy:api": "bun --cwd apps/api deploy",
+    "sync:currency-wars": "bun scripts/sync-currency-wars.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.4.0",

@@ -7,12 +7,12 @@ NPC 模式的内容清点、目标建议、合并/排除边界和证据缺口见
 
 ## 结论与覆盖率
 
-当前发布快照截止 **2026-08-02 UTC**，收录国服已正式实装的 **90** 个可玩形态：
+当前发布快照截止 **2026-11-11 UTC**，收录国服已正式实装的 **94** 个可玩形态：
 
-- HoYoverse 官网角色频道中已生效的 85 个形态，包含正式联动角色。
+- HoYoverse 官网角色频道中已生效的 89 个形态，包含正式联动角色与 4.7 新角色星神★阿哈。
 - 官网角色页未单列的 5 个开拓者命途形态。每个命途仅保留一行，男/女游戏 ID 成对合并；不同命途仍是独立猜测对象。
-- 中/英/日名称 270/270，拼音输入和日文罗马字降级均为 90/90；element/path/rarity、阵营层级、首发版本和本地素材也均为 90/90。
-- 共有 11 个官网阵营大组、12 个 BWiki 阵营细分、29 个正式版本公告、90 个经 SHA-256 校验的本地缩略图。
+- 中/英/日名称 282/282，拼音输入和日文罗马字降级均为 94/94；element/path/rarity、阵营层级、首发版本和本地素材也均为 94/94。
+- 共有 23 个官网阵营页签、21 个实际使用的阵营层级组合、32 个正式版本公告、94 个经 SHA-256 校验的本地缩略图。
 
 机器可读的实际来源修订、API URL、版本公告 ID、合并 ID 和覆盖率见
 [`packages/game-data/src/generated/sync-metadata.json`](../packages/game-data/src/generated/sync-metadata.json)。
@@ -45,6 +45,21 @@ HoYoverse 角色页不公开游戏内部 ID、稀有度和命途枚举，也不�
 - 每次同步先通过 GitHub commits API 解析 branch，然后用 40 位 commit SHA 抓取 raw 文件；不在一次发布中混用浮动 branch 的多个时点。
 
 该仓库标记 [AGPL-3.0](https://github.com/Mar-7th/StarRailRes/blob/master/LICENSE)。这一标记不可解读为对 HoYoverse 图像、角色、商标或其他游戏内容的授权。本项目仅提取少量枚举事实，不复制该仓库的工具代码；实际 commit 和许可证链接保存在同步元数据中。
+
+## 货币战争来源：4.7 GridFight 游戏数据
+
+货币战争使用独立的 `CurrencyWarsUnit` 数据集，不从普通角色池推导。4.7 新赛季「货币战争•入画奇航」的 60 个角色、费用、前/后站位和 34 个羁绊来自 4.7 客户端 `ExcelOutput/GridFight*.json` 的可审计镜像：
+
+- 镜像仓库：[`DimbreathBot/TurnBasedGameData`](https://github.com/DimbreathBot/TurnBasedGameData)
+- 定位 commit：`fe15a954eba1f24bf1bcd4003848710eced44996`（4.7.0，2026-11-11）
+- 读取文件：`ExcelOutput/GridFightRoleBasicInfo.json`、`GridFightTraitBasicInfo.json`、`GridFightConstCommon.json`、`AvatarConfig.json`，以及 `TextMap/TextMapCHS.json`、`TextMapEN.json`、`TextMapJP.json`
+- 提取口径：只取 `SeasonID = 2`；按 `AvatarID` 去重；剔除占位角色 `6042`（假帕姆），保留开拓者 `8009`（欢愉命途），最终 60 个可玩单位。
+- 版本化快照：[`currency-wars-4.7-source.json`](../packages/game-data/src/data/currency-wars-4.7-source.json)
+- 生成命令：`bun run sync:currency-wars`
+
+星神★阿哈在游戏数据中有 `151112`（4 费）、`151122`（5 费）、`151132`（7 费）三种形态，且 `GridFightConstCommon.json` 的 `GridFight_SevenPriceRoleIdList` 只列出 `151132`。`CurrencyWarsCostSchema` 现已支持 1–7 费，清单把三种形态记录为 `[4, 5, 7]`。
+
+该镜像不是 HoYoverse 官方 API，也不附带游戏素材再分发许可。仓库只提交提取后的枚举事实（名称、费用、站位、羁绊 ID），不复制客户端图片、文本表或代码；赛季更新时仍需按新客户端版本重新提取并人工核对。
 
 ## 阵营来源：BWiki 角色图鉴
 
@@ -92,34 +107,38 @@ HoYoverse 角色页不公开游戏内部 ID、稀有度和命途枚举，也不�
 
 ```powershell
 # 只读抓取/验证，不覆盖已发布数据
-bun run sync:data -- --dry-run --as-of 2026-08-02
+bun run sync:data -- --dry-run --as-of 2026-11-11
 
 # 使用已验证缓存做无网络回归检查
-bun run sync:data -- --dry-run --offline --as-of 2026-08-02
+bun run sync:data -- --dry-run --offline --as-of 2026-11-11
 
 # 发布同步：下载素材并原子更新小型清单
-bun run sync:data -- --as-of 2026-08-02
+bun run sync:data -- --as-of 2026-11-11
 
 # 可选：独立缓存位置或强制刷新素材
 bun run sync:data -- --cache-dir tmp/fireflydle-data-cache --refresh-cache
+
+# 用 4.7 快照重建货币战争清单（不联网）
+bun run sync:currency-wars
 ```
 
 默认为网络优先、有效缓存降级。同步先在内存/缓存中抓取、校验和生成全部数据；任意网络、结构、覆盖率、图片魔数或 schema 检查失败都不会覆盖上次有效清单。素材文件名包含内容哈希，先写入再切换 JSON；不自动删除旧素材。
 
 生成物：
 
-| 路径                                                     | 内容                                           |
-| -------------------------------------------------------- | ---------------------------------------------- |
-| `packages/game-data/src/generated/characters.json`       | 完整 `CharacterSchema` 数组                    |
-| `packages/game-data/src/generated/content-manifest.json` | 版本化普通角色实体、模式和题池 manifest        |
-| `packages/game-data/src/generated/factions.json`         | 官网三语阵营页签                               |
-| `packages/game-data/src/generated/versions.json`         | 官方版本上线日和比较顺序                       |
-| `packages/game-data/src/generated/sync-metadata.json`    | 来源修订、公告 ID、覆盖率和合并决策            |
-| `packages/game-data/generated/characters.sql`            | 三张表的可幂等 D1 发布 seed 与 soft-disable    |
-| `apps/web/public/assets/characters/*`                    | 随站点发布的内容寻址缩略图                     |
-| `apps/web/public/assets/manifest.json`                   | 每个素材的本地路径、来源 URL、字节数与 SHA-256 |
-| `apps/web/public/assets/manifest.sha256`                 | `manifest.json` 本身的 SHA-256                 |
+| 路径                                                      | 内容                                           |
+| --------------------------------------------------------- | ---------------------------------------------- |
+| `packages/game-data/src/generated/characters.json`        | 完整 `CharacterSchema` 数组                    |
+| `packages/game-data/src/generated/content-manifest.json`  | 版本化普通角色实体、模式和题池 manifest        |
+| `packages/game-data/src/generated/factions.json`          | 官网三语阵营页签                               |
+| `packages/game-data/src/generated/versions.json`          | 官方版本上线日和比较顺序                       |
+| `packages/game-data/src/generated/sync-metadata.json`     | 来源修订、公告 ID、覆盖率和合并决策            |
+| `packages/game-data/src/data/currency-wars-manifest.json` | 货币战争 4.7 赛季的 60 个单位、34 个羁绊和题池 |
+| `packages/game-data/generated/characters.sql`             | 三张表的可幂等 D1 发布 seed 与 soft-disable    |
+| `apps/web/public/assets/characters/*`                     | 随站点发布的内容寻址缩略图                     |
+| `apps/web/public/assets/manifest.json`                    | 每个素材的本地路径、来源 URL、字节数与 SHA-256 |
+| `apps/web/public/assets/manifest.sha256`                  | `manifest.json` 本身的 SHA-256                 |
 
-D1 SQL 按 `versions` → `factions` → `characters` 的顺序发布，三张表都以 `id` UPSERT，且不改写已有行的 `created_at`。每张表完成全量 UPSERT 后才把清单外历史行 soft-disable；角色还会同时清除 `target_eligible`，不会 `DELETE` 任何可能被历史数据引用的记录。这样 fresh D1 与已运行实例使用同一份 seed，都能得到 29 个版本、23 个阵营和 90 个可选角色。
+D1 SQL 按 `versions` → `factions` → `characters` 的顺序发布，三张表都以 `id` UPSERT，且不改写已有行的 `created_at`。每张表完成全量 UPSERT 后才把清单外历史行 soft-disable；角色还会同时清除 `target_eligible`，不会 `DELETE` 任何可能被历史数据引用的记录。这样 fresh D1 与已运行实例使用同一份 seed，都能得到 32 个版本、23 个阵营和 94 个可选角色。
 
 Cloudflare `d1 execute --file` 要求 import 文件不含显式 `BEGIN/COMMIT`，因此每个 UPSERT 和 soft-disable 都是足够小、可重试的独立语句。只有完整同步通过来源、覆盖率、schema 与素材安全阈门后，才会生成并原子替换这份 seed。

@@ -1,0 +1,892 @@
+{
+  "gameVersion": "4.7",
+  "capturedAt": "2026-11-11T00:00:00.000Z",
+  "source": {
+    "url": "https://github.com/DimbreathBot/TurnBasedGameData/blob/fe15a954eba1f24bf1bcd4003848710eced44996/ExcelOutput/GridFightRoleBasicInfo.json",
+    "revision": "turnbasedgamedata-fe15a954-4.7.0"
+  },
+  "units": [
+    {
+      "characterId": "welt",
+      "avatarId": 1004,
+      "roleIds": [100402],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["trailblaze-silver-rail", "aoe"],
+      "displayName": null
+    },
+    {
+      "characterId": "kafka",
+      "avatarId": 1005,
+      "roleIds": [100502],
+      "cost": 5,
+      "position": "front",
+      "traitIds": ["stellaron-hunters", "damage-over-time"],
+      "displayName": null
+    },
+    {
+      "characterId": "serval",
+      "avatarId": 1103,
+      "roleIds": [110302],
+      "cost": 4,
+      "position": "front",
+      "traitIds": ["girls-band", "damage-over-time"],
+      "displayName": null
+    },
+    {
+      "characterId": "natasha",
+      "avatarId": 1105,
+      "roleIds": [110502],
+      "cost": 2,
+      "position": "back",
+      "traitIds": ["interastral-traveler", "damage-over-time", "healing"],
+      "displayName": null
+    },
+    {
+      "characterId": "clara",
+      "avatarId": 1107,
+      "roleIds": [110702],
+      "cost": 5,
+      "position": "front-back",
+      "traitIds": ["interastral-traveler", "counter", "ingenious-artificer"],
+      "displayName": null
+    },
+    {
+      "characterId": "topaz-and-numby",
+      "avatarId": 1112,
+      "roleIds": [111202],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["astropolis-merchant-guild", "follow-up"],
+      "displayName": null
+    },
+    {
+      "characterId": "luocha",
+      "avatarId": 1203,
+      "roleIds": [120302],
+      "cost": 3,
+      "position": "front-back",
+      "traitIds": ["interastral-traveler", "healing"],
+      "displayName": null
+    },
+    {
+      "characterId": "jing-yuan",
+      "avatarId": 1204,
+      "roleIds": [120402],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["high-cloud-quintet", "summon"],
+      "displayName": null
+    },
+    {
+      "characterId": "blade",
+      "avatarId": 1205,
+      "roleIds": [120502],
+      "cost": 4,
+      "position": "front-back",
+      "traitIds": ["high-cloud-quintet", "counter"],
+      "displayName": null
+    },
+    {
+      "characterId": "fu-xuan",
+      "avatarId": 1208,
+      "roleIds": [120802],
+      "cost": 3,
+      "position": "back",
+      "traitIds": ["little-giant", "counter", "protection"],
+      "displayName": null
+    },
+    {
+      "characterId": "guinaifen",
+      "avatarId": 1210,
+      "roleIds": [121002],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["xianzhou-fleet", "damage-over-time"],
+      "displayName": null
+    },
+    {
+      "characterId": "bailu",
+      "avatarId": 1211,
+      "roleIds": [121102],
+      "cost": 2,
+      "position": "back",
+      "traitIds": ["high-cloud-quintet", "combo", "healing"],
+      "displayName": null
+    },
+    {
+      "characterId": "jingliu",
+      "avatarId": 1212,
+      "roleIds": [121202],
+      "cost": 3,
+      "position": "front-back",
+      "traitIds": ["high-cloud-quintet", "combo"],
+      "displayName": null
+    },
+    {
+      "characterId": "dan-heng-il",
+      "avatarId": 1213,
+      "roleIds": [121302],
+      "cost": 5,
+      "position": "front",
+      "traitIds": ["trailblaze-silver-rail", "high-cloud-quintet", "twin-dragons-call"],
+      "displayName": null
+    },
+    {
+      "characterId": "xueyi",
+      "avatarId": 1214,
+      "roleIds": [121402],
+      "cost": 5,
+      "position": "front",
+      "traitIds": ["xianzhou-fleet", "break"],
+      "displayName": null
+    },
+    {
+      "characterId": "hanya",
+      "avatarId": 1215,
+      "roleIds": [121502],
+      "cost": 4,
+      "position": "back",
+      "traitIds": ["xianzhou-fleet", "combo"],
+      "displayName": null
+    },
+    {
+      "characterId": "huohuo",
+      "avatarId": 1217,
+      "roleIds": [121702],
+      "cost": 4,
+      "position": "back",
+      "traitIds": ["little-giant", "energy", "healing"],
+      "displayName": null
+    },
+    {
+      "characterId": "jiaoqiu",
+      "avatarId": 1218,
+      "roleIds": [121802],
+      "cost": 3,
+      "position": "front",
+      "traitIds": ["xianzhou-fleet", "damage-over-time"],
+      "displayName": null
+    },
+    {
+      "characterId": "feixiao",
+      "avatarId": 1220,
+      "roleIds": [122002],
+      "cost": 3,
+      "position": "front",
+      "traitIds": ["xianzhou-fleet", "follow-up"],
+      "displayName": null
+    },
+    {
+      "characterId": "yunli",
+      "avatarId": 1221,
+      "roleIds": [122102],
+      "cost": 2,
+      "position": "front-back",
+      "traitIds": ["xianzhou-fleet", "counter"],
+      "displayName": null
+    },
+    {
+      "characterId": "lingsha",
+      "avatarId": 1222,
+      "roleIds": [122202],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["xianzhou-fleet", "aoe", "healing"],
+      "displayName": null
+    },
+    {
+      "characterId": "march-7th",
+      "avatarId": 1224,
+      "roleIds": [122402],
+      "cost": 1,
+      "position": "back",
+      "traitIds": ["trailblaze-silver-rail", "follow-up"],
+      "displayName": null
+    },
+    {
+      "characterId": "fugue",
+      "avatarId": 1225,
+      "roleIds": [122502],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["interastral-traveler", "break"],
+      "displayName": null
+    },
+    {
+      "characterId": "aventurine",
+      "avatarId": 1304,
+      "roleIds": [130402],
+      "cost": 4,
+      "position": "front-back",
+      "traitIds": ["interastral-traveler", "follow-up", "protection"],
+      "displayName": null
+    },
+    {
+      "characterId": "sparkle",
+      "avatarId": 1306,
+      "roleIds": [130602],
+      "cost": 2,
+      "position": "front",
+      "traitIds": ["little-giant", "intertwined-dreamscapes", "elation"],
+      "displayName": null
+    },
+    {
+      "characterId": "black-swan",
+      "avatarId": 1307,
+      "roleIds": [130702],
+      "cost": 1,
+      "position": "back",
+      "traitIds": ["intertwined-dreamscapes", "damage-over-time"],
+      "displayName": null
+    },
+    {
+      "characterId": "acheron",
+      "avatarId": 1308,
+      "roleIds": [130802],
+      "cost": 4,
+      "position": "front",
+      "traitIds": ["intertwined-dreamscapes", "aoe"],
+      "displayName": null
+    },
+    {
+      "characterId": "robin",
+      "avatarId": 1309,
+      "roleIds": [130902],
+      "cost": 2,
+      "position": "front",
+      "traitIds": ["girls-band", "follow-up"],
+      "displayName": null
+    },
+    {
+      "characterId": "firefly",
+      "avatarId": 1310,
+      "roleIds": [131002],
+      "cost": 2,
+      "position": "front",
+      "traitIds": ["stellaron-hunters", "break"],
+      "displayName": null
+    },
+    {
+      "characterId": "sunday",
+      "avatarId": 1313,
+      "roleIds": [131302],
+      "cost": 2,
+      "position": "front-back",
+      "traitIds": ["phantasmoon-games", "trailblaze-silver-rail", "combo"],
+      "displayName": null
+    },
+    {
+      "characterId": "jade",
+      "avatarId": 1314,
+      "roleIds": [131402],
+      "cost": 5,
+      "position": "back",
+      "traitIds": ["astropolis-merchant-guild", "aoe", "black-market-manager"],
+      "displayName": null
+    },
+    {
+      "characterId": "boothill",
+      "avatarId": 1315,
+      "roleIds": [131502],
+      "cost": 1,
+      "position": "front",
+      "traitIds": ["interastral-traveler", "break"],
+      "displayName": null
+    },
+    {
+      "characterId": "rappa",
+      "avatarId": 1317,
+      "roleIds": [131702],
+      "cost": 3,
+      "position": "back",
+      "traitIds": ["girls-band", "break"],
+      "displayName": null
+    },
+    {
+      "characterId": "the-dahlia",
+      "avatarId": 1321,
+      "roleIds": [132102],
+      "cost": 3,
+      "position": "front-back",
+      "traitIds": ["intertwined-dreamscapes", "break"],
+      "displayName": null
+    },
+    {
+      "characterId": "the-herta",
+      "avatarId": 1401,
+      "roleIds": [140102],
+      "cost": 2,
+      "position": "front",
+      "traitIds": ["interastral-traveler", "aoe"],
+      "displayName": null
+    },
+    {
+      "characterId": "aglaea",
+      "avatarId": 1402,
+      "roleIds": [140202],
+      "cost": 5,
+      "position": "front",
+      "traitIds": ["beast-garden", "combo"],
+      "displayName": null
+    },
+    {
+      "characterId": "tribbie",
+      "avatarId": 1403,
+      "roleIds": [140302],
+      "cost": 4,
+      "position": "front-back",
+      "traitIds": ["little-giant", "follow-up"],
+      "displayName": null
+    },
+    {
+      "characterId": "mydei",
+      "avatarId": 1404,
+      "roleIds": [140402],
+      "cost": 2,
+      "position": "front-back",
+      "traitIds": ["beast-garden", "grand-restaurant", "counter"],
+      "displayName": null
+    },
+    {
+      "characterId": "anaxa",
+      "avatarId": 1405,
+      "roleIds": [140502],
+      "cost": 1,
+      "position": "front",
+      "traitIds": ["beast-garden", "combo"],
+      "displayName": null
+    },
+    {
+      "characterId": "cipher",
+      "avatarId": 1406,
+      "roleIds": [140602],
+      "cost": 3,
+      "position": "back",
+      "traitIds": ["beast-garden", "aoe"],
+      "displayName": null
+    },
+    {
+      "characterId": "castorice",
+      "avatarId": 1407,
+      "roleIds": [140702],
+      "cost": 3,
+      "position": "front-back",
+      "traitIds": ["grand-restaurant", "summon"],
+      "displayName": null
+    },
+    {
+      "characterId": "phainon",
+      "avatarId": 1408,
+      "roleIds": [140802],
+      "cost": 5,
+      "position": "front-back",
+      "traitIds": ["grand-restaurant", "flame-reaver"],
+      "displayName": null
+    },
+    {
+      "characterId": "hyacine",
+      "avatarId": 1409,
+      "roleIds": [140902],
+      "cost": 4,
+      "position": "front-back",
+      "traitIds": ["beast-garden", "summon", "healing"],
+      "displayName": null
+    },
+    {
+      "characterId": "hysilens",
+      "avatarId": 1410,
+      "roleIds": [141002],
+      "cost": 2,
+      "position": "front-back",
+      "traitIds": ["beast-garden", "damage-over-time"],
+      "displayName": null
+    },
+    {
+      "characterId": "cerydra",
+      "avatarId": 1412,
+      "roleIds": [141202],
+      "cost": 1,
+      "position": "back",
+      "traitIds": ["little-giant", "combo"],
+      "displayName": null
+    },
+    {
+      "characterId": "evernight",
+      "avatarId": 1413,
+      "roleIds": [141302],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["beast-garden", "intertwined-dreamscapes", "summon"],
+      "displayName": null
+    },
+    {
+      "characterId": "dan-heng-permansor-terrae",
+      "avatarId": 1414,
+      "roleIds": [141402],
+      "cost": 5,
+      "position": "back",
+      "traitIds": ["twin-dragons-call"],
+      "displayName": null
+    },
+    {
+      "characterId": "cyrene",
+      "avatarId": 1415,
+      "roleIds": [141502],
+      "cost": 4,
+      "position": "front",
+      "traitIds": ["grand-restaurant", "summon"],
+      "displayName": null
+    },
+    {
+      "characterId": "sparxie",
+      "avatarId": 1501,
+      "roleIds": [150102],
+      "cost": 1,
+      "position": "front-back",
+      "traitIds": ["phantasmoon-games", "girls-band", "elation"],
+      "displayName": null
+    },
+    {
+      "characterId": "yao-guang",
+      "avatarId": 1502,
+      "roleIds": [150202],
+      "cost": 3,
+      "position": "back",
+      "traitIds": ["astropolis-merchant-guild", "elation"],
+      "displayName": null
+    },
+    {
+      "characterId": "pearl",
+      "avatarId": 1503,
+      "roleIds": [150302],
+      "cost": 1,
+      "position": "back",
+      "traitIds": ["phantasmoon-games", "astropolis-merchant-guild", "protection"],
+      "displayName": null
+    },
+    {
+      "characterId": "ashveil",
+      "avatarId": 1504,
+      "roleIds": [150402],
+      "cost": 5,
+      "position": "back",
+      "traitIds": ["phantasmoon-games", "follow-up", "galaxy-rangers"],
+      "displayName": null
+    },
+    {
+      "characterId": "evanescia",
+      "avatarId": 1505,
+      "roleIds": [150502],
+      "cost": 2,
+      "position": "front-back",
+      "traitIds": ["phantasmoon-games", "energy"],
+      "displayName": null
+    },
+    {
+      "characterId": "silver-wolf-lv-999",
+      "avatarId": 1506,
+      "roleIds": [150602],
+      "cost": 3,
+      "position": "front",
+      "traitIds": ["phantasmoon-games", "stellaron-hunters", "elation"],
+      "displayName": null
+    },
+    {
+      "characterId": "mortenax-blade",
+      "avatarId": 1507,
+      "roleIds": [150702],
+      "cost": 4,
+      "position": "front-back",
+      "traitIds": ["phantasmoon-games", "stellaron-hunters", "aoe"],
+      "displayName": null
+    },
+    {
+      "characterId": "himeko-nova",
+      "avatarId": 1510,
+      "roleIds": [151002],
+      "cost": 4,
+      "position": "front",
+      "traitIds": ["trailblaze-silver-rail", "energy"],
+      "displayName": null
+    },
+    {
+      "characterId": "aeon-aha",
+      "avatarId": 1511,
+      "roleIds": [151112, 151122, 151132],
+      "cost": [4, 5, 7],
+      "position": "front",
+      "traitIds": ["elation", "master-of-phantasia"],
+      "displayName": null
+    },
+    {
+      "characterId": "robin-summeretto",
+      "avatarId": 1512,
+      "roleIds": [151202],
+      "cost": 2,
+      "position": "front-back",
+      "traitIds": ["astropolis-merchant-guild", "summon", "energy"],
+      "displayName": null
+    },
+    {
+      "characterId": "aventurine-waveflair",
+      "avatarId": 1513,
+      "roleIds": [151302],
+      "cost": 4,
+      "position": "front",
+      "traitIds": ["astropolis-merchant-guild", "elation"],
+      "displayName": null
+    },
+    {
+      "characterId": "trailblazer-elation",
+      "avatarId": 8009,
+      "roleIds": [800902],
+      "cost": 3,
+      "position": "front-back",
+      "traitIds": ["trailblaze-silver-rail", "stellaron-hunters", "energy"],
+      "displayName": "开拓者·欢愉"
+    }
+  ],
+  "traits": [
+    {
+      "id": "combo",
+      "gameTraitId": 200402,
+      "names": {
+        "zh-CN": "连击",
+        "en": "Combo",
+        "ja": "連撃"
+      },
+      "type": "school"
+    },
+    {
+      "id": "follow-up",
+      "gameTraitId": 200102,
+      "names": {
+        "zh-CN": "追击",
+        "en": "Follow-Up ATK",
+        "ja": "追加攻撃"
+      },
+      "type": "school"
+    },
+    {
+      "id": "damage-over-time",
+      "gameTraitId": 200202,
+      "names": {
+        "zh-CN": "持续伤害",
+        "en": "DoT",
+        "ja": "持続ダメージ"
+      },
+      "type": "school"
+    },
+    {
+      "id": "aoe",
+      "gameTraitId": 200302,
+      "names": {
+        "zh-CN": "群攻",
+        "en": "AoE ATK",
+        "ja": "全体攻撃"
+      },
+      "type": "school"
+    },
+    {
+      "id": "break",
+      "gameTraitId": 200502,
+      "names": {
+        "zh-CN": "击破",
+        "en": "Break",
+        "ja": "弱点撃破"
+      },
+      "type": "school"
+    },
+    {
+      "id": "summon",
+      "gameTraitId": 200602,
+      "names": {
+        "zh-CN": "召唤",
+        "en": "Summon",
+        "ja": "召喚"
+      },
+      "type": "school"
+    },
+    {
+      "id": "elation",
+      "gameTraitId": 200702,
+      "names": {
+        "zh-CN": "欢愉",
+        "en": "Elation",
+        "ja": "愉悦"
+      },
+      "type": "school"
+    },
+    {
+      "id": "counter",
+      "gameTraitId": 200802,
+      "names": {
+        "zh-CN": "反击",
+        "en": "Counter",
+        "ja": "カウンター"
+      },
+      "type": "school"
+    },
+    {
+      "id": "energy",
+      "gameTraitId": 200902,
+      "names": {
+        "zh-CN": "能量",
+        "en": "Energy",
+        "ja": "EP"
+      },
+      "type": "school"
+    },
+    {
+      "id": "healing",
+      "gameTraitId": 201002,
+      "names": {
+        "zh-CN": "治疗",
+        "en": "Heal",
+        "ja": "治癒"
+      },
+      "type": "school"
+    },
+    {
+      "id": "protection",
+      "gameTraitId": 201102,
+      "names": {
+        "zh-CN": "守护",
+        "en": "Defender",
+        "ja": "ガーディアン"
+      },
+      "type": "school"
+    },
+    {
+      "id": "xianzhou-fleet",
+      "gameTraitId": 100102,
+      "names": {
+        "zh-CN": "仙舟舰队",
+        "en": "Xianzhou Fleet",
+        "ja": "仙舟艦隊"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "beast-garden",
+      "gameTraitId": 100202,
+      "names": {
+        "zh-CN": "奇兽花园",
+        "en": "Beast Garden",
+        "ja": "奇獣の花園"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "phantasmoon-games",
+      "gameTraitId": 100302,
+      "names": {
+        "zh-CN": "幻月游戏",
+        "en": "Phantasmoon Games",
+        "ja": "幻月遊儀"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "interastral-traveler",
+      "gameTraitId": 100402,
+      "names": {
+        "zh-CN": "星间旅人",
+        "en": "Galactic Voyager",
+        "ja": "星の旅人"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "trailblaze-silver-rail",
+      "gameTraitId": 100502,
+      "names": {
+        "zh-CN": "开拓银轨",
+        "en": "Trailblaze Silver Rail",
+        "ja": "開拓のレール"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "astropolis-merchant-guild",
+      "gameTraitId": 100602,
+      "names": {
+        "zh-CN": "千星商会",
+        "en": "Astropolis Merchant Guild",
+        "ja": "千星商会"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "high-cloud-quintet",
+      "gameTraitId": 100702,
+      "names": {
+        "zh-CN": "云上五骁",
+        "en": "High-Cloud Quintet",
+        "ja": "雲上の五騎士"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "stellaron-hunters",
+      "gameTraitId": 100802,
+      "names": {
+        "zh-CN": "星核猎手",
+        "en": "Stellaron Hunters",
+        "ja": "星核ハンター"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "little-giant",
+      "gameTraitId": 100902,
+      "names": {
+        "zh-CN": "小小巨人",
+        "en": "Little Giant",
+        "ja": "小さな巨人"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "intertwined-dreamscapes",
+      "gameTraitId": 101002,
+      "names": {
+        "zh-CN": "梦境交织",
+        "en": "Intertwined Dreamscapes",
+        "ja": "織りなす夢境"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "girls-band",
+      "gameTraitId": 101102,
+      "names": {
+        "zh-CN": "少女乐队",
+        "en": "Girls Band",
+        "ja": "ガールズバンド"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "grand-restaurant",
+      "gameTraitId": 101202,
+      "names": {
+        "zh-CN": "黄金大饭店",
+        "en": "The Grand Restaurant",
+        "ja": "黄金食堂"
+      },
+      "type": "faction"
+    },
+    {
+      "id": "twin-dragons-call",
+      "gameTraitId": 300102,
+      "names": {
+        "zh-CN": "双龙吟",
+        "en": "Twin Dragons' Call",
+        "ja": "双龍吟"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "flame-reaver",
+      "gameTraitId": 300202,
+      "names": {
+        "zh-CN": "盗火行者",
+        "en": "Flame Reaver",
+        "ja": "フレイムスティーラー"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "joint-follow-up",
+      "gameTraitId": 400102,
+      "names": {
+        "zh-CN": "连携追击",
+        "en": "Joint Follow-Up ATK",
+        "ja": "連携追加攻撃"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "galaxy-rangers",
+      "gameTraitId": 300302,
+      "names": {
+        "zh-CN": "巡海游侠",
+        "en": "Galaxy Ranger",
+        "ja": "巡海レンジャー"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "black-market-manager",
+      "gameTraitId": 300402,
+      "names": {
+        "zh-CN": "黑市主理人",
+        "en": "Black Market Manager",
+        "ja": "闇市の管理人"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "ingenious-artificer",
+      "gameTraitId": 300502,
+      "names": {
+        "zh-CN": "机心巧匠",
+        "en": "Ingenious Artificer",
+        "ja": "からくりの名工"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "four-dimensional-frenzy",
+      "gameTraitId": 400202,
+      "names": {
+        "zh-CN": "四维狂潮",
+        "en": "Four-Dimensional Frenzy",
+        "ja": "四次元フィーバー"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "star-hunt-oath",
+      "gameTraitId": 400302,
+      "names": {
+        "zh-CN": "星狩誓言",
+        "en": "Star Hunt Oath",
+        "ja": "星狩の誓い"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "savior",
+      "gameTraitId": 400402,
+      "names": {
+        "zh-CN": "救世主",
+        "en": "Deliverer",
+        "ja": "救世主"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "master-of-phantasia",
+      "gameTraitId": 300602,
+      "names": {
+        "zh-CN": "幻乐之主",
+        "en": "Master of Phantasia",
+        "ja": "幻楽の主"
+      },
+      "type": "independent"
+    },
+    {
+      "id": "apprenticeship",
+      "gameTraitId": 400502,
+      "names": {
+        "zh-CN": "从师",
+        "en": "Apprenticeship",
+        "ja": "師事"
+      },
+      "type": "independent"
+    }
+  ]
+}

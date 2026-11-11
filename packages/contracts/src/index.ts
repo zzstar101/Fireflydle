@@ -182,8 +182,8 @@ const CurrencyWarsAssetSchema = z.strictObject({
 });
 
 const CurrencyWarsCostSchema = z.union([
-  z.number().int().min(1).max(5),
-  z.array(z.number().int().min(1).max(5)).min(2).max(5),
+  z.number().int().min(1).max(7),
+  z.array(z.number().int().min(1).max(7)).min(2).max(5),
 ]);
 
 export const CurrencyWarsUnitSummarySchema = z.strictObject({

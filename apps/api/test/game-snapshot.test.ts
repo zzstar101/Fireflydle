@@ -165,8 +165,8 @@ describe("单人模式快照迁移", () => {
       "synergies",
     ]);
     expect(guessed.guesses[0]?.character).toHaveProperty("synergies", [
-      "break",
       "stellaron-hunters",
+      "break",
     ]);
     expect(guessed.guesses[0]?.cells.find((cell) => cell.field === "synergies")).not.toHaveProperty(
       "matchedSynergy",

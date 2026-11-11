@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-10-18",
-  "sourceRevision": "hoyo-content-v2-97a6e706871b+starrailres-dbe8cdfcfb0b+overrides-c09562637530",
+  "asOf": "2026-11-11",
+  "sourceRevision": "hoyo-content-v2-6c2afd3518da+starrailres-dbe8cdfcfb0b+overrides-c09562637530",
   "rightsNotice": "Game names and artwork © their respective rights holders. Obtained from an official HoYoverse surface for this unofficial, non-commercial fan project.",
   "policy": "Each audited local thumbnail has deterministic 40/80/160px AVIF and WebP derivatives; the source PNG remains the final fallback.",
   "files": [
@@ -1246,12 +1246,12 @@
       "sourceUrl": "/assets/portraits/1410.png"
     },
     {
-      "bytes": 24844,
+      "bytes": 24997,
       "format": "json",
       "mimeType": "application/json",
       "path": "/assets/character-art/index.json",
       "roles": ["character-art", "index", "fallback"],
-      "sha256": "8e8b265f7f912ea8ff6711c64b0bdc7265cfea05c107af20fc9689bdebe8babb"
+      "sha256": "b64f1dc5f438ede89b1cb45ea2c34681c797c161734704dc38cc4d9081787804"
     },
     {
       "bytes": 26607,
@@ -1734,6 +1734,16 @@
       "sourceUrl": "/assets/portraits/1105.png"
     },
     {
+      "bytes": 25142,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/character-art/pearl-head-0540e782c4de.webp",
+      "roles": ["character-art", "head", "fallback"],
+      "sha256": "d3a190648b2ee81cf0bb6bee2e67d503c4a77775cd84d2c611f5ffc625aa6dd7",
+      "sourceKind": "starrailres-icon-upscaled",
+      "sourceUrl": "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/character/1503.png"
+    },
+    {
       "bytes": 25867,
       "format": "json",
       "mimeType": "application/json",
@@ -1854,14 +1864,14 @@
       "sourceUrl": "/assets/portraits/1317.png"
     },
     {
-      "bytes": 207968,
+      "bytes": 210414,
       "format": "webp",
       "mimeType": "image/webp",
-      "path": "/assets/character-art/replay-sprite-b6c230351eae.webp",
+      "path": "/assets/character-art/replay-sprite-5706d8b5d79f.webp",
       "roles": ["character-art", "sprite", "fallback"],
-      "sha256": "a1bd3079b035afdb97715fc6fd1ee28af2b7e5af431672196e50e5c67646aa81",
+      "sha256": "8861e682a224cf154cd4221fa7979b416b7c12cc8bd34624d7218300bdd62644",
       "sourceKind": "sprite-sheet",
-      "sourceUrl": "/assets/character-art/replay-sprite-b6c230351eae.webp"
+      "sourceUrl": "/assets/character-art/replay-sprite-5706d8b5d79f.webp"
     },
     {
       "bytes": 19211,
@@ -2817,6 +2827,81 @@
       "sha256": "7676548cd1fdb7cf3b53888c138bbbbdcbd703baeb8f884ba24bfcbe1dcb0919",
       "sourceKind": "hoyoverse-content-api",
       "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/122837/7bbabff9dde54156d00585fc1d45605b_4199325960554656142.png"
+    },
+    {
+      "bytes": 6474,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6-160.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "09ad67499f98334c3eada46fe9ffe485828ba3f67f50221f49a428a9ffd6882c",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png",
+      "width": 160
+    },
+    {
+      "bytes": 8876,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6-160.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "94b1f7721a30baf950a1fb9a3e312ab6e5d54fcbf607e2059a645ca0ae36c667",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png",
+      "width": 160
+    },
+    {
+      "bytes": 1137,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6-40.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "16288391f108c452c165f4b615a2dadc1c16a1f227d9032305cb2b0b07c22e39",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png",
+      "width": 40
+    },
+    {
+      "bytes": 1226,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6-40.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "b83afd777dcbdfe612564d47200a240f33605bfc1263930172a83c0879720bd3",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png",
+      "width": 40
+    },
+    {
+      "bytes": 2525,
+      "format": "avif",
+      "mimeType": "image/avif",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6-80.avif",
+      "roles": ["avatar", "responsive"],
+      "sha256": "19fbcfe7f100b532006ed6e06c1830db38bd793f73b28fb2497b946b1764fe01",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png",
+      "width": 80
+    },
+    {
+      "bytes": 2976,
+      "format": "webp",
+      "mimeType": "image/webp",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6-80.webp",
+      "roles": ["avatar", "responsive"],
+      "sha256": "f2522bf71306bff266e4c27722cd2b966ec02898b6dc05e6c9e36ff9218d8116",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png",
+      "width": 80
+    },
+    {
+      "bytes": 70319,
+      "mimeType": "image/png",
+      "path": "/assets/characters/aeon-aha-avatar-785110f25cc6.png",
+      "roles": ["avatar", "portrait", "fallback"],
+      "sha256": "785110f25cc62ae17bd08f3dc4ba2d12b7629cbb9ac13483fcbd9f25a7cd860e",
+      "sourceKind": "hoyoverse-content-api",
+      "sourceUrl": "https://fastcdn.hoyoverse.com/content-v2/hkrpg/167054/2f23a0db7a6dcbee1d72234bdf31c8a6_5967468197076167111.png"
     },
     {
       "bytes": 6574,

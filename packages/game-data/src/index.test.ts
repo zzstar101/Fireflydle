@@ -96,6 +96,21 @@ describe("4.6 角色同步", () => {
   });
 });
 
+describe("4.7 角色同步", () => {
+  test("星神★阿哈进入普通角色题池并使用官方内容身份", () => {
+    const aha = characters.find((character) => character.id === "aeon-aha");
+    expect(aha).toMatchObject({
+      officialId: "hoyo:89",
+      names: { "zh-CN": "星神★阿哈", en: "Aeon ★ Aha", ja: "星神★アッハ" },
+      element: "quantum",
+      path: "elation",
+      rarity: 5,
+      releaseVersionId: "4.7",
+    });
+    expect(aha?.targetEligible).toBeTrue();
+  });
+});
+
 describe("NPC 正式题池", () => {
   test("只发布审核通过的三名正式 target", () => {
     const mode = npcManifest.modes.find((entry) => entry.id === "npc");
@@ -150,17 +165,17 @@ describe("货币战争独立规则集", () => {
     expect(mode?.maxAttempts).toBe(6);
     expect(mode?.fields.map((field) => field.id)).toEqual(["cost", "position", "synergies"]);
     expect(candidatePool?.candidateIds.length).toBe(targetPool?.targetIds.length ?? 0);
-    expect(candidatePool?.candidateIds.length).toBe(72);
+    expect(candidatePool?.candidateIds.length).toBe(60);
     expect(candidatePool?.candidateIds).toContain("cw-acheron");
     expect(currencyWarsRuleset.units.some((unit) => unit.id === "cw-acheron")).toBeTrue();
     expect(currencyWarsRuleset.units.find((unit) => unit.id === "cw-acheron")?.synergies).toEqual([
-      "debuff",
-      "galaxy-rangers",
+      "intertwined-dreamscapes",
+      "aoe",
     ]);
     expect(currencyWarsRuleset.units.every((unit) => unit.id.startsWith("cw-"))).toBeTrue();
-    expect(
-      currencyWarsRuleset.units.find((unit) => unit.id === "cw-silver-wolf-lv-999")?.cost,
-    ).toEqual([3, 4, 5]);
+    expect(currencyWarsRuleset.units.find((unit) => unit.id === "cw-aeon-aha")?.cost).toEqual([
+      4, 5, 7,
+    ]);
     expect(
       currencyWarsRuleset.units.every(
         (unit) => unit.assets.avatarPath && unit.synergies.length > 0,
