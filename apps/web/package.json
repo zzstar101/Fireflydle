@@ -15,7 +15,7 @@
     "@fireflydle/game-data": "workspace:*",
     "@fireflydle/game-engine": "workspace:*",
     "@tanstack/react-query": "^5.107.1",
-    "i18next": "^26.4.6",
+    "i18next": "^27.1.1",
     "lucide-react": "^1.70.0",
     "qrcode": "^1.5.4",
     "react": "^19.3.1",
